@@ -1,12 +1,38 @@
 {
   "compilerOptions": {
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true
+    /* Base Options */
+    "target": "ES2022",               // Target modern ECMAScript features (aligns well with NodeNext/Vite)
+    "useDefineForClassFields": true, // Needed for standard class fields
+    "moduleResolution": "NodeNext",  // Use modern Node resolution for ESM/CJS interop
+    "esModuleInterop": true,         // Enables compatibility between CJS and ESM
+    "allowSyntheticDefaultImports": true, // Allows default imports from modules with no default export
+    "forceConsistentCasingInFileNames": true, // Prevents case-related import errors
+    "isolatedModules": true,         // Ensures files can be transpiled independently (good for build tools)
+
+    /* Strictness */
+    "strict": true,                  // Enable all strict type-checking options
+    // "noImplicitAny": true,        // Raise error on expressions and declarations with an implied 'any' type. (Included in strict)
+    // "strictNullChecks": true,     // Enable strict null checks. (Included in strict)
+    // "strictFunctionTypes": true,  // Enable strict checking of function types. (Included in strict)
+    // "strictBindCallApply": true,  // Enable strict 'bind', 'call', and 'apply' methods on functions. (Included in strict)
+    // "strictPropertyInitialization": true, // Check for class properties that are declared but not set in the constructor. (Included in strict)
+    // "noImplicitThis": true,       // Raise error on 'this' expressions with an implied 'any' type. (Included in strict)
+    // "alwaysStrict": true,         // Parse in strict mode and emit "use strict" for each source file. (Included in strict)
+    "noUnusedLocals": true,          // Report errors on unused local variables.
+    "noUnusedParameters": true,      // Report errors on unused parameters.
+    "noImplicitReturns": true,       // Report error when not all code paths in function return a value.
+    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statement.
+
+    /* Source Map & Declaration Options (Good for Libraries/Debugging) */
+    "sourceMap": true,               // Generate corresponding '.map' file.
+    "declaration": true,             // Generate corresponding '.d.ts' file.
+    "declarationMap": true,          // Generate sourcemaps for declarations.
+
+    /* Module/Import Options */
+    "resolveJsonModule": true,       // Include modules imported with '.json' extension
+
+    /* Other */
+    "skipLibCheck": true,            // Skip type checking of all declaration files (*.d.ts). Speeds up compilation.
+    "allowJs": false                 // Disallow JavaScript files to be compiled (optional, enforces TS usage)
   }
 }

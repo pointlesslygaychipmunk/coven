@@ -109,8 +109,24 @@ export class GameHandler {
 
   // Rumor system actions
 
-  // Spread a rumor to increase its effect
-  spreadRumor(playerId: string, rumorId: string): GameState {
-    console.log(`[GameHandler] Spread Rumor action: P:${playerId}, RumorID:${rumorId}`);
-    const success = spreadRumor(this.engine.state, playerId, rumorId); // Use helper directly
-    if(
+// Inside spreadRumor function in gameHandler.ts (Corrected)
+spreadRumor(playerId: string, rumorId: string): GameState {
+  console.log(`[GameHandler] Spread Rumor action: P:${playerId}, RumorID:${rumorId}`);
+  const success = spreadRumor(this.engine.state, playerId, rumorId); // Use helper directly
+
+  const player = this.engine.state.players.find(p => p.id === playerId); // Find player *once*
+
+  if (success) {
+      this.engine.addJournal(`${player?.name || playerId} attempted to spread rumor ${rumorId}.`, 'market', 2);
+      // Quest check for spreading rumors
+      if (player) { // Check if player was found before using it
+          // Pass the correct state object and details
+          checkQuestStepCompletion(this.engine.state, player, 'spreadRumor', { rumorId: rumorId });
+      } else {
+           console.warn(`[GameHandler] Player ${playerId} not found for quest check after spreading rumor.`);
+      }
+  } else {
+      this.engine.addJournal(`Failed to spread rumor ${rumorId}.`, 'market', 1);
+  }
+  return this.engine.getState();
+}
