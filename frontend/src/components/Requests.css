@@ -1,0 +1,149 @@
+/* frontend/src/components/Requests.css */
+/* Styles for the standalone Town Requests view */
+
+.requests-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-panel); /* Use panel background */
+  color: var(--color-text-light);
+  border-radius: var(--border-radius-lg);
+  padding: 25px;
+  box-shadow: var(--shadow-inset), var(--shadow-soft);
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.requests-header {
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.requests-header h2 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-weight: 500;
+  font-size: 26px;
+  letter-spacing: 1px;
+  font-family: var(--font-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.requests-icon { /* Optional icon */
+    font-size: 24px;
+    color: var(--color-accent-primary);
+}
+
+.requests-list-area {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px; /* Space for scrollbar */
+    margin-right: -10px; /* Offset scrollbar */
+}
+
+.request-list { /* Shared styles with Market.css are fine */
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Slightly larger gap */
+}
+
+.request-list.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--color-text-medium);
+    font-style: italic;
+    height: 100%;
+    font-size: 15px;
+}
+
+.request-item { /* Shared styles with Market.css */
+  background-color: var(--color-bg-light);
+  border-radius: var(--border-radius-sm);
+  padding: 15px; /* More padding */
+  border: 1px solid var(--color-border);
+  display: flex;
+  gap: 15px;
+  transition: all 0.2s ease;
+  cursor: default; /* Not clickable by default unless details are shown */
+}
+.request-item:hover {
+  border-color: var(--color-accent-primary);
+  background-color: var(--color-border);
+}
+
+.request-icon { /* Shared styles */
+  width: 45px; /* Slightly larger */
+  height: 45px;
+  background-color: var(--color-bg-panel);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+  font-size: 20px;
+  color: var(--color-accent-primary);
+  border: 1px solid var(--color-border-light);
+}
+
+.request-details { flex: 1; min-width: 0; }
+.request-requester { font-size: 16px; color: var(--color-text-light); margin-bottom: 5px; font-weight: 500; font-family: var(--font-primary); }
+.request-description { font-size: 14px; color: var(--color-text-medium); margin-bottom: 12px; font-family: var(--font-secondary); line-height: 1.4; }
+
+.request-rewards { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-bottom: 12px; }
+.request-reward { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.request-reward-gold { color: var(--color-accent-secondary); font-weight: 500;}
+.request-reward-influence { color: var(--color-info); font-weight: 500;}
+.request-reward::before { /* Icons for rewards */
+    font-size: 16px;
+    line-height: 1;
+}
+.request-reward-gold::before { content: '💰'; }
+.request-reward-influence::before { content: '⭐'; }
+
+
+.request-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.request-difficulty { /* Shared styles */
+  display: flex;
+  color: var(--color-warning);
+  font-size: 13px;
+  letter-spacing: 1.5px; /* Space out stars */
+}
+
+.fulfill-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    font-family: var(--font-primary);
+    font-weight: 500;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.fulfill-button.can-fulfill {
+    background-color: var(--color-success);
+    color: var(--color-bg-dark);
+    border: none;
+}
+.fulfill-button.cant-fulfill {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-dark);
+    border: 1px solid var(--color-border);
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+.fulfill-button.can-fulfill:hover {
+    background-color: #98d691;
+    transform: translateY(-1px);
+}

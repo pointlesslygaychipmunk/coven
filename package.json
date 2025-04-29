@@ -1,0 +1,28 @@
+{
+  "name": "coven",
+  "version": "1.0.0",
+  "description": "Coven - a hanbang-inspired skincare witch simulation game",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm:dev:shared\" \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:shared": "npm run dev --workspace=coven-shared",
+    "dev:frontend": "npm run dev --workspace=coven-frontend",
+    "dev:backend": "npm run dev --workspace=coven-backend",
+    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "build:shared": "npm run build --workspace=coven-shared",
+    "build:backend": "npm run build --workspace=coven-backend",
+    "build:frontend": "npm run build --workspace=coven-frontend",
+    "start": "npm run start --workspace=coven-backend",
+    "postinstall": "npm run build:shared"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.5.4"
+  }
+}

@@ -1,0 +1,97 @@
+/* frontend/src/components/App.css */
+/* Base layout and styling for the main App component */
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Full viewport height */
+    width: 100vw;  /* Full viewport width */
+    background-color: var(--color-bg-dark);
+    position: relative; /* Needed for absolute positioned overlays */
+    overflow: hidden; /* Prevent scrolling at the game container level */
+  }
+  
+  .game-content {
+    flex: 1; /* Take remaining vertical space */
+    padding: 20px;
+    padding-top: 90px; /* Adjust based on HUD height to prevent overlap */
+    overflow-y: auto; /* Allow content area to scroll if needed */
+    position: relative; /* For stacking context */
+    z-index: 1; /* Ensure content is above background overlays but below HUD */
+  }
+  
+  /* Loading Screen Styles */
+  .loading-screen, .error-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-heading);
+    text-align: center;
+    padding: 20px;
+    position: absolute; /* Cover everything */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 200; /* Above everything else */
+  }
+  
+  .loading-screen h1, .error-screen h1 {
+    font-family: var(--font-primary);
+    font-weight: normal;
+    margin-bottom: 25px;
+    letter-spacing: 1.5px;
+  }
+  
+  .loading-icon {
+    width: 60px;
+    height: 60px;
+    border: 5px solid var(--color-border);
+    border-top: 5px solid var(--color-accent-primary);
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+    box-shadow: 0 0 20px rgba(181, 157, 196, 0.2);
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Error Screen Styles */
+  .error-screen h1 {
+    color: var(--color-danger);
+  }
+  
+  .error-screen p {
+    max-width: 500px;
+    margin-bottom: 30px;
+    font-family: var(--font-secondary);
+    line-height: 1.6;
+    color: var(--color-text-medium);
+  }
+  
+  .error-screen button {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border);
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+  }
+  
+  .error-screen button:hover {
+    background-color: var(--color-border);
+    transform: translateY(-2px);
+  }
+  
+  /* Placeholder for specific game view styles if needed */
+  /* Example:
+  .garden-view {
+    background-image: url('/images/garden_background.jpg');
+    background-size: cover;
+  } */

@@ -1,0 +1,18 @@
+```css
+.lunar-phase-icon {
+  display: inline-block;
+  background-color: transparent;
+  transition: transform 0.3s ease;
+}
+
+.lunar-phase-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Add basic styles for SVG fill/stroke if needed */
+.lunar-phase-icon svg path,
+.lunar-phase-icon svg circle {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+```

@@ -1,0 +1,514 @@
+.garden-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #1a1a24;
+    color: #d8c9a7;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Cinzel', serif;
+  }
+
+  .garden-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #64526f;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+
+  .garden-header h2 {
+    margin: 0;
+    color: #b68e65;
+    font-weight: normal;
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+
+  .garden-indicators {
+    display: flex;
+    gap: 15px;
+  }
+
+  .weather-indicator, .season-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: #2a2a3a;
+    border-radius: 20px;
+    border: 1px solid #483d66;
+  }
+
+  .weather-icon, .season-icon {
+    font-size: 18px;
+  }
+
+  .weather-label, .season-label {
+    font-size: 14px;
+    color: #b59dc4;
+  }
+
+  .garden-content {
+    display: flex;
+    height: calc(100% - 70px);
+    gap: 20px;
+  }
+
+  .garden-grid {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    background-color: #2a2a3a;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .garden-row {
+    display: flex;
+    gap: 15px;
+    height: calc(33.33% - 10px);
+  }
+
+  .garden-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .plot-details, .inventory-panel {
+    background-color: #2a2a3a;
+    border-radius: 8px;
+    padding: 15px;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .plot-details h3, .inventory-panel h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #b59dc4;
+    font-size: 18px;
+    font-weight: normal;
+  }
+
+  .plot-details.empty, .inventory-panel.empty {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #7a6c95;
+    font-style: italic;
+  }
+
+  .plot-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .plot-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .stat-label {
+    width: 70px;
+    font-size: 14px;
+    color: #a294b8;
+  }
+
+  .stat-bar {
+    flex: 1;
+    height: 8px;
+    background-color: #1f1d2c;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stat-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease; /* Add transition */
+  }
+
+  .stat-fill.fertility {
+    background-color: #7eba76;
+  }
+
+  .stat-fill.moisture {
+    background-color: #6fa6cc;
+  }
+
+  .stat-fill.sunlight {
+    background-color: #d6a44c;
+  }
+
+  .stat-value {
+    width: 40px;
+    font-size: 14px;
+    text-align: right;
+    color: #a294b8;
+  }
+
+  .plant-info {
+    background-color: #342f48;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .plant-info h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #d8c9a7;
+    font-size: 16px;
+    font-weight: normal;
+  }
+
+  .plant-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .progress-label {
+    width: 60px;
+    font-size: 14px;
+    color: #a294b8;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background-color: #1f1d2c;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #b59dc4;
+    border-radius: 5px;
+     transition: width 0.3s ease; /* Add transition */
+  }
+
+  .progress-value {
+    width: 40px;
+    font-size: 14px;
+    text-align: right;
+    color: #a294b8;
+  }
+
+  .plant-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .plant-stat {
+    flex: 1;
+    text-align: center;
+    background-color: #2a2a3a;
+    border-radius: 6px;
+    padding: 8px;
+  }
+
+  .plant-stat .stat-label {
+    width: auto;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+
+  .plant-stat .stat-value {
+    width: auto;
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    color: #d8c9a7;
+  }
+
+  .plant-blessing, .plant-season, .plant-status {
+    background-color: #2a2a3a;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+  }
+
+  .plant-blessing {
+    color: #b59dc4;
+    border: 1px dashed #5d468a;
+  }
+
+  .plant-season .boost {
+    color: #7eba76;
+  }
+
+  .plant-season .penalty {
+    color: #c75e54;
+  }
+
+  .empty-plot-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px; /* Add margin */
+  }
+
+  .empty-plot-actions p {
+    text-align: center;
+    color: #7a6c95;
+    font-style: italic;
+    margin: 0 0 10px;
+  }
+
+  .action-button {
+    padding: 10px 20px;
+    background-color: #483d66;
+    color: #d8c9a7;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+
+  .action-button:hover:not(:disabled) { /* Ensure hover only applies when not disabled */
+    background-color: #5d468a;
+     transform: translateY(-2px); /* Add subtle lift */
+     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .action-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .action-button.harvest {
+    background-color: #7eba76;
+    color: #1a1a24;
+  }
+
+  .action-button.harvest:hover:not(:disabled) {
+    background-color: #90a959;
+  }
+
+  .action-button.plant {
+    background-color: #6fa6cc;
+    color: #1a1a24;
+  }
+
+  .action-button.plant:hover:not(:disabled) {
+    background-color: #7a9dce;
+  }
+
+  .close-button {
+    padding: 8px 16px;
+    background-color: #2a2a3a;
+    color: #a294b8;
+    border: 1px solid #483d66;
+    border-radius: 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+     width: 100%; /* Make cancel button full width */
+     margin-top: 5px;
+  }
+
+  .close-button:hover {
+    background-color: #342f48;
+    color: #d8c9a7;
+  }
+
+  .seed-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+     padding-right: 5px; /* Space for scrollbar */
+  }
+
+  .seed-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    background-color: #342f48;
+     border: 1px solid transparent; /* Add border for selected state */
+  }
+
+  .seed-item:hover {
+    background-color: #483d66;
+  }
+
+  .seed-item.selected {
+    background-color: #5d468a;
+    border: 1px solid #7a6c95;
+    box-shadow: 0 0 5px rgba(181, 157, 196, 0.3);
+  }
+
+  .seed-image {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #1f1d2c;
+    overflow: hidden;
+     flex-shrink: 0; /* Prevent image shrinking */
+  }
+
+  .seed-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .seed-placeholder {
+    font-size: 18px;
+    color: #a294b8;
+    font-weight: bold;
+  }
+
+  .seed-info {
+    flex: 1;
+     overflow: hidden; /* Prevent text overflow issues */
+  }
+
+  .seed-name {
+    font-size: 14px;
+    color: #d8c9a7;
+    margin-bottom: 4px;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+  }
+
+  .seed-quantity {
+    font-size: 12px;
+    color: #a294b8;
+  }
+
+  .seed-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+     margin-top: auto; /* Push actions to bottom */
+     padding-top: 15px; /* Add space above buttons */
+  }
+
+  .garden-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+     margin-top: 15px; /* Space above general actions */
+  }
+
+  .garden-action-button {
+    padding: 10px 20px;
+    background-color: #2a2a3a;
+    color: #d8c9a7;
+    border: 1px solid #483d66;
+    border-radius: 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .garden-action-button:hover:not(:disabled) {
+    background-color: #342f48;
+     transform: translateY(-2px);
+     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .garden-action-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .garden-action-button.water {
+    background-color: #6fa6cc;
+    color: #1a1a24;
+    border-color: #7a9dce;
+  }
+
+  .garden-action-button.water:hover:not(:disabled) {
+    background-color: #7a9dce;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 900px) {
+    .garden-content {
+      flex-direction: column;
+       height: auto; /* Allow content to determine height */
+    }
+
+    .garden-grid {
+       height: auto; /* Adjust height */
+       min-height: 300px; /* Ensure minimum grid height */
+    }
+
+    .garden-row {
+      height: 120px; /* Fixed height for rows might be better on smaller screens */
+    }
+
+    .garden-sidebar {
+      height: auto; /* Adjust height */
+      flex: none; /* Don't allow sidebar to grow indefinitely */
+    }
+  }
+
+  @media (max-width: 600px) {
+      .garden-header h2 {
+          font-size: 22px;
+      }
+      .garden-indicators {
+          gap: 8px;
+      }
+      .weather-indicator, .season-indicator {
+          padding: 5px 8px;
+      }
+       .weather-icon, .season-icon {
+           font-size: 16px;
+       }
+       .weather-label, .season-label {
+           font-size: 12px;
+       }
+       .garden-row {
+           gap: 8px;
+           height: 100px;
+       }
+       .garden-grid {
+           gap: 8px;
+       }
+       .action-button, .garden-action-button, .close-button {
+           font-size: 13px;
+           padding: 8px 15px;
+       }
+       .plot-details h3, .inventory-panel h3 {
+           font-size: 16px;
+       }
+  }
