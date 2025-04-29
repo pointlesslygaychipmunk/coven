@@ -24,6 +24,7 @@ export class GameHandler {
   // Get current game state
   getState(): GameState {
     return this.engine.getState();
+    }
   }
 
   // Garden actions
