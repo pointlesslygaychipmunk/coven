@@ -23,10 +23,10 @@
     "rootDir": "./src",
     "composite": true,
     // "types": ["node", "express"], // Keep commented out
-    "baseUrl": ".", // Restore baseUrl
-    "paths": { // Restore paths
-      "coven-shared": ["../shared/src/index.ts"],
-      "coven-shared/*": ["../shared/src/*"]
+    "baseUrl": ".",
+    "paths": { // Simplified paths
+      "coven-shared": ["../shared/src/index.ts"]
+      // "coven-shared/*": ["../shared/src/*"] // Removed wildcard path for now
     },
     "lib": ["ES2022"]
   },
