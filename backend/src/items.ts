@@ -2,9 +2,9 @@
 // Defines all game items (seeds, ingredients, potions, tools) and their base properties.
 // This acts as the master database for item types.
 
-// Use relative path import with .js extension
+// Use package name import
 import { ItemType, ItemCategory, Item, MarketItem } from "coven-shared";
-import { INGREDIENTS, SEEDS } from "./ingredients.js"; // Removed unused SeedItem
+import { INGREDIENTS, SEEDS } from "./ingredients.js";
 
 // Master list of all potential items in the game
 export const ITEMS: Item[] = [
@@ -38,12 +38,13 @@ export const ITEMS: Item[] = [
    // == Special / Other ==
    { id: "misc_ruined_brewage", name: "Ruined Brewage", type: "ingredient", category: "herb", description: "A failed brewing attempt...", value: 1, rarity: 'common'}
 
-].map(item => ({ ...item, category: item.category || 'misc', rarity: item.rarity || 'common' })) as Item[]; // Keep default mapping
+].map(item => ({ ...item, category: item.category || 'misc', rarity: item.rarity || 'common' })) as Item[];
 
 
 // Helper function to get full item data by its ID
 export function getItemData(itemId: string): Item | undefined {
-  return ITEMS.find(item => item.id === itemId);
+  // Add explicit type for item parameter
+  return ITEMS.find((item: Item) => item.id === itemId);
 }
 
 // Generate initial market items from the master list
@@ -55,8 +56,10 @@ export function getInitialMarket(): MarketItem[] {
   ];
 
   return ITEMS
-    .filter(item => initialMarketIds.includes(item.id))
-    .map(item => ({
+    // Add explicit type for item parameter
+    .filter((item: Item) => initialMarketIds.includes(item.id))
+    // Add explicit type for item parameter
+    .map((item: Item) => ({
       id: item.id, name: item.name || 'Unknown Item', type: item.type, category: item.category || 'misc',
       price: item.value || 10, basePrice: item.value || 10, description: item.description || "An item of intrigue.",
       rarity: item.rarity || 'common', imagePath: item.imagePath, seasonalBonus: item.seasonalBonus,

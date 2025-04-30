@@ -18,13 +18,13 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": false,
-    "lib": ["ES2022"],
     "module": "NodeNext",
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "coven-shared": ["../shared/src/index.ts"]
-    }
+    },
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

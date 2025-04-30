@@ -2,14 +2,17 @@
 // Manages the GameEngine instance and provides methods for the server to call
 
 import { GameEngine } from "./gameEngine.js";
-// Use relative path import with .js extension
+// Use package name import
 import { GameState, MoonPhase, Season, Skills } from "coven-shared";
 
 // GameHandler: Connects the server's API endpoints to the game engine
 export class GameHandler {
     private engine: GameEngine;
 
-    constructor() { this.engine = new GameEngine(); console.log("GameHandler initialized."); }
+    constructor() {
+        this.engine = new GameEngine();
+        console.log("GameHandler initialized.");
+    }
 
     // Core methods
     getState(): GameState { return this.engine.getState(); }

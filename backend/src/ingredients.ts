@@ -1,7 +1,6 @@
 // src/ingredients.ts
 // Defines all plant ingredients, their properties, and growth requirements
 
-// Using package name import - assuming pnpm links it correctly
 import { ItemCategory, Season, MoonPhase, WeatherFate, Item, Rarity } from "coven-shared";
 
 // Ingredient now inherits 'name', 'value', 'description', 'id', 'rarity' from Item
@@ -47,18 +46,23 @@ export const INGREDIENTS: Ingredient[] = [
 
 export interface SeedItem extends Item { type: 'seed'; category: 'seed'; plantSource: string; }
 
-export const SEEDS: SeedItem[] = INGREDIENTS.map(ing => ({
-  id: `seed_${ing.name.toLowerCase().replace(/\s+/g, '_')}`,
-  name: `${ing.name} Seed`,
+export const SEEDS: SeedItem[] = INGREDIENTS.map((ing: Ingredient) => ({ // Added type to ing
+  id: `seed_${ing.name.toLowerCase().replace(/\s+/g, '_')}`, // Should resolve now
+  name: `${ing.name} Seed`, // Should resolve now
   type: "seed", category: "seed",
-  value: Math.max(3, Math.floor((ing.value ?? 10) / 2)),
-  description: `Seeds for growing ${ing.name}. Prefers ${ing.bestSeason}.`,
-  rarity: ing.rarity, plantSource: ing.id,
+  value: Math.max(3, Math.floor((ing.value ?? 10) / 2)), // Should resolve now
+  description: `Seeds for growing ${ing.name}. Prefers ${ing.bestSeason}.`, // Should resolve now
+  rarity: ing.rarity, // Should resolve now
+  plantSource: ing.id, // Should resolve now
 }));
 
 // --- Helper Functions ---
-export function getIngredientById(id: string): Ingredient | undefined { return INGREDIENTS.find(i => i.id === id); }
-export function getIngredientData(name: string): Ingredient | undefined { return INGREDIENTS.find(i => i.name === name); }
+export function getIngredientById(id: string): Ingredient | undefined {
+    return INGREDIENTS.find((i: Ingredient) => i.id === id); // Added type to i
+}
+export function getIngredientData(name: string): Ingredient | undefined {
+    return INGREDIENTS.find((i: Ingredient) => i.name === name); // Added type to i
+}
 
 export function calculateGrowthModifier( ingredient: Ingredient, currentSeason: Season, currentMoonPhase: MoonPhase, moisture: number, sunlight: number = 70 ): { growthModifier: number; factors: string[] } {
     const factors: string[] = []; let modifier = 1.0;
@@ -97,7 +101,7 @@ export function checkForMutation(ingredient: Ingredient, weather: WeatherFate, m
     if (Math.random() < currentMutationChance) {
         const mutationIndex = Math.floor(Math.random() * ingredient.mutationTypes.length);
         const mutationType = ingredient.mutationTypes[mutationIndex];
-        console.log(`MUTATION! ${ingredient.name} -> ${mutationType} (Chance: ${currentMutationChance.toFixed(3)})`);
+        console.log(`MUTATION! ${ingredient.name} -> ${mutationType} (Chance: ${currentMutationChance.toFixed(3)})`); // Name should resolve
         return mutationType;
     } return null;
 }
@@ -111,7 +115,10 @@ export function getGrowthStageDescription( plantName: string, currentGrowth: num
 export function groupIngredientsByCategory(): Record<ItemCategory, Ingredient[]> {
     const grouped: Partial<Record<ItemCategory, Ingredient[]>> = {};
     const ingredientCategories: ItemCategory[] = ['herb', 'flower', 'root', 'fruit', 'mushroom', 'leaf', 'succulent', 'essence', 'crystal'];
-    INGREDIENTS.forEach(ingredient => { if (ingredient && ingredient.category) { const category = ingredient.category; if (ingredientCategories.includes(category)) { if (!grouped[category]) grouped[category] = []; grouped[category]!.push(ingredient); } } else { console.warn(`Skipping ingredient due to missing data: ${ingredient?.id}`); } });
+    INGREDIENTS.forEach((ingredient: Ingredient) => { // Added type to ingredient
+        if (ingredient && ingredient.category) { const category = ingredient.category; if (ingredientCategories.includes(category)) { if (!grouped[category]) grouped[category] = []; grouped[category]!.push(ingredient); } }
+        else { console.warn(`Skipping ingredient due to missing data: ${ingredient?.id}`); }
+    });
     ingredientCategories.forEach(cat => { if (!grouped[cat]) grouped[cat] = []; });
     return grouped as Record<ItemCategory, Ingredient[]>;
 }
@@ -119,4 +126,4 @@ export function groupIngredientsByCategory(): Record<ItemCategory, Ingredient[]>
 export function getSeasonalIngredients(season: Season): Ingredient[] { return INGREDIENTS.filter(ing => ing.bestSeason === season); }
 export function getMoonPhaseIngredients(phase: MoonPhase): Ingredient[] { return INGREDIENTS.filter(ing => ing.idealMoonPhase === phase); }
 
-// REMOVED Duplicate function definitions that previously started around line 70
+// Removed duplicate function definitions from lines ~61-74

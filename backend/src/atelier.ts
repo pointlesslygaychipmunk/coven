@@ -1,9 +1,9 @@
 // src/atelier.ts
 // Define specialization options and their bonuses
 
-// Use relative path import with .js extension
+// Use package name import
 import { AtelierSpecialization, ItemCategory, ItemType } from "coven-shared";
-import type { Skills } from "coven-shared"; // Use relative path import
+import type { Skills } from "coven-shared";
 
 // Full specialization details interface (can stay local to backend)
 export interface AtelierSpecializationDetails {
@@ -18,26 +18,10 @@ export interface AtelierSpecializationDetails {
 
 // Define all atelier specializations
 export const SPECIALIZATIONS: AtelierSpecializationDetails[] = [
-  {
-    id: 'Essence', name: 'Essence Atelier', description: 'Specializes in serums and masks.',
-    startBonus: 'Start with Ancient Ginseng and Sacred Lotus ingredients', passiveBonus: '+15% potency for all mask and serum recipes',
-    growthBonus: { brewing: 0.3, herbalism: 0.2, astrology: 0.1 }
-  },
-  {
-    id: 'Fermentation', name: 'Fermentation Atelier', description: 'Focuses on fermenting ingredients.',
-    startBonus: 'Start with Silverleaf Seeds and a Clay Jar', passiveBonus: '+20% shelf life for all potions; ingredients improve in quality over time',
-    growthBonus: { brewing: 0.2, herbalism: 0.3, gardening: 0.1 }
-  },
-  {
-    id: 'Distillation', name: 'Distillation Atelier', description: 'Extracts and concentrates essences.',
-    startBonus: 'Start with Emberberry Seeds and Glass Vials', passiveBonus: '+25% yield when creating potions (chance for extra product)',
-    growthBonus: { brewing: 0.3, crafting: 0.2, trading: 0.1 }
-  },
-  {
-    id: 'Infusion', name: 'Infusion Atelier', description: 'Focuses on gentle herbal infusions and teas.',
-    startBonus: 'Start with Sweetshade Seeds and Calming Tea Base', passiveBonus: '+20% effectiveness for all tonic and elixir recipes',
-    growthBonus: { brewing: 0.2, astrology: 0.2, herbalism: 0.2 }
-  }
+  { id: 'Essence', name: 'Essence Atelier', description: 'Specializes in serums and masks.', startBonus: 'Start with Ancient Ginseng and Sacred Lotus ingredients', passiveBonus: '+15% potency for all mask and serum recipes', growthBonus: { brewing: 0.3, herbalism: 0.2, astrology: 0.1 } },
+  { id: 'Fermentation', name: 'Fermentation Atelier', description: 'Focuses on fermenting ingredients.', startBonus: 'Start with Silverleaf Seeds and a Clay Jar', passiveBonus: '+20% shelf life for all potions; ingredients improve in quality over time', growthBonus: { brewing: 0.2, herbalism: 0.3, gardening: 0.1 } },
+  { id: 'Distillation', name: 'Distillation Atelier', description: 'Extracts and concentrates essences.', startBonus: 'Start with Emberberry Seeds and Glass Vials', passiveBonus: '+25% yield when creating potions (chance for extra product)', growthBonus: { brewing: 0.3, crafting: 0.2, trading: 0.1 } },
+  { id: 'Infusion', name: 'Infusion Atelier', description: 'Focuses on gentle herbal infusions and teas.', startBonus: 'Start with Sweetshade Seeds and Calming Tea Base', passiveBonus: '+20% effectiveness for all tonic and elixir recipes', growthBonus: { brewing: 0.2, astrology: 0.2, herbalism: 0.2 } }
 ];
 
 // Type for specialization bonus result
