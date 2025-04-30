@@ -1,15 +1,17 @@
 {
-  "extends": "./tsconfig.base.local.json", // Keep using local for now
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    // ... backend specific options ...
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-     // Ensure composite is true here too if extending base that has it
+    "resolveJsonModule": true,
     "composite": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
-  "references": [ // <-- ADD THIS SECTION BACK
+  "references": [
     { "path": "../shared" }
   ]
 }

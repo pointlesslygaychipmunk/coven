@@ -1,28 +1,18 @@
 {
-    "extends": "../../new-coven/tsconfig.base.json", // Update path to correct location
+    "extends": "../tsconfig.base.json",
     "compilerOptions": {
-      /* Specific overrides for the shared package */
-      "target": "ESNext",          // Use modern target, compatible with others
-      "module": "NodeNext",        // Use NodeNext module system (aligns with backend)
-      "moduleResolution": "NodeNext", // Use NodeNext resolution
-      "outDir": "./dist",          // Output directory for compiled JS and declaration files
-      "rootDir": "./src",          // Source files are in the 'src' directory
-      "baseUrl": ".",              // Base URL for path resolution (often needed with rootDir)
-  
-      /* Project Reference Settings (Crucial) */
-      "composite": true,           // *** THIS IS REQUIRED for project references ***
-      "declaration": true,         // Generate .d.ts files (needed by composite)
-      "declarationMap": true,      // Generate source maps for .d.ts files (good for debugging)
-      "sourceMap": true,           // Generate .js.map files
-  
-      /* Other options inherited from base or set here */
-      "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "skipLibCheck": true,
+      "target": "ESNext",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "baseUrl": ".",
+      "composite": true,
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true,
       "resolveJsonModule": true
     },
-    "include": ["src/**/*"], // Compile all .ts files within the src directory
-    "exclude": ["node_modules", "dist"] // Exclude dependencies and build output
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
   }

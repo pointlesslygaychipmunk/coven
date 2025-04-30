@@ -12,5 +12,9 @@
     "sourceMap": true
   },
   "files": [],
-  "references": [{ "path": "frontend" }, { "path": "backend" }, { "path": "shared" }]
+  "references": [
+    { "path": "frontend" },
+    { "path": "backend" },
+    { "path": "shared" }
+  ]
 }

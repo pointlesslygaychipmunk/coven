@@ -1,38 +1,22 @@
 {
   "compilerOptions": {
-    /* Base Options */
-    "target": "ES2022",               // Target modern ECMAScript features (aligns well with NodeNext/Vite, compatible with Node.js 16+)
-    "useDefineForClassFields": true, // Needed for standard class fields
-    "moduleResolution": "NodeNext",  // Use modern Node resolution, particularly useful for projects using both ESM and CommonJS modules
-    "esModuleInterop": true,         // Enables compatibility between CJS and ESM
-    // "allowSyntheticDefaultImports": true, // Removed as it is redundant with "esModuleInterop": true
-    "forceConsistentCasingInFileNames": true, // Prevents case-related import errors
-    "isolatedModules": true,         // Ensures files can be transpiled independently (good for build tools)
-
-    /* Strictness */
-    "strict": true,                  // Enables all strict type-checking options, making the commented-out options below redundant unless overridden
-    // "noImplicitAny": true,        // Raise error on expressions and declarations with an implied 'any' type. (Included in strict)
-    // "strictNullChecks": true,     // Enable strict null checks. (Included in strict)
-    // "strictFunctionTypes": true,  // Enable strict checking of function types. (Included in strict)
-    // "strictBindCallApply": true,  // Enable strict 'bind', 'call', and 'apply' methods on functions. (Included in strict)
-    // "strictPropertyInitialization": true, // Check for class properties that are declared but not set in the constructor. (Included in strict)
-    // "noImplicitThis": true,       // Raise error on 'this' expressions with an implied 'any' type. (Included in strict)
-    // "alwaysStrict": true,         // Parse in strict mode and emit "use strict" for each source file. (Included in strict)
-    "noUnusedLocals": true,          // Report errors on unused local variables.
-    "noUnusedParameters": true,      // Report errors on unused parameters.
-    "noImplicitReturns": true,       // Report error when not all code paths in function return a value.
-    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statement.
-
-    /* Source Map & Declaration Options (Good for Libraries/Debugging) */
-    "sourceMap": true,               // Generate corresponding '.map' file.
-    "declaration": true,             // Generate corresponding '.d.ts' file.
-    "declarationMap": true,          // Generate sourcemaps for declarations.
-
-    /* Module/Import Options */
-    "resolveJsonModule": true,       // Include modules imported with '.json' extension
-
-    /* Other */
-    "skipLibCheck": true,            // Skip type checking of all declaration files (*.d.ts). Speeds up compilation but may hide type errors in declaration files.
-    "allowJs": false                 // Disallow JavaScript files to be compiled (optional, useful for enforcing TS usage in TypeScript-only projects)
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "allowJs": false
   }
 }
