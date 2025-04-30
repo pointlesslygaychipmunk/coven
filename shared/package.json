@@ -13,16 +13,16 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "declaration": true, // Ensure declaration is true
-    "declarationMap": true, // Ensure declarationMap is true
+    "declaration": true,
+    "declarationMap": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": false,
     "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    // "baseUrl": ".", // REMOVED baseUrl
-    "composite": true, // Ensure composite is true
+    "baseUrl": "."
+    "composite": true,
     "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
