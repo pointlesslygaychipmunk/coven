@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import './WeatherEffectsOverlay.css';
 import { WeatherFate, Season } from 'coven-shared'; // Use shared types
 

@@ -89,6 +89,7 @@ export type GameTime = {
 
 // Atelier specialization
 export type AtelierSpecialization = 'Essence' | 'Fermentation' | 'Distillation' | 'Infusion';
+type AtelierTab = 'potions' | 'charms' | 'talismans';
 
 // --- Garden Types ---
 

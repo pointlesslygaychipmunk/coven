@@ -3,10 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import {
-    GameState, Player, Season, InventoryItem,
-    GardenSlot, // Ensure this type exists in shared or rename import
-    RitualQuest, Rumor, TownRequest, MoonPhase, BasicRecipeInfo
-} from 'coven-shared'; // Import necessary types
+  GameState, Season, InventoryItem,
+  GardenSlot, BasicRecipeInfo
+} from 'coven-shared';
 
 // Import Components using aliases
 // Add .js extension for Vite compatibility if needed, otherwise TS handles it

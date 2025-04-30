@@ -24,7 +24,7 @@ const Requests: React.FC<RequestsProps> = ({
   };
 
   // Format price (reusable, maybe move to utils)
-  const formatPrice = (price: number): string => `${price} G`;
+  // const formatPrice = (price: number): string => `${price} G`;
 
   return (
     <div className="requests-container">

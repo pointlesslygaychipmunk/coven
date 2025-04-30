@@ -193,7 +193,7 @@ const Market: React.FC<MarketProps> = ({
                sellPreviewPrice = Math.max(1, Math.round(marketData.price * qualityMultiplier));
            } else if (isSellTab && !marketData) {
                // Handle case where inventory item exists but corresponding market item doesn't (shouldn't happen with current filtering)
-               sellPreviewPrice = Math.max(1, Math.round((item.value || 1) * 0.5)); // Fallback to low price based on base value
+               sellPreviewPrice = Math.max(1, Math.round(((item as InventoryItem).value || 1) * 0.5)) // Fallback to low price based on base value
            }
 
 
@@ -326,7 +326,7 @@ const Market: React.FC<MarketProps> = ({
     if (activeTab === 'requests' && selectedDetails && 'requester' in selectedDetails) {
         const request = selectedDetails as TownRequest;
         const canFulfill = canFulfillRequest();
-        const requiredItemInv = playerInventory.find(item => item.name === request.item);
+        // const requiredItemInv = playerInventory.find(item => item.name === request.item);
          const totalQuantity = playerInventory
              .filter(item => item.name === request.item)
              .reduce((sum, item) => sum + item.quantity, 0);

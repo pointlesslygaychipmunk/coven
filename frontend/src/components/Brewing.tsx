@@ -53,7 +53,7 @@ const Brewing: React.FC<BrewingProps> = ({
   useEffect(() => {
     if (selectedIngredients.length === 2) {
         // Very basic check: Find first known recipe. Requires better logic or backend.
-        const potentialMatch = knownRecipes.find(recipe => {
+        const potentialMatch = knownRecipes.find((recipeItem) => {
             // Example placeholder logic: assumes first known recipe is the match if ingredients > 0
             // Replace with actual matching logic based on ingredient names/IDs if recipe details are available client-side,
             // or rely solely on backend validation during the brew attempt.

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Journal.css';
-import { JournalEntry, Rumor, RitualQuest, GameTime, Season, MoonPhase, Player, RitualQuestStep } from 'coven-shared'; // Import Player
+import { JournalEntry, Rumor, RitualQuest, GameTime, Season, Player } from 'coven-shared';
 
 interface JournalProps {
   journal: JournalEntry[];
@@ -173,7 +173,7 @@ const Journal: React.FC<JournalProps> = ({
   };
 
   // Book mode page turning
-   const turnPage = (direction: 'next' | 'prev') => {
+  const turnPage = (direction: 'next' | 'prev') => {
        const numPages = Math.ceil(filteredEntries.length / (entriesPerPage * 2)); // Pages per spread
        const maxPageIndex = numPages - 1;
 
@@ -189,9 +189,17 @@ const Journal: React.FC<JournalProps> = ({
            console.log(`Turning page from ${prev} to ${nextPage}`);
            // Example CSS-based animation would target page elements by index
            if (pageRefs.current) {
-               const currentPageElement = pageRefs.current[prev];
-               const nextPageElement = pageRefs.current[nextPage];
+              const currentPageElement = pageRefs.current[prev];
+              const nextPageElement = pageRefs.current[nextPage];
                // Add/remove classes or apply styles for animation
+               if (currentPageElement) {
+                   // Apply animation styling
+                   console.log("Animating current page:", currentPageElement);
+               }
+               if (nextPageElement) {
+                   // Apply animation styling
+                   console.log("Animating next page:", nextPageElement);
+               }
            }
 
            return nextPage;
@@ -602,9 +610,9 @@ const Journal: React.FC<JournalProps> = ({
 
      // Simple fixed 2-page spread representation
      return (
-         <div className="journal-book fixed-spread">
+         <div className="journal-book fixed-spread" ref={bookRef}>
              {/* Left Page */}
-             <div className="book-page-content left">
+             <div className="book-page-content left" ref={el => pageRefs.current[0] = el}>
                  <h3>Recent Journal Entries</h3>
                  {recentEntries.length === 0 ? <p>No recent entries.</p> : recentEntries.map(entry => (
                      <div key={entry.id} className="book-entry-short">
@@ -620,7 +628,7 @@ const Journal: React.FC<JournalProps> = ({
                  ))}
              </div>
              {/* Right Page */}
-             <div className="book-page-content right">
+             <div className="book-page-content right" ref={el => pageRefs.current[1] = el}>
                  <h3>Latest Rumors</h3>
                   {recentRumors.length === 0 ? <p>Market is quiet.</p> : recentRumors.map(rumor => (
                      <div key={rumor.id} className="book-rumor-short">
@@ -632,6 +640,11 @@ const Journal: React.FC<JournalProps> = ({
                  <div><strong>Moon:</strong> {time.phaseName}</div>
                  <div><strong>Season:</strong> {time.season} ({getSeasonIcon(time.season)})</div>
                  <div><strong>Weather:</strong> {time.weatherFate}</div>
+             </div>
+             {/* Add page turning controls for book mode */}
+             <div className="book-controls">
+                <button onClick={() => turnPage('prev')} disabled={activePage <= 0}>Previous</button>
+                <button onClick={() => turnPage('next')} disabled={activePage >= Math.ceil(filteredEntries.length / (entriesPerPage * 2)) - 1}>Next</button>
              </div>
          </div>
      );

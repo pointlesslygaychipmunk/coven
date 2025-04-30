@@ -37,7 +37,7 @@ const Atelier: React.FC<AtelierProps> = ({
 }) => {
   const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
   const [possibleResults, setPossibleResults] = useState<CraftingResult[]>([]);
-  const [activeTab, setActiveTab] = useState<ItemType>('charm'); // Default to charm?
+  const [activeTab, setActiveTab] = useState<AtelierTab>('potions');
 
    // Function to check if an item can be selected (has quantity > 0)
    const canSelectItem = (item: InventoryItem): boolean => {
@@ -64,8 +64,8 @@ const Atelier: React.FC<AtelierProps> = ({
         if (ingredientBaseIds.length === 2) {
              const item1Base = playerItems.find(i => i.baseId === ingredientBaseIds[0]);
              const item2Base = playerItems.find(i => i.baseId === ingredientBaseIds[1]);
-             const name1 = item1Base?.name;
-             const name2 = item2Base?.name;
+             // const name1 = item1Base?.name;
+             // const name2 = item2Base?.name;
 
             // Use knownRecipes prop if available (basic check)
             knownRecipes.forEach(known => {
@@ -131,8 +131,7 @@ const Atelier: React.FC<AtelierProps> = ({
     setSelectedItems([...selectedItems, item]);
   };
 
-  const handleItemRemove = (itemToRemove: InventoryItem, indexToRemove: number) => { // Remove by index
-     // Remove the item at the specific index
+  const handleItemRemove = (indexToRemove: number) => {
      const newSelection = [...selectedItems];
      newSelection.splice(indexToRemove, 1);
      setSelectedItems(newSelection);
