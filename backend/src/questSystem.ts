@@ -2,19 +2,17 @@
 // Manages ritual quest progression and completion
 
 import {
-    GameState, RitualQuest, Player, // Removed unused InventoryItem, JournalEntry, RitualQuestStep, RitualReward
-    BasicRecipeInfo // Kept BasicRecipeInfo import
+    GameState, RitualQuest, Player, BasicRecipeInfo, // Added BasicRecipeInfo
+    JournalEntry, RitualQuestStep, RitualReward // Added JournalEntry, removed unused Season, InventoryItem
 } from "coven-shared"; // Use shared package
 import { getItemData } from "./items.js"; // Import item helper
 import { getRecipeById } from './brewing.js';
-import { JournalEntry } from "coven-shared"; // Need JournalEntry for the helper function
 
 // Import helpers from gameEngine
 import { addItemToInventory, addSkillXp } from "./gameEngine.js";
 
 // Define the master list of available ritual quests
 export const RITUAL_QUESTS: RitualQuest[] = [
-     // ... (quests remain unchanged) ...
     {
         id: "essence_mastery_1",
         name: "Essence Initiate",
@@ -65,10 +63,7 @@ export const RITUAL_QUESTS: RitualQuest[] = [
     },
 ];
 
-
 // Helper function to add a quest-related journal entry
-// *** Keep this defined within questSystem.ts if it's only used here ***
-// *** OR move it to a shared utils file if used elsewhere ***
 function addQuestJournalEntry(state: GameState, text: string, importance: number = 3): void {
     const entry: JournalEntry = {
         id: `j-${state.time.dayCount}-${state.journal.length}`,
@@ -86,32 +81,32 @@ function addQuestJournalEntry(state: GameState, text: string, importance: number
      }
 }
 
-// Add a new ritual quest to the game state
+// Add a new ritual quest to the game state (called during initialization or events)
 export function unlockRitualQuest(state: GameState, questId: string): boolean {
     const questTemplate = RITUAL_QUESTS.find(q => q.id === questId);
     if (!questTemplate || state.rituals.some(r => r.id === questId)) {
-        return false;
+        return false; // Template not found or quest already added
     }
-    const newQuest: RitualQuest = JSON.parse(JSON.stringify(questTemplate));
-    newQuest.unlocked = true;
-    newQuest.stepsCompleted = 0;
-    newQuest.steps.forEach(step => step.completed = false);
+
+    const newQuest: RitualQuest = JSON.parse(JSON.stringify(questTemplate)); // Deep copy
+    newQuest.unlocked = true; // Mark as available
+    newQuest.stepsCompleted = 0; // Ensure progress starts at 0
+    newQuest.steps.forEach(step => step.completed = false); // Ensure steps start uncompleted
+
     state.rituals.push(newQuest);
-    addQuestJournalEntry(state, `A new ritual quest has become available: "${newQuest.name}"`, 4); // Correctly calls local helper
+     // Add Journal Entry using helper
+     addQuestJournalEntry(state, `A new ritual quest has become available: "${newQuest.name}"`, 4);
     console.log(`[QuestSystem] Unlocked ritual: ${questId}`);
     return true;
 }
 
-
 // Check quest completion conditions based on player actions
-// *** ADD EXPORT ***
-export function checkQuestStepCompletion(
+export function checkQuestStepCompletion( // Added export
     state: GameState,
     player: Player,
-    actionType: string,
-    actionDetails: any
+    actionType: string, // e.g., 'harvest', 'brew', 'plant', 'sellItem', 'fulfillRequest', 'meditate'
+    actionDetails: any // Data related to the action { plantName, quality, potionName, season, etc. }
 ): void {
-    // ... (rest of the function logic remains unchanged) ...
     const activeRituals = state.rituals.filter(ritual =>
         ritual.unlocked && !player.completedRituals.includes(ritual.id) &&
         ritual.stepsCompleted < ritual.totalSteps
@@ -123,19 +118,30 @@ export function checkQuestStepCompletion(
     const currentSeason = state.time.season;
 
     activeRituals.forEach(ritual => {
-        if (ritual.requiredSeason && ritual.requiredSeason !== currentSeason) return;
-        if (ritual.requiredMoonPhase && ritual.requiredMoonPhase !== currentPhase) return;
+        // Check seasonal requirement for the *whole* ritual first
+        if (ritual.requiredSeason && ritual.requiredSeason !== currentSeason) {
+             // console.log(`[Quest] Ritual ${ritual.id} skipped, wrong season.`);
+            return; // Can't progress this ritual now
+        }
+         // Check moon phase requirement for the *whole* ritual
+        if (ritual.requiredMoonPhase && ritual.requiredMoonPhase !== currentPhase) {
+            // console.log(`[Quest] Ritual ${ritual.id} skipped, wrong moon phase.`);
+            return; // Can't progress this ritual now
+        }
+
 
         const currentStepIndex = ritual.stepsCompleted;
-        if (currentStepIndex >= ritual.steps.length) return;
+        if (currentStepIndex >= ritual.steps.length) return; // Should not happen if totalSteps is correct
 
         const step = ritual.steps[currentStepIndex];
-        if (step.completed) return;
+        if (step.completed) return; // Already done this step
 
         let stepCompleted = false;
 
+        // Evaluate the step based on the action type and details
         switch (step.description) {
-             case "Brew a Moon Glow Serum":
+            // Example Brewing Checks
+            case "Brew a Moon Glow Serum":
                 stepCompleted = (actionType === 'brew' && actionDetails.potionName === "Moon Glow Serum");
                 break;
             case "Brew a Moon Glow Serum during the Full Moon":
@@ -147,6 +153,7 @@ export function checkQuestStepCompletion(
              case "Craft a Spring Revival Tonic":
                   stepCompleted = (actionType === 'brew' && actionDetails.potionName === "Spring Revival Tonic");
                   break;
+            // Example Harvest Checks
             case "Harvest 3 Moonbuds":
                  if (actionType === 'harvest' && actionDetails.plantName === "Moonbud") {
                       if (!step.progress) step.progress = 0;
@@ -158,6 +165,7 @@ export function checkQuestStepCompletion(
              case "Harvest a Glimmerroot with 80+ quality":
                 stepCompleted = (actionType === 'harvest' && actionDetails.plantName === "Glimmerroot" && actionDetails.quality >= 80);
                 break;
+            // Example Planting Checks
              case "Plant 3 different seeds during Spring":
                 if (actionType === 'plant' && currentSeason === "Spring") {
                     console.warn("[Quest] Step 'Plant 3 different seeds' requires tracking logic.");
@@ -168,23 +176,25 @@ export function checkQuestStepCompletion(
                 break;
         }
 
+        // If step was completed by the action
         if (stepCompleted) {
             step.completed = true;
-            step.completedDate = `${currentPhase}, ${currentSeason} Y${state.time.year}`;
+            step.completedDate = `${currentPhase}, ${currentSeason} Y${state.time.year}`; // Record completion time
             ritual.stepsCompleted++;
-            addQuestJournalEntry(state, `Ritual progress: "${ritual.name}" step completed - ${step.description}! (${ritual.stepsCompleted}/${ritual.totalSteps})`, 4); // Uses local helper
+
+            addQuestJournalEntry(state, `Ritual progress: "${ritual.name}" step completed - ${step.description}! (${ritual.stepsCompleted}/${ritual.totalSteps})`, 4);
+
             if (ritual.stepsCompleted >= ritual.totalSteps) {
-                addQuestJournalEntry(state, `Ritual complete: You have finished "${ritual.name}"! Rewards await.`, 5); // Uses local helper
+                addQuestJournalEntry(state, `Ritual complete: You have finished "${ritual.name}"! Rewards await.`, 5);
             }
         }
     });
 }
 
 
-// Unlock seasonal rituals
+// Unlock seasonal rituals when the appropriate season begins
 function unlockSeasonalRituals(state: GameState): void {
-    // ... (logic remains unchanged) ...
-     const currentSeason = state.time.season;
+    const currentSeason = state.time.season;
     RITUAL_QUESTS.forEach(questTemplate => {
         if (questTemplate.requiredSeason === currentSeason && !state.rituals.some(r => r.id === questTemplate.id)) {
             unlockRitualQuest(state, questTemplate.id);
@@ -193,9 +203,8 @@ function unlockSeasonalRituals(state: GameState): void {
 }
 
 
-// Process any rituals that progress passively
-// *** ADD EXPORT ***
-export function progressRituals(state: GameState): void {
+// Process any rituals that progress passively or are triggered by time/world state
+export function progressRituals(state: GameState): void { // Added export
     unlockSeasonalRituals(state);
     // ... (other passive checks remain unchanged) ...
 }
@@ -206,28 +215,36 @@ export const isRitualClaimed = (player: Player, ritualId: string): boolean => pl
 
 // Function to claim rewards
 export function claimRitualRewards(state: GameState, player: Player, ritualId: string): boolean {
-    // ... (logic remains unchanged, uses local addQuestJournalEntry helper) ...
-     const ritualIndex = state.rituals.findIndex(r => r.id === ritualId);
-    if (ritualIndex === -1) return false;
+    const ritualIndex = state.rituals.findIndex(r => r.id === ritualId);
+    if (ritualIndex === -1) {
+        console.warn(`[Quest] Attempted to claim rewards for non-existent ritual: ${ritualId}`);
+        return false;
+    }
     const ritual = state.rituals[ritualIndex];
+
     if (ritual.stepsCompleted < ritual.totalSteps) {
-        addQuestJournalEntry(state, `Cannot claim rewards for "${ritual.name}" yet. Ritual is incomplete.`, 2); // Uses local helper
+        console.warn(`[Quest] Attempted to claim rewards for incomplete ritual: ${ritualId}`);
+         addQuestJournalEntry(state, `Cannot claim rewards for "${ritual.name}" yet. Ritual is incomplete.`, 2);
         return false;
     }
     if (isRitualClaimed(player, ritualId)) {
-        addQuestJournalEntry(state, `You have already claimed the rewards for "${ritual.name}".`, 1); // Uses local helper
+        console.warn(`[Quest] Attempted to claim rewards for already completed ritual: ${ritualId}`);
+         addQuestJournalEntry(state, `You have already claimed the rewards for "${ritual.name}".`, 1);
         return false;
     }
-    player.completedRituals.push(ritualId);
-    addQuestJournalEntry(state, `Rewards claimed for completing the ritual: "${ritual.name}"!`, 5); // Uses local helper
 
+    // Mark as completed *for this player*
+    player.completedRituals.push(ritualId);
+     addQuestJournalEntry(state, `Rewards claimed for completing the ritual: "${ritual.name}"!`, 5);
+
+    // Award rewards
     ritual.rewards.forEach(reward => {
         try {
             switch (reward.type) {
-                 case 'gold':
+                case 'gold':
                     const goldAmount = Number(reward.value);
                     player.gold += goldAmount;
-                    addQuestJournalEntry(state, `Received ${goldAmount} gold.`); // Uses local helper
+                    addQuestJournalEntry(state, `Received ${goldAmount} gold.`);
                     break;
                 case 'item':
                     const itemBaseId = String(reward.value);
@@ -235,58 +252,71 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
                     if (itemData) {
                         const quantity = reward.quantity ?? 1;
                         addItemToInventory(player, itemData, quantity, 95);
-                        addQuestJournalEntry(state, `Received ${quantity}x ${itemData.name}.`); // Uses local helper
+                        addQuestJournalEntry(state, `Received ${quantity}x ${itemData.name}.`);
                     } else {
-                         addQuestJournalEntry(state, `Error: Could not find reward item ${itemBaseId}.`, 1); // Uses local helper
+                         console.error(`[Quest] Reward item not found: ${itemBaseId}`);
+                         addQuestJournalEntry(state, `Error: Could not find reward item ${itemBaseId}.`, 1);
                     }
                     break;
-                 case 'skill':
+                case 'skill':
                     const skillName = String(reward.value);
                     const skillAmount = reward.quantity ?? 1;
                     if (player.skills.hasOwnProperty(skillName)) {
-                        addSkillXp(player, skillName as keyof Player['skills'], skillAmount);
-                        addQuestJournalEntry(state, `${skillName.charAt(0).toUpperCase() + skillName.slice(1)} skill increased.`); // Uses local helper
+                        const xpResult = addSkillXp(player, skillName as keyof Player['skills'], skillAmount); // Call imported helper and check result
+                        addQuestJournalEntry(state, `${skillName.charAt(0).toUpperCase() + skillName.slice(1)} skill increased.`);
+                        if (xpResult.levelUp) { // Log level up specifically
+                             addQuestJournalEntry(state, `${player.name}'s ${String(skillName)} skill reached level ${xpResult.newLevel}!`, 'skill', 4);
+                        }
+                    } else {
+                         console.warn(`[Quest] Reward skill not found on player: ${skillName}`);
                     }
                     break;
-                 case 'reputation':
+                case 'reputation':
                     const repAmount = Number(reward.value);
                     player.reputation = Math.min(100, player.reputation + repAmount);
-                    addQuestJournalEntry(state, `Gained ${repAmount} reputation.`); // Uses local helper
+                    addQuestJournalEntry(state, `Gained ${repAmount} reputation.`);
                     break;
-                  case 'recipe':
+                 case 'recipe':
                     const recipeId = String(reward.value);
                     if (!player.knownRecipes.includes(recipeId)) {
                          player.knownRecipes.push(recipeId);
                           const recipeData = getRecipeById(recipeId);
-                          addQuestJournalEntry(state, `Learned new recipe: ${recipeData?.name || recipeId}!`, 4); // Uses local helper
+                          addQuestJournalEntry(state, `Learned new recipe: ${recipeData?.name || recipeId}!`, 4);
+                           // Also update the global knownRecipes list in GameState
                            if (recipeData && !state.knownRecipes?.some(r => r.id === recipeId)) {
-                               const basicInfo: BasicRecipeInfo = {
-                                   id: recipeData.id, name: recipeData.name,
-                                   category: recipeData.category, description: recipeData.description, type: recipeData.type
+                               const basicInfo: BasicRecipeInfo = { // Should work now
+                                   id: recipeData.id,
+                                   name: recipeData.name,
+                                   category: recipeData.category,
+                                   description: recipeData.description,
+                                   type: recipeData.type
                                };
                                state.knownRecipes = [...(state.knownRecipes || []), basicInfo];
                            }
                     }
                      break;
-                  case 'blueprint':
-                     addQuestJournalEntry(state, `Received blueprint: ${reward.value}!`, 4); // Uses local helper
+                 case 'blueprint':
+                     addQuestJournalEntry(state, `Received blueprint: ${reward.value}!`, 4);
+                     // Add to player's known blueprints...
                      break;
-                  case 'garden_slot':
+                 case 'garden_slot':
                       const firstLockedSlot = player.garden.find(slot => slot.isUnlocked === false);
                       if (firstLockedSlot) {
                           firstLockedSlot.isUnlocked = true;
-                          addQuestJournalEntry(state, `Unlocked a new garden plot (Plot ${firstLockedSlot.id + 1})!`, 4); // Uses local helper
+                          addQuestJournalEntry(state, `Unlocked a new garden plot (Plot ${firstLockedSlot.id + 1})!`, 4);
                       } else {
-                           addQuestJournalEntry(state, `Received bonus garden fertility instead!`, 3); // Uses local helper
+                           addQuestJournalEntry(state, `Received bonus garden fertility instead!`, 3); // Fallback if no slots left
                            player.garden.forEach(slot => slot.fertility = Math.min(100, (slot.fertility ?? 70) + 5));
                       }
                       break;
-                default: console.warn(`[Quest] Unknown reward type: ${reward.type}`);
+                default:
+                    console.warn(`[Quest] Unknown reward type: ${reward.type}`);
             }
         } catch (e) {
              console.error(`[Quest] Error processing reward: ${JSON.stringify(reward)}`, e);
-             addQuestJournalEntry(state, `Error processing a reward for "${ritual.name}".`, 1); // Uses local helper
+             addQuestJournalEntry(state, `Error processing a reward for "${ritual.name}".`, 1);
         }
     });
+
     return true;
 }

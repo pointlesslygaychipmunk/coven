@@ -29,9 +29,12 @@ export function addItemToInventory(
     currentPhase?: MoonPhase,
     currentSeason?: Season
 ): boolean {
-     // ... (implementation remains the same) ...
     if (quantity <= 0) return false;
-    const existingStack = player.inventory.find( (inv) => inv.name === itemToAdd.name && inv.quality === quality );
+
+    const existingStack = player.inventory.find(
+        (inv) => inv.name === itemToAdd.name && inv.quality === quality
+    );
+
     if (existingStack) {
         const totalQuantity = existingStack.quantity + quantity;
         const currentQuality = existingStack.quality ?? DEFAULT_ITEM_QUALITY;
@@ -55,34 +58,42 @@ export function addItemToInventory(
 }
 
 // Exported for use in questSystem
-export function addSkillXp(player: Player, skill: keyof Skills, amount: number): { levelUp: boolean, newLevel: number } { // Return level up info
+export function addSkillXp(player: Player, skill: keyof Skills, amount: number): { levelUp: boolean, newLevel: number } {
     if (!player.skills[skill]) player.skills[skill] = 0;
     const currentLevel = Math.floor(player.skills[skill]);
     player.skills[skill] += amount;
     const newLevel = Math.floor(player.skills[skill]);
     const levelUp = newLevel > currentLevel;
     if (levelUp) {
-        console.log(`[Skill] ${player.name}'s ${String(skill)} skill increased to level ${newLevel}!`); // Use String() here too
+        // Use String() to avoid implicit conversion error
+        console.log(`[Skill] ${player.name}'s ${String(skill)} skill increased to level ${newLevel}!`);
     }
-    return { levelUp, newLevel }; // Return info
+    return { levelUp, newLevel };
 }
 
-// Non-exported helpers remain the same
 function findInventoryItemById(player: Player, inventoryItemId: string): InventoryItem | undefined {
     return player.inventory.find((inv) => inv.id === inventoryItemId);
 }
 function removeItemFromInventoryById(player: Player, inventoryItemId: string, quantity: number): boolean {
-    // ... (implementation remains the same) ...
     const itemIndex = player.inventory.findIndex((inv) => inv.id === inventoryItemId);
-    if (itemIndex === -1) return false;
+    if (itemIndex === -1) {
+        console.error(`[Inventory] Item with ID ${inventoryItemId} not found for player ${player.name}.`);
+        return false;
+    }
     const invItem = player.inventory[itemIndex];
-    if (invItem.quantity < quantity) return false;
+    if (invItem.quantity < quantity) {
+        console.warn(`[Inventory] Not enough ${invItem.name} (ID: ${inventoryItemId}) to remove ${quantity}. Has ${invItem.quantity}.`);
+        return false;
+    }
     invItem.quantity -= quantity;
-    if (invItem.quantity <= 0) { player.inventory.splice(itemIndex, 1); }
+    console.log(`[Inventory] Removed ${quantity}x ${invItem.name} (ID: ${inventoryItemId}) from ${player.name}. Remaining: ${invItem.quantity}`);
+    if (invItem.quantity <= 0) {
+        player.inventory.splice(itemIndex, 1);
+         console.log(`[Inventory] Stack ${invItem.name} (ID: ${inventoryItemId}) removed completely.`);
+    }
     return true;
 }
 function removeItemFromInventoryByName(player: Player, itemName: string, quantityToRemove: number): boolean {
-    // ... (implementation remains the same) ...
      let quantityAccountedFor = 0;
     const itemsToRemoveIndices: number[] = [];
     for (let i = player.inventory.length - 1; i >= 0; i--) {
@@ -92,13 +103,19 @@ function removeItemFromInventoryByName(player: Player, itemName: string, quantit
             if (canRemoveFromStack > 0) {
                 itemStack.quantity -= canRemoveFromStack;
                 quantityAccountedFor += canRemoveFromStack;
+                console.log(`[Inventory] Removed ${canRemoveFromStack}x ${itemName} from stack ${itemStack.id}. Remaining in stack: ${itemStack.quantity}`);
                 if (itemStack.quantity <= 0) itemsToRemoveIndices.push(i);
             }
             if (quantityAccountedFor >= quantityToRemove) break;
         }
     }
     itemsToRemoveIndices.sort((a, b) => b - a).forEach(index => player.inventory.splice(index, 1));
-    return quantityAccountedFor >= quantityToRemove;
+    if (quantityAccountedFor < quantityToRemove) {
+        console.warn(`[Inventory] Could not remove enough ${itemName}. Needed ${quantityToRemove}, removed ${quantityAccountedFor}.`);
+        return false;
+    }
+    console.log(`[Inventory] Successfully removed ${quantityAccountedFor}x ${itemName} in total.`);
+    return true;
 }
 
 
@@ -107,30 +124,37 @@ export class GameEngine {
   state: GameState;
 
   constructor() {
-    // ... (constructor remains largely the same) ...
      console.log("[GameEngine] Initializing...");
     const initialPlayer: Player = this.createNewPlayer("player1", "Willow", "Essence");
-    this.state = { /* ... state properties ... */ };
-     this.state.players = [initialPlayer];
-     this.state.market = getInitialMarket();
-     this.state.marketData = { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 150, blackMarketUnlocked: false, tradingVolume: 0 };
-     this.state.townRequests = [];
-     this.state.rituals = [];
-     this.state.rumors = [];
-     this.state.journal = [];
-     this.state.events = [];
-     this.state.currentPlayerIndex = 0;
-     this.state.time = { year: 1, season: "Spring", phase: 0, phaseName: "New Moon", weatherFate: "normal", previousWeatherFate: undefined, dayCount: 1 };
-     this.state.version = "1.0.0";
-     this.state.knownRecipes = [];
+    this.state = {
+      players: [initialPlayer],
+      market: getInitialMarket(),
+      marketData: {
+        inflation: 1.0, demand: {}, supply: {}, volatility: 0.1,
+        blackMarketAccessCost: 150, blackMarketUnlocked: false, tradingVolume: 0
+      },
+      townRequests: [], rituals: [], rumors: [], journal: [], events: [],
+      currentPlayerIndex: 0,
+      time: {
+        year: 1, season: "Spring", phase: 0, phaseName: "New Moon",
+        weatherFate: "normal", previousWeatherFate: undefined, dayCount: 1
+      },
+      version: "1.0.0",
+      knownRecipes: [],
+    };
 
      const startingRecipeIds = [ "recipe_cooling_tonic", "recipe_moon_glow_serum" ];
      this.state.knownRecipes = startingRecipeIds.map(id => {
         const recipe = getRecipeById(id);
         if (recipe) {
-            return { id: recipe.id, name: recipe.name, category: recipe.category, description: recipe.description, type: recipe.type };
-        } return null;
-     }).filter((r): r is BasicRecipeInfo => r !== null);
+             // Type assertion for BasicRecipeInfo should be okay now
+             return {
+                 id: recipe.id, name: recipe.name, category: recipe.category,
+                 description: recipe.description, type: recipe.type
+             } as BasicRecipeInfo;
+         } return null;
+      }).filter((r): r is BasicRecipeInfo => r !== null); // Filter and predicate fixed by shared type change
+
      initialPlayer.knownRecipes = startingRecipeIds;
      this.state.townRequests = generateTownRequests(this.state);
      this.initializeMarketData();
@@ -138,10 +162,9 @@ export class GameEngine {
      this.addJournal(`Coven awakened. ${this.state.time.season} Year ${this.state.time.year}, a ${this.state.time.phaseName} begins.`, 'event', 5);
      this.addJournal(`The air feels ${this.state.time.weatherFate}.`, 'weather', 3);
      console.log("[GameEngine] Initialization complete.");
-  }
+   }
 
    initializeMarketData(): void {
-     // ... (implementation remains the same) ...
       ITEMS.forEach(item => {
          if (item.type === 'ingredient' || item.type === 'potion' || item.type === 'seed') {
             this.state.marketData.demand[item.name] = 50 + Math.floor(Math.random() * 30) - 15;
@@ -153,23 +176,23 @@ export class GameEngine {
    }
 
    initializeRituals(): void {
-     // Use imported function
      RITUAL_QUESTS.filter(q => q.initiallyAvailable).forEach(q => {
-         unlockRitualQuest(this.state, q.id); // Calls imported function
+         // Use imported function which now includes journaling
+         unlockRitualQuest(this.state, q.id);
      });
    }
 
    createNewPlayer(id: string, name: string, specializationId: AtelierSpecialization): Player {
-      // ... (implementation remains the same) ...
      const specializationDetails = SPECIALIZATIONS.find(s => s.id === specializationId);
      if (!specializationDetails) specializationId = 'Essence';
-     const newPlayer: Player = { /* ... player properties ... */ };
-     newPlayer.id = id; newPlayer.name = name; newPlayer.gold = 100; newPlayer.mana = 20; newPlayer.reputation = 5;
-     newPlayer.atelierSpecialization = specializationId; newPlayer.atelierLevel = 1;
-     newPlayer.skills = { gardening: 1, brewing: 1, trading: 1, crafting: 1, herbalism: 1, astrology: 1 };
-     newPlayer.inventory = []; newPlayer.garden = []; newPlayer.knownRecipes = []; newPlayer.completedRituals = [];
-     newPlayer.journalEntries = []; newPlayer.questsCompleted = 0; newPlayer.daysSurvived = 0;
-     newPlayer.blackMarketAccess = false; newPlayer.lastActive = 0;
+     const newPlayer: Player = { // Fixed TS2740 by initializing all properties
+        id: id, name: name, gold: 100, mana: 20, reputation: 5,
+        atelierSpecialization: specializationId, atelierLevel: 1,
+        skills: { gardening: 1, brewing: 1, trading: 1, crafting: 1, herbalism: 1, astrology: 1 },
+        inventory: [], garden: [], knownRecipes: [], completedRituals: [],
+        journalEntries: [], questsCompleted: 0, daysSurvived: 0,
+        blackMarketAccess: false, lastActive: 0
+     };
      const numSlots = 9;
      newPlayer.garden = Array.from({ length: numSlots }, (_, idx) => ({ id: idx, plant: null, fertility: 70 + Math.floor(Math.random() * 20) - 10, sunlight: 60 + Math.floor(Math.random() * 20) - 10, moisture: 50 + Math.floor(Math.random() * 20) - 10, isUnlocked: idx < STARTING_GARDEN_SLOTS }));
      this.giveStarterItems(newPlayer, specializationId);
@@ -178,17 +201,32 @@ export class GameEngine {
    }
 
    giveStarterItems(player: Player, specialization: AtelierSpecialization): void {
-     // ... (implementation remains the same) ...
       console.log(`[GameEngine] Giving starter items for ${specialization} specialization to ${player.name}.`);
      const baseSeed1 = getItemData("seed_glimmerroot"); const baseSeed2 = getItemData("seed_silverleaf");
      if (baseSeed1) addItemToInventory(player, baseSeed1, 2); if (baseSeed2) addItemToInventory(player, baseSeed2, 2);
-     switch (specialization) { /* ... cases ... */ }
+     switch (specialization) {
+         case "Essence":
+             const itemGinseng = getItemData("ing_ancient_ginseng"); const itemLotus = getItemData("ing_sacred_lotus");
+             if(itemGinseng) addItemToInventory(player, itemGinseng, 1); if(itemLotus) addItemToInventory(player, itemLotus, 1);
+             player.knownRecipes.push("recipe_radiant_moon_mask"); break;
+         case "Fermentation":
+             const itemSeedSweetshade = getItemData("seed_sweetshade"); const itemClayJar = getItemData("tool_clay_jar");
+             if(itemSeedSweetshade) addItemToInventory(player, itemSeedSweetshade, 2); if(itemClayJar) addItemToInventory(player, itemClayJar, 1);
+             player.knownRecipes.push("recipe_ginseng_infusion"); break;
+         case "Distillation":
+             const itemSeedEmberberry = getItemData("seed_emberberry"); const itemGlassVial = getItemData("tool_glass_vial");
+             if(itemSeedEmberberry) addItemToInventory(player, itemSeedEmberberry, 2); if(itemGlassVial) addItemToInventory(player, itemGlassVial, 2);
+             player.knownRecipes.push("recipe_summer_glow_oil"); break;
+         case "Infusion":
+             const itemSeedMoonbud = getItemData("seed_moonbud"); const itemMortar = getItemData("tool_mortar_pestle");
+             if(itemSeedMoonbud) addItemToInventory(player, itemSeedMoonbud, 2); if(itemMortar) addItemToInventory(player, itemMortar, 1);
+             player.knownRecipes.push("recipe_cooling_tonic"); break;
+     }
      const itemBasicTool = getItemData("tool_mortar_pestle");
      if(itemBasicTool && !player.inventory.some(i => i.baseId === itemBasicTool.id)) addItemToInventory(player, itemBasicTool, 1);
    }
 
    addJournal(text: string, category: string = 'event', importance: number = 3): void {
-     // ... (implementation remains the same) ...
      const entry: JournalEntry = { id: `j-${this.state.time.dayCount}-${this.state.journal.length}`, turn: this.state.time.dayCount, date: `${this.state.time.phaseName}, ${this.state.time.season} Y${this.state.time.year}`, text: text, category: category, importance: Math.max(1, Math.min(5, importance)), readByPlayer: false, };
      this.state.journal.push(entry);
      if (this.state.journal.length > 150) { this.state.journal.shift(); }
@@ -197,7 +235,6 @@ export class GameEngine {
   // --- Player Actions ---
 
     plantSeed(playerId: string, slotId: number, seedInventoryItemId: string): boolean {
-         // ... (implementation largely the same, but uses addSkillXp differently) ...
          const player = this.state.players.find(p => p.id === playerId);
          if (!player) return false;
          const slot = player.garden.find(s => s.id === slotId);
@@ -215,61 +252,52 @@ export class GameEngine {
          }
          const seedQuality = seedInvItem.quality ?? DEFAULT_ITEM_QUALITY;
          const initialHealth = 50 + Math.round((seedQuality - 50) / 2);
-         const newPlant: Plant = { /* ... plant properties ... */ };
-         newPlant.id=`plant-${slotId}-${Date.now()}`; newPlant.name=plantData.name; newPlant.category=plantData.category;
-         newPlant.growth=0; newPlant.maxGrowth=plantData.growthTime; newPlant.watered=false;
-         newPlant.health=Math.max(10, Math.min(100, initialHealth)); newPlant.age=0; newPlant.mature=false;
-         newPlant.moonBlessed=this.state.time.phaseName === "Full Moon" || this.state.time.phaseName === "New Moon";
-         newPlant.seasonalModifier=this.calculateSeasonalModifier(plantData, this.state.time.season); newPlant.deathChance=0;
+         const newPlant: Plant = { // Fixed TS2740 by initializing all properties
+             id:`plant-${slotId}-${Date.now()}`, name:plantData.name, // Fixed TS2339 (name is on Item now)
+             category:plantData.category, growth:0, maxGrowth:plantData.growthTime, watered:false,
+             health:Math.max(10, Math.min(100, initialHealth)), age:0, mature:false,
+             moonBlessed:this.state.time.phaseName === "Full Moon" || this.state.time.phaseName === "New Moon",
+             seasonalModifier:this.calculateSeasonalModifier(plantData, this.state.time.season), deathChance:0
+         };
 
          slot.plant = newPlant;
          const removed = removeItemFromInventoryById(player, seedInventoryItemId, 1);
          if (!removed) {
               slot.plant = null; this.addJournal("Error planting seed - inventory issue.", 'error', 4); return false;
          }
-
-        const xpResult = addSkillXp(player, 'gardening', 0.3); // Capture result
-        if (xpResult.levelUp) { // Check for level up
-             this.addJournal(`${player.name}'s gardening skill increased to level ${xpResult.newLevel}!`, 'skill', 4); // Add journal entry on level up
-        }
-
-        let journalText = `Planted a ${plantData.name} seed (Q:${seedQuality}%) in plot ${slotId + 1}.`;
-        if (newPlant.moonBlessed) journalText += " The moon's phase blesses this planting!";
-        this.addJournal(journalText, 'garden', 3);
-
-        checkQuestStepCompletion(this.state, player, 'plant', { seedName: plantData.name, slotId, quality: seedQuality, season: this.state.time.season });
-        return true;
+         const xpResult = addSkillXp(player, 'gardening', 0.3);
+         if (xpResult.levelUp) {
+              this.addJournal(`${player.name}'s gardening skill increased to level ${xpResult.newLevel}!`, 'skill', 4);
+         }
+         let journalText = `Planted a ${plantData.name} seed (Q:${seedQuality}%) in plot ${slotId + 1}.`; // Fixed TS2339
+         if (newPlant.moonBlessed) journalText += " The moon's phase blesses this planting!";
+         this.addJournal(journalText, 'garden', 3);
+         checkQuestStepCompletion(this.state, player, 'plant', { seedName: plantData.name, slotId, quality: seedQuality, season: this.state.time.season }); // Fixed TS2339
+         return true;
     }
 
      calculateSeasonalModifier(ingredientData: Ingredient, season: Season): number {
-       // ... (implementation remains the same) ...
         if (season === ingredientData.bestSeason) return 1.5;
         if (season === ingredientData.worstSeason) return 0.5;
         return 1.0;
     }
 
 
-    waterPlants(playerId: string, /* success: boolean */): boolean { // Removed unused success parameter
+    waterPlants(playerId: string): boolean { // Removed unused success parameter
         const player = this.state.players.find(p => p.id === playerId);
         if (!player) return false;
-
         let wateredCount = 0;
         player.garden.forEach(slot => {
             if (slot.plant && !slot.plant.mature) {
-                slot.plant.watered = true;
-                wateredCount++;
+                slot.plant.watered = true; wateredCount++;
             }
         });
-
         if (wateredCount > 0) {
-             // Grant XP and log level up if necessary
              const xpAmount = 0.1 * wateredCount;
              const xpResult = addSkillXp(player, 'gardening', xpAmount);
-             if (xpResult.levelUp) {
-                  this.addJournal(`${player.name}'s gardening skill increased to level ${xpResult.newLevel}!`, 'skill', 4);
-             }
-            this.addJournal(`You tended to the watering needs of your garden (${wateredCount} plants).`, 'garden', 2);
-            return true;
+             if (xpResult.levelUp) this.addJournal(`${player.name}'s gardening skill increased to level ${xpResult.newLevel}!`, 'skill', 4);
+             this.addJournal(`You tended to the watering needs of your garden (${wateredCount} plants).`, 'garden', 2);
+             return true;
         } else {
              this.addJournal(`No plants needed watering at the moment.`, 'garden', 1);
              return false;
@@ -277,7 +305,6 @@ export class GameEngine {
     }
 
    harvestPlant(playerId: string, slotId: number): boolean {
-     // ... (implementation largely the same, uses addSkillXp) ...
       const player = this.state.players.find(p => p.id === playerId);
       if (!player) return false;
       const slot = player.garden.find(s => s.id === slotId);
@@ -289,38 +316,34 @@ export class GameEngine {
       if (!plantData) {
            this.addJournal(`Error harvesting - unknown plant data!`, 'error', 4); return false;
       }
+      // Assuming calculateHarvestQuality is correctly defined and returns { quality: number, bonusFactors: string[] }
       const harvestInfo = calculateHarvestQuality(plantData, plant.health, plant.age, this.state.time.phaseName, this.state.time.season);
+      // Assume harvestInfo.quality and harvestInfo.bonusFactors exist now. If not, need to fix calculateHarvestQuality.
+      const harvestQuality = harvestInfo.quality; // Assuming quality exists
+
       const itemBaseData = getItemData(plantData.id);
       if (!itemBaseData) {
            this.addJournal(`Error harvesting - item definition missing!`, 'error', 4); return false;
       }
       let yieldAmount = 1;
       const specBonus = getSpecializationBonus(player.atelierSpecialization, 'harvest', itemBaseData.type, itemBaseData.category);
-      const finalHarvestQuality = Math.min(100, Math.round(harvestInfo.quality * specBonus.bonusMultiplier));
+      const finalHarvestQuality = Math.min(100, Math.round(harvestQuality * specBonus.bonusMultiplier));
       const added = addItemToInventory(player, itemBaseData, yieldAmount, finalHarvestQuality, this.state.time.phaseName, this.state.time.season);
       if (!added) {
            this.addJournal(`Error adding harvested ${itemBaseData.name} to inventory.`, 'error', 4); return false;
       }
-
-      // Grant XP and log level ups
-      const xpResultGardening = addSkillXp(player, 'gardening', 0.6);
-      if (xpResultGardening.levelUp) this.addJournal(`${player.name}'s gardening skill increased to level ${xpResultGardening.newLevel}!`, 'skill', 4);
-      const xpResultHerbalism = addSkillXp(player, 'herbalism', 0.2);
-      if (xpResultHerbalism.levelUp) this.addJournal(`${player.name}'s herbalism skill increased to level ${xpResultHerbalism.newLevel}!`, 'skill', 4);
-
-      let qualityText = "average";
-      if (finalHarvestQuality >= 90) qualityText = "exceptional"; else if (finalHarvestQuality >= 75) qualityText = "excellent"; else if (finalHarvestQuality >= 60) qualityText = "good"; else if (finalHarvestQuality < 40) qualityText = "poor";
+      const xpResultGardening = addSkillXp(player, 'gardening', 0.6); if (xpResultGardening.levelUp) this.addJournal(`${player.name}'s gardening skill increased to level ${xpResultGardening.newLevel}!`, 'skill', 4);
+      const xpResultHerbalism = addSkillXp(player, 'herbalism', 0.2); if (xpResultHerbalism.levelUp) this.addJournal(`${player.name}'s herbalism skill increased to level ${xpResultHerbalism.newLevel}!`, 'skill', 4);
+      let qualityText = "average"; if (finalHarvestQuality >= 90) qualityText = "exceptional"; else if (finalHarvestQuality >= 75) qualityText = "excellent"; else if (finalHarvestQuality >= 60) qualityText = "good"; else if (finalHarvestQuality < 40) qualityText = "poor";
       this.addJournal(`Harvested ${yieldAmount} ${plant.name} of ${qualityText} quality (${finalHarvestQuality}%) from plot ${slotId + 1}.`, 'garden', 3);
-      harvestInfo.bonusFactors.forEach(factor => this.addJournal(` - ${factor}`, 'garden', 1));
-      slot.plant = null;
-      slot.fertility = Math.max(30, (slot.fertility ?? 70) - (5 + Math.floor(plantData.growthTime / 2)));
-      checkQuestStepCompletion(this.state, player, 'harvest', { /* ... details ... */ });
+      (harvestInfo.bonusFactors || []).forEach(factor => this.addJournal(` - ${factor}`, 'garden', 1)); // Check bonusFactors exists
+      slot.plant = null; slot.fertility = Math.max(30, (slot.fertility ?? 70) - (5 + Math.floor(plantData.growthTime / 2)));
+      checkQuestStepCompletion(this.state, player, 'harvest', { plantName: plant.name, quality: finalHarvestQuality, quantity: yieldAmount, moonPhase: this.state.time.phaseName, season: this.state.time.season });
       return true;
  }
 
 
    brewPotion(playerId: string, ingredientInvItemIds: string[]): boolean {
-     // ... (implementation largely the same, uses addSkillXp) ...
       const player = this.state.players.find(p => p.id === playerId);
       if (!player || ingredientInvItemIds.length !== 2) return false;
       const invItem1 = findInventoryItemById(player, ingredientInvItemIds[0]); const invItem2 = findInventoryItemById(player, ingredientInvItemIds[1]);
@@ -337,8 +360,13 @@ export class GameEngine {
           if (discoveredRecipe) {
               this.addJournal(`Discovery! You've figured out how to brew ${discoveredRecipe.name}!`, 'discovery', 5);
               player.knownRecipes.push(discoveredRecipe.id);
-              const basicInfo: BasicRecipeInfo = { /* ... */ }; // Create basic info
-               basicInfo.id=discoveredRecipe.id; basicInfo.name=discoveredRecipe.name; basicInfo.category=discoveredRecipe.category; basicInfo.description=discoveredRecipe.description; basicInfo.type=discoveredRecipe.type;
+              const basicInfo: BasicRecipeInfo = { // Fixed TS2739 by adding properties
+                   id: discoveredRecipe.id,
+                   name: discoveredRecipe.name,
+                   category: discoveredRecipe.category,
+                   description: discoveredRecipe.description,
+                   type: discoveredRecipe.type
+              };
                if (!this.state.knownRecipes?.some(r => r.id === basicInfo.id)) this.state.knownRecipes = [...(this.state.knownRecipes || []), basicInfo];
               recipeUsed = discoveredRecipe;
               brewOutcome = performBrewing(discoveredRecipe, ingredientQualities, player, this.state.time.phaseName);
@@ -353,11 +381,11 @@ export class GameEngine {
           const resultItemData = getItemData(brewOutcome.resultItemName);
           if (resultItemData) {
               addItemToInventory(player, resultItemData, quantityProduced, brewOutcome.quality, this.state.time.phaseName, this.state.time.season);
-              const xpAmount = recipeUsed ? (0.5 + recipeUsed.difficulty * 0.1) : 0.3; // XP based on recipe difficulty
-              const xpResult = addSkillXp(player, 'brewing', xpAmount); // Grant XP for successful brew
-              if (xpResult.levelUp) this.addJournal(`${player.name}'s brewing skill increased to level ${xpResult.newLevel}!`, 'skill', 4);
+              const xpAmount = recipeUsed ? (0.5 + recipeUsed.difficulty * 0.1) : 0.3;
+              const xpResult = addSkillXp(player, 'brewing', xpAmount); if (xpResult.levelUp) this.addJournal(`${player.name}'s brewing skill increased to level ${xpResult.newLevel}!`, 'skill', 4);
               let successMsg = `Successfully brewed ${resultItemData.name} (Q: ${brewOutcome.quality}%)`; if (quantityProduced > 1) successMsg += ` (x${quantityProduced}!)`; if (brewOutcome.bonusFactor && !brewOutcome.bonusFactor.includes('yield')) successMsg += `. ${brewOutcome.bonusFactor}`; this.addJournal(successMsg, 'brewing', 3);
-              checkQuestStepCompletion(this.state, player, 'brew', { /* ... details ... */ }); return true;
+              checkQuestStepCompletion(this.state, player, 'brew', { potionName: resultItemData.name, potionId: resultItemData.id, quality: brewOutcome.quality, moonPhase: this.state.time.phaseName, recipeId: recipeUsed?.id });
+              return true;
           } else { this.addJournal(`Brewing succeeded, but the resulting potion (${brewOutcome.resultItemName}) is unknown!`, 'error', 4); return false; }
       } else {
           const ruinedItemData = getItemData("misc_ruined_brewage"); if (ruinedItemData) addItemToInventory(player, ruinedItemData, 1, 0);
@@ -366,9 +394,7 @@ export class GameEngine {
       }
    }
 
-
   fulfillRequest(playerId: string, requestId: string): boolean {
-     // ... (implementation largely the same, uses addSkillXp) ...
       const player = this.state.players.find(p => p.id === playerId);
       if (!player) return false;
       const reqIndex = this.state.townRequests.findIndex(req => req.id === requestId);
@@ -382,11 +408,10 @@ export class GameEngine {
       const xpResult = addSkillXp(player, 'trading', 0.4 + request.difficulty * 0.1); if (xpResult.levelUp) this.addJournal(`${player.name}'s trading skill increased to level ${xpResult.newLevel}!`, 'skill', 4);
       player.questsCompleted = (player.questsCompleted || 0) + 1;
       this.addJournal(`Fulfilled ${request.requester}'s request for ${request.quantity} ${request.item}.`, 'quest', 4); this.addJournal(`Received ${request.rewardGold} gold and +${request.rewardInfluence} reputation.`, 'reward', 3);
-      checkQuestStepCompletion(this.state, player, 'fulfillRequest', { /* ... details ... */ }); return true;
+      checkQuestStepCompletion(this.state, player, 'fulfillRequest', { requestId: request.id, itemName: request.item, quantity: request.quantity, requester: request.requester }); return true;
   }
 
-    buyItem(playerId: string, itemId: string): boolean {
-     // ... (implementation largely the same, uses addSkillXp) ...
+  buyItem(playerId: string, itemId: string): boolean {
       const player = this.state.players.find(p => p.id === playerId);
       if (!player) return false;
       const marketItemIndex = this.state.market.findIndex(item => item.id === itemId);
@@ -400,11 +425,10 @@ export class GameEngine {
       this.addJournal(`Purchased 1 ${marketItem.name} for ${price} gold.`, 'market', 2);
       ensureMarketData(this.state, marketItem.name); this.state.marketData.demand[marketItem.name] = Math.min(100, (this.state.marketData.demand[marketItem.name] ?? 50) + 8); this.state.marketData.supply[marketItem.name] = Math.max(5, (this.state.marketData.supply[marketItem.name] ?? 50) - 5);
       marketItem.price = Math.round(marketItem.price * 1.02); marketItem.lastPriceChange = this.state.time.dayCount; this.state.marketData.tradingVolume += price;
-      checkQuestStepCompletion(this.state, player, 'buyItem', { /* ... details ... */ }); return true;
-    }
+      checkQuestStepCompletion(this.state, player, 'buyItem', { itemId: itemBaseData.id, itemName: itemBaseData.name, price: price, category: itemBaseData.category }); return true;
+  }
 
   sellItem(playerId: string, inventoryItemId: string): boolean {
-     // ... (implementation largely the same, uses addSkillXp) ...
       const player = this.state.players.find(p => p.id === playerId);
       if (!player) return false;
       const invItem = findInventoryItemById(player, inventoryItemId);
@@ -420,7 +444,7 @@ export class GameEngine {
       this.addJournal(`Sold 1 ${invItem.name} (Q: ${invItem.quality ?? 'N/A'}%) for ${sellPrice} gold.`, 'market', 2);
       ensureMarketData(this.state, marketItem.name); this.state.marketData.supply[marketItem.name] = Math.min(95, (this.state.marketData.supply[marketItem.name] ?? 50) + 8); this.state.marketData.demand[marketItem.name] = Math.max(5, (this.state.marketData.demand[marketItem.name] ?? 50) - 4);
       marketItem.price = Math.max(1, Math.round(marketItem.price * 0.98)); marketItem.lastPriceChange = this.state.time.dayCount; this.state.marketData.tradingVolume += sellPrice;
-      checkQuestStepCompletion(this.state, player, 'sellItem', { /* ... details ... */ }); return true;
+      checkQuestStepCompletion(this.state, player, 'sellItem', { itemId: invItem.baseId, itemName: invItem.name, price: sellPrice, quality: invItem.quality, category: invItem.category }); return true;
   }
 
     // --- Ritual and Rumor Methods ---
@@ -444,7 +468,6 @@ export class GameEngine {
 
     // --- Turn Management & World Simulation ---
     endTurn(playerId: string): void {
-        // ... (implementation remains the same) ...
         const playerIndex = this.state.players.findIndex(p => p.id === playerId);
         if (playerIndex !== this.state.currentPlayerIndex) return;
         const currentPlayer = this.state.players[playerIndex];
@@ -456,37 +479,50 @@ export class GameEngine {
         else { const nextPlayer = this.state.players[nextPlayerIndex]; if (nextPlayer) { this.addJournal(`It is now ${nextPlayer.name}'s turn.`, 'event', 1); } }
     }
     advancePhase(): void {
-        // ... (implementation remains the same) ...
         console.log(`[Engine] Advancing phase from Day ${this.state.time.dayCount}...`);
         this.state = processTurn(this.state);
         if (Math.random() < 0.4) { const newRequests = generateTownRequests(this.state); if (newRequests.length > 0) { const maxRequests = 5; const slotsAvailable = maxRequests - this.state.townRequests.length; if (slotsAvailable > 0) { this.state.townRequests.push(...newRequests.slice(0, slotsAvailable)); this.addJournal(`New town requests posted.`, 'quest', 3); } } }
         const newRumors = generateRumors(this.state); this.state.rumors.push(...newRumors); processRumorEffects(this.state);
         applyMarketEvents(this.state);
-        progressRituals(this.state); // Removed player loop here as progressRituals doesn't take player
+        progressRituals(this.state);
         console.log(`[Engine] Phase advanced to Day ${this.state.time.dayCount}: ${this.state.time.phaseName}, ${this.state.time.season} Y${this.state.time.year}, Weather: ${this.state.time.weatherFate}`);
     }
 
     // --- State Management ---
     getState(): GameState { return this.state; }
-    saveGame(): string { /* ... (implementation remains the same) ... */ try { this.state.time.lastSaved = Date.now(); const saveData = JSON.stringify(this.state); return saveData; } catch (error) { console.error("[Engine] Error saving game:", error); return ""; } }
-    loadGame(saveData: string): boolean { /* ... (implementation remains the same) ... */ try { const loadedState = JSON.parse(saveData) as GameState; if (!loadedState || !loadedState.version || !loadedState.players || !loadedState.time) throw new Error("Invalid save data structure."); if (loadedState.version !== this.state.version) console.warn(`[Engine] Loading save data from different version (${loadedState.version}). Current: ${this.state.version}.`); this.state = loadedState; this.addJournal(`Game loaded from save.`, 'event', 5); return true; } catch (error) { console.error("[Engine] Error loading game:", error); this.addJournal(`Failed to load save data. Error: ${(error as Error).message}`, 'error', 5); return false; } }
+    saveGame(): string { try { this.state.time.lastSaved = Date.now(); const saveData = JSON.stringify(this.state); return saveData; } catch (error) { console.error("[Engine] Error saving game:", error); return ""; } }
+    loadGame(saveData: string): boolean { try { const loadedState = JSON.parse(saveData) as GameState; if (!loadedState || !loadedState.version || !loadedState.players || !loadedState.time) throw new Error("Invalid save data structure."); if (loadedState.version !== this.state.version) console.warn(`[Engine] Loading save data from different version (${loadedState.version}). Current: ${this.state.version}.`); this.state = loadedState; this.addJournal(`Game loaded from save.`, 'event', 5); return true; } catch (error) { console.error("[Engine] Error loading game:", error); this.addJournal(`Failed to load save data. Error: ${(error as Error).message}`, 'error', 5); return false; } }
 
     // --- Debug Methods ---
-   debugGiveItem(playerId: string, itemName: string, quantity: number, quality: number): void { /* ... */ }
+   debugGiveItem(playerId: string, itemName: string, quantity: number = 1, quality: number = 70): void {
+       const player = this.state.players.find(p => p.id === playerId);
+       const itemData = getItemData(itemName);
+       if (player && itemData) { addItemToInventory(player, itemData, quantity, quality); this.addJournal(`[DEBUG] Gave ${quantity}x ${itemName} (Q${quality}) to ${player.name}.`, 'debug', 1); }
+       else { this.addJournal(`[DEBUG] Failed to give item ${itemName} to ${playerId}. Player or item not found.`, 'debug', 1); }
+   }
    debugAddSkillXp(playerId: string, skillName: keyof Skills, amount: number): void {
         const player = this.state.players.find(p => p.id === playerId);
         if (player && player.skills.hasOwnProperty(skillName)) {
-            const xpResult = addSkillXp(player, skillName, amount); // Use exported helper
-            this.addJournal(`[DEBUG] Added ${amount} XP to ${String(skillName)} for ${player.name}. New value: ${player.skills[skillName].toFixed(2)}`, 'debug', 1); // Use String()
-            if (xpResult.levelUp) {
-                 this.addJournal(`[DEBUG] ${player.name}'s ${String(skillName)} skill increased to level ${xpResult.newLevel}!`, 'debug', 1);
-            }
+            const xpResult = addSkillXp(player, skillName, amount);
+            this.addJournal(`[DEBUG] Added ${amount} XP to ${String(skillName)} for ${player.name}. New value: ${player.skills[skillName].toFixed(2)}`, 'debug', 1);
+            if (xpResult.levelUp) this.addJournal(`[DEBUG] ${player.name}'s ${String(skillName)} skill increased to level ${xpResult.newLevel}!`, 'debug', 1);
         } else {
-             this.addJournal(`[DEBUG] Failed to add XP for ${String(skillName)} to ${playerId}. Player or skill not found.`, 'debug', 1); // Use String()
+             this.addJournal(`[DEBUG] Failed to add XP for ${String(skillName)} to ${playerId}. Player or skill not found.`, 'debug', 1);
         }
    }
-   debugAddGold(playerId: string, amount: number): void { /* ... */ }
-    debugSetMoonPhase(phaseName: MoonPhase): void { /* ... */ }
-    debugSetSeason(season: Season): void { /* ... */ }
+   debugAddGold(playerId: string, amount: number): void {
+        const player = this.state.players.find(p => p.id === playerId);
+        if (player) { player.gold += amount; this.addJournal(`[DEBUG] Added ${amount} gold to ${player.name}. New total: ${player.gold}`, 'debug', 1); }
+        else { this.addJournal(`[DEBUG] Failed to add gold to ${playerId}. Player not found.`, 'debug', 1); }
+   }
+    debugSetMoonPhase(phaseName: MoonPhase): void {
+        const phaseIndex = MoonPhases.indexOf(phaseName);
+        if (phaseIndex !== -1) { this.state.time.phase = phaseIndex; this.state.time.phaseName = phaseName; this.addJournal(`[DEBUG] Moon phase set to ${phaseName}.`, 'debug', 1); }
+        else { this.addJournal(`[DEBUG] Failed to set invalid moon phase: ${phaseName}.`, 'debug', 1); }
+    }
+    debugSetSeason(season: Season): void {
+        if (Seasons.includes(season)) { this.state.time.season = season; this.addJournal(`[DEBUG] Season set to ${season}.`, 'debug', 1); }
+        else { this.addJournal(`[DEBUG] Failed to set invalid season: ${season}.`, 'debug', 1); }
+    }
 
 } // End GameEngine Class

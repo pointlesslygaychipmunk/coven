@@ -3,37 +3,31 @@
 // This acts as the master database for item types.
 
 import { ItemType, ItemCategory, Item, MarketItem } from "coven-shared";
-import { INGREDIENTS, SEEDS } from "./ingredients.js";
+import { INGREDIENTS, SEEDS, SeedItem } from "./ingredients.js"; // Import SeedItem definition
 
 // Master list of all potential items in the game
 export const ITEMS: Item[] = [
   // == Ingredients (Data primarily from ingredients.ts) ==
-  // Ensure the base Item type includes all properties used here (name, desc, value, etc.)
+  // Map directly, assuming Ingredient interface correctly extends Item
   ...INGREDIENTS.map(ing => ({
-    id: ing.id,
-    name: ing.name, // Inherited
-    type: 'ingredient' as ItemType,
-    category: ing.category,
-    description: ing.description, // Inherited
-    value: ing.value, // Inherited
-    rarity: ing.rarity, // Inherited
-    primaryProperty: ing.primaryProperty,
-    seasonalBonus: ing.bestSeason,
+    // Properties like id, name, value, desc, rarity are inherited from Item
+    ...ing, // Spread all properties from the Ingredient object
+    type: 'ingredient' as ItemType, // Ensure type is set correctly
   })),
 
   // == Seeds (Data primarily from ingredients.ts) ==
-  // Ensure the base Item type includes all properties used here
+  // Map directly, assuming SeedItem interface correctly extends Item
    ...SEEDS.map(seed => ({
-    id: seed.id, // Inherited
-    name: seed.name, // Inherited
-    type: 'seed' as ItemType,
-    category: 'seed' as ItemCategory,
-    description: seed.description, // Inherited
-    value: seed.value, // Inherited
-    rarity: seed.rarity, // Inherited
-    // Note: plantSource is specific to SeedItem interface, not base Item
-    // It's used internally in ingredients.ts but not needed for the generic ITEMS list
-  })),
+       ...seed, // Spread all properties from the SeedItem object
+       type: 'seed' as ItemType, // Ensure type is set correctly
+       category: 'seed' as ItemCategory, // Ensure category is set correctly
+       // Remove redundant assignments if they are correctly on the base Item type
+       // id: seed.id,
+       // name: seed.name,
+       // description: seed.description,
+       // value: seed.value,
+       // rarity: seed.rarity,
+   })),
 
   // == Potions (Crafted Products) ==
   {
@@ -122,8 +116,7 @@ export const ITEMS: Item[] = [
        description: "A failed brewing attempt resulted in this murky, useless concoction.",
        value: 1, rarity: 'common',
    }
-   // No need for mapping defaults if base Item definition requires category/rarity
-].map(item => ({ ...item, category: item.category || 'misc', rarity: item.rarity || 'common' })) as Item[]; // Keep default mapping for safety
+].map(item => ({ ...item, category: item.category || 'misc', rarity: item.rarity || 'common' })) as Item[];
 
 
 // Helper function to get full item data by its ID
@@ -133,9 +126,16 @@ export function getItemData(itemId: string): Item | undefined {
 
 // Generate initial market items from the master list
 export function getInitialMarket(): MarketItem[] {
-  // ... (implementation remains the same) ...
-    const initialMarketIds = [ /* ... */ ];
-    return ITEMS
+  const initialMarketIds: string[] = [
+    // Seeds
+    "seed_moonbud", "seed_glimmerroot", "seed_silverleaf", "seed_sunpetal",
+    // Some Basic Ingredients (low initial supply)
+    "ing_silverleaf", "ing_sweetshade",
+    // Basic Tools
+    "tool_clay_jar", "tool_glass_vial", "tool_mortar_pestle"
+  ];
+
+  return ITEMS
     .filter(item => initialMarketIds.includes(item.id))
     .map(item => ({
       id: item.id, name: item.name || 'Unknown Item', type: item.type, category: item.category || 'misc',

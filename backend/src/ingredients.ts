@@ -3,163 +3,138 @@
 
 import { ItemCategory, Season, MoonPhase, WeatherFate, Item, Rarity } from "coven-shared";
 
-// Full ingredient definition with growing properties
-// Ingredient now inherits 'name', 'value' etc. from Item via shared/types.ts
+// Ingredient now inherits 'name', 'value', 'description', 'id', 'rarity' from Item
 export interface Ingredient extends Item {
-  // id: string; // Inherited from Item
-  // name: string; // Inherited from Item
-  type: 'ingredient'; // Explicitly ingredient type
-  category: ItemCategory; // Must be an ingredient category
-  rarity: Rarity; // Ensure rarity is always present
-  growthTime: number; // Base number of growth cycles needed to mature
-  primaryProperty: string; // Main skincare property (e.g., "brightening")
-  secondaryProperty?: string; // Secondary skincare property
-  bestSeason: Season; // Season when growth is optimal (1.5x modifier)
-  worstSeason: Season; // Season when growth is poorest (0.5x modifier)
-  idealMoonPhase?: MoonPhase; // Ideal moon phase for harvesting (bonus quality/yield)
-  idealMoisture: number; // Ideal soil moisture range (e.g., 50-70) - Use a range or midpoint
-  idealSunlight?: number; // Ideal sunlight level (0-100) - Optional for now
-  hanbangUsage?: string; // Traditional Hanbang usage description
-  harvestBonus?: string; // Description of special bonus when harvested optimally
-  mutationChance?: number; // Base chance of mutation (0-1)
-  mutationTypes?: string[]; // Possible mutation names (e.g., "Luminous", "Hardy")
-  // value?: number; // Inherited from Item
-  // description?: string; // Inherited from Item
+  type: 'ingredient';
+  // category: ItemCategory; // Already mandatory in Item
+  growthTime: number;
+  primaryProperty: string;
+  secondaryProperty?: string;
+  bestSeason: Season;
+  worstSeason: Season;
+  idealMoonPhase?: MoonPhase;
+  idealMoisture: number;
+  idealSunlight?: number;
+  hanbangUsage?: string;
+  harvestBonus?: string;
+  mutationChance?: number;
+  mutationTypes?: string[];
 }
 
 
-// Define all available ingredients with complete properties
-// REMOVED redundant properties ('name', 'value', 'description') that are defined in the base Item type
+// Define all available ingredients - only list properties specific to Ingredient
+// or those overriding/defining base Item properties.
 export const INGREDIENTS: Ingredient[] = [
   {
-    id: "ing_glimmerroot", name: "Glimmerroot", type: "ingredient", category: "root", rarity: 'common', growthTime: 4, value: 12,
-    description: "A luminous root that grows stronger in sunlight. Provides firmness.",
-    primaryProperty: "firming", secondaryProperty: "brightening", bestSeason: "Spring", worstSeason: "Winter",
+    id: "ing_glimmerroot", name: "Glimmerroot", description: "A luminous root that grows stronger in sunlight. Provides firmness.", value: 12, type: "ingredient", category: "root", rarity: 'common',
+    growthTime: 4, primaryProperty: "firming", secondaryProperty: "brightening", bestSeason: "Spring", worstSeason: "Winter",
     idealMoonPhase: "Waxing Gibbous", idealMoisture: 60, idealSunlight: 80,
     hanbangUsage: "Strengthens skin's structural integrity.",
     harvestBonus: "Enhanced firming compounds when harvested during Waxing Gibbous.",
   },
   {
-    id: "ing_moonbud", name: "Moonbud", type: "ingredient", category: "flower", rarity: 'common', growthTime: 3, value: 10,
-    description: "A silver-petaled flower that blooms at night, absorbing moonlight.",
-    primaryProperty: "brightening", secondaryProperty: "rejuvenating", bestSeason: "Winter", worstSeason: "Summer",
+    id: "ing_moonbud", name: "Moonbud", description: "A silver-petaled flower that blooms at night, absorbing moonlight.", value: 10, type: "ingredient", category: "flower", rarity: 'common',
+    growthTime: 3, primaryProperty: "brightening", secondaryProperty: "rejuvenating", bestSeason: "Winter", worstSeason: "Summer",
     idealMoonPhase: "Full Moon", idealMoisture: 70, idealSunlight: 40,
     hanbangUsage: "Illuminates complexion, used in royal court rituals.",
     harvestBonus: "Harvesting during Full Moon grants enhanced luminosity.",
     mutationChance: 0.1, mutationTypes: ["Prismatic", "EternalBloom"],
   },
    {
-    id: "ing_silverleaf", name: "Silverleaf", type: "ingredient", category: "leaf", rarity: 'common', growthTime: 2, value: 8,
-    description: "Delicate silver-blue leaves. Excellent for sensitive skin.",
-    primaryProperty: "soothing", secondaryProperty: "balancing", bestSeason: "Fall", worstSeason: "Summer",
+    id: "ing_silverleaf", name: "Silverleaf", description: "Delicate silver-blue leaves. Excellent for sensitive skin.", value: 8, type: "ingredient", category: "leaf", rarity: 'common',
+    growthTime: 2, primaryProperty: "soothing", secondaryProperty: "balancing", bestSeason: "Fall", worstSeason: "Summer",
     idealMoonPhase: "Waning Crescent", idealMoisture: 50, idealSunlight: 60,
     hanbangUsage: "Cools and calms inflammation.",
   },
   {
-    id: "ing_sunpetal", name: "Sunpetal", type: "ingredient", category: "flower", rarity: 'common', growthTime: 3, value: 8,
-    description: "Vibrant yellow flowers that follow the sun. Fills potions with vitality.",
-    primaryProperty: "energizing", secondaryProperty: "protective", bestSeason: "Summer", worstSeason: "Winter",
+    id: "ing_sunpetal", name: "Sunpetal", description: "Vibrant yellow flowers that follow the sun. Fills potions with vitality.", value: 8, type: "ingredient", category: "flower", rarity: 'common',
+    growthTime: 3, primaryProperty: "energizing", secondaryProperty: "protective", bestSeason: "Summer", worstSeason: "Winter",
     idealMoonPhase: "First Quarter", idealMoisture: 50, idealSunlight: 90,
     hanbangUsage: "Protects from environmental damage.",
   },
    {
-    id: "ing_nightcap", name: "Nightcap", type: "ingredient", category: "mushroom", rarity: 'uncommon', growthTime: 2, value: 9,
-    description: "A deep purple mushroom that only grows in shade. Provides deep hydration.",
-    primaryProperty: "hydrating", secondaryProperty: "detoxifying", bestSeason: "Fall", worstSeason: "Spring",
+    id: "ing_nightcap", name: "Nightcap", description: "A deep purple mushroom that only grows in shade. Provides deep hydration.", value: 9, type: "ingredient", category: "mushroom", rarity: 'uncommon',
+    growthTime: 2, primaryProperty: "hydrating", secondaryProperty: "detoxifying", bestSeason: "Fall", worstSeason: "Spring",
     idealMoonPhase: "New Moon", idealMoisture: 80, idealSunlight: 20,
     hanbangUsage: "Draws moisture into the deepest skin layers.",
     mutationChance: 0.15, mutationTypes: ["LuminousSpores", "MidnightBloom"],
   },
    {
-    id: "ing_everdew", name: "Everdew", type: "ingredient", category: "succulent", rarity: 'uncommon', growthTime: 4, value: 14,
-    description: "A succulent that constantly produces tiny droplets of moisture.",
-    primaryProperty: "hydrating", secondaryProperty: "cooling", bestSeason: "Summer", worstSeason: "Winter",
+    id: "ing_everdew", name: "Everdew", description: "A succulent that constantly produces tiny droplets of moisture.", value: 14, type: "ingredient", category: "succulent", rarity: 'uncommon',
+    growthTime: 4, primaryProperty: "hydrating", secondaryProperty: "cooling", bestSeason: "Summer", worstSeason: "Winter",
     idealMoonPhase: "Waxing Crescent", idealMoisture: 30, idealSunlight: 70,
     hanbangUsage: "Maintains skin moisture balance in heat.",
   },
    {
-    id: "ing_sweetshade", name: "Sweetshade", type: "ingredient", category: "herb", rarity: 'common', growthTime: 3, value: 11,
-    description: "A pale, sweet-smelling herb that grows in dappled light. Has calming properties.",
-    primaryProperty: "soothing", secondaryProperty: "balancing", bestSeason: "Spring", worstSeason: "Fall",
+    id: "ing_sweetshade", name: "Sweetshade", description: "A pale, sweet-smelling herb that grows in dappled light. Has calming properties.", value: 11, type: "ingredient", category: "herb", rarity: 'common',
+    growthTime: 3, primaryProperty: "soothing", secondaryProperty: "balancing", bestSeason: "Spring", worstSeason: "Fall",
     idealMoisture: 60, idealSunlight: 50,
     hanbangUsage: "Traditional remedy for sensitive, irritated skin.",
   },
   {
-    id: "ing_emberberry", name: "Emberberry", type: "ingredient", category: "fruit", rarity: 'uncommon', growthTime: 2, value: 13,
-    description: "Small red berries that feel warm. Stimulates circulation and renewal.",
-    primaryProperty: "energizing", secondaryProperty: "exfoliating", bestSeason: "Summer", worstSeason: "Winter",
+    id: "ing_emberberry", name: "Emberberry", description: "Small red berries that feel warm. Stimulates circulation and renewal.", value: 13, type: "ingredient", category: "fruit", rarity: 'uncommon',
+    growthTime: 2, primaryProperty: "energizing", secondaryProperty: "exfoliating", bestSeason: "Summer", worstSeason: "Winter",
     idealMoonPhase: "Waxing Gibbous", idealMoisture: 50, idealSunlight: 80,
     hanbangUsage: "Boosts renewal in formulations for mature skin.",
   },
    {
-    id: "ing_ancient_ginseng", name: "Ancient Ginseng", type: "ingredient", category: "root", rarity: 'rare', growthTime: 5, value: 25,
-    description: "A rare and potent form of ginseng with powerful rejuvenating properties.",
-    primaryProperty: "rejuvenating", secondaryProperty: "nourishing", bestSeason: "Fall", worstSeason: "Spring",
+    id: "ing_ancient_ginseng", name: "Ancient Ginseng", description: "A rare and potent form of ginseng with powerful rejuvenating properties.", value: 25, type: "ingredient", category: "root", rarity: 'rare',
+    growthTime: 5, primaryProperty: "rejuvenating", secondaryProperty: "nourishing", bestSeason: "Fall", worstSeason: "Spring",
     idealMoonPhase: "Full Moon", idealMoisture: 70, idealSunlight: 60,
     hanbangUsage: "Cornerstone of Hanbang skincare, believed to harmonize energy.",
     harvestBonus: "Harvesting after 5+ turns yields maximum beneficial compounds.",
   },
   {
-    id: "ing_sacred_lotus", name: "Sacred Lotus", type: "ingredient", category: "flower", rarity: 'rare', growthTime: 4, value: 18,
-    description: "Pure white flowers growing from muddy waters yet remaining pristine.",
-    primaryProperty: "purifying", secondaryProperty: "brightening", bestSeason: "Summer", worstSeason: "Winter",
+    id: "ing_sacred_lotus", name: "Sacred Lotus", description: "Pure white flowers growing from muddy waters yet remaining pristine.", value: 18, type: "ingredient", category: "flower", rarity: 'rare',
+    growthTime: 4, primaryProperty: "purifying", secondaryProperty: "brightening", bestSeason: "Summer", worstSeason: "Winter",
     idealMoonPhase: "Full Moon", idealMoisture: 90, idealSunlight: 70,
     hanbangUsage: "Symbolizes purity; used for brightening.",
     harvestBonus: "Harvesting at dawn enhances brightening compounds.",
   },
   // --- Seasonal Ingredients ---
   {
-    id: "ing_spring_root", name: "Spring Root", type: "ingredient", category: "root", rarity: 'uncommon', growthTime: 3, value: 15,
-    description: "A tender root harvested only in spring, bursting with renewal energy.",
-    primaryProperty: "revitalizing", bestSeason: "Spring", worstSeason: "Fall", idealMoisture: 65
+    id: "ing_spring_root", name: "Spring Root", description: "A tender root harvested only in spring, bursting with renewal energy.", value: 15, type: "ingredient", category: "root", rarity: 'uncommon',
+    growthTime: 3, primaryProperty: "revitalizing", bestSeason: "Spring", worstSeason: "Fall", idealMoisture: 65
   },
    {
-    id: "ing_dewblossom", name: "Dewblossom", type: "ingredient", category: "flower", rarity: 'uncommon', growthTime: 2, value: 16,
-    description: "Ephemeral spring flower that captures morning dew.",
-    primaryProperty: "hydrating", secondaryProperty: "refreshing", bestSeason: "Spring", worstSeason: "Fall", idealMoisture: 75
+    id: "ing_dewblossom", name: "Dewblossom", description: "Ephemeral spring flower that captures morning dew.", value: 16, type: "ingredient", category: "flower", rarity: 'uncommon',
+    growthTime: 2, primaryProperty: "hydrating", secondaryProperty: "refreshing", bestSeason: "Spring", worstSeason: "Fall", idealMoisture: 75
   },
   {
-    id: "ing_sunthorn", name: "Sunthorn", type: "ingredient", category: "herb", rarity: 'uncommon', growthTime: 3, value: 12,
-    description: "A prickly herb thriving in summer heat, offers skin protection.",
-    primaryProperty: "protective", secondaryProperty: "resilience", bestSeason: "Summer", worstSeason: "Winter", idealMoisture: 40, idealSunlight: 95
+    id: "ing_sunthorn", name: "Sunthorn", description: "A prickly herb thriving in summer heat, offers skin protection.", value: 12, type: "ingredient", category: "herb", rarity: 'uncommon',
+    growthTime: 3, primaryProperty: "protective", secondaryProperty: "resilience", bestSeason: "Summer", worstSeason: "Winter", idealMoisture: 40, idealSunlight: 95
   },
   {
-    id: "ing_dragon_petal", name: "Dragon Petal", type: "ingredient", category: "flower", rarity: 'rare', growthTime: 4, value: 18,
-    description: "Fiery summer bloom known for its stimulating properties.",
-    primaryProperty: "energizing", secondaryProperty: "firming", bestSeason: "Summer", worstSeason: "Winter", idealMoisture: 55
+    id: "ing_dragon_petal", name: "Dragon Petal", description: "Fiery summer bloom known for its stimulating properties.", value: 18, type: "ingredient", category: "flower", rarity: 'rare',
+    growthTime: 4, primaryProperty: "energizing", secondaryProperty: "firming", bestSeason: "Summer", worstSeason: "Winter", idealMoisture: 55
   },
     {
-    id: "ing_autumnleaf", name: "Autumnleaf", type: "ingredient", category: "leaf", rarity: 'uncommon', growthTime: 2, value: 11,
-    description: "Leaves with the colours of fall, rich in preserving antioxidants.",
-    primaryProperty: "anti-aging", secondaryProperty: "protective", bestSeason: "Fall", worstSeason: "Spring", idealMoisture: 50
+    id: "ing_autumnleaf", name: "Autumnleaf", description: "Leaves with the colours of fall, rich in preserving antioxidants.", value: 11, type: "ingredient", category: "leaf", rarity: 'uncommon',
+    growthTime: 2, primaryProperty: "anti-aging", secondaryProperty: "protective", bestSeason: "Fall", worstSeason: "Spring", idealMoisture: 50
   },
   {
-    id: "ing_twilight_berry", name: "Twilight Berry", type: "ingredient", category: "fruit", rarity: 'uncommon', growthTime: 3, value: 15,
-    description: "Dark berries harvested in autumn twilight, possess calming properties.",
-    primaryProperty: "soothing", secondaryProperty: "balancing", bestSeason: "Fall", worstSeason: "Spring", idealMoisture: 60
+    id: "ing_twilight_berry", name: "Twilight Berry", description: "Dark berries harvested in autumn twilight, possess calming properties.", value: 15, type: "ingredient", category: "fruit", rarity: 'uncommon',
+    growthTime: 3, primaryProperty: "soothing", secondaryProperty: "balancing", bestSeason: "Fall", worstSeason: "Spring", idealMoisture: 60
   },
   {
-    id: "ing_frostherb", name: "Frostherb", type: "ingredient", category: "herb", rarity: 'rare', growthTime: 4, value: 16,
-    description: "A hardy herb that glitters with frost in winter, highly resilient.",
-    primaryProperty: "resilience", secondaryProperty: "protective", bestSeason: "Winter", worstSeason: "Summer", idealMoisture: 45
+    id: "ing_frostherb", name: "Frostherb", description: "A hardy herb that glitters with frost in winter, highly resilient.", value: 16, type: "ingredient", category: "herb", rarity: 'rare',
+    growthTime: 4, primaryProperty: "resilience", secondaryProperty: "protective", bestSeason: "Winter", worstSeason: "Summer", idealMoisture: 45
   },
    {
-    id: "ing_snow_lotus", name: "Snow Lotus", type: "ingredient", category: "flower", rarity: 'rare', growthTime: 5, value: 20,
-    description: "A rare lotus blooming amidst snow, exceptionally purifying.",
-    primaryProperty: "purifying", secondaryProperty: "brightening", bestSeason: "Winter", worstSeason: "Summer", idealMoisture: 80
+    id: "ing_snow_lotus", name: "Snow Lotus", description: "A rare lotus blooming amidst snow, exceptionally purifying.", value: 20, type: "ingredient", category: "flower", rarity: 'rare',
+    growthTime: 5, primaryProperty: "purifying", secondaryProperty: "brightening", bestSeason: "Winter", worstSeason: "Summer", idealMoisture: 80
   },
 ];
 
 // Define SeedItem based on Item
-// SeedItem now inherits 'id', 'name', 'value', 'description', 'rarity' from Item
 export interface SeedItem extends Item {
     type: 'seed';
     category: 'seed';
-    plantSource: string; // ID of the ingredient it grows
+    plantSource: string;
 }
 
 export const SEEDS: SeedItem[] = INGREDIENTS.map(ing => ({
-  // id, name, value, description, rarity inherited implicitly if Base Item type is correctly resolved
+  // Base properties (id, name, value, description, rarity) are now defined in Item via shared/types.ts
   id: `seed_${ing.name.toLowerCase().replace(/\s+/g, '_')}`,
   name: `${ing.name} Seed`,
   type: "seed",
@@ -168,9 +143,6 @@ export const SEEDS: SeedItem[] = INGREDIENTS.map(ing => ({
   value: Math.max(3, Math.floor((ing.value ?? 10) / 2)),
   description: `Seeds for growing ${ing.name}. Prefers ${ing.bestSeason}.`,
   rarity: ing.rarity,
-  // Make sure the base 'Item' type includes all properties needed here,
-  // or explicitly add them to SeedItem if they aren't common.
-  // For now, relying on shared/types.ts having name, value, description, rarity on Item.
 }));
 
 
@@ -180,21 +152,60 @@ export function getIngredientById(id: string): Ingredient | undefined {
   return INGREDIENTS.find(i => i.id === id);
 }
 export function getIngredientData(name: string): Ingredient | undefined {
-  return INGREDIENTS.find(i => i.name === name); // Uses name property now inherited from Item
+  return INGREDIENTS.find(i => i.name === name);
 }
 
 
 // Calculate growth modifier based on growing conditions
-export function calculateGrowthModifier(/*... unchanged ...*/) {
-    // ... (implementation remains the same) ...
+export function calculateGrowthModifier(
+  ingredient: Ingredient,
+  currentSeason: Season,
+  currentMoonPhase: MoonPhase,
+  moisture: number,
+  sunlight: number = 70
+): {
+  growthModifier: number;
+  factors: string[];
+} {
+  // ... (implementation remains the same) ...
+    const factors: string[] = []; let modifier = 1.0;
+    if (currentSeason === ingredient.bestSeason) { modifier *= 1.5; factors.push(`Optimal season (${currentSeason}): +50% growth`); }
+    else if (currentSeason === ingredient.worstSeason) { modifier *= 0.5; factors.push(`Challenging season (${currentSeason}): -50% growth`); }
+    else { factors.push(`Neutral season (${currentSeason})`); }
+    if (currentMoonPhase === "Waxing Gibbous" || currentMoonPhase === "First Quarter") { modifier *= 1.1; factors.push(`Waxing moon phase (${currentMoonPhase}): +10% growth`); }
+    else if (currentMoonPhase === "Waning Crescent") { modifier *= 0.95; factors.push(`Waning Crescent phase: -5% growth`); }
+    const idealMoistureMidpoint = ingredient.idealMoisture; const moistureDifference = Math.abs(moisture - idealMoistureMidpoint);
+    if (moistureDifference < 10) modifier *= 1.2; else if (moistureDifference > 30) modifier *= 0.7; else if (moistureDifference > 20) modifier *= 0.9;
+    if (ingredient.idealSunlight !== undefined) { const idealSun = ingredient.idealSunlight; const sunlightDifference = Math.abs(sunlight - idealSun); if (sunlightDifference < 15) modifier *= 1.15; else if (sunlightDifference > 40) modifier *= 0.75; else if (sunlightDifference > 25) modifier *= 0.9; }
+    else { if(sunlight > 40 && sunlight < 80) modifier *= 1.05; }
+    modifier = Math.max(0.1, modifier);
+    return { growthModifier: modifier, factors };
 }
+
 // Calculate harvest quality based on growing conditions and plant state
-export function calculateHarvestQuality(/*... unchanged ...*/) {
-    // ... (implementation remains the same) ...
+export function calculateHarvestQuality(
+  ingredient: Ingredient,
+  plantHealth: number,
+  plantAge: number,
+  harvestMoonPhase: MoonPhase,
+  harvestSeason: Season
+): { quality: number; bonusFactors: string[] } {
+  // ... (implementation remains the same) ...
+    const bonusFactors: string[] = []; let quality = 50;
+    const healthBonus = (plantHealth - 50) * 0.5; quality += healthBonus; bonusFactors.push(`Plant health (${plantHealth}%): ${healthBonus >= 0 ? '+' : ''}${healthBonus.toFixed(0)}`);
+    const optimalAge = (ingredient.growthTime || 3) * 1.5; const ageFactor = Math.min(1.0, plantAge / optimalAge); const ageQualityBonus = ageFactor * 15; quality += ageQualityBonus; if (ageQualityBonus > 5) bonusFactors.push(`Plant age (${plantAge} turns): +${ageQualityBonus.toFixed(0)}`);
+    if (ingredient.idealMoonPhase && harvestMoonPhase === ingredient.idealMoonPhase) { quality += 20; bonusFactors.push(`Ideal moon phase (${harvestMoonPhase}): +20`); }
+    else if (harvestMoonPhase === "Full Moon") { quality += 5; bonusFactors.push(`Full Moon harvest: +5`); }
+    if (harvestSeason === ingredient.bestSeason) { quality += 10; bonusFactors.push(`Best season (${harvestSeason}): +10`); }
+    else if (harvestSeason === ingredient.worstSeason) { quality -= 15; bonusFactors.push(`Worst season (${harvestSeason}): -15`); }
+    if (ingredient.harvestBonus && ( (ingredient.idealMoonPhase && harvestMoonPhase === ingredient.idealMoonPhase) || harvestSeason === ingredient.bestSeason) ) { if (ingredient.harvestBonus.toLowerCase().includes("quality") || ingredient.harvestBonus.toLowerCase().includes("potent")) { quality += 10; bonusFactors.push(`Special harvest bonus (+10): ${ingredient.harvestBonus}`); } }
+    quality = Math.round(Math.min(100, Math.max(10, quality)));
+    return { quality, bonusFactors };
 }
+
+
 // Check for mutation
 export function checkForMutation(ingredient: Ingredient, weather: WeatherFate, moonPhase: MoonPhase): string | null {
-  // ... (implementation remains the same, uses name inherited from Item) ...
     if (!ingredient.mutationChance || !ingredient.mutationTypes || ingredient.mutationTypes.length === 0) return null;
     let currentMutationChance = ingredient.mutationChance;
     if (moonPhase === "Full Moon" || moonPhase === "New Moon") currentMutationChance *= 1.5;
@@ -202,17 +213,37 @@ export function checkForMutation(ingredient: Ingredient, weather: WeatherFate, m
     if (Math.random() < currentMutationChance) {
         const mutationIndex = Math.floor(Math.random() * ingredient.mutationTypes.length);
         const mutationType = ingredient.mutationTypes[mutationIndex];
-        console.log(`MUTATION! ${ingredient.name} -> ${mutationType} (Chance: ${currentMutationChance.toFixed(3)})`); // Uses name
+        // Use inherited name property
+        console.log(`MUTATION! ${ingredient.name} -> ${mutationType} (Chance: ${currentMutationChance.toFixed(3)})`);
         return mutationType;
     } return null;
 }
+
 // Get growth stage description
-export function getGrowthStageDescription(/*... unchanged ...*/) {
-    // ... (implementation remains the same) ...
+export function getGrowthStageDescription(
+  plantName: string,
+  currentGrowth: number | undefined,
+  maxGrowth: number | undefined
+): string {
+  // ... (implementation remains the same) ...
+    if (currentGrowth === undefined || maxGrowth === undefined || maxGrowth <= 0) return `${plantName} (Growth stage unknown)`;
+    const percentage = Math.min(100, Math.max(0, (currentGrowth / maxGrowth) * 100));
+    if (percentage >= 100) return `Mature ${plantName}`;
+    if (percentage >= 75) return `Maturing ${plantName}`;
+    if (percentage >= 50) return `Developing ${plantName}`;
+    if (percentage >= 25) return `Sprouting ${plantName}`;
+    if (percentage > 0) return `Seedling ${plantName}`;
+    return `Planted ${plantName} Seed`;
 }
+
 // --- Category/Filtering Helpers ---
 export function groupIngredientsByCategory(): Record<ItemCategory, Ingredient[]> {
-    // ... (implementation remains the same) ...
+  // ... (implementation remains the same) ...
+    const grouped: Partial<Record<ItemCategory, Ingredient[]>> = {};
+    const ingredientCategories: ItemCategory[] = ['herb', 'flower', 'root', 'fruit', 'mushroom', 'leaf', 'succulent', 'essence', 'crystal'];
+    INGREDIENTS.forEach(ingredient => { if (ingredient && ingredient.category) { const category = ingredient.category; if (ingredientCategories.includes(category)) { if (!grouped[category]) grouped[category] = []; grouped[category]!.push(ingredient); } } else { console.warn(`Skipping ingredient due to missing data: ${ingredient?.id}`); } });
+    ingredientCategories.forEach(cat => { if (!grouped[cat]) grouped[cat] = []; });
+    return grouped as Record<ItemCategory, Ingredient[]>;
 }
 export function getSeasonalIngredients(season: Season): Ingredient[] {
   return INGREDIENTS.filter(ing => ing.bestSeason === season);
