@@ -1,34 +1,28 @@
 {
-  "name": "coven-frontend",
-  "version": "1.0.0",
-  "private": true,
+  "name": "coven-shared",
+  "version": "1.0.1",
+  "description": "Shared types and utilities for Coven game",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "start": "vite --port 3000"
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
   },
-  "dependencies": {
-    "coven-shared": "workspace:*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^7.17.0",
-    "@typescript-eslint/parser": "^7.17.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.8",
-    "sass": "^1.77.8",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5"
+    "rimraf": "^5.0.9"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  }
 }

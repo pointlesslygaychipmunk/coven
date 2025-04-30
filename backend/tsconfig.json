@@ -23,7 +23,12 @@
     "rootDir": "./src",
     "composite": true,
     "types": ["node", "express"],
-    "lib": ["ES2022"],
+    "baseUrl": ".",
+    "paths": {
+      "coven-shared": ["../shared/src/index.ts"],
+      "coven-shared/*": ["../shared/src/*"]
+    },
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],

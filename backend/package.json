@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "coven-shared": "workspace:*"
+    "coven-shared": "workspace:*",
     "cors": "^2.8.5",
     "express": "^4.19.2"
   },
