@@ -1,23 +1,82 @@
 /* frontend/src/components/App.css */
-/* Base layout and styling for the main App component */
+/* Redesigned styles for the main App component - inspired by Beauty of Joseon, Howl's Moving Castle, and 90s adventure games */
+
+:root {
+  /* Font variables - add these to your CSS variables if not already defined */
+  --font-primary: 'Cinzel', 'Garamond', serif;
+  --font-secondary: 'Lato', 'Open Sans', sans-serif;
+  
+  /* Add these charming, nostalgic color variables if not already defined */
+  --color-bg-sepia: #f0eadb;
+  --color-parchment: #f7f1e3;
+  --color-ink-light: #5c5346;
+  --color-ghibli-blue: #6e88a1;
+  --color-ghibli-green: #7a9d7e;
+  --color-magic-purple: #9479b5;
+}
 
 .game-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Full viewport height */
-  width: 100vw;  /* Full viewport width */
+  height: 100vh;
+  width: 100vw;
   background-color: var(--color-bg-dark);
-  position: relative; /* Needed for absolute positioned overlays */
-  overflow: hidden; /* Prevent scrolling at the game container level */
+  position: relative;
+  overflow: hidden;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(93, 70, 138, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 90% 90%, rgba(126, 186, 118, 0.05) 0%, transparent 50%);
+}
+
+/* Add a subtle magical pattern overlay */
+.game-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b59dc4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
 }
 
 .game-content {
-  flex: 1; /* Take remaining vertical space */
+  flex: 1;
   padding: 20px;
-  padding-top: 90px; /* Adjust based on HUD height to prevent overlap */
-  overflow-y: auto; /* Allow content area to scroll if needed */
-  position: relative; /* For stacking context */
-  z-index: 1; /* Ensure content is above background overlays but below HUD */
+  padding-top: 90px; /* Adjust based on HUD height */
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  perspective: 1000px;
+}
+
+/* Create a vintage paper-like texture for the background */
+.game-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23ffffff' fill-opacity='0.02' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Add a subtle vignette effect */
+.game-content::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, transparent 30%, rgba(26, 26, 36, 0.25) 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Loading Screen Styles */
@@ -31,28 +90,70 @@
   color: var(--color-text-heading);
   text-align: center;
   padding: 20px;
-  position: absolute; /* Cover everything */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 200; /* Above everything else */
+  z-index: 200;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(93, 70, 138, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(126, 186, 118, 0.1) 0%, transparent 40%);
 }
 
 .loading-screen h1, .error-screen h1 {
   font-family: var(--font-primary);
   font-weight: normal;
-  margin-bottom: 25px;
-  letter-spacing: 1.5px;
+  font-size: 32px;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+  position: relative;
+  text-shadow: 0 2px 10px rgba(181, 157, 196, 0.5);
+}
+
+.loading-screen h1::after, .error-screen h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-accent-primary), transparent);
 }
 
 .loading-icon {
-  width: 60px;
-  height: 60px;
-  border: 5px solid var(--color-border);
-  border-top: 5px solid var(--color-accent-primary);
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border: 3px solid var(--color-border);
+  border-top: 3px solid var(--color-accent-primary);
   border-radius: 50%;
-  animation: spin 1.2s linear infinite;
-  box-shadow: 0 0 20px rgba(181, 157, 196, 0.2);
+  animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  box-shadow: 0 0 20px rgba(181, 157, 196, 0.3);
+}
+
+/* Add magical sparkles around the loading icon */
+.loading-icon::before, .loading-icon::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: sparkle 2s ease-in-out infinite alternate;
+}
+
+.loading-icon::before {
+  top: -10px;
+  left: 50%;
+  background-color: var(--color-accent-primary);
+  animation-delay: 0.5s;
+}
+
+.loading-icon::after {
+  bottom: -10px;
+  right: -10px;
+  background-color: var(--color-accent-secondary);
+  animation-delay: 0.2s;
 }
 
 @keyframes spin {
@@ -60,7 +161,16 @@
   100% { transform: rotate(360deg); }
 }
 
+@keyframes sparkle {
+  0%, 100% { transform: scale(0.3); opacity: 0.2; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
 /* Error Screen Styles */
+.error-screen {
+  background-color: var(--color-bg-dark);
+}
+
 .error-screen h1 {
   color: var(--color-danger);
 }
@@ -71,22 +181,49 @@
   font-family: var(--font-secondary);
   line-height: 1.6;
   color: var(--color-text-medium);
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .error-screen button {
-  background-color: var(--color-bg-light);
+  background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
   color: var(--color-text-light);
   border: 1px solid var(--color-border);
-  padding: 10px 20px;
+  padding: 12px 25px;
   border-radius: var(--border-radius-sm);
   font-family: var(--font-primary);
+  font-size: 16px;
   cursor: pointer;
   transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.error-screen button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
 .error-screen button:hover {
   background-color: var(--color-border);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.error-screen button:hover::after {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* Error Overlay */
@@ -97,17 +234,96 @@
    transform: translateX(-50%);
    background-color: var(--color-danger);
    color: white;
-   padding: 10px 20px;
+   padding: 12px 25px;
    border-radius: var(--border-radius-md);
-   box-shadow: var(--shadow-medium);
-   z-index: 1000; /* Ensure it's on top */
-   display: flex; align-items: center; gap: 15px;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+   z-index: 1000;
+   display: flex; 
+   align-items: center; 
+   gap: 15px;
+   animation: slideUp 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
 }
-.error-overlay button { background: rgba(0,0,0,0.2); border: none; color: white; padding: 3px 8px; border-radius: 4px; cursor: pointer; }
 
-/* Placeholder for specific game view styles if needed */
-/* Example:
-.garden-view {
-  background-image: url('/images/garden_background.jpg');
-  background-size: cover;
-} */
+@keyframes slideUp {
+  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+.error-overlay button { 
+  background: rgba(0,0,0,0.2); 
+  border: none; 
+  color: white; 
+  padding: 5px 10px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: background 0.2s ease;
+}
+
+.error-overlay button:hover {
+  background: rgba(0,0,0,0.3);
+}
+
+/* Page Transitions */
+.route-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.route-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.route-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.route-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .game-content {
+    padding: 15px;
+    padding-top: 70px;
+  }
+  
+  .loading-screen h1, .error-screen h1 {
+    font-size: 24px;
+  }
+  
+  .loading-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .error-overlay {
+    width: 90%;
+    padding: 10px 15px;
+  }
+}
+
+/* For retro screen effect - uncomment to add a subtle CRT scanline effect */
+/*
+.game-container::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 0, 0, 0.01) 50%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.01)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.15;
+}
+*/

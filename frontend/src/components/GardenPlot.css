@@ -1,242 +1,894 @@
+/* frontend/src/components/GardenPlot.css */
+/* Redesigned garden plot with whimsical, airy, mystical aesthetics */
+
 .garden-plot {
-    position: relative;
-    flex: 1;
-    height: 100%;
-    background-color: #1f1d2c;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background-color: #1f1d2c;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(72, 61, 102, 0.3);
+}
+
+/* Subtle glow on hover */
+.garden-plot:hover:not(.locked) {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 
+              0 0 15px rgba(181, 157, 196, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: rgba(181, 157, 196, 0.5);
+}
+
+/* Enhanced selected state with magical glow */
+.garden-plot.selected:not(.locked) {
+  border: 2px solid var(--color-accent-primary);
+  box-shadow: 0 0 15px rgba(181, 157, 196, 0.6), 
+              inset 0 0 8px rgba(181, 157, 196, 0.3);
+  z-index: 2;
+}
+
+.garden-plot.locked {
+  background-color: #2a2a3a;
+  cursor: not-allowed;
+  opacity: 0.7;
+  border-color: rgba(50, 50, 60, 0.5);
+}
+
+.locked-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+/* Add magical padlock styling */
+.lock-icon {
+  font-size: 28px;
+  color: #7a6c95;
+  text-shadow: 0 0 8px rgba(122, 108, 149, 0.6);
+  animation: gentle-float 3s infinite ease-in-out;
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Improved soil with texture and transition */
+.plot-soil {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  border-radius: 0 0 12px 12px;
+  transition: all 0.5s ease;
+  overflow: hidden;
+}
+
+/* Add soil texture */
+.plot-soil::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgb3BhY2l0eT0iMC4xIj4KICAgIDxjaXJjbGUgY3g9IjUiIGN5PSI1IiByPSIxIiBmaWxsPSIjZmZmIiAvPgogICAgPGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMSIgZmlsbD0iI2ZmZiIgLz4KICAgIDxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjAuNSIgZmlsbD0iI2ZmZiIgLz4KICA8L2c+Cjwvc3ZnPg==');
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Enhanced moisture levels with gradients */
+.garden-plot.dry .plot-soil {
+  background-color: #4e342e;
+  background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
+  background-size: 20px 20px;
+}
+
+.garden-plot.dry .plot-soil::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(211, 125, 44, 0.1), transparent 80%);
+  pointer-events: none;
+}
+
+.garden-plot.wet .plot-soil {
+  background-color: #331f1c;
+  filter: brightness(0.8) saturate(1.2);
+}
+
+.garden-plot.wet .plot-soil::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(111, 166, 204, 0.2), transparent 70%);
+  animation: water-shimmer 4s infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes water-shimmer {
+  from { opacity: 0.3; }
+  to { opacity: 0.6; }
+}
+
+.garden-plot.normal .plot-soil {
+  background-color: #3e2723;
+}
+
+/* Plant visualization styles with improved animations */
+.plant {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.6s ease;
+  width: 80%;
+  height: 70%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Add subtle growth animation */
+.plant {
+  animation: gentle-sway 8s infinite ease-in-out alternate;
+}
+
+@keyframes gentle-sway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  33% { transform: translateX(-51%) rotate(-1deg); }
+  66% { transform: translateX(-49%) rotate(1deg); }
+}
+
+/* Base visual element */
+.plant > div {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.4s ease;
+}
+
+/* Seedling stage - Cute small beginnings */
+.seedling-visual { 
+  width: 15px; 
+  height: 25px;
+  animation: seedling-appear 1s ease-out;
+}
+
+@keyframes seedling-appear {
+  from { 
+    opacity: 0; 
+    transform: translateX(-50%) translateY(10px) scale(0.5); 
   }
-
-  .garden-plot:hover:not(.locked) { /* Add :not(.locked) */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  to { 
+    opacity: 1; 
+    transform: translateX(-50%) translateY(0) scale(1); 
   }
+}
 
-  .garden-plot.selected:not(.locked) { /* Add :not(.locked) */
-    border: 2px solid #b59dc4;
-    box-shadow: 0 0 10px rgba(181, 157, 196, 0.5);
+.seedling-visual::before { /* Stem */
+  content:''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 2px; 
+  height: 12px; 
+  background: linear-gradient(to top, #5d8346, #7d8f4c);
+  border-radius: 1px;
+}
+
+.seedling-visual::after { /* Leaves */
+  content:''; 
+  position: absolute; 
+  bottom: 10px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 12px; 
+  height: 6px; 
+  background-color: #90a959;
+  border-radius: 50% 50% 0 0;
+  animation: leaf-wiggle 4s infinite ease-in-out alternate;
+  box-shadow: 0 0 5px rgba(144, 169, 89, 0.3);
+}
+
+@keyframes leaf-wiggle {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(-5deg); }
+  75% { transform: translateX(-50%) rotate(5deg); }
+}
+
+/* Sprout stage - More defined with small animation */
+.sprout-visual { 
+  width: 25px; 
+  height: 35px;
+  animation: sprout-grow 0.8s ease-out;
+}
+
+@keyframes sprout-grow {
+  from { 
+    opacity: 0.7; 
+    transform: translateX(-50%) scale(0.8); 
   }
-
-  .garden-plot.locked {
-    background-color: #2a2a3a;
-    cursor: not-allowed;
-    opacity: 0.7;
+  to { 
+    opacity: 1; 
+    transform: translateX(-50%) scale(1); 
   }
+}
 
-  .locked-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
+.sprout-visual::before { /* Stem */
+  content:''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 3px; 
+  height: 20px; 
+  background: linear-gradient(to top, #5d8346, #7d8f4c);
+  border-radius: 1.5px;
+}
+
+.sprout-visual::after { /* Main Leaves */
+  content:''; 
+  position: absolute; 
+  bottom: 18px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 18px; 
+  height: 8px; 
+  background-color: #90a959;
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 0 8px rgba(144, 169, 89, 0.4);
+}
+
+/* Add extra leaves for sprout */
+.sprout-visual > div:first-child { 
+  position: absolute; 
+  bottom: 21px; 
+  left: 2px; 
+  width: 10px; 
+  height: 6px; 
+  background-color: #85a050;
+  border-radius: 50%; 
+  transform: rotate(-30deg);
+  animation: leaf-left-wiggle 5s infinite ease-in-out alternate;
+}
+
+@keyframes leaf-left-wiggle {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(-35deg); }
+}
+
+.sprout-visual > div:last-child { 
+  position: absolute; 
+  bottom: 21px; 
+  right: 2px; 
+  width: 10px; 
+  height: 6px; 
+  background-color: #85a050;
+  border-radius: 50%; 
+  transform: rotate(30deg);
+  animation: leaf-right-wiggle 5s infinite ease-in-out alternate;
+}
+
+@keyframes leaf-right-wiggle {
+  0%, 100% { transform: rotate(30deg); }
+  50% { transform: rotate(35deg); }
+}
+
+/* Growing stage - Flourishing with animated leaves */
+.growing-visual { 
+  width: 40px; 
+  height: 50px;
+  animation: growing-sway 6s infinite ease-in-out alternate;
+}
+
+@keyframes growing-sway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  33% { transform: translateX(-50%) rotate(-2deg); }
+  66% { transform: translateX(-50%) rotate(2deg); }
+}
+
+.growing-visual::before { /* Stem */
+  content:''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 4px; 
+  height: 35px; 
+  background: linear-gradient(to top, #5d8346, #7d8f4c);
+  border-radius: 2px;
+}
+
+.growing-visual::after { /* Main Leaves */
+  content:''; 
+  position: absolute; 
+  bottom: 25px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 25px; 
+  height: 12px; 
+  background-color: #90a959;
+  border-radius: 50% 50% 30% 30% / 100% 100% 0% 0%;
+  box-shadow: 0 0 10px rgba(144, 169, 89, 0.4);
+  animation: leaves-pulse 4s infinite ease-in-out alternate;
+}
+
+@keyframes leaves-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.05); }
+}
+
+/* Add extra leaves */
+.growing-visual > div:first-child { 
+  position: absolute; 
+  bottom: 30px; 
+  left: 50%; 
+  transform: translateX(-50%) scale(0.8) rotate(45deg);
+  width: 20px; 
+  height: 10px; 
+  background-color: #85a050;
+  border-radius: inherit;
+  animation: rotate-leaf-1 7s infinite ease-in-out alternate;
+}
+
+@keyframes rotate-leaf-1 {
+  0%, 100% { transform: translateX(-50%) scale(0.8) rotate(45deg); }
+  50% { transform: translateX(-50%) scale(0.85) rotate(50deg); }
+}
+
+.growing-visual > div:last-child { 
+  position: absolute; 
+  bottom: 28px; 
+  left: 50%; 
+  transform: translateX(-50%) scale(0.8) rotate(-45deg);
+  width: 20px; 
+  height: 10px; 
+  background-color: #85a050;
+  border-radius: inherit;
+  animation: rotate-leaf-2 7s infinite ease-in-out alternate;
+}
+
+@keyframes rotate-leaf-2 {
+  0%, 100% { transform: translateX(-50%) scale(0.8) rotate(-45deg); }
+  50% { transform: translateX(-50%) scale(0.85) rotate(-50deg); }
+}
+
+/* Maturing stage - Almost ready with more complex animations */
+.maturing-visual { 
+  width: 55px; 
+  height: 70px;
+  animation: mature-sway 7s infinite ease-in-out alternate;
+}
+
+@keyframes mature-sway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  33% { transform: translateX(-50%) rotate(-2.5deg); }
+  66% { transform: translateX(-50%) rotate(2.5deg); }
+}
+
+.maturing-visual::before { /* Stem */
+  content:''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 5px; 
+  height: 50px; 
+  background: linear-gradient(to top, #5d8346, #7d8f4c);
+  border-radius: 2.5px;
+}
+
+/* Leaves */
+.maturing-visual > div:nth-child(1) { 
+  position: absolute; 
+  bottom: 35px; 
+  left: 35%; 
+  transform: translateX(-50%) rotate(-30deg);
+  width: 30px; 
+  height: 15px; 
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  box-shadow: 0 0 8px rgba(144, 169, 89, 0.3);
+  animation: mature-leaf-1 8s infinite ease-in-out alternate;
+}
+
+@keyframes mature-leaf-1 {
+  0%, 100% { transform: translateX(-50%) rotate(-30deg) scale(1); }
+  50% { transform: translateX(-50%) rotate(-34deg) scale(1.05); }
+}
+
+.maturing-visual > div:nth-child(2) { 
+  position: absolute; 
+  left: 65%; 
+  transform: translateX(-50%) rotate(30deg) scaleX(-1);
+  bottom: 40px; 
+  width: 30px; 
+  height: 15px; 
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  box-shadow: 0 0 8px rgba(144, 169, 89, 0.3);
+  animation: mature-leaf-2 8s infinite ease-in-out alternate;
+}
+
+@keyframes mature-leaf-2 {
+  0%, 100% { transform: translateX(-50%) rotate(30deg) scaleX(-1) scale(1); }
+  50% { transform: translateX(-50%) rotate(34deg) scaleX(-1) scale(1.05); }
+}
+
+/* Bud */
+.maturing-visual > div:nth-child(3) { 
+  position: absolute; 
+  top: 15px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  width: 12px; 
+  height: 12px; 
+  background-color: #a58db8;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(181, 157, 196, 0.6);
+  animation: bud-pulse 5s infinite ease-in-out;
+}
+
+@keyframes bud-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 8px rgba(181, 157, 196, 0.6); }
+  50% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 12px rgba(181, 157, 196, 0.8); }
+}
+
+/* Mature stage - Full bloom with magical effects */
+.mature-visual { 
+  width: 70px; 
+  height: 85px;
+  animation: full-plant-sway 8s infinite ease-in-out alternate;
+}
+
+@keyframes full-plant-sway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  33% { transform: translateX(-50%) rotate(-3deg); }
+  66% { transform: translateX(-50%) rotate(3deg); }
+}
+
+.mature-visual::before { /* Stem */
+  content:''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 6px; 
+  height: 65px; 
+  background: linear-gradient(to top, #4a6c3a, #7d8f4c);
+  border-radius: 3px;
+}
+
+/* Leaves */
+.mature-visual > div:nth-child(1) { 
+  position: absolute; 
+  bottom: 45px; 
+  left: 30%; 
+  transform: translateX(-50%) rotate(-35deg);
+  width: 35px; 
+  height: 20px; 
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  filter: brightness(1.1);
+  box-shadow: 0 0 10px rgba(144, 169, 89, 0.4);
+  animation: full-leaf-1 9s infinite ease-in-out alternate;
+}
+
+@keyframes full-leaf-1 {
+  0%, 100% { transform: translateX(-50%) rotate(-35deg) scale(1); }
+  50% { transform: translateX(-50%) rotate(-38deg) scale(1.05); }
+}
+
+.mature-visual > div:nth-child(2) { 
+  position: absolute; 
+  left: 70%; 
+  transform: translateX(-50%) rotate(35deg) scaleX(-1);
+  bottom: 50px; 
+  width: 35px; 
+  height: 20px; 
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  filter: brightness(1.1);
+  box-shadow: 0 0 10px rgba(144, 169, 89, 0.4);
+  animation: full-leaf-2 9s infinite ease-in-out alternate;
+}
+
+@keyframes full-leaf-2 {
+  0%, 100% { transform: translateX(-50%) rotate(35deg) scaleX(-1) scale(1); }
+  50% { transform: translateX(-50%) rotate(38deg) scaleX(-1) scale(1.05); }
+}
+
+/* Specific mature visuals - these style the 3rd div inside .mature-visual */
+.mature-visual > div:nth-child(3) { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); }
+
+/* Mature Flower - Glowing magical flower */
+.mature-flower { 
+  width: 20px; 
+  height: 20px; 
+  background-color: #b59dc4;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(181, 157, 196, 0.7);
+  animation: flower-bloom 8s infinite ease-in-out;
+}
+
+@keyframes flower-bloom {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 12px rgba(181, 157, 196, 0.7); }
+  50% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 18px rgba(181, 157, 196, 0.9); }
+}
+
+.mature-flower::before, .mature-flower::after { 
+  content:''; 
+  position: absolute; 
+  background-color: #c4b7d7;
+  border-radius: 50%;
+  animation: petals-wave 8s infinite ease-in-out alternate;
+}
+
+@keyframes petals-wave {
+  0%, 100% { transform: rotate(-30deg) scale(1); }
+  50% { transform: rotate(-35deg) scale(1.05); }
+}
+
+.mature-flower::before { 
+  width: 18px; 
+  height: 18px; 
+  top: -4px; 
+  left: -8px; 
+  transform: rotate(-30deg);
+}
+
+.mature-flower::after { 
+  width: 18px; 
+  height: 18px; 
+  top: -4px; 
+  right: -8px; 
+  transform: rotate(30deg);
+  animation-delay: 0.5s;
+}
+
+/* Mature Herb Visual - More lush and animated */
+.mature-herb { 
+  top: 10px !important; 
+  width: 30px; 
+  height: 25px; 
+  background: none;
+  animation: herb-sway 7s infinite ease-in-out alternate;
+}
+
+@keyframes herb-sway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  33% { transform: translateX(-50%) rotate(-5deg); }
+  66% { transform: translateX(-50%) rotate(5deg); }
+}
+
+.mature-herb::before, .mature-herb::after { 
+  content: ''; 
+  position: absolute; 
+  background-color: #90a959;
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 0 8px rgba(144, 169, 89, 0.4);
+}
+
+.mature-herb::before { 
+  width: 15px; 
+  height: 20px; 
+  top: 0; 
+  left: 0; 
+  transform: rotate(-20deg);
+  animation: herb-left 6s infinite ease-in-out alternate;
+}
+
+@keyframes herb-left {
+  0%, 100% { transform: rotate(-20deg) scale(1); }
+  50% { transform: rotate(-25deg) scale(1.05); }
+}
+
+.mature-herb::after { 
+  width: 15px; 
+  height: 20px; 
+  top: 0; 
+  right: 0; 
+  transform: rotate(20deg);
+  animation: herb-right 6s infinite ease-in-out alternate;
+}
+
+@keyframes herb-right {
+  0%, 100% { transform: rotate(20deg) scale(1); }
+  50% { transform: rotate(25deg) scale(1.05); }
+}
+
+/* Mature Root Visual - With earthy glow */
+.mature-root { 
+  top: 55px !important; 
+  width: 15px; 
+  height: 10px; 
+  background-color: #8a6d3b;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(138, 109, 59, 0.3);
+}
+
+.mature-root::before { 
+  content: ''; 
+  position: absolute; 
+  top: 10px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  width: 20px; 
+  height: 30px; 
+  background-color: #a0844d;
+  border-radius: 0 0 10px 10px;
+  filter: brightness(0.8);
+  box-shadow: 0 0 8px rgba(160, 132, 77, 0.3);
+  animation: root-pulse 5s infinite ease-in-out;
+}
+
+@keyframes root-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.05); }
+}
+
+/* Mature Mushroom Visual - With mystical glow */
+.mature-mushroom { 
+  top: 45px !important; 
+  width: 25px; 
+  height: 18px; 
+  background-color: #a79aad;
+  border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%;
+  box-shadow: 0 0 10px rgba(167, 154, 173, 0.3);
+  animation: mushroom-pulse 5s infinite ease-in-out;
+}
+
+@keyframes mushroom-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 10px rgba(167, 154, 173, 0.3); }
+  50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 15px rgba(167, 154, 173, 0.5); }
+}
+
+.mature-mushroom::before { /* Stem */
+  content: ''; 
+  position: absolute; 
+  bottom: -15px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  width: 8px; 
+  height: 15px; 
+  background-color: #e9e3f0;
+  border-radius: 2px;
+}
+
+/* Mature Fruit Visual - Vibrant with glow */
+.mature-fruit { 
+  top: 30px !important; 
+  width: 18px; 
+  height: 18px; 
+  background: radial-gradient(circle at 30% 30%, #d97f74, #c75e54);
+  border-radius: 50%;
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 12px rgba(199, 94, 84, 0.5);
+  animation: fruit-pulse 6s infinite ease-in-out;
+}
+
+@keyframes fruit-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 12px rgba(199, 94, 84, 0.5); }
+  50% { transform: translateX(-50%) scale(1.08); box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(199, 94, 84, 0.7); }
+}
+
+.mature-fruit::before { /* Stem */
+  content: ''; 
+  position: absolute; 
+  top: -5px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  width: 3px; 
+  height: 6px; 
+  background-color: #7d8f4c;
+}
+
+/* Mature Leaf/Succulent - With subtle animation */
+.mature-leaf { 
+  top: 20px !important; 
+  width: 30px; 
+  height: 40px; 
+  background-color: #81a36b;
+  border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%;
+  box-shadow: 0 0 10px rgba(129, 163, 107, 0.3);
+  animation: leaf-wave 10s infinite ease-in-out alternate;
+}
+
+@keyframes leaf-wave {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(-5deg); }
+  75% { transform: translateX(-50%) rotate(5deg); }
+}
+
+.mature-succulent { 
+  top: 30px !important; 
+  width: 35px; 
+  height: 35px; 
+  background: radial-gradient(circle at 30% 30%, #b1d1b4, #a1c1a4);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(161, 193, 164, 0.4);
+  animation: succulent-pulse 8s infinite ease-in-out;
+}
+
+@keyframes succulent-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.06); }
+}
+
+/* Health states with improved visual feedback */
+.plant.unhealthy { 
+  filter: saturate(40%) brightness(70%) contrast(1.1);
+  animation: unhealthy-movement 5s infinite ease-in-out;
+}
+
+@keyframes unhealthy-movement {
+  0%, 100% { transform: translateX(-50%) rotate(-1deg); }
+  50% { transform: translateX(-50%) rotate(1deg); }
+}
+
+.plant.fair { 
+  filter: saturate(70%) brightness(85%);
+  animation: fair-movement 6s infinite ease-in-out;
+}
+
+@keyframes fair-movement {
+  0%, 100% { transform: translateX(-50%) rotate(-0.5deg); }
+  50% { transform: translateX(-50%) rotate(0.5deg); }
+}
+
+.plant.healthy { 
+  filter: none;
+  animation: healthy-movement 7s infinite ease-in-out;
+}
+
+@keyframes healthy-movement {
+  0%, 100% { transform: translateX(-50%) rotate(-1deg); }
+  50% { transform: translateX(-50%) rotate(1deg); }
+}
+
+/* Moon blessing effect - more magical and ethereal */
+.moon-blessing-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(
+    circle at center,
+    rgba(229, 225, 241, 0.4) 0%,
+    rgba(229, 225, 241, 0.2) 40%,
+    rgba(229, 225, 241, 0) 70%
+  );
+  border-radius: 50%;
+  animation: moon-pulse 4s infinite ease-in-out;
+  pointer-events: none;
+  z-index: -1;
+  mix-blend-mode: screen;
+}
+
+@keyframes moon-pulse {
+  0% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.9); filter: blur(5px); }
+  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); filter: blur(3px); }
+  100% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.9); filter: blur(5px); }
+}
+
+/* Add floating moon particles */
+.moon-blessing-effect::before,
+.moon-blessing-effect::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: rgba(229, 225, 241, 0.7);
+  border-radius: 50%;
+  animation: moon-particle 8s infinite ease-in-out;
+  opacity: 0;
+}
+
+.moon-blessing-effect::before {
+  top: 30%;
+  left: 70%;
+  animation-delay: 1s;
+}
+
+.moon-blessing-effect::after {
+  top: 60%;
+  left: 40%;
+  animation-delay: 2s;
+}
+
+@keyframes moon-particle {
+  0%, 100% { 
+    opacity: 0; 
+    transform: translateY(0) scale(0.5); 
   }
-
-  .lock-icon {
-    font-size: 24px;
-    color: #7a6c95;
+  25%, 75% { 
+    opacity: 0.8; 
+    transform: translateY(-15px) scale(1); 
   }
-
-  .plot-soil {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30%;
-    background-color: #3e2723; /* Default soil color */
-    border-radius: 0 0 8px 8px;
-    transition: all 0.3s ease;
+  50% { 
+    opacity: 0.5; 
+    transform: translateY(-25px) scale(0.8); 
   }
+}
 
-  /* Moisture levels affect soil appearance */
-  .garden-plot.dry .plot-soil {
-    background-color: #4e342e; /* Lighter brown for dry */
-    background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
-    background-size: 20px 20px; /* Cracked earth pattern */
-  }
+/* Plot status indicators with improved visuals */
+.plot-status {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
 
-  .garden-plot.wet .plot-soil {
-    background-color: #331f1c; /* Darker, saturated brown */
-    filter: brightness(0.8) saturate(1.2); /* Darker and richer */
-  }
+.status-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  color: #1a1a24;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  transition: all 0.3s ease;
+}
 
-  .garden-plot.normal .plot-soil {
-    background-color: #3e2723; /* Standard soil color */
-  }
+.status-icon:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
 
-  /* Plant visualization styles */
-  .plant {
-    position: absolute;
-    bottom: 20%; /* Adjusted bottom position */
-    left: 50%;
-    transform: translateX(-50%);
-    transition: all 0.5s ease;
-     width: 80%; /* Relative width */
-     height: 70%; /* Relative height */
-     display: flex;
-     align-items: flex-end; /* Align plant to bottom center */
-     justify-content: center;
-  }
+.status-icon.ready-to-harvest { 
+  background: linear-gradient(to bottom, #98d691, #7eba76);
+  animation: harvest-pulse 2s infinite alternate;
+}
 
-  /* Base visual element */
-  .plant > div {
-      position: absolute;
-      /* Common base style for all visuals if needed */
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-  }
+@keyframes harvest-pulse {
+  from { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 rgba(126, 186, 118, 0); }
+  to { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(126, 186, 118, 0.6); }
+}
 
-  /* Seedling stage */
-  .seedling-visual { width: 15px; height: 25px; /* Use pseudo-elements for parts */ }
-  .seedling-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 12px; background-color: #7d8f4c; }
-  .seedling-visual::after { /* Leaves */ content:''; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 12px; height: 6px; background-color: #90a959; border-radius: 50% 50% 0 0; }
+.status-icon.needs-water { 
+  background: linear-gradient(to bottom, #7a9dce, #6fa6cc);
+  animation: water-drop 2s infinite;
+}
 
-  /* Sprout stage */
-  .sprout-visual { width: 25px; height: 35px; /* Use pseudo-elements for parts */ }
-  .sprout-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 20px; background-color: #7d8f4c; }
-  .sprout-visual::after { /* Main Leaves */ content:''; position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); width: 18px; height: 8px; background-color: #90a959; border-radius: 50% 50% 0 0; }
-  /* Add extra leaves for sprout */
-  .sprout-visual > div:first-child { position: absolute; bottom: 21px; left: 2px; width: 10px; height: 6px; background-color: #90a959; border-radius: 50%; transform: rotate(-30deg); }
-  .sprout-visual > div:last-child { position: absolute; bottom: 21px; right: 2px; width: 10px; height: 6px; background-color: #90a959; border-radius: 50%; transform: rotate(30deg); }
+@keyframes water-drop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
 
-  /* Growing stage */
-   .growing-visual { width: 40px; height: 50px; /* Use pseudo-elements for parts */ }
-   .growing-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 35px; background-color: #7d8f4c; }
-   .growing-visual::after { /* Main Leaves */ content:''; position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 25px; height: 12px; background-color: #90a959; border-radius: 50% 50% 30% 30% / 100% 100% 0% 0%; }
-   /* Add extra leaves */
-   .growing-visual > div:first-child { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%) scale(0.8) rotate(45deg); width: 20px; height: 10px; background-color: #85a050; border-radius: inherit; }
-   .growing-visual > div:last-child { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%) scale(0.8) rotate(-45deg); width: 20px; height: 10px; background-color: #85a050; border-radius: inherit; }
+.status-icon.empty-plot { 
+  background: linear-gradient(to bottom, #5d468a, #483d66);
+  color: #e9e3f0;
+}
 
+/* Placeholder for empty grid slots */
+.garden-plot.placeholder {
+  background-color: transparent;
+  border: 1px dashed #483d66;
+  box-shadow: none;
+  cursor: default;
+}
 
-  /* Maturing stage */
-   .maturing-visual { width: 55px; height: 70px; /* Use pseudo-elements for parts */ }
-   .maturing-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 5px; height: 50px; background-color: #7d8f4c; }
-   /* Leaves */
-   .maturing-visual > div:nth-child(1) { position: absolute; bottom: 35px; left: 35%; transform: translateX(-50%) rotate(-30deg); width: 30px; height: 15px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; }
-   .maturing-visual > div:nth-child(2) { position: absolute; left: 65%; transform: translateX(-50%) rotate(30deg) scaleX(-1); bottom: 40px; width: 30px; height: 15px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; }
-   /* Bud */
-   .maturing-visual > div:nth-child(3) { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background-color: #a58db8; border-radius: 50%; box-shadow: 0 0 3px rgba(181, 157, 196, 0.5); }
-
-
-  /* Mature stage */
-  .mature-visual { width: 70px; height: 85px; /* Use pseudo-elements for parts */ }
-  .mature-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 6px; height: 65px; background-color: #7d8f4c; }
-  /* Leaves */
-  .mature-visual > div:nth-child(1) { position: absolute; bottom: 45px; left: 30%; transform: translateX(-50%) rotate(-35deg); width: 35px; height: 20px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; filter: brightness(1.1); }
-  .mature-visual > div:nth-child(2) { position: absolute; left: 70%; transform: translateX(-50%) rotate(35deg) scaleX(-1); bottom: 50px; width: 35px; height: 20px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; filter: brightness(1.1); }
-  /* Specific mature element based on category */
-  .mature-visual > div:nth-child(3) { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); }
-
-
-  /* Specific mature visuals - these style the 3rd div inside .mature-visual */
-  .mature-flower { width: 20px; height: 20px; background-color: #b59dc4; border-radius: 50%; box-shadow: 0 0 8px rgba(181, 157, 196, 0.7); }
-  .mature-flower::before, .mature-flower::after { content:''; position: absolute; background-color: #c4b7d7; border-radius: 50%; } /* Lighter petals */
-  .mature-flower::before { width: 18px; height: 18px; top: -4px; left: -8px; transform: rotate(-30deg); }
-  .mature-flower::after { width: 18px; height: 18px; top: -4px; right: -8px; transform: rotate(30deg); }
-
-  /* Mature Herb Visual - Use pseudo-elements for leaves */
-  .mature-herb { top: 10px !important; width: 30px; height: 25px; background: none; }
-  .mature-herb::before, .mature-herb::after { content: ''; position: absolute; background-color: #90a959; border-radius: 50% 50% 0 0; }
-  .mature-herb::before { width: 15px; height: 20px; top: 0; left: 0; transform: rotate(-20deg); }
-  .mature-herb::after { width: 15px; height: 20px; top: 0; right: 0; transform: rotate(20deg); }
-  /* Add more pseudo-elements for fuller herbs */
-
-
-  /* Mature Root Visual - Visible part + indication of root below */
-   .mature-root { /* Visible part above ground */ top: 55px !important; width: 15px; height: 10px; background-color: #8a6d3b; border-radius: 3px; }
-   .mature-root::before { /* Represents the main root below */ content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 20px; height: 30px; background-color: #a0844d; border-radius: 0 0 10px 10px; filter: brightness(0.8); }
-
-
-  /* Mature Mushroom Visual */
-  .mature-mushroom { top: 45px !important; width: 25px; height: 18px; background-color: #a79aad; border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%; }
-  .mature-mushroom::before { /* Stem */ content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); width: 8px; height: 15px; background-color: #e9e3f0; border-radius: 2px; }
-
-
-  /* Mature Fruit Visual */
-  .mature-fruit { top: 30px !important; width: 18px; height: 18px; background-color: #c75e54; border-radius: 50%; box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3); }
-  .mature-fruit::before { /* Stem */ content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 3px; height: 6px; background-color: #7d8f4c; }
-
-
-  /* Mature Leaf/Succulent - Add specific visual rules */
-  .mature-leaf { /* Example */ top: 20px !important; width: 30px; height: 40px; background-color: #81a36b; border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%; }
-  .mature-succulent { /* Example */ top: 30px !important; width: 35px; height: 35px; background-color: #a1c1a4; border-radius: 50%; }
-  /* Health states */
-  .plant.unhealthy { filter: saturate(50%) brightness(70%) contrast(1.1); } /* Less saturated, darker, bit more contrast */
-  .plant.fair { filter: saturate(80%) brightness(90%); }
-  .plant.healthy { filter: none; } /* No filter for healthy */
-
-  /* Watered state - subtle visual */
-   /* Removed the ::after pseudo-element for watered state */
-   /* Use plot moisture class instead for soil visuals */
-
-  /* Moon blessing effect */
-  .moon-blessing-effect {
-    position: absolute;
-    top: 50%; /* Center effect */
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120%; /* Larger aura */
-    height: 120%;
-    background: radial-gradient(
-      circle at center,
-      rgba(229, 225, 241, 0.3) 0%, /* Brighter center */
-      rgba(229, 225, 241, 0) 70%
-    );
-    border-radius: 50%;
-    animation: pulse 2.5s infinite ease-in-out;
-    pointer-events: none;
-    z-index: -1; /* Behind the plant */
-  }
-
-  @keyframes pulse {
-    0% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.9); }
-    50% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.9); }
-  }
-
-  /* Plot status indicators */
-  .plot-status {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .status-icon {
-    width: 20px; /* Smaller icons */
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 12px; /* Smaller font */
-    color: #1a1a24;
-    font-weight: bold;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    text-align: center;
-  }
-
-  .status-icon.ready-to-harvest { background-color: #7eba76; } /* Green check */
-  .status-icon.needs-water { background-color: #6fa6cc; } /* Blue drop */
-  .status-icon.empty-plot { background-color: #483d66; color: #a294b8; } /* Purple plus */
-
-  /* Placeholder for empty grid slots */
-  .garden-plot.placeholder {
-      background-color: transparent;
-      border: 1px dashed #483d66;
-      box-shadow: none;
-      cursor: default;
-  }
-  .garden-plot.placeholder:hover {
-      transform: none;
-  }
+.garden-plot.placeholder:hover {
+  transform: none;
+}

@@ -36,6 +36,12 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Handle 404 for /wordpress routes
+app.use('/wordpress', (_req, res) => {
+    res.status(403).send('Forbidden');
+  });
+  
+
 // Helper function for API responses
 const handleRequest = (handlerFn: () => any, res: Response, actionName: string): void => {
     try {
