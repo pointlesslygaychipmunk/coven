@@ -1,19 +1,34 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
+    "useDefineForClassFields": true,
     "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "allowJs": false,
+    "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    "resolveJsonModule": true,
     "composite": true,
     "types": ["node", "express"],
     "baseUrl": ".",
     "paths": {
       "coven-shared": ["../shared/src/index.ts"],
       "coven-shared/*": ["../shared/src/*"]
-    }
+    },
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],

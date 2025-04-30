@@ -1,14 +1,52 @@
 // shared/src/types.ts
-// Type definitions for the Coven skincare witch simulation game
-// Updated based on Master Vision and required features.
 
-// Core game types (ItemType, ItemCategory, Rarity, Season, MoonPhase etc. defined below)
+// Forward declarations aren't needed if defined below
+
+// --- Environment Types ---
+
+export type WeatherFate = 'normal' | 'rainy' | 'dry' | 'foggy' | 'windy' | 'stormy' | 'clear' | 'cloudy';
+export type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter';
+export type MoonPhase =
+  'New Moon' |
+  'Waxing Crescent' |
+  'First Quarter' |
+  'Waxing Gibbous' |
+  'Full Moon' |
+  'Waning Gibbous' |
+  'Last Quarter' |
+  'Waning Crescent';
+
+// --- Item Foundational Types ---
+
+export type ItemType = 'potion' | 'charm' | 'talisman' | 'ingredient' | 'seed' | 'tool' | 'ritual_item' | 'essence' | 'oil' | 'tonic' | 'mask' | 'elixir';
+export type ItemCategory =
+  // Ingredients
+  'herb' | 'flower' | 'root' | 'fruit' | 'mushroom' | 'leaf' | 'succulent' | 'essence' | 'crystal' |
+  // Potions/Products
+  'mask' | 'serum' | 'tonic' | 'elixir' | 'oil' | 'potion' |
+  // Other
+  'seed' | 'tool' | 'ritual_item' | 'charm' | 'talisman' | 'misc';
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
+
+// Base Item definition - includes all common static properties
+export type Item = {
+  id: string;             // Unique ID for the item type (e.g., 'ing_moonbud')
+  name: string;           // Display name (e.g., "Moonbud") - MANDATORY
+  description?: string;   // Flavor text or usage info
+  type: ItemType;         // Broad type classification
+  category: ItemCategory; // Specific category - MANDATORY
+  value?: number;         // Base gold value (market price will fluctuate)
+  rarity?: Rarity;        // Item rarity
+  imagePath?: string;     // Path to item icon/image
+  primaryProperty?: string; // e.g., "brightening" (for ingredients/potions)
+  seasonalBonus?: Season; // Season where this item might be more valuable/available
+};
 
 // Basic info for recipes, suitable for frontend lists or basic state
 export interface BasicRecipeInfo {
   id: string;
   name: string;
-  category?: ItemCategory; // Use ItemCategory, make optional if sometimes unknown
+  category?: ItemCategory; // Use ItemCategory, make optional
   description?: string;
   type?: ItemType;
 }
@@ -25,23 +63,69 @@ export type GameTime = {
   lastSaved?: number;
 };
 
-// Main Game State
-export type GameState = {
-  players: Player[];
-  market: MarketItem[];
-  marketData: MarketData;
-  townRequests: TownRequest[];
-  rituals: RitualQuest[];
-  rumors: Rumor[];
-  journal: JournalEntry[];
-  events: Event[];
-  currentPlayerIndex: number;
-  time: GameTime;
-  version: string;
-  knownRecipes?: BasicRecipeInfo[]; // List of recipes known globally/available?
+// Atelier specialization
+export type AtelierSpecialization = 'Essence' | 'Fermentation' | 'Distillation' | 'Infusion';
+
+// --- Garden Types ---
+
+export type Plant = {
+  id: string;             // Unique instance ID
+  name: string;           // Name of the plant (e.g., "Moonbud")
+  category?: ItemCategory;// Plant category (flower, root, etc.)
+  imagePath?: string;      // Optional path for visual representation
+  growth: number;         // Current growth points
+  maxGrowth: number;      // Total growth points needed for maturity
+  seasonalModifier?: number; // Growth modifier based on current season (e.g., 1.5 for best season)
+  watered: boolean;       // If watered this turn
+  health: number;         // Current health (0-100)
+  age: number;            // Age in turns/phases
+  mature: boolean;        // Is the plant ready for harvest?
+  moonBlessed?: boolean;   // Bonus from Full Moon planting/harvesting
+  deathChance?: number;    // Chance of dying per turn (increases with low health/bad conditions)
+  mutations?: string[];    // List of acquired mutations
+  qualityModifier?: number;// Affects harvested quality (e.g., from mutations)
 };
 
-// Player types
+export type GardenSlot = {
+  id: number;             // Unique ID for the plot (e.g., 0-8)
+  plant: Plant | null;    // The plant currently growing here, or null if empty
+  fertility: number;      // Soil quality (0-100), affects growth/quality
+  moisture: number;       // Current water level (0-100)
+  sunlight?: number;       // Sunlight exposure (0-100) - Optional for now
+  isUnlocked?: boolean;    // Whether the player has access to this plot (default true for starting plots)
+};
+
+// --- Player Types ---
+
+export type InventoryItem = {
+  id: string;             // Unique ID for this stack (e.g., `ing_moonbud-167...`)
+  baseId: string;         // ID of the base item type (e.g., `ing_moonbud`)
+  name: string;           // Display name (copied from base item)
+  type: ItemType;
+  category: ItemCategory;
+  quantity: number;
+  quality?: number;       // Quality of this stack (average if merged)
+  value?: number;         // Store base value for reference
+  rarity?: Rarity;
+  description?: string;
+  imagePath?: string;
+  // Provenance
+  harvestedDuring?: MoonPhase;
+  harvestedSeason?: Season;
+  // Player state
+  bookmarked?: boolean;
+};
+
+export type Skills = {
+  gardening: number;
+  brewing: number;
+  trading: number;
+  crafting: number;
+  herbalism: number;
+  astrology: number;
+  [key: string]: number;
+};
+
 export type Player = {
   id: string;
   name: string;
@@ -60,94 +144,6 @@ export type Player = {
   daysSurvived?: number;
   blackMarketAccess: boolean;
   lastActive: number;
-};
-
-export type Skills = {
-  gardening: number;
-  brewing: number;
-  trading: number;
-  crafting: number;
-  herbalism: number;
-  astrology: number;
-  [key: string]: number;
-};
-
-// --- Garden Types ---
-
-export type Plant = {
-  id: string;
-  name: string;
-  category?: ItemCategory;
-  imagePath?: string;
-  growth: number;
-  maxGrowth: number;
-  seasonalModifier?: number;
-  watered: boolean;
-  health: number;
-  age: number;
-  mature: boolean;
-  moonBlessed?: boolean;
-  deathChance?: number;
-  mutations?: string[];
-  qualityModifier?: number;
-};
-
-export type GardenSlot = {
-  id: number;
-  plant: Plant | null;
-  fertility: number;
-  moisture: number;
-  sunlight?: number;
-  isUnlocked?: boolean;
-};
-
-// --- Item Types ---
-
-export type ItemType = 'potion' | 'charm' | 'talisman' | 'ingredient' | 'seed' | 'tool' | 'ritual_item' | 'essence' | 'oil' | 'tonic' | 'mask' | 'elixir';
-
-export type ItemCategory =
-  // Ingredients
-  'herb' | 'flower' | 'root' | 'fruit' | 'mushroom' | 'leaf' | 'succulent' | 'essence' | 'crystal' |
-  // Potions/Products
-  'mask' | 'serum' | 'tonic' | 'elixir' | 'oil' | 'potion' |
-  // Other
-  'seed' | 'tool' | 'ritual_item' | 'charm' | 'talisman' | 'misc';
-
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
-
-// Base Item definition
-export type Item = {
-  id: string;
-  name: string; // Added name here as it's fundamental
-  description?: string;
-  type: ItemType;
-  category: ItemCategory; // Made mandatory on base Item
-  value?: number;
-  rarity?: Rarity;
-  imagePath?: string;
-  // Removed stackable/provenance/player properties - keep those on InventoryItem
-  primaryProperty?: string;
-  seasonalBonus?: Season;
-};
-
-// Specific type for items held in player inventory
-export type InventoryItem = {
-  id: string;             // Unique ID for this stack
-  baseId: string;         // ID of the base item type
-  name: string;           // Display name (copied from base item)
-  type: ItemType;
-  category: ItemCategory;
-  quantity: number;
-  quality?: number;       // Quality of this stack (average if merged)
-  value?: number;         // Store base value for reference
-  rarity?: Rarity;
-  description?: string;
-  imagePath?: string;
-  // Provenance
-  harvestedDuring?: MoonPhase;
-  harvestedSeason?: Season;
-  // Player state
-  bookmarked?: boolean;
 };
 
 // --- Market Types ---
@@ -183,7 +179,7 @@ export type MarketData = {
 
 export type TownRequest = {
   id: string;
-  item: string;
+  item: string; // Name of the item requested (use name for simplicity here)
   quantity: number;
   rewardGold: number;
   rewardInfluence: number;
@@ -203,7 +199,7 @@ export type RitualQuestStep = {
 
 export type RitualReward = {
   type: 'gold' | 'item' | 'skill' | 'reputation' | 'recipe' | 'blueprint' | 'garden_slot';
-  value: string | number;
+  value: string | number; // Item ID, skill name, gold amount, rep amount, recipe ID, etc.
   quantity?: number;
 };
 
@@ -220,14 +216,14 @@ export type RitualQuest = {
   deadline?: number;
   unlocked: boolean;
   initiallyAvailable?: boolean;
-  requiredItems?: { name: string; quantity: number }[];
+  requiredItems?: { name: string; quantity: number }[]; // Use name for simplicity? Or baseId? Let's keep name for now.
 };
 
 export type Rumor = {
   id: string;
   content: string;
   spread: number;
-  affectedItem?: string;
+  affectedItem?: string; // Name of item
   priceEffect?: number;
   duration?: number;
   verified: boolean;
@@ -245,7 +241,7 @@ export type JournalEntry = {
   importance: number;
   readByPlayer: boolean;
   bookmarked?: boolean;
-  linkedItems?: string[];
+  linkedItems?: string[]; // IDs/Names of items related to this entry
 };
 
 export type Event = {
@@ -258,24 +254,8 @@ export type Event = {
   active: boolean;
 };
 
-// --- Environment Types ---
-
-export type WeatherFate = 'normal' | 'rainy' | 'dry' | 'foggy' | 'windy' | 'stormy' | 'clear' | 'cloudy';
-
-export type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter';
-
-export type MoonPhase =
-  'New Moon' |
-  'Waxing Crescent' |
-  'First Quarter' |
-  'Waxing Gibbous' |
-  'Full Moon' |
-  'Waning Gibbous' |
-  'Last Quarter' |
-  'Waning Crescent';
-
-// --- Atelier ---
-export type AtelierSpecialization = 'Essence' | 'Fermentation' | 'Distillation' | 'Infusion';
+// --- Main Game State ---
+// Moved higher up for clarity
 
 // --- Action Log (if needed later) ---
 // export type ActionLog = { ... };
