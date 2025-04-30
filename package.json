@@ -1,28 +1,31 @@
 {
-  "name": "new-coven",
-  "version": "1.0.0",
-  "description": "Coven - a hanbang-inspired skincare witch simulation game",
-  "private": true,
-  "workspaces": [
-    "shared",
-    "frontend",
-    "backend"
-  ],
-  "scripts": {
-    "dev": "concurrently \"npm:dev:shared\" \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "dev:shared": "npm run dev --workspace=coven-shared",
-    "dev:frontend": "npm run dev --workspace=coven-frontend",
-    "dev:backend": "npm run dev --workspace=coven-backend",
-    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
-    "build:shared": "tsc -p shared/tsconfig.json",
-    "build:backend": "tsc -p backend/tsconfig.json",
-    "build:frontend": "npm run build --workspace=coven-frontend",
-    "start": "npm run build && npm run start --workspace=coven-backend",
-    "postinstall": "npm run build:shared"
+  "extends": "../tsconfig.base.json", // Can keep extends here as Vite might handle it differently
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "composite": true, // Ensure composite is true
+    "declaration": true, // Add declaration
+    "declarationMap": true, // Add declarationMap
+    "baseUrl": ".",
+    "paths": { // Keep internal paths
+      "@shared/*": ["../shared/src/*"],
+      "coven-shared": ["../shared/src/index.ts"], // This path might still be useful for Vite's resolver
+      "@components/*": ["./src/components/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@images/*": ["./src/images/*"]
+    }
+    // No emit can be inferred or set if needed: "noEmit": true
   },
-  "devDependencies": {
-    "@types/node": "^22.15.3",
-    "concurrently": "^8.2.2",
-    "typescript": "^5.5.4"
-  }
+  "include": ["src", "vite.config.ts", "src/index.tsx"],
+  "references": [{ "path": "../shared" }] // Ensure reference exists
 }
