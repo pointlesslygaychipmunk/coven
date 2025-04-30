@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "NodeNext", // Keep this!
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -22,6 +22,12 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true,
+    // "types": ["node", "express"], // KEEP THIS COMMENTED OUT
+    "baseUrl": ".", // Restore baseUrl
+    "paths": { // Restore paths
+      "coven-shared": ["../shared/src/index.ts"],
+      "coven-shared/*": ["../shared/src/*"]
+    },
     "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
