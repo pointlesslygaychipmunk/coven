@@ -1,7 +1,6 @@
 // src/marketEvents.ts
 // Handles periodic market adjustments, including memory decay towards
 // base prices, rumor impacts, and seasonal fluctuations.
-
 import { GameState, MarketItem, Rumor, Season, MoonPhase, ItemCategory, ItemType } from "coven-shared";
 import { getItemData } from "./items.js"; // Access base item data
 
@@ -190,7 +189,7 @@ function applyMoonPhaseEffects(state: GameState): void {
                 // Determine starting price based on potential phase effect
                 let startingPrice = itemData.value || 10;
                 if (effect?.priceEffects) {
-                     const categoryMultiplier = effect.priceEffects[itemData.category ?? ''] ?? 1.0;
+                     const categoryMultiplier = effect.priceEffects[itemData.category ?? 'misc'] ?? 1.0;
                      const typeMultiplier = effect.priceEffects[itemData.type] ?? 1.0;
                      const multiplier = categoryMultiplier !== 1.0 ? categoryMultiplier : typeMultiplier;
                      startingPrice = Math.round(startingPrice * multiplier);
@@ -354,7 +353,7 @@ function updateBlackMarketPrices(state: GameState): void {
 }
 
 
-// Adjust global inflation factor based on trading volume
+// Adjust global inflation factor based on trading volume and apply gradual base price changes
 function updateInflation(state: GameState): void {
   const previousInflation = state.marketData.inflation;
   const tradingVolume = state.marketData.tradingVolume;
@@ -376,13 +375,18 @@ function updateInflation(state: GameState): void {
        state.marketData.inflation = newInflation;
 
        // Apply gradual inflation adjustment to *base* prices
-       const basePriceAdjustmentFactor = (newInflation - previousInflation) * 0.02; // Apply 2% of the change this turn
+       // Adjust slightly slower to prevent wild base price swings
+       const basePriceAdjustmentFactor = (newInflation - previousInflation) * 0.01; // Apply 1% of the inflation change this turn
        state.market.forEach(item => {
-           // Don't adjust black market base prices with global inflation? Or maybe less effect?
-           if(!item.blackMarketOnly) {
-               item.basePrice = Math.max(1, Math.round(item.basePrice * (1 + basePriceAdjustmentFactor)));
-           }
-       });
+            // Don't adjust black market base prices with global inflation? Or maybe less effect?
+            if(!item.blackMarketOnly) {
+               const oldBase = item.basePrice;
+               item.basePrice = Math.max(1, Math.round(oldBase * (1 + basePriceAdjustmentFactor)));
+               // If base price changed, potentially update current price slightly towards it?
+               // Optional: item.price = Math.round(item.price * (1 + basePriceAdjustmentFactor * 0.1)); // Very slight pull
+               // console.log(`[Inflation] ${item.name} base price changed ${oldBase} -> ${item.basePrice}`);
+            }
+        });
        state.journal.push({ id: `inf-${state.time.dayCount}`, turn: state.time.dayCount, date: `${state.time.phaseName}, ${state.time.season} Y${state.time.year}`, text: `Market prices feel ${newInflation > 1.05 ? 'inflated' : (newInflation < 0.95 ? 'deflated' : 'stable')} (${newInflation.toFixed(2)}).`, category: 'market', importance: 2, readByPlayer: false });
   }
 

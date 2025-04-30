@@ -1,8 +1,8 @@
 // src/townRequests.ts
 // Generates town requests (orders from towns) based on season and needs.
 
-import { TownRequest, Season, GameState } from "coven-shared"; // Import GameState
-import { ITEMS } from "./items.js"; // Access item database for validation
+import { TownRequest, Season, GameState, Item, Rarity, ItemCategory } from "coven-shared"; // Import GameState
+import { ITEMS, getItemData } from "./items.js"; // Access item database for validation, added getItemData
 
 let requestCounter = 0;
 
@@ -24,7 +24,14 @@ const townRequesters = [
 
 // Define possible request templates, weighted by season and item type/category
 // Structure: { itemFilter: (item) => boolean, minQty: number, maxQty: number, rewardMultiplier: number }
-const requestTemplates: Record<Season, { filter: (item: typeof ITEMS[number]) => boolean, min: number, max: number, rewardMult: number, difficultyBoost?: number }[]> = {
+interface RequestTemplate {
+    filter: (item: Item) => boolean;
+    min: number;
+    max: number;
+    rewardMult: number;
+    difficultyBoost?: number;
+}
+const requestTemplates: Record<Season, RequestTemplate[]> = {
   "Spring": [
     { filter: item => item.type === 'seed', min: 3, max: 8, rewardMult: 0.8 }, // High demand for seeds
     { filter: item => item.category === 'root' && item.rarity === 'common', min: 2, max: 5, rewardMult: 1.0 },
@@ -108,15 +115,24 @@ export function generateTownRequests(state: GameState): TownRequest[] { // Accep
 
     // Calculate rewards based on item base value, quantity, and multiplier
     const baseItemValue = itemToRequest.value;
-    const rewardGold = Math.round(quantity * baseItemValue * template.rewardMult * (1 + Math.random() * 0.2)); // Add slight random bonus
-    const rewardInfluence = Math.max(1, Math.floor(quantity * (template.rewardMult / 2)) + (itemToRequest.rarity === 'rare' ? 2 : (itemToRequest.rarity === 'uncommon' ? 1 : 0))); // Influence based on quantity, value, rarity
+    // Adjust reward multiplier based on item properties if needed
+    let rewardMultiplier: number;
+    // Add primaryProperty to template definition if needed
+    if (itemToRequest.primaryProperty) {
+      rewardMultiplier = template.rewardMult * (itemToRequest.primaryProperty === 'soothing' ? 1.1 : 1.0); // Example based on Item with potential primaryProperty
+    } else {
+      rewardMultiplier = template.rewardMult;
+    }
+
+    const rewardGold = Math.round(quantity * baseItemValue * rewardMultiplier * (1 + Math.random() * 0.2)); // Add slight random bonus
+    const rewardInfluence = Math.max(1, Math.floor(quantity * (rewardMultiplier / 2)) + (itemToRequest.rarity === 'rare' ? 2 : (itemToRequest.rarity === 'uncommon' ? 1 : 0))); // Influence based on quantity, value, rarity
 
     // Choose a requester whose role might fit the item type/category
      const suitableRequesters = townRequesters.filter(r =>
          r.roles.includes('any') ||
          r.roles.includes(itemToRequest.type) ||
-         (itemToRequest.category && r.roles.includes(itemToRequest.category)) ||
-         (itemToRequest.rarity && itemToRequest.rarity !== 'common' && r.roles.some(role => role.includes('rare'))) ||
+         (itemToRequest.category && r.roles.includes(itemToRequest.category as string)) || // Cast category as string if needed
+         (itemToRequest.rarity && itemToRequest.rarity !== 'common' && r.roles.some(role => role.includes('rare'))) || // Ensure rarity exists before check
          (itemToRequest.primaryProperty && r.roles.some(role => role.includes(itemToRequest.primaryProperty))) // Match primary property to role
      );
      const requester = suitableRequesters.length > 0

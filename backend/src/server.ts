@@ -1,9 +1,11 @@
 // backend/src/server.ts
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import path from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import http from 'http';
+import https from 'https';
+import fs from 'fs'; // Import fs for reading certs
 import { GameHandler } from './gameHandler.js'; // Ensure .js extension
 
 // Handle ES Module file paths
@@ -16,11 +18,23 @@ const gameHandler = new GameHandler();
 
 // Middleware
 app.use(cors()); // Enable CORS for all origins (adjust for production)
+// Example for production CORS:
+// const corsOptions = {
+//   origin: 'https://your-frontend-domain.com', // Replace with your frontend domain
+//   optionsSuccessStatus: 200
+// };
+// app.use(cors(corsOptions));
 app.use(express.json()); // Parse JSON request bodies
 
 // Serve static files from the frontend build directory
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
-console.log(`[Server] Serving static files from: ${frontendDistPath}`);
+if (!fs.existsSync(frontendDistPath)) {
+    console.error(`[Server ERROR] Frontend build directory not found at: ${frontendDistPath}`);
+    console.error("[Server ERROR] Please run 'npm run build:frontend' before starting the server.");
+    // Optionally exit: process.exit(1);
+} else {
+    console.log(`[Server] Serving static files from: ${frontendDistPath}`);
+}
 app.use(express.static(frontendDistPath));
 
 // Logging Middleware (Simple)
@@ -83,7 +97,7 @@ app.post('/api/brew', (req: Request, res: Response) => {
    if (playerId === undefined || !Array.isArray(ingredientInvItemIds) || ingredientInvItemIds.length !== 2) {
       return res.status(400).json({ error: 'Missing or invalid parameters (playerId, ingredientInvItemIds[2])' });
    }
-  handleRequest(() => gameHandler.brewPotion(playerId, ingredientInvItemIds as [string, string]), res, 'brew potion');
+  handleRequest(() => gameHandler.brewPotion(playerId, ingredientInvItemIds as string[]), res, 'brew potion'); // Pass string[]
 });
 
 // POST Market actions
@@ -168,12 +182,44 @@ app.get('*', (req: Request, res: Response) => {
   });
 });
 
+// --- Load SSL Certificates (Optional) ---
+let sslOptions: https.ServerOptions | undefined = undefined;
+const keyPath = path.join(__dirname, '../certs/key.pem'); // Adjust path if needed
+const certPath = path.join(__dirname, '../certs/cert.pem');
+
+try {
+    if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+        sslOptions = {
+            key: fs.readFileSync(keyPath),
+            cert: fs.readFileSync(certPath)
+        };
+        console.log("[Server] SSL certificates loaded. Will attempt to start HTTPS server.");
+    } else {
+        console.log("[Server] SSL certificates not found at ./certs/. Starting HTTP server only.");
+    }
+} catch (err) {
+    console.error("[Server] Error reading SSL certificates:", err);
+    console.log("[Server] Starting HTTP server only.");
+}
+
 // --- Start Server ---
 // Use PORT environment variable or default to 8080
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(` Backend server running on http://localhost:${PORT}`);
+const HTTP_PORT = process.env.PORT || 8080;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
+
+http.createServer(app).listen(HTTP_PORT, () => {
+  console.log(` Backend server running on http://localhost:${HTTP_PORT}`);
   console.log(`--------------------------------------------------`);
 });
+
+// Start HTTPS server if certs are available
+if (sslOptions) {
+  https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
+    console.log(` Backend server (HTTPS) running on https://localhost:${HTTPS_PORT}`);
+    console.log(`--------------------------------------------------`);
+  });
+} else {
+     console.log(` (HTTPS server not started - Place key.pem and cert.pem in backend/certs/)`);
+}
 
 export default app; // Export for potential testing

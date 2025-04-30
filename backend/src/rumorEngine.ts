@@ -2,7 +2,7 @@
 // Generates rumors each turn and adds them to the game state.
 // Rumors affect market prices, item availability, and player decisions.
 
-import { GameState, Rumor, Season, MoonPhase, MarketItem, Player } from "coven-shared";
+import { GameState, Rumor, Season, MoonPhase, MarketItem, Player, Rarity } from "coven-shared"; // Added Rarity
 import { ITEMS } from "./items.js"; // Access item database
 
 // Counter for unique rumor IDs
@@ -64,7 +64,7 @@ const rumorTemplates = {
 // Selects a random item name, potentially biased towards relevant/valuable items
 function pickRandomItemName(state: GameState): string {
   // Filter for items actually present in the market or common ingredients/potions
-  const availableMarketItems = state.market.map(item => item.name);
+  const availableMarketItems = state.market.map(item => item.name).filter(name => !!name); // Filter out undefined names
   const commonItems = ITEMS
       .filter(item => item.type === 'ingredient' || item.type === 'potion')
       .map(item => item.name);
@@ -176,14 +176,14 @@ export function processRumorEffects(state: GameState): void {
       if (rumor.verified) {
         spreadIncrease *= 1.5; // Verified rumors spread faster
       }
-      rumor.spread = Math.min(100, rumor.spread + Math.round(spreadIncrease));
+      rumor.spread = Math.min(100, (rumor.spread ?? 0) + Math.round(spreadIncrease)); // Handle undefined spread
     } else {
       // Rumor duration ended, start fading
       let fadeAmount = baseFadeRate;
       if (!rumor.verified) {
           fadeAmount *= 1.5; // Unverified rumors fade faster
       }
-      rumor.spread = Math.max(0, rumor.spread - Math.round(fadeAmount));
+      rumor.spread = Math.max(0, (rumor.spread ?? 0) - Math.round(fadeAmount)); // Handle undefined spread
     }
 
     // Mark for removal if spread is 0
@@ -231,33 +231,32 @@ export function verifyRumor(state: GameState, playerId: string, rumorId: string)
   if (Math.random() < verificationChance) {
       rumor.verified = true;
       // Verified rumors spread faster and might last a bit longer
-      rumor.spread = Math.min(100, rumor.spread + 15);
+      rumor.spread = Math.min(100, (rumor.spread ?? 0) + 15);
       if (rumor.duration !== undefined) {
           rumor.duration += 1;
       }
       console.log(`[RumorEngine] Player ${playerId} verified rumor ${rumorId}.`);
       // Add Journal Entry
-      state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName, text: `You verified the rumor: "${rumor.content}"`, category: 'market', importance: 3, readByPlayer: false });
+      state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You verified the rumor: "${rumor.content}"`, category: 'market', importance: 3, readByPlayer: false });
       return true;
   } else {
        console.log(`[RumorEngine] Player ${playerId} failed to verify rumor ${rumorId}.`);
        // Add Journal Entry
-       state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName, text: `You couldn't confirm the truth of the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
+       state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You couldn't confirm the truth of the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
        return false;
   }
 }
 
 // Action: Player spreads a rumor
-export function spreadRumor(state: GameState, playerId: string, rumorId: string): boolean {
-  const player = state.players.find((p) => p.id === playerId);
-  if (!player) return false;
+export function spreadRumor(state: GameState, player: Player, rumorId: string): boolean {
+  // Removed find player as player object is passed directly
 
   const rumor = state.rumors.find((r: Rumor) => r.id === rumorId);
   if (!rumor) return false;
 
   // Spreading costs a small amount of reputation or has a chance based on skill
   if (player.reputation < 2) {
-      state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName, text: `Your reputation isn't high enough to effectively spread rumors.`, category: 'market', importance: 1, readByPlayer: false });
+      state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `Your reputation isn't high enough to effectively spread rumors.`, category: 'market', importance: 1, readByPlayer: false });
       return false; // Not enough reputation
   }
   player.reputation -= 1; // Cost to spread
@@ -267,15 +266,15 @@ export function spreadRumor(state: GameState, playerId: string, rumorId: string)
 
   // Increase spread significantly when player actively spreads it
   const spreadIncrease = 20 + Math.round(tradingBonus * 15); // +20-35 spread
-  rumor.spread = Math.min(100, rumor.spread + spreadIncrease);
+  rumor.spread = Math.min(100, (rumor.spread ?? 0) + spreadIncrease); // Handle undefined spread
 
   // Slightly extend duration
   if (rumor.duration !== undefined) {
     rumor.duration = Math.min(12, rumor.duration + 1); // Cap duration extension
   }
 
-  console.log(`[RumorEngine] Player ${playerId} spread rumor ${rumorId}, spread increased to ${rumor.spread}.`);
-   state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName, text: `You helped spread the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
+  console.log(`[RumorEngine] Player ${player.id} spread rumor ${rumorId}, spread increased to ${rumor.spread}.`);
+   state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You helped spread the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
 
   return true;
 }
@@ -305,6 +304,6 @@ export function createCustomRumor(
 
   state.rumors.push(newRumor);
   console.log(`[RumorEngine] Created custom rumor: ${content}`);
-   state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName, text: `A new rumor started: "${content}"`, category: 'market', importance: 3, readByPlayer: false });
+   state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `A new rumor started: "${content}"`, category: 'market', importance: 3, readByPlayer: false });
   return newRumor;
 }

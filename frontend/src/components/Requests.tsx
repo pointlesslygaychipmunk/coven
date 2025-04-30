@@ -16,8 +16,11 @@ const Requests: React.FC<RequestsProps> = ({
 
   // Check if player has enough items to fulfill a specific request
   const canFulfill = (request: TownRequest): boolean => {
-    const requiredItemInv = playerInventory.find(item => item.name === request.item);
-    return !!(requiredItemInv && requiredItemInv.quantity >= request.quantity);
+    // Sum up quantity across all stacks of the required item
+    const totalQuantity = playerInventory
+      .filter(item => item.name === request.item)
+      .reduce((sum, item) => sum + item.quantity, 0);
+    return totalQuantity >= request.quantity;
   };
 
   // Format price (reusable, maybe move to utils)
@@ -26,6 +29,7 @@ const Requests: React.FC<RequestsProps> = ({
   return (
     <div className="requests-container">
       <div className="requests-header">
+        {/* Using emoji as simple icon */}
         <h2><span className="requests-icon">📜</span> Town Requests</h2>
         {/* Add sorting/filtering options here later if needed */}
       </div>
@@ -39,7 +43,11 @@ const Requests: React.FC<RequestsProps> = ({
           <div className="request-list">
             {townRequests.map(request => {
               const playerCanFulfill = canFulfill(request);
+              // Find *any* stack for quality display (or calculate average if needed)
               const requiredItemInv = playerInventory.find(item => item.name === request.item);
+              const totalQuantity = playerInventory
+                  .filter(item => item.name === request.item)
+                  .reduce((sum, item) => sum + item.quantity, 0);
 
               return (
                 <div key={request.id} className="request-item">
@@ -48,11 +56,13 @@ const Requests: React.FC<RequestsProps> = ({
                   </div>
                   <div className="request-details">
                     <div className="request-requester">{request.requester} requests:</div>
-                    <div className="request-description">
+                    <div className="request-item-info"> {/* Renamed class */}
                       <strong>{request.quantity} x {request.item}</strong>
                       <div className="inventory-check">
-                        (You have: {requiredItemInv?.quantity ?? 0}
-                        {requiredItemInv?.quality ? `, Avg Q: ${requiredItemInv.quality}%` : ''})
+                        (You have: {totalQuantity}
+                        {/* Optionally show average quality if relevant */}
+                        {/* {requiredItemInv?.quality ? `, Avg Q: ${requiredItemInv.quality}%` : ''} */}
+                        )
                       </div>
                     </div>
                     <div className="request-rewards">

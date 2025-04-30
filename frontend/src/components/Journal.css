@@ -1,631 +1,638 @@
-```css
 /* frontend/src/components/Journal.css */
 /* Styles for the player's journal interface */
 
 .journal-container {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-bg-dark); /* Use theme variable */
-  color: var(--color-text-light); /* Use theme variable */
-  border-radius: var(--border-radius-lg); /* Use theme variable */
-  padding: 25px; /* Increased padding */
-  box-shadow: var(--shadow-medium); /* Use theme variable */
-  height: 100%;
-  overflow: hidden;
-  font-family: var(--font-secondary); /* Use secondary for content */
-  border: 1px solid var(--color-border); /* Add subtle border */
-}
-
-.journal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border-light); /* Use variable */
-  padding-bottom: 15px;
-  margin-bottom: 15px; /* Reduced margin */
-  flex-shrink: 0; /* Prevent header shrinking */
-}
-
-.journal-header h2 {
-  margin: 0;
-  color: var(--color-text-heading); /* Use variable */
-  font-weight: 500; /* Slightly bolder */
-  font-size: 26px; /* Adjusted size */
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-primary); /* Use primary for headings */
-}
-
-.section-icon {
-    font-size: 22px;
-    color: var(--color-accent-primary);
-}
-
-.journal-tabs {
-  display: flex;
-  gap: 5px;
-  background-color: var(--color-bg-medium); /* Use variable */
-  border-radius: var(--border-radius-lg); /* Use variable */
-  padding: 5px;
-  flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
-}
-
-.journal-tab {
-  flex-grow: 1; /* Allow tabs to share space */
-  min-width: 80px; /* Ensure minimum width */
-  border-radius: var(--border-radius-md); /* Use variable */
-  padding: 8px 12px; /* Adjusted padding */
-  border: none;
-  background: none;
-  color: var(--color-text-medium); /* Use variable */
-  font-family: var(--font-primary); /* Use variable */
-  font-size: 14px;
-  font-weight: 500; /* Bolder tabs */
-  cursor: pointer;
-  transition: all var(--transition-speed) ease; /* Use variable */
-  position: relative; /* For badges */
-  white-space: nowrap;
-  text-align: center;
-}
-
-.journal-tab:hover {
-    background-color: var(--color-bg-light);
-    color: var(--color-text-light);
-}
-
-.journal-tab.active {
-  background-color: var(--color-accent-primary); /* Use variable */
-  color: var(--color-bg-dark); /* Use variable */
-  box-shadow: var(--shadow-inset); /* Use variable */
-}
-
-.journal-tab .badge, .journal-tab .unread-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: var(--color-danger); /* Use variable */
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-secondary);
-    font-weight: bold;
-    line-height: 1; /* Ensure number is centered */
-}
-.journal-tab .unread-count {
-    background-color: var(--color-accent-secondary);
-    color: var(--color-bg-dark);
-}
-
-
-.journal-view-toggle {
-    margin-left: 15px;
-    display: flex;
-    background-color: var(--color-bg-medium);
-    border-radius: var(--border-radius-md);
-    padding: 3px;
-    flex-shrink: 0;
-}
-.view-toggle-btn {
-    background: none;
-    border: none;
-    padding: 5px 8px;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--color-text-medium);
-    border-radius: var(--border-radius-sm);
-    transition: all var(--transition-speed) ease;
-}
- .view-toggle-btn:hover {
-     color: var(--color-text-light);
- }
- .view-toggle-btn.active {
-     background-color: var(--color-accent-primary);
-     color: var(--color-bg-dark);
- }
-
-.journal-main {
-  flex: 1;
-  overflow: hidden; /* Prevent main area from scrolling */
-  position: relative; /* For book positioning */
-}
-
-.journal-content {
-  display: flex;
-  height: 100%;
-  gap: 20px;
-}
-
-/* Categories Sidebar */
-.journal-categories {
-    width: 220px;
-    flex-shrink: 0;
-    border-right: 1px solid var(--color-border);
-    padding-right: 15px;
     display: flex;
     flex-direction: column;
-}
- .categories-header h3 {
-     font-size: 16px;
-     color: var(--color-text-heading);
-     margin-bottom: 10px;
-     padding-bottom: 5px;
-     border-bottom: 1px solid var(--color-border-light);
-     font-family: var(--font-primary);
-     font-weight: 500;
- }
- .category-list {
-     flex: 1;
-     overflow-y: auto;
-     padding-right: 5px; /* Space for scrollbar */
- }
- .category-item {
-     display: flex;
-     align-items: center;
-     padding: 8px 10px;
-     border-radius: var(--border-radius-sm);
-     cursor: pointer;
-     transition: background-color var(--transition-speed) ease;
-     margin-bottom: 3px;
-     color: var(--color-text-medium);
- }
- .category-item:hover {
-     background-color: var(--color-bg-light);
-     color: var(--color-text-light);
- }
- .category-item.active {
-     background-color: var(--color-accent-primary);
-     color: var(--color-bg-dark);
-     font-weight: bold;
- }
- .category-icon {
-     margin-right: 10px;
-     font-size: 16px;
-     width: 20px; /* Ensure consistent alignment */
-     text-align: center;
- }
- .category-name {
-     flex-grow: 1;
-     font-size: 14px;
-     font-family: var(--font-secondary);
- }
- .category-count {
-     font-size: 12px;
-     background-color: var(--color-bg-medium);
-     padding: 2px 6px;
-     border-radius: 10px;
-     color: var(--color-text-dark);
-     min-width: 20px; /* Ensure badge width */
-     text-align: center;
- }
- .category-item.active .category-count {
-     background-color: rgba(0,0,0,0.2);
-     color: var(--color-bg-dark);
- }
-
-
-/* Main Content Area */
-.journal-main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Prevent scrolling here, handled by child */
-}
-
-/* Entries List */
-.journal-entries {
-    display: flex;
-    flex-direction: column;
+    background-color: var(--color-bg-dark); /* Use theme variable */
+    color: var(--color-text-light); /* Use theme variable */
+    border-radius: var(--border-radius-lg); /* Use theme variable */
+    padding: 25px; /* Increased padding */
+    box-shadow: var(--shadow-medium); /* Use theme variable */
     height: 100%;
-}
-.entries-header {
+    overflow: hidden;
+    font-family: var(--font-secondary); /* Use secondary for content */
+    border: 1px solid var(--color-border); /* Add subtle border */
+  }
+  
+  .journal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 5px 15px 5px; /* Add padding */
-    border-bottom: 1px solid var(--color-border-light);
-    flex-shrink: 0;
-}
- .header-title {
-     display: flex;
-     align-items: center;
-     gap: 10px;
- }
- .header-title h3 {
-     margin: 0;
-     font-size: 18px;
-     color: var(--color-text-heading);
-     font-family: var(--font-primary);
-     font-weight: 500;
- }
- .unread-badge {
-     background-color: var(--color-accent-secondary);
-     color: var(--color-bg-dark);
-     font-size: 11px;
-     font-weight: bold;
-     padding: 2px 6px;
-     border-radius: 10px;
-     font-family: var(--font-secondary);
-     line-height: 1;
- }
- .search-container { }
- .search-input {
-     background-color: var(--color-bg-panel);
-     border: 1px solid var(--color-border);
-     padding: 6px 10px;
-     border-radius: var(--border-radius-sm);
-     color: var(--color-text-light);
-     font-size: 13px;
-     width: 200px; /* Adjust width */
- }
- .search-input:focus {
-     border-color: var(--color-accent-primary);
-     box-shadow: 0 0 5px rgba(181, 157, 196, 0.3);
- }
-
- .search-results-header {
-     padding: 10px 5px;
-     font-size: 13px;
-     color: var(--color-text-medium);
-     font-style: italic;
-     flex-shrink: 0;
-     border-bottom: 1px dashed var(--color-border);
- }
-
-.entries-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px 5px 5px 5px; /* Add padding */
-}
-
-.empty-entries {
-    text-align: center;
-    color: var(--color-text-medium);
-    padding-top: 40px;
-    font-style: italic;
-}
-
-.journal-entry {
-  background-color: var(--color-bg-medium);
-  border-radius: var(--border-radius-sm);
-  margin-bottom: 10px;
-  border: 1px solid var(--color-border);
-  border-left-width: 5px; /* Make indicator thicker */
-  transition: all var(--transition-speed) ease;
-  overflow: hidden; /* Ensure content clipping */
-}
-
-.journal-entry:hover {
-    background-color: var(--color-bg-light);
-    border-color: var(--color-border-light);
-    border-left-color: var(--color-accent-primary); /* Highlight on hover */
-}
-
-/* Importance Styling using CSS variables for colors */
-.journal-entry.trivial { border-left-color: var(--color-text-dark); }
-.journal-entry.minor { border-left-color: var(--color-info); }
-.journal-entry.standard { border-left-color: var(--color-success); }
-.journal-entry.important { border-left-color: var(--color-warning); }
-.journal-entry.very-important { border-left-color: var(--color-danger); }
-
-.journal-entry.unread {
-    /* Use a subtle background or bolder text instead of changing border */
-    background-color: rgba(181, 157, 196, 0.05);
-}
- .journal-entry.unread .entry-title {
-     font-weight: 600; /* Slightly bolder title for unread */
-     color: var(--color-text-light); /* Ensure title is light */
- }
-
-.entry-header {
-  display: flex;
-  align-items: center;
-  padding: 10px 15px;
-  cursor: pointer;
-  gap: 10px;
-}
-
-.entry-category {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--color-text-medium);
-  width: 25px; /* Width for just the icon */
-  flex-shrink: 0;
-  justify-content: center;
-}
-.entry-icon { font-size: 16px; } /* Larger icon */
-/* .entry-category-name { display: none; } Hide name, use icon tooltip */
-
-.entry-title {
-  flex-grow: 1;
-  font-size: 15px;
-  color: var(--color-text-light);
-  font-family: var(--font-primary); /* Use primary for titles */
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-   line-height: 1.3; /* Ensure consistent height */
-}
-
-.entry-meta {
-  font-size: 12px;
-  color: var(--color-text-dark);
-  text-align: right;
-  white-space: nowrap;
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-   font-family: var(--font-secondary);
-}
-.entry-date {}
-.entry-turn {}
-
-
-.entry-actions { display: flex; gap: 5px; margin-left: 10px; }
-.bookmark-btn, .expand-btn {
-    background: none;
+    border-bottom: 1px solid var(--color-border-light); /* Use variable */
+    padding-bottom: 15px;
+    margin-bottom: 15px; /* Reduced margin */
+    flex-shrink: 0; /* Prevent header shrinking */
+  }
+  
+  .journal-header h2 {
+    margin: 0;
+    color: var(--color-text-heading); /* Use variable */
+    font-weight: 500; /* Slightly bolder */
+    font-size: 26px; /* Adjusted size */
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-primary); /* Use primary for headings */
+  }
+  
+  .section-icon {
+      font-size: 22px;
+      color: var(--color-accent-primary);
+  }
+  
+  .journal-tabs {
+    display: flex;
+    gap: 5px;
+    background-color: var(--color-bg-medium); /* Use variable */
+    border-radius: var(--border-radius-lg); /* Use variable */
+    padding: 5px;
+    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+  }
+  
+  .journal-tab {
+    flex-grow: 1; /* Allow tabs to share space */
+    min-width: 80px; /* Ensure minimum width */
+    border-radius: var(--border-radius-md); /* Use variable */
+    padding: 8px 12px; /* Adjusted padding */
     border: none;
-    color: var(--color-text-medium);
-    font-size: 16px;
+    background: none;
+    color: var(--color-text-medium); /* Use variable */
+    font-family: var(--font-primary); /* Use variable */
+    font-size: 14px;
+    font-weight: 500; /* Bolder tabs */
     cursor: pointer;
-    padding: 0 3px;
-    line-height: 1; /* Align icons better */
-}
- .bookmark-btn:hover, .expand-btn:hover { color: var(--color-text-light); }
- .bookmark-btn.bookmarked { color: var(--color-accent-secondary); }
-
-.entry-content {
-  padding: 10px 15px 15px 30px; /* Indent content */
-  border-top: 1px solid var(--color-border);
-  background-color: var(--color-bg-panel);
-  animation: slideDown 0.3s ease-out;
-}
- @keyframes slideDown { from { max-height: 0; opacity: 0; transform: translateY(-10px); } to { max-height: 300px; opacity: 1; transform: translateY(0); } }
-
-.entry-text {
-  font-family: var(--font-secondary);
-  line-height: 1.5;
-  color: var(--color-text-medium);
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.entry-linked-items { margin-top: 10px; }
-.linked-items-header { font-size: 13px; color: var(--color-text-dark); margin-bottom: 5px; font-weight: 500; }
-.linked-items-list { display: flex; flex-wrap: wrap; gap: 5px; }
-.linked-item {
-    font-size: 12px;
-    background-color: var(--color-border);
-    padding: 2px 6px;
+    transition: all var(--transition-speed) ease; /* Use variable */
+    position: relative; /* For badges */
+    white-space: nowrap;
+    text-align: center;
+  }
+  
+  .journal-tab:hover {
+      background-color: var(--color-bg-light);
+      color: var(--color-text-light);
+  }
+  
+  .journal-tab.active {
+    background-color: var(--color-accent-primary); /* Use variable */
+    color: var(--color-bg-dark); /* Use variable */
+    box-shadow: var(--shadow-inset); /* Use variable */
+  }
+  
+  .journal-tab .badge, .journal-tab .unread-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--color-danger); /* Use variable */
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-secondary);
+      font-weight: bold;
+      line-height: 1; /* Ensure number is centered */
+  }
+  .journal-tab .unread-count {
+      background-color: var(--color-accent-secondary);
+      color: var(--color-bg-dark);
+  }
+  
+  
+  .journal-view-toggle {
+      margin-left: 15px;
+      display: flex;
+      background-color: var(--color-bg-medium);
+      border-radius: var(--border-radius-md);
+      padding: 3px;
+      flex-shrink: 0;
+  }
+  .view-toggle-btn {
+      background: none;
+      border: none;
+      padding: 5px 8px;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--color-text-medium);
+      border-radius: var(--border-radius-sm);
+      transition: all var(--transition-speed) ease;
+  }
+   .view-toggle-btn:hover {
+       color: var(--color-text-light);
+   }
+   .view-toggle-btn.active {
+       background-color: var(--color-accent-primary);
+       color: var(--color-bg-dark);
+   }
+  
+  .journal-main {
+    flex: 1;
+    overflow: hidden; /* Prevent main area from scrolling */
+    position: relative; /* For book positioning */
+  }
+  
+  .journal-content {
+    display: flex;
+    height: 100%;
+    gap: 20px;
+  }
+  
+  /* Categories Sidebar */
+  .journal-categories {
+      width: 220px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--color-border);
+      padding-right: 15px;
+      display: flex;
+      flex-direction: column;
+  }
+   .categories-header h3 {
+       font-size: 16px;
+       color: var(--color-text-heading);
+       margin-bottom: 10px;
+       padding-bottom: 5px;
+       border-bottom: 1px solid var(--color-border-light);
+       font-family: var(--font-primary);
+       font-weight: 500;
+   }
+   .category-list {
+       flex: 1;
+       overflow-y: auto;
+       padding-right: 5px; /* Space for scrollbar */
+   }
+   .category-item {
+       display: flex;
+       align-items: center;
+       padding: 8px 10px;
+       border-radius: var(--border-radius-sm);
+       cursor: pointer;
+       transition: background-color var(--transition-speed) ease;
+       margin-bottom: 3px;
+       color: var(--color-text-medium);
+   }
+   .category-item:hover {
+       background-color: var(--color-bg-light);
+       color: var(--color-text-light);
+   }
+   .category-item.active {
+       background-color: var(--color-accent-primary);
+       color: var(--color-bg-dark);
+       font-weight: bold;
+   }
+   .category-icon {
+       margin-right: 10px;
+       font-size: 16px;
+       width: 20px; /* Ensure consistent alignment */
+       text-align: center;
+   }
+   .category-name {
+       flex-grow: 1;
+       font-size: 14px;
+       font-family: var(--font-secondary);
+   }
+   .category-count {
+       font-size: 12px;
+       background-color: var(--color-bg-medium);
+       padding: 2px 6px;
+       border-radius: 10px;
+       color: var(--color-text-dark);
+       min-width: 20px; /* Ensure badge width */
+       text-align: center;
+   }
+   .category-item.active .category-count {
+       background-color: rgba(0,0,0,0.2);
+       color: var(--color-bg-dark);
+   }
+  
+  
+  /* Main Content Area */
+  .journal-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent scrolling here, handled by child */
+  }
+  
+  /* Entries List */
+  .journal-entries {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+  }
+  .entries-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5px 15px 5px; /* Add padding */
+      border-bottom: 1px solid var(--color-border-light);
+      flex-shrink: 0;
+  }
+   .header-title {
+       display: flex;
+       align-items: center;
+       gap: 10px;
+   }
+   .header-title h3 {
+       margin: 0;
+       font-size: 18px;
+       color: var(--color-text-heading);
+       font-family: var(--font-primary);
+       font-weight: 500;
+   }
+   .unread-badge {
+       background-color: var(--color-accent-secondary);
+       color: var(--color-bg-dark);
+       font-size: 11px;
+       font-weight: bold;
+       padding: 2px 6px;
+       border-radius: 10px;
+       font-family: var(--font-secondary);
+       line-height: 1;
+   }
+   .search-container { }
+   .search-input {
+       background-color: var(--color-bg-panel);
+       border: 1px solid var(--color-border);
+       padding: 6px 10px;
+       border-radius: var(--border-radius-sm);
+       color: var(--color-text-light);
+       font-size: 13px;
+       width: 200px; /* Adjust width */
+   }
+   .search-input:focus {
+       border-color: var(--color-accent-primary);
+       box-shadow: 0 0 5px rgba(181, 157, 196, 0.3);
+   }
+  
+   .search-results-header {
+       padding: 10px 5px;
+       font-size: 13px;
+       color: var(--color-text-medium);
+       font-style: italic;
+       flex-shrink: 0;
+       border-bottom: 1px dashed var(--color-border);
+   }
+  
+  .entries-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px 5px 5px 5px; /* Add padding */
+  }
+  
+  .empty-entries {
+      text-align: center;
+      color: var(--color-text-medium);
+      padding-top: 40px;
+      font-style: italic;
+  }
+  
+  .journal-entry {
+    background-color: var(--color-bg-medium);
     border-radius: var(--border-radius-sm);
+    margin-bottom: 10px;
+    border: 1px solid var(--color-border);
+    border-left-width: 5px; /* Make indicator thicker */
+    transition: all var(--transition-speed) ease;
+    overflow: hidden; /* Ensure content clipping */
+  }
+  
+  .journal-entry:hover {
+      background-color: var(--color-bg-light);
+      border-color: var(--color-border-light);
+      border-left-color: var(--color-accent-primary); /* Highlight on hover */
+  }
+  
+  /* Importance Styling using CSS variables for colors */
+  .journal-entry.trivial { border-left-color: var(--color-text-dark); }
+  .journal-entry.minor { border-left-color: var(--color-info); }
+  .journal-entry.standard { border-left-color: var(--color-success); }
+  .journal-entry.important { border-left-color: var(--color-warning); }
+  .journal-entry.very-important { border-left-color: var(--color-danger); }
+  
+  .journal-entry.unread {
+      /* Use a subtle background or bolder text instead of changing border */
+      background-color: rgba(181, 157, 196, 0.05);
+  }
+   .journal-entry.unread .entry-title {
+       font-weight: 600; /* Slightly bolder title for unread */
+       color: var(--color-text-light); /* Ensure title is light */
+   }
+  
+  .entry-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    gap: 10px;
+  }
+  
+  .entry-category {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--color-text-medium);
+    width: 25px; /* Width for just the icon */
+    flex-shrink: 0;
+    justify-content: center;
+  }
+  .entry-icon { font-size: 16px; } /* Larger icon */
+  /* .entry-category-name { display: none; } Hide name, use icon tooltip */
+  
+  .entry-title {
+    flex-grow: 1;
+    font-size: 15px;
     color: var(--color-text-light);
+    font-family: var(--font-primary); /* Use primary for titles */
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     line-height: 1.3; /* Ensure consistent height */
+  }
+  
+  .entry-meta {
+    font-size: 12px;
+    color: var(--color-text-dark);
+    text-align: right;
+    white-space: nowrap;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
      font-family: var(--font-secondary);
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 15px 0 5px 0;
-  border-top: 1px solid var(--color-border-light);
-  flex-shrink: 0;
-}
-
-.pagination-btn {
-  background-color: var(--color-bg-light);
-  color: var(--color-text-medium);
-  padding: 5px 12px;
-  border: 1px solid var(--color-border);
-  font-size: 13px;
-   margin: 0 2px; /* Add small margin */
-}
- .pagination-btn:hover:not(:disabled) { background-color: var(--color-border); color: var(--color-text-light); }
- .pagination-btn:disabled { opacity: 0.4; cursor: default; }
-
-.page-info {
-  margin: 0 10px; /* Reduced margin */
-  font-size: 14px;
-  color: var(--color-text-medium);
-}
-
-/* Rituals Section */
- .journal-rituals { padding: 10px; overflow-y: auto; height: 100%; }
- .rituals-header h3 { margin: 0; padding: 10px 0; color: var(--color-text-heading); font-size: 18px; border-bottom: 1px solid var(--color-border-light); margin-bottom: 15px; font-family: var(--font-primary);}
- .empty-rituals { text-align: center; color: var(--color-text-medium); padding: 30px; font-style: italic; }
- .rituals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
- .ritual-card {
-     background-color: var(--color-bg-medium);
-     border: 1px solid var(--color-border);
-     border-radius: var(--border-radius-sm);
-     padding: 15px;
+  }
+  .entry-date {}
+  .entry-turn {}
+  
+  
+  .entry-actions { display: flex; gap: 5px; margin-left: 10px; }
+  .bookmark-btn, .expand-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-medium);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 3px;
+      line-height: 1; /* Align icons better */
+  }
+   .bookmark-btn:hover, .expand-btn:hover { color: var(--color-text-light); }
+   .bookmark-btn.bookmarked { color: var(--color-accent-secondary); }
+  
+  .entry-content {
+    padding: 10px 15px 15px 30px; /* Indent content */
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-panel);
+    animation: slideDown 0.3s ease-out;
+  }
+   @keyframes slideDown { from { max-height: 0; opacity: 0; transform: translateY(-10px); } to { max-height: 300px; opacity: 1; transform: translateY(0); } }
+  
+  .entry-text {
+    font-family: var(--font-secondary);
+    line-height: 1.5;
+    color: var(--color-text-medium);
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .entry-linked-items { margin-top: 10px; }
+  .linked-items-header { font-size: 13px; color: var(--color-text-dark); margin-bottom: 5px; font-weight: 500; }
+  .linked-items-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .linked-item {
+      font-size: 12px;
+      background-color: var(--color-border);
+      padding: 2px 6px;
+      border-radius: var(--border-radius-sm);
+      color: var(--color-text-light);
+       font-family: var(--font-secondary);
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0 5px 0;
+    border-top: 1px solid var(--color-border-light);
+    flex-shrink: 0;
+  }
+  
+  .pagination-btn {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-medium);
+    padding: 5px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm); /* Added */
+    font-size: 13px;
+     margin: 0 2px; /* Add small margin */
      cursor: pointer;
      transition: all var(--transition-speed) ease;
-     position: relative;
-     overflow: hidden;
-     display: flex;
-     flex-direction: column;
- }
- .ritual-card:hover { border-color: var(--color-accent-primary); transform: translateY(-2px); box-shadow: var(--shadow-soft); background-color: var(--color-bg-light);}
- .ritual-card.completed { border-left: 5px solid var(--color-success); }
- .ritual-card.advanced { border-left: 5px solid var(--color-accent-secondary); }
- .ritual-card.in-progress { border-left: 5px solid var(--color-info); }
- .ritual-card.not-started { border-left: 5px solid var(--color-text-dark); }
-
- .ritual-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
- .ritual-name { font-size: 16px; color: var(--color-text-light); font-family: var(--font-primary); line-height: 1.3; margin-right: 10px; }
- .ritual-completion { font-size: 13px; color: var(--color-text-medium); font-weight: bold; flex-shrink: 0; }
- .claim-reward-button {
-     background-color: var(--color-success);
-     color: var(--color-bg-dark);
-     border: none;
-     padding: 4px 8px;
-     border-radius: var(--border-radius-sm);
-     font-size: 12px;
-     font-weight: bold;
-     cursor: pointer;
-     transition: background-color 0.2s ease;
- }
- .claim-reward-button:hover { background-color: #98d691; }
- .claimed-badge {
-     color: var(--color-success);
-     font-weight: bold;
-     font-size: 18px;
- }
-
- .ritual-progress-bar { height: 6px; background-color: var(--color-bg-panel); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
- .ritual-progress-fill { height: 100%; background-color: var(--color-accent-primary); border-radius: 3px; transition: width var(--transition-speed) ease; }
- .ritual-card.completed .ritual-progress-fill { background-color: var(--color-success); }
-
- .ritual-description { font-size: 13px; color: var(--color-text-medium); font-family: var(--font-secondary); line-height: 1.4; margin-bottom: 10px; flex-grow: 1; }
- .ritual-requirements { display: flex; gap: 10px; font-size: 12px; color: var(--color-text-dark); margin-top: auto; /* Push to bottom */ }
- .ritual-requirement { display: flex; align-items: center; gap: 4px; }
- .requirement-icon { font-size: 14px; }
-
-
-/* Rumors Section */
- .journal-rumors { padding: 10px; overflow-y: auto; height: 100%;}
- .rumors-header h3 { margin: 0; padding: 10px 0; color: var(--color-text-heading); font-size: 18px; border-bottom: 1px solid var(--color-border-light); margin-bottom: 15px; font-family: var(--font-primary);}
- .empty-rumors { text-align: center; color: var(--color-text-medium); padding: 30px; font-style: italic; }
- .rumors-list { display: flex; flex-direction: column; gap: 12px; }
- .rumor-card {
-     background-color: var(--color-bg-medium);
-     border: 1px solid var(--color-border);
-     border-radius: var(--border-radius-sm);
-     padding: 12px 15px;
-     position: relative;
-     opacity: calc(0.4 + (var(--rumor-spread, 50) / 166)); /* Opacity based on spread */
- }
- .rumor-content { font-size: 14px; color: var(--color-text-medium); font-family: var(--font-secondary); margin-bottom: 8px; font-style: italic; line-height: 1.4; }
- .rumor-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-dark); margin-bottom: 8px; }
- .rumor-source {}
- .rumor-age {}
- .rumor-spread { font-size: 12px; margin-bottom: 5px; }
- .spread-label { color: var(--color-text-dark); margin-bottom: 3px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;}
- .spread-bar { height: 4px; background-color: var(--color-bg-panel); border-radius: 2px; overflow: hidden; }
- .spread-fill { height: 100%; background-color: var(--color-info); border-radius: 2px; }
- .rumor-card.widespread .spread-fill { background-color: var(--color-warning); }
- .rumor-card.common .spread-fill { background-color: var(--color-info); }
- .rumor-card.rare .spread-fill { background-color: var(--color-text-dark); }
-
- .rumor-verified { position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 4px; color: var(--color-success); font-size: 12px; font-weight: bold; background-color: rgba(126, 186, 118, 0.1); padding: 2px 5px; border-radius: var(--border-radius-sm); }
- .verified-icon { }
- .rumor-effect { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--color-text-dark); margin-top: 5px; background-color: var(--color-bg-panel); padding: 3px 6px; border-radius: var(--border-radius-sm); display: inline-flex; }
- .effect-label { }
- .effect-value { color: var(--color-text-light); font-weight: 500; }
- .effect-direction { font-size: 14px; }
- .rumor-effect .effect-direction.up { color: var(--color-success); }
- .rumor-effect .effect-direction.down { color: var(--color-danger); }
-
-
-/* Codex Section */
- .journal-codex { padding: 10px; overflow-y: auto; height: 100%;}
- .codex-header h3 { margin: 0; padding: 10px 0; color: var(--color-text-heading); font-size: 18px; border-bottom: 1px solid var(--color-border-light); margin-bottom: 15px; font-family: var(--font-primary);}
- .codex-intro { font-size: 14px; color: var(--color-text-medium); margin-bottom: 20px; padding: 0 5px; line-height: 1.5; }
- .codex-categories { display: flex; flex-direction: column; gap: 25px; }
- .codex-category h4 { font-size: 16px; color: var(--color-accent-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-family: var(--font-primary); }
- .codex-category h4 .category-icon { font-size: 18px; }
- .codex-entries { display: flex; flex-direction: column; gap: 12px; padding-left: 10px; border-left: 2px solid var(--color-border); }
- .codex-entry { background-color: var(--color-bg-medium); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--color-border); }
- .codex-entry h5 { font-size: 15px; color: var(--color-text-light); margin: 0 0 5px 0; font-family: var(--font-primary); }
- .codex-entry p { font-size: 13px; color: var(--color-text-medium); font-family: var(--font-secondary); margin: 0; line-height: 1.4; }
- .unlockable { color: var(--color-text-dark); font-style: italic; text-align: center; padding: 15px; }
-
-
-/* Book Mode (Simplified - focus on structure) */
-.journal-book { perspective: 1500px; width: 100%; height: 100%; position: relative; background: #e8e0d0; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
-.book-pages { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
-.book-page {
-    position: absolute; width: 50%; height: 100%;
-    background-color: #f5f0e5; /* Parchment */
-    border: 1px solid #d3c0a5;
-    transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
-    overflow: hidden; backface-visibility: hidden;
-    box-shadow: inset 5px 0px 15px -5px rgba(0,0,0,0.1);
-}
-.book-page.page-left { transform-origin: right center; box-shadow: inset -5px 0px 15px -5px rgba(0,0,0,0.1); }
-.book-page.page-right { left: 50%; }
-.page-content { padding: 25px 30px; color: #5d4037; font-family: 'Times New Roman', serif; } /* Serif font for book */
-.page-content.back { transform: rotateY(180deg); }
-/* Add specific book content styling here... */
-.book-entry-short { margin-bottom: 8px; font-size: 12px; line-height: 1.4; border-bottom: 1px dotted #d7ccc8; padding-bottom: 4px;}
-.book-entry-short strong { color: #4e342e; }
-
-.book-controls {
-    position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 25px;
-    background: rgba(26, 26, 36, 0.7); padding: 8px 20px; border-radius: 25px;
-    backdrop-filter: blur(3px);
-}
-.page-turn { background: none; border: none; font-size: 20px; color: var(--color-text-medium); cursor: pointer; transition: color 0.2s ease; }
-.page-turn:hover:not(:disabled) { color: var(--color-text-light); }
-.page-turn:disabled { opacity: 0.3; cursor: default; }
-.page-indicator { font-size: 14px; color: var(--color-text-medium); font-family: var(--font-primary); }
-
-/* Ritual Modal Styles */
-.ritual-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeInOverlay 0.3s ease-out; }
-.ritual-modal { background: var(--color-bg-medium); color: var(--color-text-light); border-radius: var(--border-radius-lg); width: 90%; max-width: 650px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: var(--shadow-medium); border: 1px solid var(--color-border); animation: scaleInModal 0.3s ease-out; }
-.ritual-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--color-border-light); flex-shrink: 0; }
-.ritual-modal-header h3 { margin: 0; font-size: 20px; color: var(--color-accent-primary); font-family: var(--font-primary); }
-.close-modal { background: none; border: none; font-size: 24px; color: var(--color-text-medium); cursor: pointer; padding: 0 5px; line-height: 1; }
-.close-modal:hover { color: var(--color-text-light); }
-.ritual-modal-content { padding: 20px; overflow-y: auto; flex-grow: 1; font-family: var(--font-secondary); }
-
-.ritual-progress-section { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; background-color: var(--color-bg-panel); padding: 15px; border-radius: var(--border-radius-sm); }
-.ritual-progress-circle { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
-.progress-ring { transform: rotate(-90deg); }
-.progress-ring-bg { stroke: var(--color-border); stroke-width: 6; fill: transparent; }
-.progress-ring-circle { stroke: var(--color-accent-primary); stroke-width: 6; fill: transparent; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
-.progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: var(--color-accent-primary); font-family: var(--font-primary); }
-.ritual-completion-text { font-size: 14px; color: var(--color-text-medium); }
-
-.ritual-description-full { font-size: 15px; line-height: 1.6; margin-bottom: 20px; color: var(--color-text-medium); }
-
-.ritual-steps h4, .ritual-requirements-full h4, .ritual-rewards h4 { font-size: 16px; color: var(--color-text-heading); margin-bottom: 10px; border-bottom: 1px solid var(--color-border-light); padding-bottom: 5px; font-family: var(--font-primary); }
-
-.steps-list, .rewards-list { list-style: none; padding-left: 0; }
-.ritual-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; padding: 8px; border-radius: var(--border-radius-sm); transition: background-color var(--transition-speed) ease; }
-.ritual-step.completed { background-color: rgba(126, 186, 118, 0.08); }
-.step-check { width: 20px; height: 20px; flex-shrink: 0; font-size: 16px; color: var(--color-text-dark); line-height: 20px; text-align: center; font-weight: bold; }
-.ritual-step.completed .step-check { color: var(--color-success); }
-.step-details { flex-grow: 1; }
-.step-description { font-size: 14px; color: var(--color-text-light); }
-.ritual-step.completed .step-description { text-decoration: line-through; color: var(--color-text-medium); }
-.step-completed-date { font-size: 12px; color: var(--color-text-dark); font-style: italic; margin-top: 3px; }
-
-.requirements-list { display: flex; flex-direction: column; gap: 8px; }
-.ritual-requirement { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--color-text-medium); }
-.requirement-icon { font-size: 18px; width: 20px; text-align: center; }
-.requirement-label { font-weight: 500; color: var(--color-text-light); width: 100px; flex-shrink: 0; }
-.requirement-text { }
-.req-met { margin-left: 8px; font-size: 12px; color: var(--color-success); font-style: italic; background-color: rgba(126, 186, 118, 0.1); padding: 1px 4px; border-radius: 3px;}
-.required-items-list { display: flex; flex-wrap: wrap; gap: 5px; margin-left: 10px; }
-.required-item { background-color: var(--color-bg-panel); padding: 2px 6px; border-radius: var(--border-radius-sm); font-size: 13px; border: 1px solid var(--color-border); }
-
-.reward-item { font-size: 14px; color: var(--color-text-light); margin-bottom: 5px; padding-left: 25px; position: relative; }
-.reward-item::before { content: '🎁'; position: absolute; left: 0; top: 1px; color: var(--color-accent-secondary); font-size: 16px; }
-
-.claim-reward-button.modal-claim {
-    display: block; /* Make it block to center */
-    margin: 20px auto 0 auto; /* Center button */
-    padding: 10px 20px;
-    font-size: 15px;
-}
-.claimed-badge.modal-claimed {
-     display: block; text-align: center; margin-top: 20px;
-     color: var(--color-success); font-weight: bold; font-size: 15px;
-     padding: 10px; background-color: rgba(126, 186, 118, 0.1);
-     border: 1px solid var(--color-success); border-radius: var(--border-radius-sm);
-}
-
-
-@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleInModal { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-```
+  }
+   .pagination-btn:hover:not(:disabled) { background-color: var(--color-border); color: var(--color-text-light); }
+   .pagination-btn:disabled { opacity: 0.4; cursor: default; background-color: var(--color-bg-light); color: var(--color-text-dark); }
+  
+  .page-info {
+    margin: 0 10px; /* Reduced margin */
+    font-size: 14px;
+    color: var(--color-text-medium);
+  }
+  
+  /* Rituals Section */
+   .journal-rituals { padding: 10px; overflow-y: auto; height: 100%; }
+   .rituals-header h3 { margin: 0; padding: 10px 0; color: var(--color-text-heading); font-size: 18px; border-bottom: 1px solid var(--color-border-light); margin-bottom: 15px; font-family: var(--font-primary);}
+   .empty-rituals { text-align: center; color: var(--color-text-medium); padding: 30px; font-style: italic; }
+   .rituals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+   .ritual-card {
+       background-color: var(--color-bg-medium);
+       border: 1px solid var(--color-border);
+       border-radius: var(--border-radius-sm);
+       padding: 15px;
+       cursor: pointer;
+       transition: all var(--transition-speed) ease;
+       position: relative;
+       overflow: hidden;
+       display: flex;
+       flex-direction: column;
+   }
+   .ritual-card:hover { border-color: var(--color-accent-primary); transform: translateY(-2px); box-shadow: var(--shadow-soft); background-color: var(--color-bg-light);}
+   .ritual-card.completed { border-left: 5px solid var(--color-success); }
+   .ritual-card.claimed { border-left: 5px solid var(--color-text-dark); opacity: 0.7; }
+   .ritual-card.advanced { border-left: 5px solid var(--color-accent-secondary); }
+   .ritual-card.in-progress { border-left: 5px solid var(--color-info); }
+   .ritual-card.not-started { border-left: 5px solid var(--color-text-dark); }
+  
+   .ritual-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+   .ritual-name { font-size: 16px; color: var(--color-text-light); font-family: var(--font-primary); line-height: 1.3; margin-right: 10px; }
+   .ritual-completion { font-size: 13px; color: var(--color-text-medium); font-weight: bold; flex-shrink: 0; }
+   .claim-reward-button {
+       background-color: var(--color-success);
+       color: var(--color-bg-dark);
+       border: none;
+       padding: 4px 8px;
+       border-radius: var(--border-radius-sm);
+       font-size: 12px;
+       font-weight: bold;
+       cursor: pointer;
+       transition: background-color 0.2s ease;
+   }
+   .claim-reward-button:hover { background-color: #98d691; }
+   .claimed-badge {
+       color: var(--color-success);
+       font-weight: bold;
+       font-size: 18px;
+   }
+  
+   .ritual-progress-bar { height: 6px; background-color: var(--color-bg-panel); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+   .ritual-progress-fill { height: 100%; background-color: var(--color-accent-primary); border-radius: 3px; transition: width var(--transition-speed) ease; }
+   .ritual-card.completed .ritual-progress-fill { background-color: var(--color-success); }
+   .ritual-card.claimed .ritual-progress-fill { background-color: var(--color-text-dark); }
+  
+   .ritual-description { font-size: 13px; color: var(--color-text-medium); font-family: var(--font-secondary); line-height: 1.4; margin-bottom: 10px; flex-grow: 1; }
+   .ritual-requirements { display: flex; gap: 10px; font-size: 12px; color: var(--color-text-dark); margin-top: auto; /* Push to bottom */ }
+   .ritual-requirement { display: flex; align-items: center; gap: 4px; }
+   .requirement-icon { font-size: 14px; }
+  
+  
+  /* Rumors Section */
+   .journal-rumors { padding: 10px; overflow-y: auto; height: 100%;}
+   .rumors-header h3 { margin: 0; padding: 10px 0; color: var(--color-text-heading); font-size: 18px; border-bottom: 1px solid var(--color-border-light); margin-bottom: 15px; font-family: var(--font-primary);}
+   .empty-rumors { text-align: center; color: var(--color-text-medium); padding: 30px; font-style: italic; }
+   .rumors-list { display: flex; flex-direction: column; gap: 12px; }
+   .rumor-card {
+       background-color: var(--color-bg-medium);
+       border: 1px solid var(--color-border);
+       border-radius: var(--border-radius-sm);
+       padding: 12px 15px;
+       position: relative;
+       opacity: calc(0.4 + (var(--rumor-spread, 50) / 166)); /* Opacity based on spread */
+   }
+   .rumor-content { font-size: 14px; color: var(--color-text-medium); font-family: var(--font-secondary); margin-bottom: 8px; font-style: italic; line-height: 1.4; }
+   .rumor-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-dark); margin-bottom: 8px; }
+   .rumor-source {}
+   .rumor-age {}
+   .rumor-spread { font-size: 12px; margin-bottom: 5px; }
+   .spread-label { color: var(--color-text-dark); margin-bottom: 3px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;}
+   .spread-bar { height: 4px; background-color: var(--color-bg-panel); border-radius: 2px; overflow: hidden; }
+   .spread-fill { height: 100%; background-color: var(--color-info); border-radius: 2px; }
+   .rumor-card.widespread .spread-fill { background-color: var(--color-warning); }
+   .rumor-card.common .spread-fill { background-color: var(--color-info); }
+   .rumor-card.rare .spread-fill { background-color: var(--color-text-dark); }
+  
+   .rumor-verified { position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 4px; color: var(--color-success); font-size: 12px; font-weight: bold; background-color: rgba(126, 186, 118, 0.1); padding: 2px 5px; border-radius: var(--border-radius-sm); }
+   .verified-icon { }
+   .rumor-effect { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--color-text-dark); margin-top: 5px; background-color: var(--color-bg-panel); padding: 3px 6px; border-radius: var(--border-radius-sm); display: inline-flex; }
+   .effect-label { }
+   .effect-value { color: var(--color-text-light); font-weight: 500; }
+   .effect-direction { font-size: 14px; }
+   .rumor-effect .effect-direction.up { color: var(--color-success); }
+   .rumor-effect .effect-direction.down { color: var(--color-danger); }
+  
+  
+  /* Codex Section */
+   .journal-codex { padding: 10px; overflow-y: auto; height: 100%;}
+   .codex-header h3 { margin: 0; padding: 10px 0; color: var(--color-text-heading); font-size: 18px; border-bottom: 1px solid var(--color-border-light); margin-bottom: 15px; font-family: var(--font-primary);}
+   .codex-intro { font-size: 14px; color: var(--color-text-medium); margin-bottom: 20px; padding: 0 5px; line-height: 1.5; }
+   .codex-categories { display: flex; flex-direction: column; gap: 25px; }
+   .codex-category h4 { font-size: 16px; color: var(--color-accent-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-family: var(--font-primary); }
+   .codex-category h4 .category-icon { font-size: 18px; }
+   .codex-entries { display: flex; flex-direction: column; gap: 12px; padding-left: 10px; border-left: 2px solid var(--color-border); }
+   .codex-entry { background-color: var(--color-bg-medium); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--color-border); }
+   .codex-entry h5 { font-size: 15px; color: var(--color-text-light); margin
+   .codex-entry p { font-size: 13px; color: var(--color-text-medium); font-family: var(--font-secondary); margin: 0; line-height: 1.4; }
+   .unlockable { color: var(--color-text-dark); font-style: italic; text-align: center; padding: 15px; }
+  
+  
+  /* Book Mode (Simplified - focus on structure) */
+  .journal-book { perspective: 1500px; width: 100%; height: 100%; position: relative; background: #e8e0d0; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+  .book-pages { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+  .book-page {
+      position: absolute; width: 50%; height: 100%;
+      background-color: #f5f0e5; /* Parchment */
+      border: 1px solid #d3c0a5;
+      transform-origin: left center; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+      overflow: hidden; backface-visibility: hidden;
+      box-shadow: inset 5px 0px 15px -5px rgba(0,0,0,0.1);
+  }
+  .book-page.page-left { transform-origin: right center; box-shadow: inset -5px 0px 15px -5px rgba(0,0,0,0.1); }
+  .book-page.page-right { left: 50%; }
+  .page-content { padding: 25px 30px; color: #5d4037; font-family: 'Times New Roman', serif; } /* Serif font for book */
+  .page-content.back { transform: rotateY(180deg); }
+  /* Add specific book content styling here... */
+  .book-entry-short { margin-bottom: 8px; font-size: 12px; line-height: 1.4; border-bottom: 1px dotted #d7ccc8; padding-bottom: 4px;}
+  .book-entry-short strong { color: #4e342e; }
+  .book-ritual-short { margin-bottom: 6px; font-size: 13px; }
+  .book-ritual-short strong { color: #6a1b9a; } /* Purple for ritual names */
+  .book-rumor-short { margin-bottom: 6px; font-size: 12px; font-style: italic; color: #795548; } /* Brown for rumors */
+  .book-rumor-short .source { color: #a1887f; }
+  
+  .book-controls {
+      position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 25px;
+      background: rgba(26, 26, 36, 0.7); padding: 8px 20px; border-radius: 25px;
+      backdrop-filter: blur(3px);
+  }
+  .page-turn { background: none; border: none; font-size: 20px; color: var(--color-text-medium); cursor: pointer; transition: color 0.2s ease; }
+  .page-turn:hover:not(:disabled) { color: var(--color-text-light); }
+  .page-turn:disabled { opacity: 0.3; cursor: default; }
+  .page-indicator { font-size: 14px; color: var(--color-text-medium); font-family: var(--font-primary); }
+  
+  /* Ritual Modal Styles */
+  .ritual-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeInOverlay 0.3s ease-out; }
+  .ritual-modal { background: var(--color-bg-medium); color: var(--color-text-light); border-radius: var(--border-radius-lg); width: 90%; max-width: 650px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: var(--shadow-medium); border: 1px solid var(--color-border); animation: scaleInModal 0.3s ease-out; }
+  .ritual-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--color-border-light); flex-shrink: 0; }
+  .ritual-modal-header h3 { margin: 0; font-size: 20px; color: var(--color-accent-primary); font-family: var(--font-primary); }
+  .close-modal { background: none; border: none; font-size: 24px; color: var(--color-text-medium); cursor: pointer; padding: 0 5px; line-height: 1; }
+  .close-modal:hover { color: var(--color-text-light); }
+  .ritual-modal-content { padding: 20px; overflow-y: auto; flex-grow: 1; font-family: var(--font-secondary); }
+  
+  .ritual-progress-section { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; background-color: var(--color-bg-panel); padding: 15px; border-radius: var(--border-radius-sm); }
+  .ritual-progress-circle { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+  .progress-ring { transform: rotate(-90deg); }
+  .progress-ring-bg { stroke: var(--color-border); stroke-width: 6; fill: transparent; }
+  .progress-ring-circle { stroke: var(--color-accent-primary); stroke-width: 6; fill: transparent; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+  .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: var(--color-accent-primary); font-family: var(--font-primary); }
+  .ritual-completion-text { font-size: 14px; color: var(--color-text-medium); }
+  
+  .ritual-description-full { font-size: 15px; line-height: 1.6; margin-bottom: 20px; color: var(--color-text-medium); }
+  
+  .ritual-steps h4, .ritual-requirements-full h4, .ritual-rewards h4 { font-size: 16px; color: var(--color-text-heading); margin-bottom: 10px; border-bottom: 1px solid var(--color-border-light); padding-bottom: 5px; font-family: var(--font-primary); }
+  
+  .steps-list, .rewards-list { list-style: none; padding-left: 0; }
+  .ritual-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; padding: 8px; border-radius: var(--border-radius-sm); transition: background-color var(--transition-speed) ease; }
+  .ritual-step.completed { background-color: rgba(126, 186, 118, 0.08); }
+  .step-check { width: 20px; height: 20px; flex-shrink: 0; font-size: 16px; color: var(--color-text-dark); line-height: 20px; text-align: center; font-weight: bold; }
+  .ritual-step.completed .step-check { color: var(--color-success); }
+  .step-details { flex-grow: 1; }
+  .step-description { font-size: 14px; color: var(--color-text-light); }
+  .ritual-step.completed .step-description { text-decoration: line-through; color: var(--color-text-medium); }
+  .step-completed-date { font-size: 12px; color: var(--color-text-dark); font-style: italic; margin-top: 3px; }
+  
+  .requirements-list { display: flex; flex-direction: column; gap: 8px; }
+  .ritual-requirement { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--color-text-medium); }
+  .requirement-icon { font-size: 18px; width: 20px; text-align: center; }
+  .requirement-label { font-weight: 500; color: var(--color-text-light); width: 100px; flex-shrink: 0; }
+  .requirement-text { }
+  .req-met { margin-left: 8px; font-size: 12px; color: var(--color-success); font-style: italic; background-color: rgba(126, 186, 118, 0.1); padding: 1px 4px; border-radius: 3px;}
+  .required-items-list { display: flex; flex-wrap: wrap; gap: 5px; margin-left: 10px; }
+  .required-item { background-color: var(--color-bg-panel); padding: 2px 6px; border-radius: var(--border-radius-sm); font-size: 13px; border: 1px solid var(--color-border); }
+  
+  .reward-item { font-size: 14px; color: var(--color-text-light); margin-bottom: 5px; padding-left: 25px; position: relative; }
+  .reward-item::before { content: '🎁'; position: absolute; left: 0; top: 1px; color: var(--color-accent-secondary); font-size: 16px; }
+  
+  .claim-reward-button.modal-claim {
+      display: block; /* Make it block to center */
+      margin: 20px auto 0 auto; /* Center button */
+      padding: 10px 20px;
+      font-size: 15px;
+  }
+  .claimed-badge.modal-claimed {
+       display: block; text-align: center; margin-top: 20px;
+       color: var(--color-success); font-weight: bold; font-size: 15px;
+       padding: 10px; background-color: rgba(126, 186, 118, 0.1);
+       border: 1px solid var(--color-success); border-radius: var(--border-radius-sm);
+  }
+  
+  
+  @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleInModal { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }

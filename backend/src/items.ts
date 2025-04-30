@@ -2,8 +2,8 @@
 // Defines all game items (seeds, ingredients, potions, tools) and their base properties.
 // This acts as the master database for item types.
 
-import { ItemType, ItemCategory, Item, Season } from "coven-shared";
-import { INGREDIENTS, SEEDS } from "./ingredients.js"; // Import plant/seed data
+import { ItemType, ItemCategory, Item, Season, MarketItem, Rarity } from "coven-shared"; // Import MarketItem
+import { INGREDIENTS, SEEDS, Ingredient, SeedItem } from "./ingredients.js"; // Import plant/seed data
 
 // Master list of all potential items in the game
 export const ITEMS: Item[] = [
@@ -16,6 +16,8 @@ export const ITEMS: Item[] = [
     description: ing.description,
     value: ing.value,
     rarity: ing.rarity,
+    primaryProperty: ing.primaryProperty, // Include properties for Codex/UI
+    seasonalBonus: ing.bestSeason, // Use best season as bonus indicator
     // imagePath: `/images/ingredients/${ing.id}.png` // Example path structure
   })),
 
@@ -25,7 +27,7 @@ export const ITEMS: Item[] = [
     name: seed.name,
     type: 'seed' as ItemType,
     category: 'seed' as ItemCategory,
-    description: seed.description,
+    description: seed.description || `Seeds for ${seed.name.replace(' Seed', '')}.`,
     value: seed.value,
     rarity: seed.rarity, // Seed rarity matches ingredient
     // imagePath: `/images/seeds/${seed.id}.png`
@@ -136,7 +138,7 @@ export const ITEMS: Item[] = [
        value: 1, rarity: 'common', // Worth almost nothing
        // imagePath: '/images/misc/ruined_brewage.png'
    }
-];
+].map(item => ({ ...item, category: item.category || 'misc', rarity: item.rarity || 'common' })) as Item[]; // Ensure category and rarity defaults
 
 // Helper function to get full item data by its ID
 export function getItemData(itemId: string): Item | undefined {
@@ -159,7 +161,7 @@ export function getInitialMarket(): MarketItem[] {
     .filter(item => initialMarketIds.includes(item.id))
     .map(item => ({
       id: item.id,
-      name: item.name,
+      name: item.name || 'Unknown Item',
       type: item.type,
       category: item.category || 'misc', // Default category if missing
       price: item.value || 10, // Use base value as starting price
@@ -167,12 +169,13 @@ export function getInitialMarket(): MarketItem[] {
       description: item.description || "An item of intrigue.",
       rarity: item.rarity || 'common',
       imagePath: item.imagePath,
+      seasonalBonus: item.seasonalBonus, // Include seasonal bonus if it exists on base item
       // Initialize other market-specific fields if needed
       priceHistory: [item.value || 10],
       lastPriceChange: 0,
       volatility: item.rarity === 'rare' ? 1.2 : (item.rarity === 'uncommon' ? 1.1 : 1.0), // Rarity influences volatility
       blackMarketOnly: false, // None are black market initially
-    }));
+    })) as MarketItem[]; // Assert correct return type
 }
 
 // Example function to generate item description if missing (can be expanded)

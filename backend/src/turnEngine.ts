@@ -3,7 +3,7 @@
 // Manages weather changes, plant growth, and time progression
 
 import {
-    GameState, Season, WeatherFate, MoonPhase, Plant,
+    GameState, Season, WeatherFate, MoonPhase, Plant, Rarity,
     GardenSlot, GameTime, JournalEntry, Player, Ingredient // Added Ingredient type
 } from "coven-shared";
 import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription } from "./ingredients.js"; // Import helpers, added getGrowthStageDescription
@@ -66,7 +66,7 @@ function applyGrowthAndWeather(
     plant: Plant,
     slot: GardenSlot,
     weather: WeatherFate,
-    currentPhase: MoonPhase,
+    currentPhase: MoonPhase, // Assuming Ingredient type is imported and includes Rarity
     currentSeason: Season
 ): {
     didGrow: boolean,

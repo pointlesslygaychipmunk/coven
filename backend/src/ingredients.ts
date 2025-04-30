@@ -1,7 +1,7 @@
 // src/ingredients.ts
 // Defines all plant ingredients, their properties, and growth requirements
 
-import { ItemCategory, Season, MoonPhase, WeatherFate, ItemType, Item } from "coven-shared";
+import { ItemCategory, Season, MoonPhase, WeatherFate, ItemType, Item, Rarity } from "coven-shared";
 
 // Full ingredient definition with growing properties
 // Make this extend the base Item type for consistency
@@ -9,6 +9,7 @@ export interface Ingredient extends Item {
   id: string; // Unique ID (e.g., "ing_moonbud") - Overrides Item ID if needed
   type: 'ingredient'; // Explicitly ingredient type
   category: ItemCategory; // Must be an ingredient category
+  rarity: Rarity; // Ensure rarity is always present
   growthTime: number; // Base number of growth cycles needed to mature
   primaryProperty: string; // Main skincare property (e.g., "brightening")
   secondaryProperty?: string; // Secondary skincare property
@@ -166,7 +167,7 @@ export const INGREDIENTS: Ingredient[] = [
 // Define SeedItem based on Item
 export interface SeedItem extends Item {
     type: 'seed';
-    category: 'seed';
+    category: 'seed'; // Category should be 'seed'
     plantSource: string; // ID of the ingredient it grows
 }
 
@@ -175,7 +176,7 @@ export const SEEDS: SeedItem[] = INGREDIENTS.map(ing => ({
   name: `${ing.name} Seed`,
   type: "seed",
   category: "seed",
-  plantSource: ing.id,
+  plantSource: ing.id, // ID of the ingredient it grows
   value: Math.max(3, Math.floor((ing.value ?? 10) / 2)), // Use base value
   description: `Seeds for growing ${ing.name}. Prefers ${ing.bestSeason}.`,
   rarity: ing.rarity, // Seed rarity matches plant

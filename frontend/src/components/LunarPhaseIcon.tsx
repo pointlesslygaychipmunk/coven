@@ -1,12 +1,13 @@
 import React from 'react';
 import './LunarPhaseIcon.css';
+import { MoonPhase } from 'coven-shared'; // Import the shared type
 
 interface LunarPhaseIconProps {
-  phase: string; // Expects names like "New Moon", "Full Moon", etc.
+  phase: MoonPhase; // Use the shared type
   size?: number;
 }
-
-export const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({
+// Use const instead of export const if only used internally or exported elsewhere
+const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({
   phase,
   size = 40
 }) => {

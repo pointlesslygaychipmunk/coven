@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import './Garden.css';
 import GardenPlot from './GardenPlot'; // Ensure GardenPlot uses shared types too
-import { InventoryItem as Item, GardenPlot as GardenSlot, Season, WeatherFate } from 'coven-shared'; // Use shared types
+import { InventoryItem, GardenSlot, Season, WeatherFate } from 'coven-shared'; // Use shared types
 
 interface GardenProps {
   plots: GardenSlot[];
-  inventory: Item[]; // Use InventoryItem alias
-  onPlant: (slotId: number, seedName: string) => void;
+  inventory: InventoryItem[]; // Use InventoryItem alias
+  onPlant: (slotId: number, seedInventoryItemId: string) => void; // Expect Inventory Item ID
   onHarvest: (slotId: number) => void;
   onWater: () => void; // Changed from optional to required based on usage
   weatherFate: WeatherFate;
@@ -24,10 +24,10 @@ const Garden: React.FC<GardenProps> = ({
 }) => {
   const [selectedPlotId, setSelectedPlotId] = useState<number | null>(null);
   const [showInventory, setShowInventory] = useState<boolean>(false);
-  const [selectedSeedName, setSelectedSeedName] = useState<string | null>(null); // Store seed name
+  const [selectedSeedInventoryItemId, setSelectedSeedInventoryItemId] = useState<string | null>(null); // Store seed InventoryItem ID
 
   // Get available seeds from inventory
-  const getAvailableSeeds = (): Item[] => {
+  const getAvailableSeeds = (): InventoryItem[] => {
     return inventory.filter(item =>
       item.type === 'seed' && item.quantity > 0
     );
@@ -48,33 +48,33 @@ const Garden: React.FC<GardenProps> = ({
       // Deselect if clicking the same plot again
       setSelectedPlotId(null);
       setShowInventory(false);
-      setSelectedSeedName(null);
+      setSelectedSeedInventoryItemId(null);
     } else {
       setSelectedPlotId(plotId);
       // If plot has mature plant or is occupied (but not mature), don't show seed inventory
       if (plot.plant) {
           setShowInventory(false);
-          setSelectedSeedName(null);
+          setSelectedSeedInventoryItemId(null);
       } else {
           // If plot is empty, show seed inventory
           setShowInventory(true);
-          setSelectedSeedName(null); // Clear any previously selected seed
+          setSelectedSeedInventoryItemId(null); // Clear any previously selected seed
       }
     }
   };
 
   // Handle seed selection from inventory
-  const handleSeedSelect = (seedName: string) => {
-    setSelectedSeedName(seedName);
+  const handleSeedSelect = (seedInventoryItemId: string) => {
+    setSelectedSeedInventoryItemId(seedInventoryItemId);
     // Keep inventory panel open after selection
   };
 
   // Handle planting the selected seed
   const handlePlant = () => {
-    if (selectedPlotId !== null && selectedSeedName) {
-      onPlant(selectedPlotId, selectedSeedName);
+    if (selectedPlotId !== null && selectedSeedInventoryItemId) {
+      onPlant(selectedPlotId, selectedSeedInventoryItemId); // Pass inventory ID
       // Reset state after planting attempt
-      setSelectedSeedName(null);
+      setSelectedSeedInventoryItemId(null);
       setShowInventory(false);
       // Keep the plot selected for viewing details maybe? Or deselect:
       // setSelectedPlotId(null);
@@ -183,7 +183,9 @@ const Garden: React.FC<GardenProps> = ({
     }
 
     const plant = selectedPlot.plant;
-    const growthPercent = plant ? Math.min(100, Math.max(0, (plant.growth / plant.maxGrowth) * 100)) : 0;
+    const growthPercent = plant && plant.growth !== undefined && plant.maxGrowth
+                          ? Math.min(100, Math.max(0, (plant.growth / plant.maxGrowth) * 100))
+                          : 0;
 
     return (
       <div className="plot-details">
@@ -246,11 +248,11 @@ const Garden: React.FC<GardenProps> = ({
             <div className="plant-stats">
               <div className="plant-stat">
                 <div className="stat-label">Health</div>
-                <div className="stat-value">{plant.health}%</div>
+                <div className="stat-value">{plant.health?.toFixed(0) ?? '?'}%</div> {/* Handle undefined */}
               </div>
               <div className="plant-stat">
                 <div className="stat-label">Age</div>
-                <div className="stat-value">{plant.age} {plant.age === 1 ? 'phase' : 'phases'}</div>
+                <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div> {/* Handle undefined */}
               </div>
               <div className="plant-stat">
                 <div className="stat-label">Watered</div>
@@ -321,9 +323,9 @@ const Garden: React.FC<GardenProps> = ({
             <div className="seed-list">
               {seeds.map(seed => (
                 <div
-                  key={seed.id}
-                  className={`seed-item ${selectedSeedName === seed.name ? 'selected' : ''}`}
-                  onClick={() => handleSeedSelect(seed.name)}
+                  key={seed.id} // Use the unique inventory item ID
+                  className={`seed-item ${selectedSeedInventoryItemId === seed.id ? 'selected' : ''}`}
+                  onClick={() => handleSeedSelect(seed.id)} // Pass inventory ID
                   title={`Plant ${seed.name}`}
                 >
                   <div className="seed-image">
@@ -337,18 +339,18 @@ const Garden: React.FC<GardenProps> = ({
                 </div>
               ))}
             </div>
-            <div className="seed-actions">
+             <div className="seed-actions">
               <button
                 className="action-button plant"
-                disabled={!selectedSeedName}
+                disabled={!selectedSeedInventoryItemId}
                 onClick={handlePlant}
               >
-                Plant {selectedSeedName || 'Selected Seed'}
+                Plant {inventory.find(s => s.id === selectedSeedInventoryItemId)?.name || 'Selected Seed'}
               </button>
-              <button
+               <button
                 className="close-button"
-                onClick={() => { setShowInventory(false); setSelectedSeedName(null); }} // Also clear selection on cancel
-              >
+                onClick={() => { setShowInventory(false); setSelectedSeedInventoryItemId(null); }} // Also clear selection on cancel
+               >
                 Cancel Planting
               </button>
             </div>

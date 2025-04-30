@@ -62,7 +62,7 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
-     font-family: var(--font-secondary); /* Use variable */
+     font-family: var(--font-secondary);
   }
 
   .level-label {
@@ -107,7 +107,7 @@
   .day-count {
     font-size: 14px;
     color: var(--color-text-medium); /* Use variable */
-     font-family: var(--font-secondary); /* Use variable */
+     font-family: var(--font-secondary);
   }
 
   /* Resources section */
@@ -126,7 +126,7 @@
     background-color: var(--color-bg-medium); /* Use variable */
     border-radius: 20px;
     border: 1px solid var(--color-border); /* Use variable */
-     font-family: var(--font-secondary); /* Use variable */
+     font-family: var(--font-secondary);
   }
 
   .gold-icon {

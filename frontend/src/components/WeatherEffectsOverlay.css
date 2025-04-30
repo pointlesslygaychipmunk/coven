@@ -1,4 +1,3 @@
-```css
 /* frontend/src/components/WeatherEffectsOverlay.css */
 /* Styles for weather visual effects */
 
@@ -22,12 +21,13 @@
   opacity: 0.15; /* Default subtle opacity */
 }
 .time-overlay.day { background-color: transparent; opacity: 0; } /* No overlay for day */
-.time-overlay.night { background-color: #1a1f36; opacity: 0.3; } /* Dark blue tint for night */
+.time-overlay.night { background-color: #1a1f36; opacity: 0.35; } /* Dark blue tint for night */
 /* Add dusk/dawn later maybe */
 
 
 /* Seasonal Overlays (Subtle color tints) */
-.spring-overlay { background: linear-gradient(to bottom, rgba(144, 238, 144, 0.03), transparent 50%); } /* Very light green tint */
+.seasonal-overlay { position: absolute; inset: 0; mix-blend-mode: overlay; pointer-events: none; }
+.spring-overlay { background: linear-gradient(to bottom, rgba(144, 238, 144, 0.04), transparent 50%); } /* Very light green tint */
 .summer-overlay { background: linear-gradient(to bottom, rgba(255, 215, 0, 0.04), transparent 60%); } /* Very light gold tint */
 .fall-overlay { background: linear-gradient(to bottom, rgba(210, 105, 30, 0.05), transparent 55%); } /* Very light orange/brown tint */
 .winter-overlay { background: linear-gradient(to bottom, rgba(173, 216, 230, 0.06), transparent 50%); } /* Very light blue tint */
@@ -144,6 +144,7 @@
 }
 
 /* Magical Mist */
+/* Example for a special weather type */
 .magical-mist {
   position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(181, 157, 196, 0.1) 0%, rgba(126, 186, 118, 0.08) 50%, rgba(111, 166, 204, 0.08) 100%);
@@ -155,4 +156,3 @@
   from { background-position: 0% 0%; opacity: 0.4; }
   to { background-position: 100% 100%; opacity: 0.6; }
 }
-```

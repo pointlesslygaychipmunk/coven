@@ -11,7 +11,7 @@ import { createCustomRumor, spreadRumor } from "./rumorEngine.js";
 // Note: checkQuestStepCompletion and claimRitualRewards are now likely called *within* gameEngine actions
 // If you need direct access here, re-import them. For now, assuming engine handles it.
 import { checkQuestStepCompletion, claimRitualRewards } from "./questSystem.js";
-
+import { getSpecialization } from './atelier.js'; // Import needed for potentially displaying spec name
 // GameHandler: Connects the server's API endpoints to the game engine
 export class GameHandler {
     private engine: GameEngine; // Make engine private
@@ -31,9 +31,9 @@ export class GameHandler {
     // --- Garden actions ---
 
     // Plant a seed in a garden slot
-    plantSeed(playerId: string, slotId: number, seedItemId: string): GameState { // Changed param name
-        console.log(`[GameHandler] Plant action: P:${playerId}, Slot:${slotId}, SeedInvID:${seedItemId}`);
-        this.engine.plantSeed(playerId, slotId, seedItemId); // Call engine method
+    plantSeed(playerId: string, slotId: number, seedInventoryItemId: string): GameState { // Changed param name to Inventory Item ID
+        console.log(`[GameHandler] Plant action: P:${playerId}, Slot:${slotId}, SeedInvID:${seedInventoryItemId}`);
+        this.engine.plantSeed(playerId, slotId, seedInventoryItemId); // Call engine method
         return this.engine.getState();
     }
 
@@ -183,5 +183,4 @@ export class GameHandler {
         return this.engine.getState();
     }
 
-// --- End of Class --- <<< This closing brace was likely missing or misplaced
 } // Make sure this closing brace for the GameHandler class exists and is correctly placed.

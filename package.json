@@ -17,7 +17,7 @@
     "build:shared": "npm run build --workspace=coven-shared",
     "build:backend": "npm run build --workspace=coven-backend",
     "build:frontend": "npm run build --workspace=coven-frontend",
-    "start": "npm run start --workspace=coven-backend",
+    "start": "npm run build && npm run start --workspace=coven-backend",
     "postinstall": "npm run build:shared"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 // frontend/src/index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from '@components/App'; // Use alias
+import App from '@components/App'; // Use alias (Vite usually handles .tsx/.ts)
 import './index.css'; // Import global styles
 
 const rootElement = document.getElementById('root');

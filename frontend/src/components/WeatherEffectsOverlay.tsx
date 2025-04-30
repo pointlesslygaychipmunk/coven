@@ -124,7 +124,7 @@ const WeatherEffectsOverlay: React.FC<WeatherEffectsOverlayProps> = ({
       {weatherType === 'cloudy' && <div className="cloud-overlay" />}
        {(weatherType === 'stormy') && <div className="cloud-overlay heavy" />} {/* Heavier clouds for storm */}
        {weatherType === 'dry' && <div className="dry-overlay" />}
-       {weatherType === 'magical' && <div className="magical-mist" />}
+       {/* {weatherType === 'magical' && <div className="magical-mist" />} // Uncomment if needed */}
 
        {/* Thunder flash sits on top */}
        {thunderFlash && <div className="thunder-flash" />}

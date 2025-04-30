@@ -2,9 +2,11 @@
 // Manages ritual quest progression and completion
 
 import {
-    GameState, RitualQuest, Player, MoonPhase,
+    GameState, RitualQuest, Player, MoonPhase, BasicRecipeInfo,
     Season, InventoryItem, JournalEntry, RitualQuestStep, RitualReward // Added missing types
 } from "coven-shared"; // Use shared package
+import { getItemData } from "./items.js"; // Import item helper
+import { getRecipeById } from './brewing.js'; // Assuming getRecipeById exists
 
 // Add 'initiallyAvailable' flag to RitualQuest definition if not already in shared types
 // Otherwise, define it locally if needed for filtering
@@ -157,7 +159,7 @@ export function checkQuestStepCompletion(
              case "Brew a Radiant Moon Mask with ingredients of 80+ quality": // Check potion name and ingredient quality (needs quality from brew action)
                   stepCompleted = (actionType === 'brew' && actionDetails.potionName === "Radiant Moon Mask" && actionDetails.quality >= 80);
                   break;
-             case "Craft a Spring Revival Tonic": // Assumes 'brew' action type
+             case "Craft a Spring Revival Tonic": // Assumes 'brew' action type for now
                   stepCompleted = (actionType === 'brew' && actionDetails.potionName === "Spring Revival Tonic");
                   break;
 
@@ -262,6 +264,10 @@ export function progressRituals(state: GameState): void {
 // Ensure addItemToInventory and addSkillXp are accessible (e.g., import from gameEngine or pass engine instance)
 import { addItemToInventory, addSkillXp } from "./gameEngine.js"; // Assuming these are exported or accessible
 
+// Helper function to check if a player has completed a ritual
+export const isRitualClaimed = (player: Player, ritualId: string): boolean => player.completedRituals.includes(ritualId);
+
+// Function to claim rewards
 export function claimRitualRewards(state: GameState, player: Player, ritualId: string): boolean {
     const ritualIndex = state.rituals.findIndex(r => r.id === ritualId);
     if (ritualIndex === -1) {
@@ -276,7 +282,7 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
          addQuestJournalEntry(state, `Cannot claim rewards for "${ritual.name}" yet. Ritual is incomplete.`, 2);
         return false;
     }
-    if (player.completedRituals.includes(ritualId)) {
+    if (isRitualClaimed(player, ritualId)) { // Use helper
         console.warn(`[Quest] Attempted to claim rewards for already completed ritual: ${ritualId}`);
          addQuestJournalEntry(state, `You have already claimed the rewards for "${ritual.name}".`, 1);
         return false;
@@ -332,8 +338,9 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
                     const recipeId = String(reward.value);
                     if (!player.knownRecipes.includes(recipeId)) {
                          player.knownRecipes.push(recipeId);
-                         // Find recipe name for journal
-                         const recipeData = getRecipeById(recipeId); // Assumes getRecipeById exists
+                          // Find recipe name for journal - use local function
+                          // Assuming getRecipeById is correctly imported/defined
+                         const recipeData = getRecipeById(recipeId);
                          addQuestJournalEntry(state, `Learned new recipe: ${recipeData?.name || recipeId}!`, 4);
                     }
                      break;
@@ -368,7 +375,3 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
 
     return true;
 }
-
-// Dummy function, replace with actual logic if needed elsewhere
-// Assumes getRecipeById exists in brewing.ts or items.ts
-import { getRecipeById } from './brewing.js';

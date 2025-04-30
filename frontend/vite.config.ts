@@ -1,6 +1,6 @@
 // frontend/vite.config.ts
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react'; // Using the default export
 import path from 'path';
 
 export default defineConfig({
@@ -29,7 +29,7 @@ export default defineConfig({
     alias: {
       // Ensure these aliases match tsconfig.json paths
       // Note: '../shared/src' points correctly from frontend/ to shared/src/
-      '@shared': path.resolve(__dirname, '../shared/src'),
+      '@shared': path.resolve(__dirname, '../shared/src'), // Keep original format if preferred
       'coven-shared': path.resolve(__dirname, '../shared/src/index.ts'), // Resolve package import
       '@components': path.resolve(__dirname, './src/components'),
       '@utils': path.resolve(__dirname, './src/utils'), // Keep even if empty for now
@@ -41,9 +41,13 @@ export default defineConfig({
     include: ['coven-shared'],
   },
   build: {
+    outDir: 'dist', // Ensure output directory is standard
     // Ensure shared package changes trigger rebuilds correctly
     commonjsOptions: {
-      include: [/shared/, /node_modules/],
+      include: [/shared/, /node_modules/], // Regex to include files from shared and node_modules
     },
+    rollupOptions: {
+      // Optional: Configure Rollup further if needed
+    }
   },
 });

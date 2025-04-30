@@ -1,18 +1,18 @@
 {
-    "extends": "../tsconfig.base.json",
-    "compilerOptions": {
-      "target": "ESNext",
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext",
-      "outDir": "./dist",
-      "rootDir": "./src",
-      "baseUrl": ".",
-      "composite": true,
-      "declaration": true,
-      "declarationMap": true,
-      "sourceMap": true,
-      "resolveJsonModule": true
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist"]
-  }
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext", // Aligned with consumers
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

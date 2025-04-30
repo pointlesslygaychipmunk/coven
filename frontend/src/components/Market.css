@@ -208,12 +208,25 @@
   overflow: hidden;
 }
 
+/* Sub-details for Sell tab items */
+.item-sub-details {
+  font-size: 11px;
+  color: var(--color-text-medium);
+  margin-bottom: 5px; display: flex; gap: 5px;
+}
+
 .market-item-price {
   font-size: 14px;
   color: var(--color-accent-secondary); /* Gold color for price */
   font-weight: bold;
   margin-top: auto; /* Push price to bottom */
 }
+.trend-indicator {
+    font-size: 12px; /* Smaller trend arrow */
+    margin-left: 4px;
+}
+.trend-indicator.up { color: var(--color-success); }
+.trend-indicator.down { color: var(--color-danger); }
 
 .market-item-category {
   position: absolute;
@@ -361,6 +374,15 @@
   margin-top: 10px; /* Space above trend */
   font-size: 13px;
   font-family: var(--font-secondary);
+}
+
+/* For Sell Tab - Estimated Price */
+.expected-sell-price {
+  font-size: 14px;
+  color: var(--color-accent-secondary);
+  font-weight: 500;
+  margin: 10px 0;
+  text-align: center;
 }
 .price-trend.up { color: var(--color-success); }
 .price-trend.down { color: var(--color-danger); }
@@ -511,7 +533,7 @@
   padding: 12px 15px; /* Adjust padding */
   border: 1px solid var(--color-border);
   display: flex;
-  gap: 15px;
+  gap: 10px; /* Slightly reduced gap */
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -541,7 +563,7 @@
 }
 
 .request-details { flex: 1; min-width: 0; /* Allow shrinking */}
-.request-requester { font-size: 15px; color: var(--color-text-light); margin-bottom: 5px; font-weight: 500; }
+.request-requester { font-size: 15px; color: var(--color-text-light); margin-bottom: 5px; font-weight: 500; font-family: var(--font-primary); }
 .request-description { font-size: 13px; color: var(--color-text-medium); margin-bottom: 10px; font-family: var(--font-secondary); line-height: 1.3; }
 
 .request-rewards { display: flex; flex-wrap: wrap; gap: 10px 15px; /* Wrap rewards */}

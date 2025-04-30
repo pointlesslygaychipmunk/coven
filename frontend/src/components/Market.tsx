@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Market.css';
 import { InventoryItem, MarketItem, Rumor, TownRequest } from 'coven-shared'; // Use shared types
+import Requests from './Requests'; // Import Requests component
 
 interface MarketProps {
   playerGold: number;
@@ -55,7 +56,7 @@ const Market: React.FC<MarketProps> = ({
       // and have quantity > 0
       const sellableMarketIds = new Set(marketItems.map(mi => mi.id));
        itemsToFilter = playerInventory.filter(invItem =>
-           sellableMarketIds.has(invItem.id) && invItem.quantity > 0
+           sellableMarketIds.has(invItem.baseId) && invItem.quantity > 0 // Check baseId against market IDs
        );
     } else {
         return []; // No items for requests tab listing
@@ -140,16 +141,20 @@ const Market: React.FC<MarketProps> = ({
 
   // Check if player can afford the selected market item
   const canAffordItem = (): boolean => {
+     if (!selectedDetails || !('price' in selectedDetails)) return false; // Ensure price exists
      const item = selectedDetails as MarketItem; // Type assertion
-     return !!(item && 'price' in item && playerGold >= item.price);
+     return playerGold >= item.price;
   };
 
   // Check if player has enough items to fulfill selected request
   const canFulfillRequest = (): boolean => {
     const request = selectedDetails as TownRequest; // Type assertion
     if (!request || !('item' in request)) return false;
-    const requiredItemInv = playerInventory.find(item => item.name === request.item);
-    return !!(requiredItemInv && requiredItemInv.quantity >= request.quantity);
+    // Sum quantity across all stacks for the check
+    const totalQuantity = playerInventory
+        .filter(item => item.name === request.item)
+        .reduce((sum, item) => sum + item.quantity, 0);
+    return totalQuantity >= request.quantity;
   };
 
   // Get unique types and categories for filters
@@ -174,17 +179,26 @@ const Market: React.FC<MarketProps> = ({
     return (
       <div className="market-items-grid">
         {items.map(item => {
-          const marketData = isSellTab ? marketItems.find(mi => mi.id === item.id) : item as MarketItem;
-          const displayPrice = marketData?.price ?? (item as InventoryItem).value ?? 0; // Fallback value if needed
-          const quality = (item as InventoryItem).quality; // Get quality if it's an inventory item
-          const quantity = (item as InventoryItem).quantity; // Get quantity
+          const invItem = item as InventoryItem; // Assume InventoryItem structure for potential quality/qty
+          const marketData = isSellTab ? marketItems.find(mi => mi.id === invItem.baseId) : item as MarketItem; // Use baseId for lookup
+          const displayPrice = marketData?.price ?? item.value ?? 0; // Fallback value if needed
+          const quality = invItem?.quality; // Get quality if it's an inventory item
+          const quantity = invItem?.quantity; // Get quantity
+
+          // Calculate potential sell price for display on Sell tab item card
+          let sellPreviewPrice = displayPrice;
+           if (isSellTab && quality !== undefined && marketData) {
+               const qualityMultiplier = 0.5 + ((quality ?? 50) / 100) * 0.7; // Same logic as details panel
+               sellPreviewPrice = Math.max(1, Math.round(marketData.price * qualityMultiplier));
+           }
+
 
           return (
             <div
-              key={item.id}
+              key={item.id} // Use inventory item ID if selling, market ID if buying
               className={`market-item ${item.type} ${currentSelectionId === item.id ? 'selected' : ''}`}
               onClick={() => handleItemClick(item.id)} // Always pass item.id
-              title={`${item.name}${quality ? ` (Q: ${quality}%)` : ''}${quantity ? ` (Qty: ${quantity})` : ''}\n${item.description || ''}`}
+              title={`${item.name}${quality !== undefined ? ` (Q: ${quality}%)` : ''}${quantity ? ` (Qty: ${quantity})` : ''}\n${item.description || ''}`}
             >
               <div className="market-item-image">
                 {/* Add placeholder image logic */}
@@ -194,12 +208,12 @@ const Market: React.FC<MarketProps> = ({
               {/* Show quantity and quality for sell tab */}
               {isSellTab && (
                  <div className="item-sub-details">
-                      {quantity && <span>Qty: {quantity}</span>}
-                      {quality && <span>Q: {quality}%</span>}
+                      {quantity !== undefined && <span>Qty: {quantity}</span>}
+                      {quality !== undefined && <span>Q: {quality}%</span>}
                   </div>
               )}
               <div className="market-item-price">
-                  {formatPrice(displayPrice)}
+                  {formatPrice(isSellTab ? sellPreviewPrice : displayPrice)} {/* Show calculated sell price preview */}
                   {marketData && <span className={`trend-indicator ${getTrendClass(marketData)}`}>{getPriceTrendIcon(marketData)}</span>}
               </div>
               <div className="market-item-category">{item.category}</div>
@@ -211,51 +225,14 @@ const Market: React.FC<MarketProps> = ({
   };
 
 
-  // Render Town Requests List
-  const renderTownRequestsList = () => {
-    if (townRequests.length === 0) {
-      return (
-        <div className="request-list empty">
-          <p>No active requests at the moment.</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="request-list">
-        {townRequests.map(request => (
-          <div
-            key={request.id}
-            className={`request-item ${selectedRequestId === request.id ? 'selected' : ''}`}
-            onClick={() => handleRequestClick(request.id)}
-             title={`Request from ${request.requester}`}
-          >
-            <div className="request-icon" title={request.requester}>
-              {request.requester.charAt(0).toUpperCase()}
-            </div>
-            <div className="request-details">
-              <div className="request-requester">{request.requester}</div>
-              <div className="request-description">
-                Wants: {request.quantity} x {request.item}
-              </div>
-              <div className="request-rewards">
-                <div className="request-reward request-reward-gold" title={`${request.rewardGold} Gold Reward`}>
-                  💰 {request.rewardGold}
-                </div>
-                <div className="request-reward request-reward-influence" title={`${request.rewardInfluence} Reputation Reward`}>
-                  ⭐ +{request.rewardInfluence}
-                </div>
-              </div>
-            </div>
-            <div className="request-difficulty" title={`Difficulty: ${request.difficulty}/5`}>
-              {Array(request.difficulty).fill('★').join('')}
-              {Array(5 - request.difficulty).fill('☆').join('')}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
+  // Render Town Requests List (moved to separate component for modularity)
+  const renderTownRequestsTab = () => (
+      <Requests
+          townRequests={townRequests}
+          playerInventory={playerInventory}
+          onFulfillRequest={onFulfillRequest}
+      />
+  );
 
   // Render Details Panel
   const renderDetailsPanel = () => {
@@ -296,11 +273,11 @@ const Market: React.FC<MarketProps> = ({
     if (activeTab === 'sell' && selectedDetails && 'quantity' in selectedDetails) {
          const item = selectedDetails as InventoryItem;
          // Find corresponding market data for price trend and base sell price
-         const marketData = marketItems.find(mi => mi.id === item.id);
+         const marketData = marketItems.find(mi => mi.id === item.baseId); // Use baseId
          const baseSellPrice = marketData?.price ?? item.value ?? 0;
-         // Adjust sell price based on quality (e.g., 50% quality = 75% base price, 100% quality = 100% base price)
-         const qualityMultiplier = 0.5 + ((item.quality ?? 50) / 100) * 0.5;
-         const actualSellPrice = Math.round(baseSellPrice * qualityMultiplier);
+         // Adjust sell price based on quality
+         const qualityMultiplier = 0.5 + ((item.quality ?? DEFAULT_ITEM_QUALITY) / 100) * 0.7;
+         const actualSellPrice = Math.max(1, Math.round(baseSellPrice * qualityMultiplier));
          const trendClass = marketData ? getTrendClass(marketData) : 'stable';
 
 
@@ -340,6 +317,9 @@ const Market: React.FC<MarketProps> = ({
         const request = selectedDetails as TownRequest;
         const canFulfill = canFulfillRequest();
         const requiredItemInv = playerInventory.find(item => item.name === request.item);
+         const totalQuantity = playerInventory
+             .filter(item => item.name === request.item)
+             .reduce((sum, item) => sum + item.quantity, 0);
 
         return (
             <div className="market-item-details">
@@ -347,13 +327,13 @@ const Market: React.FC<MarketProps> = ({
                 <div className="selected-item-description">{request.description}</div>
                 <div className="request-requirements">
                     <div><strong>Need:</strong> {request.quantity} x {request.item}</div>
-                    <div><strong>You Have:</strong> {requiredItemInv?.quantity ?? 0} {requiredItemInv?.quality ? `(Q: ${requiredItemInv.quality}%)` : ''}</div>
+                    <div><strong>You Have:</strong> {totalQuantity} {requiredItemInv?.quality ? `(Avg Q: ~${Math.round(playerInventory.filter(i=>i.name === request.item).reduce((s,i)=>(s+(i.quality??50)*i.quantity), 0)/totalQuantity)}%)` : ''}</div>
                     <hr style={{borderColor: 'var(--color-border)', margin: '10px 0'}}/>
                     <div><strong>Reward:</strong></div>
                     <div>💰 {request.rewardGold} Gold</div>
                     <div>⭐ +{request.rewardInfluence} Reputation</div>
                      <div className="request-difficulty" style={{justifyContent:'flex-start', marginLeft:0, marginTop:'5px'}}>
-                         Difficulty: &nbsp;
+                         Difficulty:  
                           {Array(request.difficulty).fill('★').join('')}
                           {Array(5 - request.difficulty).fill('☆').join('')}
                       </div>
@@ -439,7 +419,7 @@ const Market: React.FC<MarketProps> = ({
       <div className="market-content">
         {/* Left Panel: Item Grid or Requests List */}
         <div className="market-listings">
-           {activeTab === 'requests' ? renderTownRequestsList() : renderItemsGrid()}
+           {activeTab === 'requests' ? renderTownRequestsTab() : renderItemsGrid()}
         </div>
 
         {/* Right Sidebar: Wallet, Details, Rumors */}

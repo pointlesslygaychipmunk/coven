@@ -13,7 +13,7 @@
     overflow: hidden;
     border: 1px solid var(--color-border);
   }
-  
+
   .brewing-header {
     display: flex;
     justify-content: space-between;
@@ -23,7 +23,7 @@
     margin-bottom: 20px;
     flex-shrink: 0; /* Prevent header shrinking */
   }
-  
+
   .brewing-header h2 {
     margin: 0;
     color: var(--color-text-heading);
@@ -32,7 +32,7 @@
     letter-spacing: 1px;
     font-family: var(--font-primary);
   }
-  
+
   .brewing-phase {
     display: flex;
     align-items: center;
@@ -42,20 +42,20 @@
     border-radius: 20px;
     border: 1px solid var(--color-border);
   }
-  
+
   .phase-label {
     font-size: 13px; /* Smaller label */
     color: var(--color-text-medium);
     font-family: var(--font-secondary);
   }
-  
+
   .phase-value {
     font-size: 14px;
     color: var(--color-accent-primary);
     font-weight: bold;
     font-family: var(--font-primary);
   }
-  
+
   .brewing-content {
     display: grid;
     grid-template-columns: 1fr 1.3fr 1fr; /* Adjusted column proportions */
@@ -63,7 +63,7 @@
     flex: 1; /* Allow content to fill space */
     overflow: hidden; /* Prevent content overflow */
   }
-  
+
   /* Ingredients Panel */
   .ingredients-panel, .recipes-panel {
     background-color: var(--color-bg-medium);
@@ -74,28 +74,32 @@
     border: 1px solid var(--color-border);
     padding: 15px; /* Add padding to panels */
   }
-  
+
   .ingredients-header, .recipes-header {
     padding-bottom: 15px;
     border-bottom: 1px solid var(--color-border-light);
     flex-shrink: 0;
+    display: flex; /* Enable flex for alignment */
+    flex-direction: column; /* Stack vertically */
+    gap: 10px; /* Add gap */
   }
-  
+
   .ingredients-header h3, .recipes-header h3 {
-    margin: 0 0 10px 0; /* Adjusted margin */
+    margin: 0; /* Removed bottom margin */
     color: var(--color-accent-primary);
     font-size: 18px;
     font-weight: 500;
     font-family: var(--font-primary);
   }
-  
-  .ingredients-filters {
+
+  .ingredients-filters, .recipes-header select { /* Combine filter styles */
     display: flex;
     gap: 10px;
   }
-  
+
   .ingredients-filters select,
-  .ingredients-filters input {
+  .ingredients-filters input,
+  .recipes-header select {
     flex: 1;
     background-color: var(--color-bg-panel);
     border: 1px solid var(--color-border);
@@ -105,14 +109,15 @@
     font-family: var(--font-secondary);
     font-size: 13px; /* Smaller font */
   }
-  
+ .recipes-header select { width: 130px; font-size: 13px; padding: 6px 8px; flex: none; } /* Specific recipe select size */
+
   .ingredients-grid, .recipes-list {
     flex: 1; /* Allow list to fill space */
     overflow-y: auto; /* Enable scrolling */
     padding: 15px 5px 5px 5px; /* Add padding, reduce right for scrollbar */
     margin-right: -5px; /* Offset scrollbar space */
   }
-  
+
   .ingredient-item, .recipe-item {
     background-color: var(--color-bg-light); /* Lighter background for items */
     border-radius: var(--border-radius-sm);
@@ -128,28 +133,22 @@
     box-shadow: var(--shadow-soft);
     background-color: var(--color-border); /* Darker hover */
   }
-  .ingredient-item.selected {
-    background-color: var(--color-accent-primary);
-    border-color: var(--color-text-light);
-    color: var(--color-bg-dark);
+  .ingredient-item.selected-dim { /* Style for items already in cauldron */
+      opacity: 0.5;
+      cursor: default;
   }
-  .ingredient-item.selected .ingredient-name,
-  .ingredient-item.selected .ingredient-quality,
-  .ingredient-item.selected .ingredient-quantity,
-  .ingredient-item.selected .ingredient-category-tag {
-      color: var(--color-bg-dark); /* Dark text on selection */
+  .ingredient-item.selected-dim:hover {
+      transform: none;
+      background-color: var(--color-bg-light);
   }
-  .ingredient-item.selected .ingredient-category-tag {
-      background-color: rgba(0,0,0,0.2);
-  }
-  
-  
+
+
   .ingredient-item {
       display: flex;
       align-items: center;
       gap: 10px;
   }
-  
+
   .ingredient-image {
     width: 45px; /* Consistent size */
     height: 45px;
@@ -163,11 +162,11 @@
   }
   .ingredient-image img { width: 100%; height: 100%; object-fit: cover; }
   .placeholder-image { font-size: 20px; color: var(--color-accent-primary); font-weight: bold; }
-  
+
   .ingredient-details { text-align: left; flex-grow: 1; }
   .ingredient-name { font-size: 14px; color: var(--color-text-light); margin-bottom: 3px; font-weight: 500; }
   .ingredient-quality, .ingredient-quantity { font-size: 12px; color: var(--color-text-medium); }
-  
+
   .ingredient-category-tag {
     position: absolute;
     top: 5px;
@@ -180,10 +179,10 @@
     font-family: var(--font-secondary);
   }
   .no-ingredients, .no-recipes { text-align: center; padding: 30px; color: var(--color-text-medium); font-style: italic; }
-  
+
   /* Brewing Workspace */
   .brewing-workspace { display: flex; flex-direction: column; gap: 15px; }
-  
+
   .cauldron {
     flex-grow: 1; /* Take available space */
     min-height: 250px; /* Ensure min height */
@@ -198,7 +197,7 @@
     overflow: hidden;
     border: 1px solid var(--color-border);
   }
-  
+
   .cauldron-content {
     width: 180px; /* Smaller cauldron visual */
     height: 180px;
@@ -219,9 +218,9 @@
     background: linear-gradient(to bottom, rgba(93, 70, 138, 0.5), rgba(72, 61, 102, 0.8));
     border-radius: 0 0 90px 90px; filter: blur(3px);
   }
-  
+
   .empty-cauldron { text-align: center; padding: 20px; color: var(--color-text-medium); font-style: italic; position: relative; z-index: 1; }
-  
+
   .selected-ingredients {
     display: flex;
     flex-wrap: wrap;
@@ -250,10 +249,10 @@
   .selected-ingredient:hover { background-color: var(--color-text-light); }
   .selected-ingredient .ingredient-image { width: 20px; height: 20px; margin-bottom: 0; background-color: rgba(0,0,0,0.2); }
   .selected-ingredient .ingredient-name { margin-bottom: 0; font-size: 13px; }
-  .remove-icon { width: 14px; height: 14px; font-size: 10px; background-color: rgba(0,0,0,0.3); color: var(--color-bg-dark); margin-left: 3px; }
+  .remove-icon { width: 14px; height: 14px; font-size: 10px; background-color: rgba(0,0,0,0.3); color: var(--color-bg-dark); margin-left: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
   .selected-ingredient.placeholder { background: none; border: 1px dashed var(--color-border); width: 80px; height: 30px;} /* Placeholder style */
-  
-  
+
+
   /* Bubbles */
   .bubble {
     position: absolute; background-color: rgba(181, 157, 196, 0.3);
@@ -268,7 +267,7 @@
     30% { opacity: 0.5; } 80% { opacity: 0.5; }
     100% { transform: translateY(-100px) scale(1.2); opacity: 0; }
   }
-  
+
   .brewing-actions { display: flex; gap: 10px; width: 80%; margin: 15px auto 0 auto; /* Centered actions */ }
   .action-button { flex: 1; padding: 10px 15px; border-radius: var(--border-radius-sm); font-family: var(--font-primary); font-size: 14px; cursor: pointer; transition: all var(--transition-speed) ease; text-align: center; font-weight: 500; }
   .action-button.brew { background-color: var(--color-accent-primary); color: var(--color-bg-dark); border: none; }
@@ -276,7 +275,7 @@
   .action-button.clear { background-color: var(--color-bg-light); color: var(--color-text-medium); border: 1px solid var(--color-border); }
   .action-button.clear:hover:not(:disabled) { background-color: var(--color-border); color: var(--color-text-light); transform: translateY(-1px); }
   .action-button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-  
+
   .brewing-result {
     background-color: var(--color-bg-panel);
     border-radius: var(--border-radius-md);
@@ -295,7 +294,7 @@
   .result-details { background-color: rgba(0,0,0,0.1); border-radius: var(--border-radius-sm); padding: 8px; }
   .result-potion { font-size: 14px; color: var(--color-accent-primary); margin-bottom: 3px; font-weight: 500; }
   .result-quality { font-size: 13px; color: var(--color-text-medium); }
-  
+
   .recipe-match { background-color: rgba(93, 70, 138, 0.1); border: 1px solid var(--color-border-light); border-radius: var(--border-radius-sm); padding: 12px; animation: fade-in 0.4s ease-out; }
   .recipe-match h4 { margin: 0 0 8px 0; color: var(--color-accent-primary); font-size: 15px; }
   /* .recipe-name is defined below */
@@ -304,23 +303,31 @@
   .property-tag { font-size: 11px; background-color: var(--color-border); color: var(--color-text-medium); padding: 2px 6px; border-radius: 8px; font-family: var(--font-secondary); }
   .recipe-moon-phase { font-size: 13px; color: var(--color-text-dark); }
   .ideal-match { color: var(--color-success); font-style: italic; margin-left: 5px; }
-  
+
   @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-  
+
   /* Recipes Panel */
   .recipes-panel { /* Styles already defined above */ }
-  .recipes-header select { width: 130px; font-size: 13px; padding: 6px 8px; }
-  
-  .recipe-item { /* Styles already defined above */ }
-  .recipe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+
+  .recipe-item { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .recipe-header { display: flex; justify-content: space-between; align-items: center; }
   .recipe-name { font-size: 15px; color: var(--color-text-light); font-family: var(--font-primary); }
   .recipe-difficulty { font-size: 12px; color: var(--color-accent-secondary); font-weight: bold; } /* Use gold for difficulty */
   .recipe-ingredients { font-size: 13px; color: var(--color-text-medium); margin-bottom: 8px; font-family: var(--font-secondary); }
   .recipe-ingredient { color: var(--color-accent-primary); font-weight: 500; }
-  .recipe-category-tag { /* Styles already defined above */ }
+  .recipe-category-tag {
+    align-self: flex-start; /* Align tag to start */
+    background-color: var(--color-bg-medium);
+    color: var(--color-text-dark);
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 8px; /* Pill shape */
+    font-family: var(--font-secondary);
+    margin-top: 5px;
+  }
   .recipe-moon-indicator { position: absolute; bottom: 10px; right: 10px; color: var(--color-accent-primary); font-size: 16px; }
   .recipe-moon-indicator.ideal { color: var(--color-success); } /* Highlight ideal */
-  
+
   /* Responsive */
   /* Keep existing responsive rules, adjust if needed */
   @media (max-width: 1200px) { /* Tablet and smaller */

@@ -2,7 +2,7 @@
 // Define specialization options and their bonuses
 
 import { AtelierSpecialization, ItemCategory, ItemType, Season, MoonPhase } from "coven-shared";
-
+import type { Skills } from "coven-shared"; // Import Skills type for growthBonus
 // Full specialization details interface (can stay local to backend)
 export interface AtelierSpecializationDetails {
   id: AtelierSpecialization; // Use the shared type
@@ -10,14 +10,7 @@ export interface AtelierSpecializationDetails {
   description: string;
   startBonus: string; // e.g. description of bonus effect
   passiveBonus: string; // Ongoing effect
-  growthBonus: {
-    gardening?: number;
-    brewing?: number;
-    trading?: number;
-    crafting?: number;
-    herbalism?: number;
-    astrology?: number;
-  };
+  growthBonus: Partial<Skills>; // Use shared Skills type, make it partial
   unlockRequirement?: string; // If not available at start
 }
 
@@ -82,7 +75,7 @@ export interface SpecializationBonusResult {
 
 // Special function to get specialization-specific bonuses
 export function getSpecializationBonus(
-  specialization: AtelierSpecialization,
+  specialization: AtelierSpecialization | undefined, // Allow undefined
   actionType: 'harvest' | 'brew' | 'grow' | 'sell',
   itemType?: ItemType,
   itemCategory?: ItemCategory
@@ -102,7 +95,7 @@ export function getSpecializationBonus(
     case 'harvest':
       // Quality bonus during harvest
       if (specialization === 'Essence' && (itemCategory === 'flower' || itemCategory === 'root')) {
-        return { bonusMultiplier: 1.15, description: "Essence Atelier bonus: +15% quality when harvesting flowers and roots" };
+        return { bonusMultiplier: 1.1, description: "Essence Atelier bonus: +10% quality when harvesting flowers and roots" }; // Nerfed slightly
       }
       if (specialization === 'Fermentation' && itemCategory === 'herb') {
         return { bonusMultiplier: 1.1, description: "Fermentation Atelier bonus: +10% quality when harvesting herbs" };
@@ -111,7 +104,7 @@ export function getSpecializationBonus(
         return { bonusMultiplier: 1.1, description: "Distillation Atelier bonus: +10% quality when harvesting fruits and flowers" };
       }
       if (specialization === 'Infusion' && (itemCategory === 'herb' || itemCategory === 'leaf')) {
-        return { bonusMultiplier: 1.2, description: "Infusion Atelier bonus: +20% quality when harvesting herbs and leaves" };
+        return { bonusMultiplier: 1.15, description: "Infusion Atelier bonus: +15% quality when harvesting herbs and leaves" }; // Nerfed slightly
       }
       break;
 
@@ -126,7 +119,7 @@ export function getSpecializationBonus(
       }
       if (specialization === 'Distillation' && itemType === 'potion') {
         // Chance for extra yield
-        return { bonusMultiplier: 1.0, chanceForExtra: 0.25, description: "Distillation Atelier bonus: 25% chance for double yield" };
+        return { bonusMultiplier: 1.0, chanceForExtra: 0.15, description: "Distillation Expertise: 15% chance for double yield" }; // Nerfed yield chance
       }
       if (specialization === 'Infusion' && (itemCategory === 'tonic' || itemCategory === 'elixir')) {
         return { bonusMultiplier: 1.20, description: "Infusion Atelier bonus: +20% effectiveness for tonics and elixirs" }; // Affects quality/effect
@@ -155,7 +148,7 @@ export function getSpecializationBonus(
         return { bonusMultiplier: 1.15, description: "Essence Atelier bonus: +15% sell value for masks and serums" };
       }
       if (specialization === 'Fermentation' && itemType === 'potion') {
-         // Maybe aged potions sell better?
+         // Maybe aged potions sell better? Needs aging logic.
         return { bonusMultiplier: 1.1, description: "Fermentation Atelier bonus: +10% sell value for aged potions" }; // Needs aging logic
       }
       if (specialization === 'Distillation' && itemType === 'ingredient') {
@@ -171,14 +164,15 @@ export function getSpecializationBonus(
 }
 
 // Get the skill growth bonus factor for an atelier specialization
-export function getSkillGrowthBonus(specialization: AtelierSpecialization, skill: string): number {
+export function getSkillGrowthBonus(specialization: AtelierSpecialization | undefined, skill: keyof Skills): number {
+  if (!specialization) return 0; // Return 0 if no specialization
   const spec = SPECIALIZATIONS.find(s => s.id === specialization);
-  if (!spec || !spec.growthBonus || !(skill in spec.growthBonus)) {
+  if (!spec || !spec.growthBonus) {
     return 0; // No bonus
   }
 
   // Return the bonus value (e.g., 0.1 for +10%)
-  return spec.growthBonus[skill as keyof typeof spec.growthBonus] || 0;
+  return spec.growthBonus[skill] || 0; // Access directly using keyof Skills
 }
 
 // Get atelier specialization details by ID

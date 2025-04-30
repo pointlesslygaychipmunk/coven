@@ -2,7 +2,8 @@
 // Defines brewing recipes and interactions for creating skincare potions
 
 import { MoonPhase, AtelierSpecialization, ItemType, ItemCategory, InventoryItem } from "coven-shared";
-import { Player } from "coven-shared"; // Import Player type
+import { Player, Item, Skills } from "coven-shared"; // Import Player and other types
+import { getSpecializationBonus } from './atelier.js'; // Import necessary function
 
 // Define a recipe for brewing skincare products
 export interface Recipe {
@@ -11,11 +12,12 @@ export interface Recipe {
   ingredients: { itemName: string, quantity: number }[]; // Ingredients needed
   resultItem: string;     // ID of the resulting item (matches an ID in items.ts)
   resultQuantity: number; // How many are produced
+  type: ItemType;         // Type of the resulting item
   difficulty: number;     // 1-10, affects success chance
   idealMoonPhase?: MoonPhase; // Optional: Best moon phase for brewing
   idealSpecialization?: AtelierSpecialization; // Optional: Best specialization
   description: string;    // Description of the resulting item
-  category: ItemCategory; // Category of the resulting item (mask, serum, etc.)
+  category?: ItemCategory; // Category of the resulting item (mask, serum, etc.)
   properties: string[];   // Skincare properties (e.g., "brightening", "hydrating")
   unlockRequirement?: string; // How to unlock this recipe (e.g., skill level, quest)
 }
@@ -26,6 +28,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_radiant_moon_mask",
     name: "Radiant Moon Mask",
+    type: "potion", // Type of result
     ingredients: [
       { itemName: "Ancient Ginseng", quantity: 1 }, // Use name for lookup, could use ID if preferred
       { itemName: "Sacred Lotus", quantity: 1 }
@@ -42,6 +45,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_moon_glow_serum",
     name: "Moon Glow Serum",
+    type: "potion",
     ingredients: [
       { itemName: "Moonbud", quantity: 2 }, // Requires 2 Moonbuds
       { itemName: "Glimmerroot", quantity: 1 }
@@ -58,6 +62,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_ginseng_infusion",
     name: "Ginseng Infusion",
+    type: "potion",
     ingredients: [
       { itemName: "Ancient Ginseng", quantity: 1 },
       { itemName: "Sweetshade", quantity: 2 } // Changed ingredient for variety
@@ -74,6 +79,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_cooling_tonic",
     name: "Cooling Tonic",
+    type: "potion",
     ingredients: [
       { itemName: "Everdew", quantity: 1 },
       { itemName: "Silverleaf", quantity: 2 }
@@ -90,6 +96,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_spring_revival",
     name: "Spring Revival Tonic",
+    type: "potion",
     ingredients: [
       { itemName: "Glimmerroot", quantity: 1 },
       { itemName: "Spring Root", quantity: 1 } // Uses seasonal ingredient
@@ -107,6 +114,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_summer_glow_oil",
     name: "Summer Glow Oil",
+    type: "potion",
     ingredients: [
       { itemName: "Sunpetal", quantity: 2 },
       { itemName: "Emberberry", quantity: 1 }
@@ -124,6 +132,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_preservation_elixir",
     name: "Preservation Elixir",
+    type: "potion",
     ingredients: [
       { itemName: "Ancient Ginseng", quantity: 1 },
       { itemName: "Autumnleaf", quantity: 2 } // Uses seasonal ingredient
@@ -141,6 +150,7 @@ export const RECIPES: Recipe[] = [
   {
     id: "recipe_dreamvision_potion",
     name: "Dreamvision Potion",
+    type: "potion",
     ingredients: [
       { itemName: "Nightcap", quantity: 2 },
       { itemName: "Moonbud", quantity: 1 }
@@ -167,30 +177,39 @@ export function getRecipeByName(name: string): Recipe | undefined {
   return RECIPES.find((recipe: Recipe) => recipe.name === name);
 }
 
-// Get recipe by ingredients (handles different order and quantity check)
+// Find a matching recipe by *names* (as used in UI selection)
 export function findMatchingRecipe(
     player: Player,
-    ingredientNames: string[] // Array of ingredient names selected
+    ingredientInvItems: InventoryItem[] // Use the full inventory items passed
 ): Recipe | undefined {
-    if (ingredientNames.length !== 2) return undefined; // Only handle 2-ingredient recipes for now
+    if (ingredientInvItems.length !== 2) return undefined; // Only handle 2-ingredient recipes for now
+
+    const ingredientNames = ingredientInvItems.map(i => i.name).sort(); // Get names and sort
 
     // Check if player knows any recipes matching these ingredients
     for (const recipeId of player.knownRecipes) {
         const recipe = getRecipeById(recipeId);
         if (!recipe || recipe.ingredients.length !== 2) continue;
 
-        const recipeIngs = recipe.ingredients.map(ing => ing.itemName);
+        const recipeIngs = recipe.ingredients.map(ing => ing.itemName).sort();
 
         // Check if the selected ingredients match the recipe ingredients (order doesn't matter)
         if (
-            (recipeIngs[0] === ingredientNames[0] && recipeIngs[1] === ingredientNames[1]) ||
-            (recipeIngs[0] === ingredientNames[1] && recipeIngs[1] === ingredientNames[0])
+            (recipeIngs[0] === ingredientNames[0] && recipeIngs[1] === ingredientNames[1])
+            // Removed second condition as sorting covers it
         ) {
-            // Check if player has enough quantity of each ingredient
-            const hasEnough = recipe.ingredients.every(reqIng => {
-                const invItem = player.inventory.find(item => item.name === reqIng.itemName);
-                return invItem && invItem.quantity >= reqIng.quantity;
-            });
+             // Check if player has enough quantity of each ingredient
+             const hasEnough = recipe.ingredients.every(reqIng => {
+                 // Check against the *specifically selected* inventory items for this brew attempt
+                 // Need to consider quantity requested vs quantity available in *each* selected stack
+                 const itemsUsedForThisIngredient = ingredientInvItems.filter(item => item.name === reqIng.itemName);
+                 const totalAvailable = itemsUsedForThisIngredient.reduce((sum, item) => sum + item.quantity, 0);
+                 // This check is a bit flawed, as we pass specific INV IDs later.
+                 // A better check would be done *before* calling findMatchingRecipe,
+                 // ensuring the passed `ingredientInvItems` *already* represent available quantity.
+                 // For now, assume the UI passes items the player *can* use.
+                 return totalAvailable >= reqIng.quantity;
+             });
 
             if (hasEnough) {
                 return recipe; // Found a known and craftable recipe
@@ -261,7 +280,7 @@ export function getKnownRecipesFiltered(
 export function calculateBrewingSuccess(
   recipe: Recipe,
   ingredientQualities: number[], // Array of qualities for used ingredients
-  playerSkills: { brewing: number, astrology?: number }, // Pass relevant skills
+  playerSkills: Skills, // Pass relevant skills using the shared Skills type
   currentMoonPhase: MoonPhase,
   specialization?: AtelierSpecialization // Player's specialization
 ): {
@@ -323,7 +342,7 @@ export function calculateBrewingSuccess(
 
   // Calculate potential quality of the result
   let potentialQuality = avgIngredientQuality + moonQualityBonus + specQualityBonus;
-  // Optional: Add bonus from Astrology skill?
+  // Optional: Add bonus from Astrology skill? Assumes astrology exists in Skills type
   if (playerSkills.astrology) {
       potentialQuality += playerSkills.astrology * 0.5; // Small quality boost per astrology level
   }
@@ -348,6 +367,7 @@ export function brewPotion(
 ): {
   success: boolean,
   resultItemName?: string, // Name of the item produced (or failure item)
+  quantityProduced?: number; // Add quantity produced
   quality: number, // Quality of the result (0 if failed)
   bonusFactor?: string // Text describing any special outcomes
 } {
@@ -365,6 +385,7 @@ export function brewPotion(
     return {
       success: false,
       resultItemName: "Ruined Brewage", // Define this item
+      quantityProduced: 0,
       quality: 0
     };
   }
@@ -388,18 +409,19 @@ export function brewPotion(
 
    // Apply specialization yield chance (Distillation)
    let quantityProduced = recipe.resultQuantity;
-   if (player.atelierSpecialization === 'Distillation') {
-       const yieldBonus = getSpecializationBonus(player.atelierSpecialization, 'brew', recipe.type, recipe.category);
-       if (yieldBonus.chanceForExtra && Math.random() < yieldBonus.chanceForExtra) {
-           quantityProduced *= 2; // Double yield
-           bonusFactor = (bonusFactor ? bonusFactor + " " : "") + "Distillation Expertise: Double yield!";
-       }
+   if (player.atelierSpecialization === 'Distillation' && typeof getSpecializationBonus === 'function') { // Ensure function exists
+        const yieldBonus = getSpecializationBonus(player.atelierSpecialization, 'brew', recipe.type, recipe.category);
+        if (yieldBonus.chanceForExtra && Math.random() < yieldBonus.chanceForExtra) {
+            quantityProduced *= 2; // Double yield
+            bonusFactor = (bonusFactor ? bonusFactor + " " : "") + "Distillation Expertise: Double yield!";
+        }
    }
 
   // Return successful result
   return {
     success: true,
     resultItemName: recipe.resultItem, // Return the ID of the item produced
+    quantityProduced: quantityProduced, // Include quantity
     quality: finalQuality,
     bonusFactor
     // Consider returning quantityProduced if it can be > 1

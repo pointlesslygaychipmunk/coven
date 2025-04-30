@@ -4,18 +4,18 @@
 import {
     GameState, Player, GardenSlot, InventoryItem, Plant, MarketItem,
     WeatherFate, MoonPhase, Season, TownRequest, ItemType, ItemCategory,
-    RitualQuest, Rumor, JournalEntry, GameTime, ActionLog, BasicRecipeInfo, Skills
+    RitualQuest, Rumor, JournalEntry, GameTime, ActionLog, BasicRecipeInfo, Skills, Item, Rarity
 } from "coven-shared"; // Use updated types from shared
 
 import { processTurn } from "./turnEngine.js";
 import { ITEMS, getItemData, getInitialMarket } from "./items.js"; // Added getItemData
 import { generateTownRequests } from "./townRequests.js";
 import { applyMarketEvents, ensureMarketData } from "./marketEvents.js"; // Added ensureMarketData
-import { generateRumors, processRumorEffects } from "./rumorEngine.js";
-import { RITUAL_QUESTS, progressRituals, checkQuestStepCompletion, claimRitualRewards } from "./questSystem.js"; // Import quest data and functions
-import { SPECIALIZATIONS, getSpecializationBonus, getSkillGrowthBonus } from "./atelier.js"; // Import atelier data
-import { RECIPES, findMatchingRecipe, brewPotion as performBrewing } from "./brewing.js"; // Import brewing functions
-import { INGREDIENTS, getIngredientData, calculateHarvestQuality, SEEDS } from "./ingredients.js"; // Import ingredient data
+import { generateRumors, processRumorEffects, spreadRumor as spreadRumorSystem } from "./rumorEngine.js"; // Import spreadRumorSystem
+import { RITUAL_QUESTS, progressRituals, checkQuestStepCompletion, claimRitualRewards, isRitualClaimed } from "./questSystem.js"; // Import quest data and functions
+import { SPECIALIZATIONS, getSpecializationBonus, getSkillGrowthBonus, AtelierSpecializationDetails } from "./atelier.js"; // Import atelier data
+import { RECIPES, findMatchingRecipe, brewPotion as performBrewing, Recipe } from "./brewing.js"; // Import brewing functions
+import { INGREDIENTS, getIngredientData, calculateHarvestQuality, SEEDS, Ingredient, SeedItem } from "./ingredients.js"; // Import ingredient data
 
 const DEFAULT_ITEM_QUALITY = 70; // Default quality for items without one specified
 const STARTING_GARDEN_SLOTS = 3; // How many slots are unlocked initially
@@ -34,11 +34,12 @@ function findInventoryItemById(player: Player, inventoryItemId: string): Invento
 
 
 // Add an item to player's inventory with proper quality tracking
-function addItemToInventory(
+// Ensure itemToAdd has mandatory properties
+export function addItemToInventory(
     player: Player,
-    itemToAdd: { id: string, name: string, type: ItemType, category: ItemCategory, value?: number, rarity?: Item['rarity'] },
+    itemToAdd: Item, // Expect base item data
     quantity: number,
-    quality: number = DEFAULT_ITEM_QUALITY, // Use default
+    quality: number | undefined = DEFAULT_ITEM_QUALITY, // Allow undefined, default to standard
     currentPhase?: MoonPhase,
     currentSeason?: Season
 ): boolean {
@@ -46,16 +47,17 @@ function addItemToInventory(
 
     const existingStack = player.inventory.find(
         (inv) => inv.name === itemToAdd.name && inv.quality === quality // Stricter stacking: only stack identical quality? Or average? Let's average.
+        // For averaging:
         // Find *first* stack matching name to potentially merge with. Could be more complex (e.g. find stack closest to quality)
-        // For now, let's average quality on merge:
-        // (inv) => inv.name === itemToAdd.name
+        // (inv) => inv.name === itemToAdd.name && inv.quantity < MAX_STACK_SIZE // Example if you add stack limits
     );
 
     if (existingStack) {
         // Average quality when adding to existing stack
         const totalQuantity = existingStack.quantity + quantity;
-        const currentTotalQuality = (existingStack.quality ?? DEFAULT_ITEM_QUALITY) * existingStack.quantity;
-        const addedTotalQuality = quality * quantity;
+        const currentQuality = existingStack.quality ?? DEFAULT_ITEM_QUALITY;
+        const currentTotalQuality = currentQuality * existingStack.quantity;
+        const addedTotalQuality = (quality ?? DEFAULT_ITEM_QUALITY) * quantity; // Use default if quality is undefined
         const newAverageQuality = Math.round((currentTotalQuality + addedTotalQuality) / totalQuantity);
 
         existingStack.quantity = totalQuantity;
@@ -68,11 +70,12 @@ function addItemToInventory(
             // Generate a unique ID for this specific stack in inventory
             // Combine item ID, timestamp, and maybe player ID for uniqueness
             id: `${itemToAdd.id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+            baseId: itemToAdd.id, // Store the base item ID
             name: itemToAdd.name,
             type: itemToAdd.type,
             category: itemToAdd.category,
             quantity: quantity,
-            quality: Math.min(100, Math.max(0, quality)), // Clamp quality
+            quality: quality !== undefined ? Math.min(100, Math.max(0, quality)) : undefined, // Keep undefined if input is undefined, else clamp
             value: itemToAdd.value, // Store base value if available
             rarity: itemToAdd.rarity,
             description: itemToAdd.description,
@@ -83,7 +86,7 @@ function addItemToInventory(
         };
         player.inventory.push(newInventoryItem);
     }
-    console.log(`[Inventory] Added ${quantity}x ${itemToAdd.name} (Q: ${quality}) to ${player.name}.`);
+    console.log(`[Inventory] Added ${quantity}x ${itemToAdd.name} (Q: ${quality ?? 'N/A'}) to ${player.name}.`);
     return true;
 }
 
@@ -202,15 +205,20 @@ export class GameEngine {
 
     // Add starting known recipes based on vision/balance
     // Use recipe IDs from brewing.ts
-    this.state.knownRecipes = [
-        // { id: "recipe_cooling_tonic", name: "Cooling Tonic", category: "tonic"}, // Example using BasicRecipeInfo
-        // { id: "recipe_moon_glow_serum", name: "Moon Glow Serum", category: "serum"},
-    ];
+    // Fetch recipe details to populate BasicRecipeInfo
+    const startingRecipeIds = [ "recipe_cooling_tonic", "recipe_moon_glow_serum" ];
+    this.state.knownRecipes = startingRecipeIds.map(id => {
+        const recipe = getRecipeById(id);
+        return {
+            id: recipe?.id || id,
+            name: recipe?.name || "Unknown Recipe",
+            category: recipe?.category || 'misc', // Ensure BasicRecipeInfo has category if needed
+            description: recipe?.description, // Ensure BasicRecipeInfo has description if needed
+        };
+    }).filter(r => r) as BasicRecipeInfo[]; // Filter out nulls if getRecipeById fails
+
      // Player starts knowing some recipes
-     initialPlayer.knownRecipes = [
-         "recipe_cooling_tonic", // Grant recipe IDs
-         "recipe_moon_glow_serum"
-     ];
+     initialPlayer.knownRecipes = startingRecipeIds; // Store only IDs in player state
 
     // Generate initial town requests and journal entry
     this.state.townRequests = generateTownRequests(this.state); // Pass full state if needed by generator
@@ -236,9 +244,9 @@ export class GameEngine {
 
     // Create a new player with starter items based on specialization
     createNewPlayer(id: string, name: string, specializationId: AtelierSpecialization): Player {
-        const specialization = SPECIALIZATIONS.find(s => s.id === specializationId);
-        if (!specialization) {
-            console.error(`Invalid specialization ID: ${specializationId}. Defaulting.`);
+        const specializationDetails = SPECIALIZATIONS.find(s => s.id === specializationId);
+        if (!specializationDetails) {
+            console.error(`Invalid specialization ID: ${specializationId}. Defaulting to Essence.`);
             // Fallback to a default specialization or throw error
             specializationId = 'Essence'; // Default to Essence for safety
         }
@@ -256,7 +264,7 @@ export class GameEngine {
             garden: [],
             knownRecipes: [], // Start empty, add based on progression/spec
             completedRituals: [],
-            journalEntries: [], // Player-specific notes can go here later
+            journalEntries: [], // Player-specific journal entries
             questsCompleted: 0,
             daysSurvived: 0,
             blackMarketAccess: false,
@@ -322,11 +330,11 @@ export class GameEngine {
                 break;
         }
          // Add a basic tool for everyone
-         const itemWateringCan = getItemData("tool_watering_can"); // Assuming this exists in items.ts
+         // const itemWateringCan = getItemData("tool_watering_can"); // Assuming this exists in items.ts
          // if(itemWateringCan) addItemToInventory(player, itemWateringCan, 1);
          // Temporary placeholder tool if watering can isn't defined:
           const itemBasicTool = getItemData("tool_mortar_pestle"); // Give everyone a mortar/pestle
-          if(itemBasicTool && !player.inventory.some(i => i.id === itemBasicTool.id)) {
+          if(itemBasicTool && !player.inventory.some(i => i.baseId === itemBasicTool.id)) { // Check using baseId
                addItemToInventory(player, itemBasicTool, 1);
           }
 
@@ -338,8 +346,8 @@ export class GameEngine {
         ITEMS.forEach(item => {
             // Only set for ingredients and potions initially? Or all items? Let's do common ones.
              if (item.type === 'ingredient' || item.type === 'potion' || item.type === 'seed') {
-                this.state.marketData.demand[item.name] = BASE_DEMAND + Math.floor(Math.random() * 30) - 15; // 35-65
-                this.state.marketData.supply[item.name] = BASE_SUPPLY + Math.floor(Math.random() * 30) - 15; // 35-65
+                this.state.marketData.demand[item.name] = 50 + Math.floor(Math.random() * 30) - 15; // 35-65
+                this.state.marketData.supply[item.name] = 50 + Math.floor(Math.random() * 30) - 15; // 35-65
             }
         });
          // Ensure items actually *in* the market have data too
@@ -389,27 +397,34 @@ export class GameEngine {
 
     // --- Player Actions ---
 
-    plantSeed(playerId: string, slotId: number, seedItemId: string): boolean {
+    plantSeed(playerId: string, slotId: number, seedInventoryItemId: string): boolean {
         const player = this.state.players.find(p => p.id === playerId);
         const slot = player?.garden.find(s => s.id === slotId);
-        const seedInvItem = player?.inventory.find(i => i.id === seedItemId && i.type === 'seed'); // Find by inventory ID
+        const seedInvItem = player?.inventory.find(i => i.id === seedInventoryItemId && i.type === 'seed'); // Find by inventory ID
 
         if (!player || !slot || !seedInvItem || slot.plant !== null) {
-            console.warn(`[Action] Plant failed: P:${playerId}, Slot:${slotId}, SeedInvID:${seedItemId}. Player/Slot/Seed invalid or slot occupied.`);
+            console.warn(`[Action] Plant failed: P:${playerId}, Slot:${slotId}, SeedInvID:${seedInventoryItemId}. Player/Slot/Seed invalid or slot occupied.`);
             this.addJournal("Cannot plant there.", 'garden', 1);
-            this.logAction(playerId, 'plant', { slotId, seedItemId }, "Invalid action");
+            this.logAction(playerId, 'plant', { slotId, seedInvItemId: seedInventoryItemId }, "Invalid action");
             return false;
         }
 
-        // Find the base seed data from items.ts using the inventory item's name or base ID
-         const baseSeedData = getItemData(seedItemId.split('-')[0]); // Extract base ID if needed, or use name lookup
-         const plantSourceId = (baseSeedData as any)?.plantSource; // Assuming seed data has plantSource ID
-         const plantData = plantSourceId ? getIngredientById(plantSourceId) : undefined;
+        // Find the base seed data from items.ts using the inventory item's baseId
+        const baseSeedData = getItemData(seedInvItem.baseId) as SeedItem | undefined; // Assert type
+
+        if (!baseSeedData || !baseSeedData.plantSource) {
+             console.error(`[Action] Plant failed: Cannot find plant source for seed ${seedInvItem.name}`);
+             this.addJournal(`Cannot determine what this seed grows into!`, 'error', 3);
+             this.logAction(playerId, 'plant', { slotId, seedInvItemId: seedInventoryItemId }, "Plant data missing");
+             return false;
+        }
+
+        const plantData = getIngredientById(baseSeedData.plantSource);
 
         if (!plantData) {
-             console.error(`[Action] Plant failed: Cannot find plant data for seed ${seedInvItem.name}`);
-             this.addJournal(`Cannot determine what this seed grows into!`, 'error', 3);
-             this.logAction(playerId, 'plant', { slotId, seedItemId }, "Plant data missing");
+             console.error(`[Action] Plant failed: Cannot find ingredient data for plant source ID ${baseSeedData.plantSource}`);
+             this.addJournal(`Error planting - missing plant definition!`, 'error', 4);
+             this.logAction(playerId, 'plant', { slotId, seedInvItemId: seedInventoryItemId }, "Ingredient data missing");
              return false;
         }
 
@@ -434,16 +449,16 @@ export class GameEngine {
             // imagePath: plantData.imagePath, // Optional
             // mutations: [], // Start with no mutations
             // qualityModifier: 1.0 // Start with base quality modifier
-        };
+        } as Plant; // Assert type
 
         slot.plant = newPlant;
-        const removed = removeItemFromInventoryById(player, seedItemId, 1); // Remove the specific seed stack item
+        const removed = removeItemFromInventoryById(player, seedInventoryItemId, 1); // Remove the specific seed stack item
 
         if (!removed) {
-             console.error(`[Action] Plant failed: Could not remove seed ${seedItemId} from inventory after placement.`);
+             console.error(`[Action] Plant failed: Could not remove seed ${seedInventoryItemId} from inventory after placement.`);
              slot.plant = null; // Rollback plant placement
              this.addJournal("Error planting seed - inventory issue.", 'error', 4);
-             this.logAction(playerId, 'plant', { slotId, seedItemId }, "Inventory removal failed");
+             this.logAction(playerId, 'plant', { slotId, seedInvItemId: seedInventoryItemId }, "Inventory removal failed");
              return false;
         }
 
@@ -457,11 +472,11 @@ export class GameEngine {
         // Quest Check
         checkQuestStepCompletion(this.state, player, 'plant', { seedName: plantData.name, slotId, quality: seedQuality, season: this.state.time.season });
 
-        this.logAction(playerId, 'plant', { slotId, seedName: plantData.name }, true);
+        this.logAction(playerId, 'plant', { slotId, seedInvItemId: seedInventoryItemId, seedName: plantData.name }, true);
         return true;
     }
 
-     // Calculate seasonal modifier using Ingredient data
+     // Calculate seasonal modifier using Ingredient data (Ensure Ingredient type includes these)
      calculateSeasonalModifier(ingredientData: Ingredient, season: Season): number {
         if (season === ingredientData.bestSeason) return 1.5;
         if (season === ingredientData.worstSeason) return 0.5;
@@ -577,7 +592,7 @@ export class GameEngine {
 
      // Clear the plot
      slot.plant = null;
-     slot.fertility = Math.max(30, slot.fertility - (5 + Math.floor(plantData.growthTime / 2))); // Fertility drop based on growth time
+     slot.fertility = Math.max(30, (slot.fertility ?? 70) - (5 + Math.floor(plantData.growthTime / 2))); // Fertility drop based on growth time
 
      // Quest Check
      checkQuestStepCompletion(this.state, player, 'harvest', {
@@ -593,7 +608,7 @@ export class GameEngine {
  }
 
 
-   // Player action: brew a potion from ingredients
+   // Player action: brew a potion from specific inventory item IDs
    brewPotion(playerId: string, ingredientInvItemIds: string[]): boolean { // Expect Inventory Item IDs
        const player = this.state.players.find(p => p.id === playerId);
        if (!player || ingredientInvItemIds.length !== 2) {
@@ -621,13 +636,14 @@ export class GameEngine {
 
 
        // Find a matching known recipe using ingredient *names* (as recipe definitions use names)
-       const recipe = findMatchingRecipe(player, [invItem1.name, invItem2.name]);
+       const recipe = findMatchingRecipe(player, [invItem1, invItem2]);
 
        // Get average quality of the *specific* stacks used
        const ingredientQualities = [invItem1.quality ?? DEFAULT_ITEM_QUALITY, invItem2.quality ?? DEFAULT_ITEM_QUALITY];
 
-       let brewOutcome: { success: boolean; resultItemName?: string; quality: number; bonusFactor?: string };
+       let brewOutcome: { success: boolean; resultItemName?: string; quality: number; bonusFactor?: string; quantityProduced?: number; }; // Ensure type includes quantityProduced
        let recipeUsed: Recipe | undefined = recipe;
+       let quantityProduced = 1; // Default quantity
 
        if (recipe) {
            // Attempt brew using the known recipe
@@ -646,9 +662,10 @@ export class GameEngine {
                 this.addSkillXp(player, 'brewing', 1.0); // Bonus XP for discovery
            } else {
                // Failed experimentation
-               brewOutcome = { success: false, quality: 0, resultItemName: "Ruined Brewage" };
+               brewOutcome = { success: false, quality: 0, resultItemName: "Ruined Brewage", quantityProduced: 0 };
            }
        }
+       quantityProduced = brewOutcome.quantityProduced || 1; // Get quantity from result
 
        // Consume ingredients regardless of success/failure, using the specific inventory IDs
        const removed1 = removeItemFromInventoryById(player, invItem1.id, 1);
@@ -670,7 +687,7 @@ export class GameEngine {
                addItemToInventory(
                    player,
                    resultItemData,
-                   1, // Assuming recipes produce 1 for now, handle quantity later
+                   quantityProduced, // Use the calculated quantity
                    brewOutcome.quality,
                    this.state.time.phaseName,
                    this.state.time.season
@@ -680,7 +697,8 @@ export class GameEngine {
                this.addSkillXp(player, 'brewing', recipeUsed ? (0.5 + recipeUsed.difficulty * 0.1) : 0.3); // XP based on recipe difficulty
 
                let successMsg = `Successfully brewed ${resultItemData.name} (Q: ${brewOutcome.quality}%)`;
-               if (brewOutcome.bonusFactor) successMsg += `. ${brewOutcome.bonusFactor}`;
+               if (quantityProduced > 1) successMsg += ` (x${quantityProduced}!)`; // Indicate bonus yield
+               if (brewOutcome.bonusFactor && !brewOutcome.bonusFactor.includes('yield')) successMsg += `. ${brewOutcome.bonusFactor}`; // Add non-yield bonus factors
                this.addJournal(successMsg, 'brewing', 3);
 
                // Quest Check
@@ -690,7 +708,7 @@ export class GameEngine {
                     quality: brewOutcome.quality,
                     moonPhase: this.state.time.phaseName,
                     recipeId: recipeUsed?.id
-                });
+                }); // Pass full state if needed
 
                this.logAction(playerId, 'brew', { ingredientInvItemIds, recipe: recipeUsed?.id, result: resultItemData.name }, true);
                return true;
@@ -742,7 +760,8 @@ export class GameEngine {
 
     // Adjust market data (fulfilling reduces demand)
      ensureMarketData(this.state, request.item);
-     this.state.marketData.demand[request.item] = Math.max(10, this.state.marketData.demand[request.item] - 10 * request.quantity); // Reduce demand more based on quantity
+     this.state.marketData.demand[request.item] = Math.max(10, (this.state.marketData.demand[request.item] ?? 50) - 10 * request.quantity); // Reduce demand more based on quantity
+     this.state.marketData.supply[request.item] = Math.min(95, (this.state.marketData.supply[request.item] ?? 50) + 5 * request.quantity); // Increase supply slightly
 
     // Remove fulfilled request
     this.state.townRequests.splice(reqIndex, 1);
@@ -809,8 +828,8 @@ export class GameEngine {
 
         // Influence market: buying increases demand, decreases supply
         ensureMarketData(this.state, marketItem.name);
-        this.state.marketData.demand[marketItem.name] = Math.min(100, this.state.marketData.demand[marketItem.name] + 8); // Buying increases demand notably
-        this.state.marketData.supply[marketItem.name] = Math.max(5, this.state.marketData.supply[marketItem.name] - 5);   // Reduce supply slightly
+        this.state.marketData.demand[marketItem.name] = Math.min(100, (this.state.marketData.demand[marketItem.name] ?? 50) + 8); // Buying increases demand notably
+        this.state.marketData.supply[marketItem.name] = Math.max(5, (this.state.marketData.supply[marketItem.name] ?? 50) - 5);   // Reduce supply slightly
 
         // Optional: Immediate small price bump due to demand increase
         marketItem.price = Math.round(marketItem.price * 1.02); // +2%
@@ -843,7 +862,7 @@ export class GameEngine {
     }
 
     // Find the corresponding market item entry to get the current base price
-    const marketItem = this.state.market.find(item => item.name === invItem.name); // Match by name to find market price
+    const marketItem = this.state.market.find(item => item.id === invItem.baseId); // Match by baseId
     if (!marketItem) {
       // Item might not be sellable currently, or maybe allow selling at a very low base price?
        // For now, let's assume if it's not in the market list, it can't be sold easily.
@@ -878,8 +897,8 @@ export class GameEngine {
 
     // Influence market: selling increases supply, decreases demand
     ensureMarketData(this.state, marketItem.name);
-    this.state.marketData.supply[marketItem.name] = Math.min(95, this.state.marketData.supply[marketItem.name] + 8); // Increase supply notably
-    this.state.marketData.demand[marketItem.name] = Math.max(5, this.state.marketData.demand[marketItem.name] - 4); // Decrease demand slightly
+    this.state.marketData.supply[marketItem.name] = Math.min(95, (this.state.marketData.supply[marketItem.name] ?? 50) + 8); // Increase supply notably
+    this.state.marketData.demand[marketItem.name] = Math.max(5, (this.state.marketData.demand[marketItem.name] ?? 50) - 4); // Decrease demand slightly
 
     // Optional: Immediate small price drop due to supply increase
     marketItem.price = Math.max(1, Math.round(marketItem.price * 0.98)); // -2%
@@ -890,7 +909,7 @@ export class GameEngine {
 
      // Quest Check
      checkQuestStepCompletion(this.state, player, 'sellItem', {
-         itemId: invItem.id, // The base item ID
+         itemId: invItem.baseId, // The base item ID
          itemName: invItem.name,
          price: sellPrice,
          quality: invItem.quality,
@@ -1070,5 +1089,29 @@ export class GameEngine {
              this.logAction("DEBUG", "debugAddGold" as any, {playerId, amount}, "Failed");
         }
    }
+
+    debugSetMoonPhase(phaseName: MoonPhase): void {
+        const phaseIndex = MoonPhases.indexOf(phaseName);
+        if (phaseIndex !== -1) {
+            this.state.time.phase = phaseIndex;
+            this.state.time.phaseName = phaseName;
+             this.addJournal(`[DEBUG] Moon phase set to ${phaseName}.`, 'debug', 1);
+             this.logAction("DEBUG", "debugSetMoonPhase" as any, {phaseName}, true);
+        } else {
+             this.addJournal(`[DEBUG] Failed to set invalid moon phase: ${phaseName}.`, 'debug', 1);
+             this.logAction("DEBUG", "debugSetMoonPhase" as any, {phaseName}, "Invalid phase");
+        }
+    }
+
+    debugSetSeason(season: Season): void {
+        if (Seasons.includes(season)) {
+            this.state.time.season = season;
+             this.addJournal(`[DEBUG] Season set to ${season}.`, 'debug', 1);
+             this.logAction("DEBUG", "debugSetSeason" as any, {season}, true);
+        } else {
+             this.addJournal(`[DEBUG] Failed to set invalid season: ${season}.`, 'debug', 1);
+             this.logAction("DEBUG", "debugSetSeason" as any, {season}, "Invalid season");
+        }
+    }
 
 } // End GameEngine Class

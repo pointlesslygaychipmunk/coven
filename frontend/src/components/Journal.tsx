@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { JournalEntry, Rumor, RitualQuest, GameTime, Season, MoonPhase } from 'coven-shared'; // Use shared types
 import './Journal.css';
+import { JournalEntry, Rumor, RitualQuest, GameTime, Season, MoonPhase, Player, RitualQuestStep } from 'coven-shared'; // Import Player
 
 interface JournalProps {
   journal: JournalEntry[];
@@ -8,6 +8,7 @@ interface JournalProps {
   rituals: RitualQuest[];
   time: GameTime;
   onMarkRead?: (entryIds: (string | number)[]) => void; // Allow string or number IDs
+  player: Player; // Add player prop
   onClaimRitual?: (ritualId: string) => void; // Callback to claim rewards
 }
 
@@ -17,6 +18,7 @@ const Journal: React.FC<JournalProps> = ({
   rituals = [],
   time,
   onMarkRead,
+  player, // Use player prop
   onClaimRitual
 }) => {
   // State
@@ -127,7 +129,7 @@ const Journal: React.FC<JournalProps> = ({
 
   // Icons
   const getSeasonIcon = (season: Season) => ({ 'Spring': '🌱', 'Summer': '☀️', 'Fall': '🍂', 'Winter': '❄️' }[season] || '?');
-  const getCategoryIcon = (category: string) => ({ 'event': '📜', 'ritual': '✨', 'market': '💰', 'moon': '🌙', 'season': getSeasonIcon(time.season), 'brewing': '🧪', 'garden': '🌿', 'quest': '📝', 'debug': '🐞', 'discovery': '💡' }[category] || '•');
+  const getCategoryIcon = (category: string) => ({ 'event': '📜', 'ritual': '✨', 'market': '💰', 'moon': '🌙', 'season': getSeasonIcon(time.season), 'brewing': '🧪', 'garden': '🌿', 'quest': '📝', 'debug': '🐞', 'discovery': '💡', 'error': '❌', 'skill': '⭐' }[category] || '•'); // Added error, skill
 
   // Importance class
   const getEntryClass = (importance: number) => {
@@ -172,7 +174,7 @@ const Journal: React.FC<JournalProps> = ({
 
   // Book mode page turning
    const turnPage = (direction: 'next' | 'prev') => {
-       const numPages = Math.ceil(4); // Assuming 4 spreads (8 pages)
+       const numPages = Math.ceil(filteredEntries.length / (entriesPerPage * 2)); // Pages per spread
        const maxPageIndex = numPages - 1;
 
        setActivePage(prev => {
@@ -183,44 +185,26 @@ const Journal: React.FC<JournalProps> = ({
                nextPage = Math.max(0, prev - 1);
            }
 
-           // Animate the flip
+           // Animate the flip (simplified - real flip needs CSS transforms)
+           console.log(`Turning page from ${prev} to ${nextPage}`);
+           // Example CSS-based animation would target page elements by index
            if (pageRefs.current) {
-               if (direction === 'next' && prev < maxPageIndex) {
-                   const currentSpreadLeftPage = pageRefs.current[prev * 2];
-                   const currentSpreadRightPage = pageRefs.current[prev * 2 + 1];
-                   if (currentSpreadRightPage) {
-                       currentSpreadRightPage.style.transform = 'rotateY(-180deg)';
-                       currentSpreadRightPage.style.zIndex = `${10 + prev}`; // Ensure turning page is on top
-                   }
-                    if (currentSpreadLeftPage) {
-                         currentSpreadLeftPage.style.zIndex = `${10 + prev}`;
-                    }
-                    const nextSpreadLeftPage = pageRefs.current[(prev + 1) * 2];
-                     if(nextSpreadLeftPage) {
-                          nextSpreadLeftPage.style.zIndex = `${10 + prev + 1}`; // Bring next page forward
-                     }
-
-               } else if (direction === 'prev' && prev > 0) {
-                   const prevSpreadRightPage = pageRefs.current[(prev - 1) * 2 + 1];
-                    const currentSpreadLeftPage = pageRefs.current[prev * 2];
-
-                    if(prevSpreadRightPage) {
-                         prevSpreadRightPage.style.transform = 'rotateY(0deg)';
-                          prevSpreadRightPage.style.zIndex = `${20 - (prev -1)}`; // Reset z-index based on position
-                    }
-                    if(currentSpreadLeftPage) {
-                        currentSpreadLeftPage.style.zIndex = `${20 - prev}`;
-                    }
-               }
+               const currentPageElement = pageRefs.current[prev];
+               const nextPageElement = pageRefs.current[nextPage];
+               // Add/remove classes or apply styles for animation
            }
+
            return nextPage;
        });
    };
 
+  // Ritual helper: Check if claimed by the current player
+  const isRitualClaimed = (ritual: RitualQuest) => player.completedRituals.includes(ritual.id);
 
   // Ritual helpers
   const getRitualCompletion = (ritual: RitualQuest) => Math.round((ritual.stepsCompleted / ritual.totalSteps) * 100);
   const getRitualClass = (ritual: RitualQuest) => {
+    if (isRitualClaimed(ritual)) return 'claimed'; // New state
     const completion = getRitualCompletion(ritual);
     if (completion === 100) return 'completed';
     if (completion > 50) return 'advanced';
@@ -237,8 +221,6 @@ const Journal: React.FC<JournalProps> = ({
    };
 
   // Render functions for each tab content
-  // ... (renderCategorySidebar, renderEntriesList, renderRituals, renderRumors, renderCodex, renderBookMode remain largely the same as previous version, but updated with fixed logic/types)
-
   // Render categories sidebar
   const renderCategorySidebar = () => {
     const categoriesMap: { [key: string]: { name: string; icon: string; count: number } } = {
@@ -396,11 +378,11 @@ const Journal: React.FC<JournalProps> = ({
                         </div>
                         {pageCount > 1 && (
                              <div className="pagination">
-                                <button onClick={() => goToPage(1)} disabled={currentPage === 1}>&laquo;</button>
-                                <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>‹</button>
+                                <button className="pagination-btn" onClick={() => goToPage(1)} disabled={currentPage === 1}>&laquo;</button>
+                                <button className="pagination-btn" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>‹</button>
                                 <div className="page-info">Page {currentPage} of {pageCount}</div>
-                                <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === pageCount}>›</button>
-                                <button onClick={() => goToPage(pageCount)} disabled={currentPage === pageCount}>&raquo;</button>
+                                <button className="pagination-btn" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === pageCount}>›</button>
+                                <button className="pagination-btn" onClick={() => goToPage(pageCount)} disabled={currentPage === pageCount}>&raquo;</button>
                             </div>
                         )}
                     </>
@@ -427,20 +409,20 @@ const Journal: React.FC<JournalProps> = ({
                                 onClick={() => setFocusedRitual(ritual)}
                                 role="button"
                             >
-                                <div className="ritual-card-header">
-                                    <h4 className="ritual-name">{ritual.name}</h4>
-                                    {getRitualCompletion(ritual) === 100 && !currentPlayer?.completedRituals.includes(ritual.id) && (
-                                         <button
-                                             className="claim-reward-button"
-                                             onClick={(e) => handleClaimClick(e, ritual.id)}
-                                             title="Claim Reward"
-                                         >
-                                             Claim!
-                                         </button>
+                                 <div className="ritual-card-header">
+                                     <h4 className="ritual-name">{ritual.name}</h4>
+                                     {getRitualCompletion(ritual) === 100 && !isRitualClaimed(ritual) && (
+                                          <button
+                                              className="claim-reward-button"
+                                              onClick={(e) => handleClaimClick(e, ritual.id)}
+                                              title="Claim Reward"
+                                          >
+                                              Claim!
+                                          </button>
                                      )}
-                                      {getRitualCompletion(ritual) === 100 && currentPlayer?.completedRituals.includes(ritual.id) && (
-                                           <span className="claimed-badge">✓</span>
-                                      )}
+                                    {getRitualCompletion(ritual) === 100 && isRitualClaimed(ritual) && (
+                                         <span className="claimed-badge">✓</span>
+                                    )}
                                      {getRitualCompletion(ritual) < 100 && (
                                          <div className="ritual-completion">{getRitualCompletion(ritual)}%</div>
                                      )}
@@ -496,6 +478,8 @@ const Journal: React.FC<JournalProps> = ({
                                                   <div className="step-check">{step.completed ? '✓' : '○'}</div>
                                                   <div className="step-details">
                                                       <div className="step-description">{step.description}</div>
+                                                      {/* Optional: Show completed date */}
+                                                       {step.completedDate && <div className="step-completed-date">Completed: {step.completedDate}</div>}
                                                   </div>
                                               </li>
                                           ))}
@@ -507,8 +491,8 @@ const Journal: React.FC<JournalProps> = ({
                                        <div className="requirements-list">
                                           {/* List requirements */}
                                            {!focusedRitual.requiredMoonPhase && !focusedRitual.requiredSeason && !focusedRitual.requiredItems && <li>None</li>}
-                                           {focusedRitual.requiredMoonPhase && <li>🌙 {focusedRitual.requiredMoonPhase} {time.phaseName === focusedRitual.requiredMoonPhase && <span className='req-met'>(Active)</span>}</li>}
-                                           {focusedRitual.requiredSeason && <li>{getSeasonIcon(focusedRitual.requiredSeason)} {focusedRitual.requiredSeason} {time.season === focusedRitual.requiredSeason && <span className='req-met'>(Active)</span>}</li>}
+                                           {focusedRitual.requiredMoonPhase && <li className="ritual-requirement"><span className="requirement-icon">🌙</span><span className="requirement-label">Moon Phase:</span><span className="requirement-text">{focusedRitual.requiredMoonPhase} {time.phaseName === focusedRitual.requiredMoonPhase && <span className='req-met'>(Active)</span>}</span></li>}
+                                           {focusedRitual.requiredSeason && <li className="ritual-requirement"><span className="requirement-icon">{getSeasonIcon(focusedRitual.requiredSeason)}</span><span className="requirement-label">Season:</span><span className="requirement-text">{focusedRitual.requiredSeason} {time.season === focusedRitual.requiredSeason && <span className='req-met'>(Active)</span>}</span></li>}
                                            {/* Add item requirements */}
                                        </div>
                                    </div>
@@ -517,12 +501,12 @@ const Journal: React.FC<JournalProps> = ({
                                        <h4>Rewards:</h4>
                                        <ul className="rewards-list">
                                            {focusedRitual.rewards.map((reward, index) => (
-                                               <li key={index} className="reward-item">{`${reward.type}: ${reward.value}`}</li>
+                                               <li key={index} className="reward-item">{`${reward.type}: ${reward.value} ${reward.quantity ? `(x${reward.quantity})` : ''}`}</li>
                                            ))}
                                        </ul>
                                    </div>
                                     {/* Claim Button inside Modal */}
-                                    {getRitualCompletion(focusedRitual) === 100 && !currentPlayer?.completedRituals.includes(focusedRitual.id) && (
+                                    {getRitualCompletion(focusedRitual) === 100 && !isRitualClaimed(focusedRitual) && (
                                          <button
                                              className="claim-reward-button modal-claim"
                                              onClick={(e) => handleClaimClick(e, focusedRitual.id)}
@@ -530,9 +514,9 @@ const Journal: React.FC<JournalProps> = ({
                                              Claim Reward
                                          </button>
                                      )}
-                                      {getRitualCompletion(focusedRitual) === 100 && currentPlayer?.completedRituals.includes(focusedRitual.id) && (
-                                           <div className="claimed-badge modal-claimed">Reward Claimed ✓</div>
-                                      )}
+                                     {getRitualCompletion(focusedRitual) === 100 && isRitualClaimed(focusedRitual) && (
+                                          <div className="claimed-badge modal-claimed">Reward Claimed ✓</div>
+                                     )}
                              </div>
                         </div>
                     </div>
@@ -544,7 +528,7 @@ const Journal: React.FC<JournalProps> = ({
 
   // Render rumors section
   const renderRumors = () => {
-    const sortedRumors = [...rumors].sort((a, b) => b.spread - a.spread); // Show most widespread first
+    const sortedRumors = [...rumors].sort((a, b) => (b.spread ?? 0) - (a.spread ?? 0)); // Show most widespread first
 
     return (
       <div className="journal-rumors">
@@ -554,18 +538,18 @@ const Journal: React.FC<JournalProps> = ({
         ) : (
           <div className="rumors-list">
             {sortedRumors.map(rumor => {
-              const spreadClass = rumor.spread > 70 ? 'widespread' : rumor.spread > 40 ? 'common' : 'rare';
+              const spreadClass = (rumor.spread ?? 0) > 70 ? 'widespread' : (rumor.spread ?? 0) > 40 ? 'common' : 'rare';
               const priceEffectDirection = rumor.priceEffect ? (rumor.priceEffect > 0 ? 'up' : 'down') : '';
               return (
-                <div key={rumor.id} className={`rumor-card ${spreadClass}`}>
+                <div key={rumor.id} className={`rumor-card ${spreadClass}`} style={{'--rumor-spread': `${rumor.spread ?? 0}` } as React.CSSProperties}>
                   <div className="rumor-content">"{rumor.content}"</div>
                   <div className="rumor-meta">
                     <div className="rumor-source" title={`Source: ${rumor.origin}`}>{rumor.origin}</div>
                     <div className="rumor-age" title={`${rumor.turnsActive || 0} phases ago`}>~{rumor.turnsActive || 0}d ago</div>
                   </div>
-                  <div className="rumor-spread" title={`Spread: ${rumor.spread.toFixed(0)}%`}>
+                  <div className="rumor-spread" title={`Spread: ${rumor.spread?.toFixed(0) ?? 0}%`}>
                     <div className="spread-label">{spreadClass.replace('_', ' ').toUpperCase()}</div>
-                    <div className="spread-bar"><div className="spread-fill" style={{ width: `${rumor.spread}%` }}></div></div>
+                    <div className="spread-bar"><div className="spread-fill" style={{ width: `${rumor.spread ?? 0}%` }}></div></div>
                   </div>
                   {rumor.verified && <div className="rumor-verified" title="Verified">✓ Verified</div>}
                   {rumor.affectedItem && rumor.priceEffect && (

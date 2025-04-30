@@ -87,72 +87,86 @@
   /* Base visual element */
   .plant > div {
       position: absolute;
+      /* Common base style for all visuals if needed */
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
   }
 
   /* Seedling stage */
-  .seedling-visual { width: 15px; height: 25px; }
-  .seedling-stem { width: 2px; height: 12px; background-color: #7d8f4c; }
-  .seedling-leaves { bottom: 10px; width: 12px; height: 6px; background-color: #90a959; border-radius: 50% 50% 0 0; }
+  .seedling-visual { width: 15px; height: 25px; /* Use pseudo-elements for parts */ }
+  .seedling-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 12px; background-color: #7d8f4c; }
+  .seedling-visual::after { /* Leaves */ content:''; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 12px; height: 6px; background-color: #90a959; border-radius: 50% 50% 0 0; }
 
   /* Sprout stage */
-  .sprout-visual { width: 25px; height: 35px; }
-  .sprout-stem { width: 3px; height: 20px; background-color: #7d8f4c; }
-  .sprout-leaves { bottom: 18px; width: 18px; height: 8px; background-color: #90a959; border-radius: 50% 50% 0 0; }
-  .sprout-leaves::before { content:''; position: absolute; bottom: 3px; left: -5px; width: 10px; height: 6px; background-color: #90a959; border-radius: 50%; transform: rotate(-30deg); }
-  .sprout-leaves::after { content:''; position: absolute; bottom: 3px; right: -5px; width: 10px; height: 6px; background-color: #90a959; border-radius: 50%; transform: rotate(30deg); }
-
+  .sprout-visual { width: 25px; height: 35px; /* Use pseudo-elements for parts */ }
+  .sprout-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 20px; background-color: #7d8f4c; }
+  .sprout-visual::after { /* Main Leaves */ content:''; position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); width: 18px; height: 8px; background-color: #90a959; border-radius: 50% 50% 0 0; }
+  /* Add extra leaves for sprout */
+  .sprout-visual > div:first-child { position: absolute; bottom: 21px; left: 2px; width: 10px; height: 6px; background-color: #90a959; border-radius: 50%; transform: rotate(-30deg); }
+  .sprout-visual > div:last-child { position: absolute; bottom: 21px; right: 2px; width: 10px; height: 6px; background-color: #90a959; border-radius: 50%; transform: rotate(30deg); }
 
   /* Growing stage */
-   .growing-visual { width: 40px; height: 50px; }
-   .growing-stem { width: 4px; height: 35px; background-color: #7d8f4c; }
-   .growing-leaves { bottom: 25px; width: 25px; height: 12px; background-color: #90a959; border-radius: 50% 50% 30% 30% / 100% 100% 0% 0%; }
-   .growing-leaves.secondary { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%) scale(0.8) rotate(45deg); width: 20px; height: 10px; background-color: #85a050; border-radius: inherit; }
-   .growing-leaves::before { content:''; position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%) scale(0.8) rotate(-45deg); width: 20px; height: 10px; background-color: #85a050; border-radius: inherit; }
+   .growing-visual { width: 40px; height: 50px; /* Use pseudo-elements for parts */ }
+   .growing-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 35px; background-color: #7d8f4c; }
+   .growing-visual::after { /* Main Leaves */ content:''; position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 25px; height: 12px; background-color: #90a959; border-radius: 50% 50% 30% 30% / 100% 100% 0% 0%; }
+   /* Add extra leaves */
+   .growing-visual > div:first-child { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%) scale(0.8) rotate(45deg); width: 20px; height: 10px; background-color: #85a050; border-radius: inherit; }
+   .growing-visual > div:last-child { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%) scale(0.8) rotate(-45deg); width: 20px; height: 10px; background-color: #85a050; border-radius: inherit; }
 
 
   /* Maturing stage */
-   .maturing-visual { width: 55px; height: 70px; }
-   .maturing-stem { width: 5px; height: 50px; background-color: #7d8f4c; }
-   .maturing-leaves { bottom: 35px; left: 35%; transform: translateX(-50%) rotate(-30deg); width: 30px; height: 15px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; }
-   .maturing-leaves.secondary { left: 65%; transform: translateX(-50%) rotate(30deg) scaleX(-1); bottom: 40px; }
-   .maturing-bud { top: 15px; /* Adjusted top */ width: 12px; height: 12px; background-color: #a58db8; border-radius: 50%; box-shadow: 0 0 3px rgba(181, 157, 196, 0.5); }
+   .maturing-visual { width: 55px; height: 70px; /* Use pseudo-elements for parts */ }
+   .maturing-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 5px; height: 50px; background-color: #7d8f4c; }
+   /* Leaves */
+   .maturing-visual > div:nth-child(1) { position: absolute; bottom: 35px; left: 35%; transform: translateX(-50%) rotate(-30deg); width: 30px; height: 15px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; }
+   .maturing-visual > div:nth-child(2) { position: absolute; left: 65%; transform: translateX(-50%) rotate(30deg) scaleX(-1); bottom: 40px; width: 30px; height: 15px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; }
+   /* Bud */
+   .maturing-visual > div:nth-child(3) { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background-color: #a58db8; border-radius: 50%; box-shadow: 0 0 3px rgba(181, 157, 196, 0.5); }
 
 
   /* Mature stage */
-  .mature-visual { width: 70px; height: 85px; }
-  .mature-stem { width: 6px; height: 65px; background-color: #7d8f4c; }
-  .mature-leaves { bottom: 45px; left: 30%; transform: translateX(-50%) rotate(-35deg); width: 35px; height: 20px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; filter: brightness(1.1); }
-  .mature-leaves.secondary { left: 70%; transform: translateX(-50%) rotate(35deg) scaleX(-1); bottom: 50px; }
+  .mature-visual { width: 70px; height: 85px; /* Use pseudo-elements for parts */ }
+  .mature-visual::before { /* Stem */ content:''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 6px; height: 65px; background-color: #7d8f4c; }
+  /* Leaves */
+  .mature-visual > div:nth-child(1) { position: absolute; bottom: 45px; left: 30%; transform: translateX(-50%) rotate(-35deg); width: 35px; height: 20px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; filter: brightness(1.1); }
+  .mature-visual > div:nth-child(2) { position: absolute; left: 70%; transform: translateX(-50%) rotate(35deg) scaleX(-1); bottom: 50px; width: 35px; height: 20px; background-color: #90a959; border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%; filter: brightness(1.1); }
+  /* Specific mature element based on category */
+  .mature-visual > div:nth-child(3) { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); }
 
-  /* Specific mature visuals */
-  .mature-flower { top: 5px; width: 20px; height: 20px; background-color: #b59dc4; border-radius: 50%; box-shadow: 0 0 8px rgba(181, 157, 196, 0.7); }
+
+  /* Specific mature visuals - these style the 3rd div inside .mature-visual */
+  .mature-flower { width: 20px; height: 20px; background-color: #b59dc4; border-radius: 50%; box-shadow: 0 0 8px rgba(181, 157, 196, 0.7); }
   .mature-flower::before, .mature-flower::after { content:''; position: absolute; background-color: #c4b7d7; border-radius: 50%; } /* Lighter petals */
   .mature-flower::before { width: 18px; height: 18px; top: -4px; left: -8px; transform: rotate(-30deg); }
   .mature-flower::after { width: 18px; height: 18px; top: -4px; right: -8px; transform: rotate(30deg); }
 
-
-  .mature-herb { top: 10px; width: 30px; height: 25px; background: none; /* Use pseudo-elements for leaves */ }
+  /* Mature Herb Visual - Use pseudo-elements for leaves */
+  .mature-herb { top: 10px !important; width: 30px; height: 25px; background: none; }
   .mature-herb::before, .mature-herb::after { content: ''; position: absolute; background-color: #90a959; border-radius: 50% 50% 0 0; }
   .mature-herb::before { width: 15px; height: 20px; top: 0; left: 0; transform: rotate(-20deg); }
   .mature-herb::after { width: 15px; height: 20px; top: 0; right: 0; transform: rotate(20deg); }
   /* Add more pseudo-elements for fuller herbs */
 
 
-   .mature-root { /* Visible part above ground */ top: 55px; /* Lowered */ width: 15px; height: 10px; background-color: #8a6d3b; border-radius: 3px; }
+  /* Mature Root Visual - Visible part + indication of root below */
+   .mature-root { /* Visible part above ground */ top: 55px !important; width: 15px; height: 10px; background-color: #8a6d3b; border-radius: 3px; }
    .mature-root::before { /* Represents the main root below */ content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 20px; height: 30px; background-color: #a0844d; border-radius: 0 0 10px 10px; filter: brightness(0.8); }
 
 
-  .mature-mushroom { top: 45px; width: 25px; height: 18px; background-color: #a79aad; border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%; }
+  /* Mature Mushroom Visual */
+  .mature-mushroom { top: 45px !important; width: 25px; height: 18px; background-color: #a79aad; border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%; }
   .mature-mushroom::before { /* Stem */ content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); width: 8px; height: 15px; background-color: #e9e3f0; border-radius: 2px; }
 
 
-  .mature-fruit { top: 30px; width: 18px; height: 18px; background-color: #c75e54; border-radius: 50%; box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3); }
+  /* Mature Fruit Visual */
+  .mature-fruit { top: 30px !important; width: 18px; height: 18px; background-color: #c75e54; border-radius: 50%; box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3); }
   .mature-fruit::before { /* Stem */ content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 3px; height: 6px; background-color: #7d8f4c; }
 
 
+  /* Mature Leaf/Succulent - Add specific visual rules */
+  .mature-leaf { /* Example */ top: 20px !important; width: 30px; height: 40px; background-color: #81a36b; border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%; }
+  .mature-succulent { /* Example */ top: 30px !important; width: 35px; height: 35px; background-color: #a1c1a4; border-radius: 50%; }
   /* Health states */
   .plant.unhealthy { filter: saturate(50%) brightness(70%) contrast(1.1); } /* Less saturated, darker, bit more contrast */
   .plant.fair { filter: saturate(80%) brightness(90%); }
