@@ -22,12 +22,6 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true,
-    "types": ["node", "express"],
-    "baseUrl": ".",
-    "paths": {
-      "coven-shared": ["../shared/src/index.ts"],
-      "coven-shared/*": ["../shared/src/*"]
-    },
     "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
