@@ -13,9 +13,14 @@
     "dev:shared": "npm run dev --workspace=coven-shared",
     "dev:frontend": "npm run dev --workspace=coven-frontend",
     "dev:backend": "npm run dev --workspace=coven-backend",
-    "build": "tsc -b tsconfig.json && npm run build:frontend",
+
+    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "build:shared": "tsc -p shared/tsconfig.json",
+    "build:backend": "tsc -p backend/tsconfig.json",
     "build:frontend": "npm run build --workspace=coven-frontend",
-    "postinstall": "tsc -b shared/tsconfig.json"
+
+    "start": "npm run build && npm run start --workspace=coven-backend",
+    "postinstall": "tsc -p shared/tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
