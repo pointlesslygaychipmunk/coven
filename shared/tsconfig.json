@@ -1,14 +1,12 @@
 {
-  // "extends": "../tsconfig.base.json", // REMOVED extends
   "compilerOptions": {
-    // Copied from tsconfig.base.json (adjust if needed for shared specifically)
-    "target": "ES2022", // Changed from ESNext to match backend target for consistency
+    "target": "ES2022",
     "useDefineForClassFields": true,
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true, // Keep isolatedModules
+    "isolatedModules": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -20,13 +18,11 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": false,
-    // Shared-specific options (merged/overridden)
-    "module": "NodeNext", // Keep NodeNext for package compatibility
+    "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".", // Keep baseUrl if needed for local paths within shared
-    "composite": true // Keep composite for project references
-    // Ensure lib includes basics if not inherited: "lib": ["ESNext"]
+    "baseUrl": ".",
+    "composite": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
