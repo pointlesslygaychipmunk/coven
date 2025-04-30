@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../tsconfig.base.json", // Can keep extends here as Vite might handle it differently
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
@@ -13,16 +13,19 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "composite": true, // Ensure composite is true
+    "declaration": true, // Add declaration
+    "declarationMap": true, // Add declarationMap
     "baseUrl": ".",
-    "paths": {
+    "paths": { // Keep internal paths
       "@shared/*": ["../shared/src/*"],
-      "coven-shared": ["../shared/src/index.ts"],
+      "coven-shared": ["../shared/src/index.ts"], // This path might still be useful for Vite's resolver
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
       "@images/*": ["./src/images/*"]
-    },
-    "composite": true
+    }
+    // No emit can be inferred or set if needed: "noEmit": true
   },
   "include": ["src", "vite.config.ts", "src/index.tsx"],
-  "references": [{ "path": "../shared" }]
+  "references": [{ "path": "../shared" }] // Ensure reference exists
 }

@@ -13,26 +13,25 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": true, // Ensure declaration is true
+    "declarationMap": true, // Ensure declarationMap is true
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": false,
     "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true,
+    "composite": true, // Ensure composite is true
     // "types": ["node", "express"], // Keep commented out
-    "baseUrl": ".",
-    "paths": { // Simplified paths
-      "coven-shared": ["../shared/src/index.ts"]
-      // "coven-shared/*": ["../shared/src/*"] // Removed wildcard path for now
-    },
+    // "baseUrl": ".", // REMOVED baseUrl
+    // "paths": { // REMOVED paths
+    //   "coven-shared": ["../shared/src/index.ts"]
+    // },
     "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "../shared" }
+    { "path": "../shared" } // Project reference remains crucial
   ]
 }
