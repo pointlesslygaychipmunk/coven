@@ -1,15 +1,13 @@
 // frontend/src/components/App.tsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import './App.css';
+import './App.css'; // Ensure App.css has the root variables and base styles
 import {
-  GameState, Season, InventoryItem,
-  GardenSlot, BasicRecipeInfo
+  GameState, Season, InventoryItem, Player,
+  GardenSlot, BasicRecipeInfo, WeatherFate, MoonPhase, AtelierSpecialization, RitualQuest, Rumor, TownRequest, MarketItem, JournalEntry
 } from 'coven-shared';
 
 // Import Components using aliases
-// Add .js extension for Vite compatibility if needed, otherwise TS handles it
-// (Vite often works better without the explicit extension if configured correctly)
 import Garden from '@components/Garden';
 import Brewing from '@components/Brewing';
 import Market from '@components/Market';
@@ -19,7 +17,7 @@ import Atelier from '@components/Atelier';
 import WeatherEffectsOverlay from '@components/WeatherEffectsOverlay';
 
 // API Utility
-const API_BASE_URL = '/api'; // Proxy handles this in dev
+const API_BASE_URL = '/api';
 
 const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Promise<GameState> => {
   const options: RequestInit = {
@@ -35,9 +33,10 @@ const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Pr
   const responseData = await response.json();
   if (!response.ok) {
     console.error("API Error Response:", responseData);
-    throw new Error(responseData.error || `API call failed: ${response.statusText}`);
+    const errorMsg = responseData?.error || responseData?.message || `API call failed: ${response.statusText}`;
+    throw new Error(errorMsg);
   }
-  return responseData as GameState; // Assume all successful API calls return the new GameState
+  return responseData as GameState;
 };
 
 
@@ -46,6 +45,7 @@ const App: React.FC = () => {
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastErrorTimestamp, setLastErrorTimestamp] = useState<number>(0);
 
     // Fetch initial game state on mount
     useEffect(() => {
@@ -57,14 +57,28 @@ const App: React.FC = () => {
                 setError(null);
             } catch (err) {
                 console.error('Error fetching initial game state:', err);
-                setError('Failed to load game data. Please ensure the backend server is running.');
+                setError(`Failed to load game data: ${(err as Error).message}. Please ensure the backend server is running.`);
             } finally {
                 setLoading(false);
             }
         };
         fetchInitialState();
-        // TODO: Setup WebSocket connection for real-time updates if needed
     }, []);
+
+    // Function to clear error after a delay or manually
+    const clearError = () => setError(null);
+
+    // Auto-clear error after a few seconds
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                if (Date.now() - lastErrorTimestamp >= 4900) {
+                   clearError();
+                }
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [error, lastErrorTimestamp]);
 
 
     // --- Action Handlers ---
@@ -72,31 +86,35 @@ const App: React.FC = () => {
         actionPromise: Promise<GameState>,
         successMessage?: string,
         errorMessagePrefix?: string
-    ) => {
+    ): Promise<void> => { // Explicitly return Promise<void>
         try {
             const newState = await actionPromise;
             setGameState(newState);
-            setError(null); // Clear previous errors on success
-            if (successMessage) console.log(successMessage); // Or show a toast notification
+            setError(null);
+            if (successMessage) console.log(successMessage);
         } catch (err) {
             const message = (err as Error).message || 'An unknown error occurred';
+            const displayMessage = `${errorMessagePrefix || 'Error'}: ${message}`;
             console.error(errorMessagePrefix || 'Action failed:', err);
-            setError(`${errorMessagePrefix || 'Error'}: ${message}`);
-            // Maybe revert state or show specific error UI?
+            setError(displayMessage);
+            setLastErrorTimestamp(Date.now());
         }
+        // Add explicit return here to satisfy strict checks
+        return;
     };
+
 
      // Get current player and ID safely
     const currentPlayer = gameState?.players[gameState.currentPlayerIndex];
     const playerId = currentPlayer?.id;
 
     // Wrap API calls with checks and error messages
-    const plantSeed = (slotId: number, seedInventoryItemId: string) => { // Expect Inventory Item ID
+    const plantSeed = (slotId: number, seedInventoryItemId: string) => {
         if (!playerId) return;
         handleApiAction(
-            apiCall('/plant', 'POST', { playerId, slotId, seedItemId: seedInventoryItemId }), // Pass correct parameter name
-            `Planted seed in slot ${slotId + 1}`, // Log generic success message
-            `Failed to plant seed in slot ${slotId + 1}`
+            apiCall('/plant', 'POST', { playerId, slotId, seedItemId: seedInventoryItemId }),
+            `Planted seed in slot ${slotId + 1}`,
+            `Failed to plant seed`
         );
     };
 
@@ -105,13 +123,12 @@ const App: React.FC = () => {
         handleApiAction(
             apiCall('/harvest', 'POST', { playerId, slotId }),
             `Harvested plant from slot ${slotId + 1}`,
-            `Failed to harvest from slot ${slotId + 1}`
+            `Failed to harvest`
         );
     };
 
     const waterPlants = () => {
         if (!playerId) return;
-        // Backend currently accepts 'success' flag, default to true for player action
         handleApiAction(
             apiCall('/water', 'POST', { playerId, success: true }),
             'Watered garden plots',
@@ -119,14 +136,24 @@ const App: React.FC = () => {
         );
     };
 
-     const brewPotion = (ingredientInvItemIds: string[], recipeId?: string) => { // Expect inventory IDs
-        if (!playerId) return;
+     const brewPotion = (ingredientInvItemIds: string[], recipeId?: string) => {
+        if (!playerId || ingredientInvItemIds.length === 0) return;
         handleApiAction(
-            apiCall('/brew', 'POST', { playerId, ingredientInvItemIds }), // Pass inventory IDs
-            recipeId ? `Attempted to brew recipe ${recipeId}` : `Attempted to brew with selected ingredients`,
+            apiCall('/brew', 'POST', { playerId, ingredientInvItemIds }),
+            `Attempted brew with ${ingredientInvItemIds.length} ingredients. Matched Recipe ID: ${recipeId || 'None'}`,
             'Brewing failed'
         );
     };
+
+    const craftAtelierItem = (ingredientInvItemIds: string[], resultItemId: string) => {
+         if (!playerId || ingredientInvItemIds.length === 0) return;
+         handleApiAction(
+             apiCall('/craft', 'POST', { playerId, ingredientInvItemIds, resultItemId }),
+             `Attempted to craft ${resultItemId}`,
+             'Crafting failed'
+         );
+    };
+
 
     const buyItem = (itemId: string) => {
         if (!playerId) return;
@@ -137,10 +164,10 @@ const App: React.FC = () => {
         );
     };
 
-    const sellItem = (inventoryItemId: string) => { // Needs INVENTORY item ID
+    const sellItem = (inventoryItemId: string) => {
         if (!playerId) return;
         handleApiAction(
-            apiCall('/market/sell', 'POST', { playerId, itemId: inventoryItemId }), // API expects 'itemId' but it's inventory ID
+            apiCall('/market/sell', 'POST', { playerId, itemId: inventoryItemId }),
             `Sold item ${inventoryItemId}`,
             'Failed to sell item'
         );
@@ -185,14 +212,14 @@ const App: React.FC = () => {
 
     // Show persistent error overlay if an error exists
     const ErrorDisplay = () => (
-        <div className="error-overlay">
-            <p>Error: {error}</p>
-            <button onClick={() => setError(null)}>Dismiss</button>
+        <div className="error-overlay" onClick={clearError} title="Click to dismiss">
+            <p>{error}</p>
+            <button onClick={clearError}>X</button>
         </div>
     );
 
 
-    // Check for fatal error (no game state loaded)
+    // Check for fatal error (no game state loaded) - Use the styled error screen
     if (!gameState || !currentPlayer) {
         return (
             <div className="error-screen">
@@ -205,25 +232,26 @@ const App: React.FC = () => {
 
 
     // --- Main Router and Content ---
-    // Need a component inside Router to use useNavigate
     const GameRouter: React.FC = () => {
         const navigate = useNavigate();
         const handleChangeLocation = (location: string) => navigate(`/${location}`);
+
+        const timeOfDay: 'day' | 'night' = 'day'; // Placeholder
 
         return (
             <>
              {error && <ErrorDisplay />}
                 <WeatherEffectsOverlay
-                    weatherType={gameState.time.weatherFate}
-                    intensity="medium" // Intensity could be dynamic later
-                    timeOfDay="day" // TODO: Derive this from game time
+                    weatherType={gameState.time.weatherFate as WeatherFate}
+                    intensity="medium"
+                    timeOfDay={timeOfDay}
                     season={gameState.time.season as Season}
                 />
                 <HUD
                     playerName={currentPlayer.name}
                     gold={currentPlayer.gold}
                     day={gameState.time.dayCount}
-                    lunarPhase={gameState.time.phaseName || 'New Moon'}
+                    lunarPhase={gameState.time.phaseName as MoonPhase || 'New Moon'}
                     reputation={currentPlayer.reputation}
                     onChangeLocation={handleChangeLocation}
                     onAdvanceDay={advanceDay}
@@ -237,57 +265,55 @@ const App: React.FC = () => {
                                 plots={currentPlayer.garden as GardenSlot[]}
                                 inventory={currentPlayer.inventory as InventoryItem[]}
                                 onPlant={plantSeed}
-                                onHarvest={harvestPlant} // Pass correct handler
+                                onHarvest={harvestPlant}
                                 onWater={waterPlants}
-                                weatherFate={gameState.time.weatherFate}
+                                weatherFate={gameState.time.weatherFate as WeatherFate}
                                 season={gameState.time.season as Season}
                             />
                         } />
                          <Route path="/brewing" element={
                             <Brewing
                                 playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                knownRecipes={gameState.knownRecipes as BasicRecipeInfo[] || []} // Pass known recipes, cast if needed
-                                lunarPhase={gameState.time.phaseName}
-                                playerSpecialization={currentPlayer.atelierSpecialization}
-                                onBrew={brewPotion} // Pass the handler
+                                knownRecipes={gameState.knownRecipes as BasicRecipeInfo[] || []}
+                                lunarPhase={gameState.time.phaseName as MoonPhase || 'New Moon'}
+                                playerSpecialization={currentPlayer.atelierSpecialization as AtelierSpecialization}
+                                onBrew={brewPotion}
                             />
                         } />
                          <Route path="/atelier" element={
                             <Atelier
-                                playerItems={currentPlayer.inventory as InventoryItem[]} // Pass inventory
-                                onCraftItem={(ingredientIds, resultItemId) => console.log('Craft action TBD', ingredientIds, resultItemId)} // TODO: Implement Atelier crafting API call
-                                lunarPhase={gameState.time.phaseName}
+                                playerItems={currentPlayer.inventory as InventoryItem[]}
+                                onCraftItem={craftAtelierItem}
+                                lunarPhase={gameState.time.phaseName as MoonPhase || 'New Moon'}
                                 playerLevel={currentPlayer.atelierLevel}
-                                playerSpecialization={currentPlayer.atelierSpecialization} // Pass specialization
-                                knownRecipes={gameState.knownRecipes as BasicRecipeInfo[]} // Pass known recipes
+                                playerSpecialization={currentPlayer.atelierSpecialization as AtelierSpecialization}
+                                knownRecipes={gameState.knownRecipes as BasicRecipeInfo[]}
                             />
                         } />
                          <Route path="/market" element={
                             <Market
                                 playerGold={currentPlayer.gold}
                                 playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                marketItems={gameState.market}
-                                rumors={gameState.rumors}
-                                townRequests={gameState.townRequests}
+                                marketItems={gameState.market as MarketItem[]}
+                                rumors={gameState.rumors as Rumor[]}
+                                townRequests={gameState.townRequests as TownRequest[]}
                                 blackMarketAccess={currentPlayer.blackMarketAccess}
                                 onBuyItem={buyItem}
-                                onSellItem={sellItem} // Pass inventory item ID from Market component
+                                onSellItem={sellItem}
                                 onFulfillRequest={fulfillRequest}
-                                // onSpreadRumor={spreadRumor} // TODO: Implement if needed
                             />
                         } />
                         <Route path="/journal" element={
                             <Journal
-                                journal={gameState.journal}
-                                rumors={gameState.rumors}
-                                rituals={gameState.rituals}
+                                journal={gameState.journal as JournalEntry[]}
+                                rumors={gameState.rumors as Rumor[]}
+                                rituals={gameState.rituals as RitualQuest[]}
                                 time={gameState.time}
-                                player={currentPlayer} // Pass the player object
-                                onClaimRitual={claimRitualReward} // Pass claim handler
-                                // onMarkRead={markJournalRead} // TODO: Implement if needed
+                                player={currentPlayer as Player}
+                                onClaimRitual={claimRitualReward}
                             />
                         } />
-                        {/* Add other routes as needed */}
+                        <Route path="*" element={<Navigate to="/garden" replace />} />
                     </Routes>
                 </main>
             </>

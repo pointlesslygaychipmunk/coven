@@ -1,6 +1,6 @@
 import React from 'react';
-import './Requests.css'; // Ensure this CSS file exists
-import { TownRequest, InventoryItem } from 'coven-shared'; // Use shared types
+import './Requests.css'; // Ensure this CSS file exists and uses new styles
+import { TownRequest, InventoryItem } from 'coven-shared';
 
 interface RequestsProps {
   townRequests: TownRequest[];
@@ -9,40 +9,34 @@ interface RequestsProps {
 }
 
 const Requests: React.FC<RequestsProps> = ({
-  townRequests = [], // Default to empty array
+  townRequests = [],
   playerInventory = [],
   onFulfillRequest
 }) => {
 
   // Check if player has enough items to fulfill a specific request
   const canFulfill = (request: TownRequest): boolean => {
-    // Sum up quantity across all stacks of the required item
     const totalQuantity = playerInventory
-      .filter(item => item.name === request.item)
+      .filter(item => item.name === request.item) // Match by name (or baseId if more appropriate)
       .reduce((sum, item) => sum + item.quantity, 0);
     return totalQuantity >= request.quantity;
   };
 
-  // Format price function removed since it's not used
-
   return (
     <div className="requests-container">
-      <div className="requests-header">
-        {/* Using emoji as simple icon */}
-        <h2><span className="requests-icon">📜</span> Town Requests</h2>
-        {/* Add sorting/filtering options here later if needed */}
-      </div>
+      {/* Header is typically part of the parent component (Market) */}
+      {/* <div className="requests-header"> ... </div> */}
 
       <div className="requests-list-area">
         {townRequests.length === 0 ? (
           <div className="request-list empty">
             <p>No outstanding requests from the townsfolk.</p>
+            {/* Maybe add a flavor image/icon here */}
           </div>
         ) : (
           <div className="request-list">
             {townRequests.map(request => {
               const playerCanFulfill = canFulfill(request);
-              // We don't need to find the specific item instance, just calculate the total quantity
               const totalQuantity = playerInventory
                   .filter(item => item.name === request.item)
                   .reduce((sum, item) => sum + item.quantity, 0);
@@ -50,41 +44,42 @@ const Requests: React.FC<RequestsProps> = ({
               return (
                 <div key={request.id} className="request-item">
                   <div className="request-icon" title={request.requester}>
+                    {/* Simple initial instead of complex avatar */}
                     {request.requester.charAt(0).toUpperCase()}
                   </div>
                   <div className="request-details">
-                    <div className="request-requester">{request.requester} requests:</div>
-                    <div className="request-item-info"> {/* Renamed class */}
+                    <div className="request-requester">{request.requester} needs help:</div>
+                    {/* Description can be added here if available */}
+                    {/* <p className="request-description">{request.description || "Needs some items..."}</p> */}
+                    <div className="request-item-info">
                       <strong>{request.quantity} x {request.item}</strong>
-                      <div className="inventory-check">
-                        (You have: {totalQuantity}
-                        {/* Optionally show average quality if relevant */}
-                        {/* {requiredItemInv?.quality ? `, Avg Q: ${requiredItemInv.quality}%` : ''} */}
-                        )
-                      </div>
+                      <span className="inventory-check">
+                        (Have: {totalQuantity})
+                      </span>
                     </div>
                     <div className="request-rewards">
-                      <div className="request-reward request-reward-gold" title={`${request.rewardGold} Gold Reward`}>
+                      <div className="request-reward request-reward-gold" title={`${request.rewardGold} Gold`}>
                          {request.rewardGold}
                       </div>
-                      <div className="request-reward request-reward-influence" title={`${request.rewardInfluence} Reputation Reward`}>
+                      <div className="request-reward request-reward-influence" title={`+${request.rewardInfluence} Reputation`}>
                          +{request.rewardInfluence}
                       </div>
                     </div>
+                    {/* Moved difficulty and button together */}
+                    <div className="request-info">
+                         <div className="request-difficulty" title={`Difficulty: ${request.difficulty}/5`}>
+                             {Array(request.difficulty).fill('★').join('')}
+                             {Array(5 - request.difficulty).fill('☆').join('')}
+                         </div>
+                         <button
+                             className={`fulfill-button ${playerCanFulfill ? 'can-fulfill' : 'cant-fulfill'}`}
+                             onClick={() => playerCanFulfill && onFulfillRequest(request.id)}
+                             disabled={!playerCanFulfill}
+                         >
+                             {playerCanFulfill ? 'Fulfill' : 'Need Items'}
+                         </button>
+                    </div>
                   </div>
-                   <div className="request-info">
-                        <div className="request-difficulty" title={`Difficulty: ${request.difficulty}/5`}>
-                            {Array(request.difficulty).fill('★').join('')}
-                            {Array(5 - request.difficulty).fill('☆').join('')}
-                        </div>
-                        <button
-                            className={`fulfill-button ${playerCanFulfill ? 'can-fulfill' : 'cant-fulfill'}`}
-                            onClick={() => playerCanFulfill && onFulfillRequest(request.id)}
-                            disabled={!playerCanFulfill}
-                        >
-                            {playerCanFulfill ? 'Fulfill' : 'Need Items'}
-                        </button>
-                   </div>
                 </div>
               );
             })}

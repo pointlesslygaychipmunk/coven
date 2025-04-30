@@ -1,8 +1,8 @@
 /* frontend/src/components/WeatherEffectsOverlay.css */
-/* Redesigned whimsical and magical weather effects for Coven */
+/* Whimsical, cozy, maybe slightly pixelated weather effects */
 
 .weather-overlay {
-  position: absolute;
+  position: fixed; /* Use fixed to cover viewport */
   top: 0;
   left: 0;
   width: 100%;
@@ -13,788 +13,223 @@
   transition: background-color 1.5s ease, opacity 1.5s ease;
 }
 
-/* Base Time Overlay with more magical gradients */
+/* Base Time Overlay */
 .time-overlay {
   position: absolute;
   inset: 0;
-  transition: background-color 2.5s ease-in-out;
-  opacity: 0.2;
+  transition: background-color 2s ease-in-out, opacity 2s ease-in-out;
+  opacity: 0; /* Start transparent */
 }
+.time-overlay.day { background: linear-gradient(to bottom, rgba(173, 216, 230, 0.05), transparent 50%); opacity: 0.1; }
+.time-overlay.night { background: linear-gradient(135deg, rgba(25, 25, 50, 0.25), rgba(46, 38, 70, 0.35)); opacity: 0.3; }
 
-.time-overlay.day {
-  background: linear-gradient(to bottom, rgba(173, 216, 230, 0.1), transparent 60%);
-  opacity: 0.15;
-}
-
-.time-overlay.night {
-  background: linear-gradient(135deg, rgba(25, 25, 50, 0.35), rgba(46, 38, 70, 0.35));
-  opacity: 0.4;
-}
-
-/* Seasonal Overlays with enhanced colors */
+/* Seasonal Overlays */
 .seasonal-overlay {
   position: absolute;
   inset: 0;
-  mix-blend-mode: overlay;
+  mix-blend-mode: overlay; /* Soft blend */
   pointer-events: none;
   transition: opacity 2s ease;
+  opacity: 0;
 }
+.spring-overlay { background: linear-gradient(to bottom, rgba(144, 238, 144, 0.06), transparent 50%); opacity: 0.6; }
+.summer-overlay { background: linear-gradient(to bottom, rgba(255, 215, 0, 0.04), transparent 60%); opacity: 0.6; }
+.fall-overlay { background: linear-gradient(to bottom, rgba(210, 105, 30, 0.06), transparent 55%); opacity: 0.7; }
+.winter-overlay { background: linear-gradient(to bottom, rgba(173, 216, 230, 0.08), transparent 50%); opacity: 0.6; }
 
-.spring-overlay {
-  background: linear-gradient(to bottom, rgba(144, 238, 144, 0.08), transparent 60%);
-  opacity: 0.7;
-}
-
-.summer-overlay {
-  background: linear-gradient(to bottom, rgba(255, 215, 0, 0.06), transparent 70%);
-  opacity: 0.7;
-}
-
-.fall-overlay {
-  background: linear-gradient(to bottom, rgba(210, 105, 30, 0.08), transparent 65%);
-  opacity: 0.7;
-}
-
-.winter-overlay {
-  background: linear-gradient(to bottom, rgba(173, 216, 230, 0.1), transparent 60%);
-  opacity: 0.7;
-}
-
-/* Rain Effect - More whimsical, varied */
-.rain-container {
-  position: absolute;
-  inset: 0;
-}
-
+/* Rain Effect - Pixelated streaks */
+.rain-container { position: absolute; inset: 0; }
 .rain-drop {
   position: absolute;
-  background: linear-gradient(to bottom, rgba(173, 216, 230, 0.1), rgba(173, 216, 230, 0.6));
-  width: 1px;
-  height: 60px;
-  animation: rain-fall 1.5s linear infinite;
+  background-color: rgba(173, 216, 230, 0.6); /* Rain color */
+  width: 2px; /* Pixel width */
+  height: 10px; /* Pixel height */
+  animation: rain-fall-pixel 0.8s linear infinite;
+  image-rendering: pixelated; /* Force pixel look */
   opacity: 0;
-  border-radius: 0.5px;
   transform-origin: top;
 }
+.weather-overlay.light .rain-drop { height: 8px; animation-duration: 1s; width: 1px; }
+.weather-overlay.heavy .rain-drop { height: 12px; width: 2px; animation-duration: 0.6s; background-color: rgba(173, 216, 230, 0.8); }
 
-.weather-overlay.light .rain-drop {
-  height: 40px;
-  animation-duration: 2s;
+@keyframes rain-fall-pixel {
+  from { transform: translateY(-20px) rotate(5deg); opacity: 0; }
+  10% { opacity: 0.9; }
+  to { transform: translateY(100vh) rotate(5deg); opacity: 0.9; } /* Persist slightly at end */
 }
 
-.weather-overlay.medium .rain-drop {
-  height: 60px;
-  animation-duration: 1.5s;
-}
-
-.weather-overlay.heavy .rain-drop {
-  width: 2px;
-  height: 80px;
-  background: linear-gradient(to bottom, rgba(173, 216, 230, 0.2), rgba(173, 216, 230, 0.8));
-  animation-duration: 1.2s;
-}
-
-@keyframes rain-fall {
-  from {
-    transform: translateY(-120px) rotate(5deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  80% {
-    opacity: 0.8;
-  }
-  to {
-    transform: translateY(100vh) rotate(5deg);
-    opacity: 0;
-  }
-}
-
-/* Thunder Flash Effect - More dramatic with multiple flashes */
+/* Thunder Flash - Quick bright flash */
 .thunder-flash {
   position: absolute;
   inset: 0;
-  background-color: rgba(200, 200, 255, 0);
-  animation: thunder 2s ease-out 1;
+  background-color: rgba(230, 230, 255, 0);
+  animation: thunder-quick 0.5s ease-out 1;
   z-index: 6;
-  mix-blend-mode: screen;
+}
+@keyframes thunder-quick {
+  0%, 100% { background-color: rgba(230, 230, 255, 0); }
+  20%, 80% { background-color: rgba(230, 230, 255, 0.8); } /* Bright flash */
 }
 
-@keyframes thunder {
-  0%, 100% { background-color: rgba(200, 200, 255, 0); }
-  10% { background-color: rgba(230, 230, 255, 0.7); }
-  15% { background-color: rgba(200, 200, 255, 0.2); }
-  20% { background-color: rgba(200, 200, 255, 0); }
-  30% { background-color: rgba(230, 230, 255, 0.6); }
-  35% { background-color: rgba(200, 200, 255, 0.1); }
-  45%, 100% { background-color: rgba(200, 200, 255, 0); }
-}
-
-/* Fog Effect - More ethereal and magical */
+/* Fog Effect - Soft layered */
 .fog-container {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 20% 80%, rgba(215, 215, 225, 0.3) 0%, transparent 70%),
-              radial-gradient(ellipse at 70% 30%, rgba(205, 205, 215, 0.25) 0%, transparent 60%),
-              radial-gradient(ellipse at 50% 90%, rgba(225, 225, 235, 0.2) 0%, transparent 55%);
-  animation: fog-movement 120s infinite linear alternate;
-  opacity: 0.8;
-  mix-blend-mode: screen;
+  background: linear-gradient(to bottom,
+      rgba(215, 215, 225, 0.1) 0%,
+      rgba(215, 215, 225, 0.3) 40%,
+      rgba(215, 215, 225, 0.5) 80%,
+      rgba(215, 215, 225, 0.6) 100%);
+  animation: fog-slow-drift 120s infinite linear alternate;
+  opacity: 0.7;
+}
+.weather-overlay.light .fog-container { opacity: 0.4; }
+.weather-overlay.heavy .fog-container { opacity: 0.9; background: linear-gradient(to bottom, rgba(215, 215, 225, 0.2) 0%, rgba(215, 215, 225, 0.4) 40%, rgba(215, 215, 225, 0.6) 80%, rgba(215, 215, 225, 0.7) 100%); }
+@keyframes fog-slow-drift {
+  from { transform: translateX(-5%); }
+  to { transform: translateX(5%); }
 }
 
-.weather-overlay.light .fog-container {
-  opacity: 0.5;
-}
-
-.weather-overlay.heavy .fog-container {
-  opacity: 0.95;
-  background: radial-gradient(ellipse at 20% 80%, rgba(215, 215, 225, 0.4) 0%, transparent 80%),
-              radial-gradient(ellipse at 70% 30%, rgba(205, 205, 215, 0.35) 0%, transparent 70%),
-              radial-gradient(ellipse at 50% 90%, rgba(225, 225, 235, 0.3) 0%, transparent 65%);
-}
-
-@keyframes fog-movement {
-  0% { transform: translate(-8%, -4%) scale(1.1); opacity: 0.7; }
-  25% { opacity: 0.8; }
-  50% { transform: translate(0%, 0%) scale(1); opacity: 0.9; }
-  75% { opacity: 0.8; }
-  100% { transform: translate(8%, 4%) scale(1.1); opacity: 0.7; }
-}
-
-/* Wind Effect - More dynamic with swirls */
-.wind-container {
-  position: absolute;
-  inset: 0;
-}
-
+/* Wind Effect - Gentle streaks */
+.wind-container { position: absolute; inset: 0; }
 .wind-particle {
   position: absolute;
-  background-color: rgba(220, 225, 235, 0.4);
-  width: 60px;
+  background: linear-gradient(to right, transparent, rgba(220, 225, 235, 0.3), transparent);
+  width: 80px;
   height: 1px;
   opacity: 0;
-  animation: wind-movement 3s ease-in-out infinite;
-  transform-origin: center;
-  border-radius: 0.5px;
+  animation: wind-streak 4s ease-in-out infinite;
+  border-radius: 1px;
+}
+.weather-overlay.light .wind-particle { width: 50px; animation-duration: 5s; }
+.weather-overlay.heavy .wind-particle { width: 120px; animation-duration: 3s; background: linear-gradient(to right, transparent, rgba(225, 230, 240, 0.5), transparent); }
+@keyframes wind-streak {
+  0% { transform: translateX(-100px) skewX(-20deg); opacity: 0; }
+  10%, 80% { opacity: 0.8; }
+  100% { transform: translateX(100vw) skewX(-20deg); opacity: 0; }
 }
 
-.weather-overlay.light .wind-particle {
-  width: 40px;
-  animation-duration: 3.5s;
-}
-
-.weather-overlay.heavy .wind-particle {
-  width: 90px;
-  background-color: rgba(225, 230, 240, 0.5);
-  animation-duration: 2.5s;
-}
-
-@keyframes wind-movement {
-  0% {
-    transform: translateX(-100px) rotate(-10deg) scaleY(0.8);
-    opacity: 0;
-  }
-  10%, 80% {
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateX(50vw) rotate(5deg) scaleY(1.2);
-  }
-  100% {
-    transform: translateX(100vw) rotate(15deg) scaleY(0.8);
-    opacity: 0;
-  }
-}
-
-/* Cloud Overlay - More detailed, layered clouds */
+/* Cloud Overlay - Soft, painterly clouds */
 .cloud-overlay {
   position: absolute;
   inset: 0;
-  background-image: 
-    url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBvcGFjaXR5PSIwLjMiIGZpbGw9IiNmNWY1ZjgiPgogICAgPGVsbGlwc2UgY3g9IjEwMCIgY3k9IjUwIiByeD0iNDAiIHJ5PSIzMCIgLz4KICAgIDxlbGxpcHNlIGN4PSIxNTAiIGN5PSI1MCIgcng9IjUwIiByeT0iMzUiIC8+CiAgICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iNTAiIHJ4PSI0MCIgcnk9IjI1IiAvPgogIDwvZz4KPC9zdmc+'),
-    url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBvcGFjaXR5PSIwLjI1IiBmaWxsPSIjZjVmNWY4Ij4KICAgIDxlbGxpcHNlIGN4PSIxMjAiIGN5PSI2MCIgcng9IjYwIiByeT0iNDAiIC8+CiAgICA8ZWxsaXBzZSBjeD0iMjIwIiBjeT0iNjAiIHJ4PSI3MCIgcnk9IjQ1IiAvPgogICAgPGVsbGlwc2UgY3g9IjMwMCIgY3k9IjYwIiByeD0iNTAiIHJ5PSIzMCIgLz4KICA8L2c+Cjwvc3ZnPg==');
+  background-image:
+    radial-gradient(ellipse at 20% 30%, rgba(245, 245, 248, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 40%, rgba(245, 245, 248, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 70%, rgba(245, 245, 248, 0.2) 0%, transparent 50%);
+  background-size: 400px 200px, 500px 250px, 300px 150px;
   background-repeat: repeat-x;
-  background-position: 0 30px, 120px 10px;
-  animation: cloud-movement 150s infinite linear;
-  opacity: 0.3;
+  animation: cloud-drift 180s infinite linear;
+  opacity: 0.4;
+}
+.weather-overlay.heavy .cloud-overlay { opacity: 0.6; background-color: rgba(180, 180, 190, 0.1); }
+.weather-overlay.night .cloud-overlay { filter: brightness(0.6); opacity: 0.2; }
+@keyframes cloud-drift {
+  from { background-position: 0% 0%, 100px 0%, 200px 0%; }
+  to { background-position: 1500px 0%, 1600px 0%, 1700px 0%; }
 }
 
-.weather-overlay.light .cloud-overlay {
-  opacity: 0.2;
-  animation-duration: 180s;
-}
-
-.weather-overlay.heavy .cloud-overlay {
-  opacity: 0.5;
-  animation-duration: 120s;
-  background-position: 0 20px, 100px 5px;
-}
-
-.weather-overlay.night .cloud-overlay {
-  opacity: 0.15;
-  filter: brightness(0.7) saturate(0.8);
-}
-
-@keyframes cloud-movement {
-  from {
-    background-position: -300px 30px, -180px 10px;
-  }
-  to {
-    background-position: 1500px 30px, 1620px 10px;
-  }
-}
-
-/* Clear Night Effect (Stars) - More magical, twinkling stars */
-.clear-night-overlay {
-  position: absolute;
-  inset: 0;
-  background-color: transparent;
-}
-
+/* Clear Night Effect (Stars) - Simple pixel stars */
+.clear-night-overlay { position: absolute; inset: 0; }
 .star {
   position: absolute;
   background-color: #FFF;
-  border-radius: 50%;
-  opacity: 0;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
-  animation: twinkle 5s infinite ease-in-out;
-}
-
-/* Different sizes for stars */
-.star.tiny {
-  width: 1px;
+  width: 1px; /* Pixel stars */
   height: 1px;
-}
-
-.star.small {
-  width: 1.5px;
-  height: 1.5px;
-}
-
-.star.medium {
-  width: 2px;
-  height: 2px;
-}
-
-.star.large {
-  width: 3px;
-  height: 3px;
-}
-
-/* Different twinkle patterns */
-.star.pattern1 {
-  animation: twinkle1 4s infinite ease-in-out;
-}
-
-.star.pattern2 {
-  animation: twinkle2 6s infinite ease-in-out;
-}
-
-.star.pattern3 {
-  animation: twinkle3 5s infinite ease-in-out;
-}
-
-@keyframes twinkle1 {
-  0%, 100% { opacity: 0.1; transform: scale(0.8); filter: blur(0px); }
-  50% { opacity: 0.9; transform: scale(1.2); filter: blur(0.5px); }
-}
-
-@keyframes twinkle2 {
-  0%, 100% { opacity: 0.2; transform: scale(1); filter: blur(0px); }
-  30% { opacity: 0.6; transform: scale(1.1); filter: blur(0.5px); }
-  60% { opacity: 0.9; transform: scale(1.3); filter: blur(1px); }
-}
-
-@keyframes twinkle3 {
-  0%, 100% { opacity: 0.1; transform: scale(0.9); box-shadow: 0 0 3px rgba(255, 255, 255, 0.4); }
-  20% { opacity: 0.3; }
-  40% { opacity: 0.8; transform: scale(1.1); box-shadow: 0 0 8px rgba(255, 255, 255, 0.7); }
-  60% { opacity: 0.4; }
-  80% { opacity: 0.2; transform: scale(0.8); box-shadow: 0 0 4px rgba(255, 255, 255, 0.5); }
-}
-
-/* Shooting stars */
-.shooting-star {
-  position: absolute;
-  width: 80px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  border-radius: 0; /* Square pixel */
   opacity: 0;
-  animation: shooting-star 10s infinite ease-out;
-  transform-origin: right;
-  transform: rotate(-30deg);
+  animation: twinkle-pixel 6s infinite ease-in-out;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5); /* Tiny glow */
+  image-rendering: pixelated;
+}
+/* Override size based on prop calculation */
+.star[style*="width: 2px"] { width: 2px; height: 2px; }
+.star[style*="width: 3px"] { width: 3px; height: 3px; }
+
+@keyframes twinkle-pixel {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
 }
 
-@keyframes shooting-star {
-  0%, 97%, 100% { opacity: 0; transform: translateX(0) translateY(0) rotate(-30deg); }
-  98% { opacity: 1; transform: translateX(-300px) translateY(300px) rotate(-30deg); }
-}
-
-/* Dry Effect (Heat Haze / Dust) - More dynamic */
+/* Dry Effect - Heat shimmer */
 .dry-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(214, 164, 76, 0.05), transparent 70%);
-  overflow: hidden;
-}
-
-.dust-particle {
-  position: absolute;
-  background-color: rgba(214, 164, 76, 0.15);
-  border-radius: 50%;
-  opacity: 0;
-  animation: dust-float 12s infinite ease-in-out;
-}
-
-.dust-particle.small {
-  width: 2px;
-  height: 2px;
-}
-
-.dust-particle.medium {
-  width: 3px;
-  height: 3px;
-}
-
-.dust-particle.large {
-  width: 4px;
-  height: 4px;
-  background-color: rgba(214, 164, 76, 0.2);
-}
-
-@keyframes dust-float {
-  0% {
-    transform: translateX(-20px) translateY(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.4;
-  }
-  50% {
-    transform: translateX(30px) translateY(-40px) rotate(180deg);
-  }
-  90% {
-    opacity: 0.4;
-  }
-  100% {
-    transform: translateX(70px) translateY(-70px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Heat haze effect */
-.heat-haze {
-  position: absolute;
-  inset: 0;
-  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxmaWx0ZXIgaWQ9Im5vaXNlIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjA1IiBudW1PY3RhdmVzPSIyIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIiByZXN1bHQ9Im5vaXNlIi8+CiAgICA8ZmVEaXNwbGFjZW1lbnRNYXAgaW49Ik5BIiBzY2FsZT0iMTAiIHhDaGFubmVsU2VsZWN0b3I9IlIiIHlDaGFubmVsU2VsZWN0b3I9IkciIHJlc3VsdD0ibm9pc2UtZGlzcGxhY2VtZW50IiAvPgogIDwvZmlsdGVyPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+');
+  background: linear-gradient(to bottom, rgba(214, 164, 76, 0.03), transparent 50%);
+  /* Simple heat shimmer using backdrop filter if supported well */
+  backdrop-filter: blur(0.5px) contrast(1.05);
+  animation: heat-shimmer-subtle 5s infinite linear alternate;
   opacity: 0.3;
-  mix-blend-mode: overlay;
-  animation: heat-shimmer 20s infinite linear alternate;
-  display: none; /* Hidden by default, enabled in JS for dry weather */
 }
 
-@keyframes heat-shimmer {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.2;
-  }
-  100% {
-    transform: translateY(-10px) scale(1.05);
-    opacity: 0.3;
-  }
+.dust-container { position: absolute; inset: 0; }
+.dust-particle {
+    position: absolute;
+    background-color: rgba(214, 164, 76, 0.15); /* Dust color */
+    border-radius: 50%;
+    opacity: 0;
+    animation: dust-float 15s infinite ease-in-out;
+}
+@keyframes dust-float {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10%, 90% { opacity: var(--max-opacity, 0.3); } /* Use var for opacity */
+  100% { transform: translate(var(--x-drift, 20px), var(--y-drift, -30px)) rotate(360deg); opacity: 0; }
 }
 
-/* Magical Mist - For special weather types */
+@keyframes heat-shimmer-subtle {
+  from { backdrop-filter: blur(0.5px) contrast(1.05); opacity: 0.3; }
+  to { backdrop-filter: blur(1px) contrast(1.02); opacity: 0.4; }
+}
+
+/* Magical Mist */
 .magical-mist {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, 
-    rgba(181, 157, 196, 0.1) 0%, 
-    rgba(126, 186, 118, 0.05) 50%, 
-    rgba(111, 166, 204, 0.08) 100%);
+  background: radial-gradient(ellipse at 60% 40%, rgba(181, 157, 196, 0.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 30% 70%, rgba(126, 186, 118, 0.08) 0%, transparent 60%);
   mix-blend-mode: screen;
-  animation: magical-mist-swirl 60s infinite linear alternate;
-  opacity: 0.5;
-  pointer-events: none;
+  animation: magical-mist-swirl 80s infinite linear alternate;
+  opacity: 0.6;
 }
-
-.weather-overlay.light .magical-mist {
-  opacity: 0.3;
-}
-
-.weather-overlay.heavy .magical-mist {
-  opacity: 0.7;
-  animation-duration: 45s;
-}
-
+.weather-overlay.light .magical-mist { opacity: 0.4; }
+.weather-overlay.heavy .magical-mist { opacity: 0.8; animation-duration: 60s; }
 @keyframes magical-mist-swirl {
-  0% {
-    background-position: 0% 0%;
-    opacity: 0.4;
-    filter: hue-rotate(0deg);
-  }
-  25% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 0.6;
-    filter: hue-rotate(15deg);
-  }
-  75% {
-    opacity: 0.5;
-  }
-  100% {
-    background-position: 100% 100%;
-    opacity: 0.4;
-    filter: hue-rotate(30deg);
-  }
+  from { background-position: 0% 0%, 100% 100%; filter: hue-rotate(0deg); }
+  to { background-position: 100% 100%, 0% 0%; filter: hue-rotate(45deg); }
 }
 
-/* Glowing particles for magical mist */
+.magical-mist-container { position: absolute; inset: 0; }
 .mist-particle {
-  position: absolute;
-  background-color: rgba(181, 157, 196, 0.4);
-  border-radius: 50%;
-  filter: blur(2px);
-  opacity: 0;
-  box-shadow: 0 0 8px rgba(181, 157, 196, 0.6);
-  animation: mist-glow 15s infinite ease-in-out;
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(220, 210, 240, 0.5); /* Light lavender */
+    opacity: 0;
+    filter: blur(1px);
+    box-shadow: 0 0 6px rgba(181, 157, 196, 0.5);
+    animation: mist-float 10s infinite ease-in-out;
+}
+@keyframes mist-float {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+  50% { opacity: 0.6; transform: translateY(-30px) scale(1.1); }
 }
 
-@keyframes mist-glow {
-  0%, 100% {
-    opacity: 0;
-    transform: translateY(0) scale(0.5);
-    filter: blur(2px) hue-rotate(0deg);
-  }
-  25% {
-    opacity: 0.7;
-    transform: translateY(-20px) scale(1);
-    filter: blur(3px) hue-rotate(30deg);
-  }
-  75% {
-    opacity: 0.7;
-    transform: translateY(-40px) scale(0.8);
-    filter: blur(1px) hue-rotate(60deg);
-  }
-}
 
 /* Snow Effect */
-.snow-container {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
+.snow-container { position: absolute; inset: 0; overflow: hidden; }
 .snowflake {
   position: absolute;
   background-color: #fff;
   border-radius: 50%;
   opacity: 0;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
   animation: snow-fall 12s linear infinite;
+  /* Use CSS variable for horizontal drift */
 }
-
-.snowflake.tiny {
-  width: 2px;
-  height: 2px;
-}
-
-.snowflake.small {
-  width: 3px;
-  height: 3px;
-}
-
-.snowflake.medium {
-  width: 4px;
-  height: 4px;
-}
-
-.snowflake.large {
-  width: 5px;
-  height: 5px;
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-.weather-overlay.light .snowflake {
-  animation-duration: 15s;
-}
-
-.weather-overlay.heavy .snowflake {
-  animation-duration: 10s;
-}
+.weather-overlay.light .snowflake { animation-duration: 15s; }
+.weather-overlay.heavy .snowflake { animation-duration: 10s; }
 
 @keyframes snow-fall {
-  0% {
-    transform: translateY(-20px) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  50% {
-    transform: translateY(50vh) translateX(30px) rotate(180deg);
-  }
-  90% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(100vh) translateX(50px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Stormy weather - lightning flash container */
-.lightning-container {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-}
-
-/* Lightning bolt SVG for direct lightning */
-.lightning-bolt {
-  position: absolute;
-  width: 60px;
-  height: 150px;
-  opacity: 0;
-  animation: lightning-strike 15s infinite;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
-  z-index: 7;
-}
-
-.lightning-bolt svg {
-  width: 100%;
-  height: 100%;
-}
-
-.lightning-bolt path {
-  fill: rgba(255, 255, 255, 0.95);
-  stroke: rgba(200, 220, 255, 0.4);
-  stroke-width: 1;
-}
-
-@keyframes lightning-strike {
-  0%, 96.5%, 97.5%, 99%, 100% {
-    opacity: 0;
-  }
-  97%, 98.5% {
-    opacity: 1;
-  }
-}
-
-/* Rainbow effect for after rain */
-.rainbow {
-  position: absolute;
-  top: 10%;
-  left: -10%;
-  width: 120%;
-  height: 50%;
-  border-radius: 50% 50% 0 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 0, 0, 0) 0%,
-    rgba(255, 0, 0, 0.1) 15%,
-    rgba(255, 165, 0, 0.1) 16%,
-    rgba(255, 165, 0, 0) 17%,
-    rgba(255, 255, 0, 0) 17%,
-    rgba(255, 255, 0, 0.1) 18%,
-    rgba(0, 128, 0, 0.1) 19%,
-    rgba(0, 128, 0, 0) 20%,
-    rgba(0, 0, 255, 0) 20%,
-    rgba(0, 0, 255, 0.1) 21%,
-    rgba(75, 0, 130, 0.1) 22%,
-    rgba(75, 0, 130, 0) 23%,
-    rgba(238, 130, 238, 0) 23%,
-    rgba(238, 130, 238, 0.1) 24%,
-    rgba(238, 130, 238, 0) 25%
-  );
-  opacity: 0;
-  mix-blend-mode: screen;
-  transform: rotate(180deg);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.rainbow.visible {
-  animation: rainbow-appear 30s ease-in-out;
-}
-
-@keyframes rainbow-appear {
-  0%, 70%, 100% {
-    opacity: 0;
-  }
-  20%, 60% {
-    opacity: 0.7;
-  }
-}
-
-/* Sunbeam effect for sunny weather */
-.sunbeam-container {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  opacity: 0.2;
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-.sunbeam {
-  position: absolute;
-  top: -50%;
-  left: 70%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 215, 0, 0.2) 0%,
-    rgba(255, 215, 0, 0.1) 20%,
-    rgba(255, 215, 0, 0) 70%
-  );
-  transform-origin: center;
-  animation: sun-rotate 120s infinite linear;
-}
-
-@keyframes sun-rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Morning dew effect */
-.dew-container {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.dew-drop {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  opacity: 0;
-  filter: blur(1px);
-  box-shadow: 0 0 5px rgba(173, 216, 230, 0.6);
-  animation: dew-shimmer 10s infinite ease-in-out;
-}
-
-@keyframes dew-shimmer {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-    filter: blur(1px);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.2);
-    filter: blur(0.5px);
-  }
-}
-
-/* Firefly effect for summer nights */
-.firefly-container {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.firefly {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background-color: rgba(255, 255, 0, 0.8);
-  border-radius: 50%;
-  opacity: 0;
-  box-shadow: 0 0 5px rgba(255, 255, 0, 0.6), 0 0 10px rgba(255, 255, 0, 0.3);
-  animation: firefly-flight 15s infinite ease-in-out;
-}
-
-@keyframes firefly-flight {
-  0% {
-    opacity: 0;
-    transform: translateX(0) translateY(0);
-  }
-  10%, 90% {
-    opacity: 0;
-  }
-  30%, 70% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(var(--end-x)) translateY(var(--end-y));
-  }
-}
-
-/* Autumn leaves falling */
-.leaf-container {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.autumn-leaf {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background-color: rgba(210, 105, 30, 0.7);
-  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-  opacity: 0;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
-  animation: leaf-fall 12s linear infinite;
-}
-
-.autumn-leaf.orange {
-  background-color: rgba(210, 105, 30, 0.7);
-}
-
-.autumn-leaf.red {
-  background-color: rgba(178, 34, 34, 0.7);
-}
-
-.autumn-leaf.yellow {
-  background-color: rgba(218, 165, 32, 0.7);
-}
-
-@keyframes leaf-fall {
-  0% {
-    transform: translateY(-20px) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(50vh) translateX(30px) rotate(180deg);
-  }
-  90% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(100vh) translateX(60px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Utility classes for combining effects */
-.weather-blend {
-  mix-blend-mode: overlay;
-}
-
-.weather-overlay.magical {
-  mix-blend-mode: screen;
-}
-
-.weather-overlay.season-spring .seasonal-overlay {
-  opacity: 0.8;
-}
-
-.weather-overlay.season-fall .seasonal-overlay {
-  opacity: 0.9;
+  0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.9; }
+  100% { transform: translateY(100vh) translateX(var(--x-drift, 0px)) rotate(720deg); opacity: 0; }
 }

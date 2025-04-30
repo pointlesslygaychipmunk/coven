@@ -3,10 +3,10 @@
 
 .lunar-phase-icon {
   display: inline-block;
-  background-color: transparent;
   transition: all 0.4s ease;
   position: relative;
-  cursor: pointer;
+  cursor: default; /* Not interactive usually */
+  line-height: 0; /* Prevent extra space */
 }
 
 /* Magical glow on hover */
@@ -19,7 +19,7 @@
 .lunar-phase-icon::before {
   content: '';
   position: absolute;
-  inset: -15%;
+  inset: -15%; /* Adjust aura size */
   border-radius: 50%;
   background: radial-gradient(
     circle at center,
@@ -52,6 +52,8 @@
 /* Base styles for SVG elements */
 .lunar-phase-icon svg {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  overflow: visible; /* Ensure stroke/glow isn't clipped */
+  display: block; /* Prevent inline spacing issues */
 }
 
 .lunar-phase-icon svg path,
@@ -59,197 +61,78 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: all 0.3s ease;
+  /* Apply texture filter defined in SVG defs */
+  filter: url(#moon-texture);
 }
 
-/* Moon phase specific enhancements */
-/* New Moon - Dark with subtle sparkle */
-.lunar-phase-icon.new-moon svg circle {
-  fill: #342f48;
-  stroke: #7a6c95;
-  stroke-width: 1.5;
+/* Define colors using CSS variables */
+.lunar-phase-icon svg circle,
+.lunar-phase-icon svg path {
+    --lunar-dark: #342f48;
+    --lunar-light: #e2d9f3;
+    --lunar-stroke: #7a6c95;
 }
 
-.lunar-phase-icon.new-moon::after {
-  content: '';
-  position: absolute;
-  top: 30%;
-  left: 60%;
-  width: 2px;
-  height: 2px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  opacity: 0;
-  animation: star-twinkle 3s infinite alternate;
+
+/* Moon phase specific appearances */
+.lunar-phase-icon.new-moon circle {
+  fill: var(--lunar-dark);
+  stroke: var(--lunar-stroke);
 }
 
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 0.8; transform: scale(1.2); }
+.lunar-phase-icon.full-moon circle {
+  fill: var(--lunar-light);
+  stroke: var(--lunar-stroke);
+  filter: url(#moon-texture) drop-shadow(0 0 4px rgba(233, 227, 240, 0.5));
 }
 
-/* Crescent phases with subtle glow */
-.lunar-phase-icon.waxing-crescent svg path,
-.lunar-phase-icon.waning-crescent svg path {
-  fill: #e2d9f3;
-  filter: drop-shadow(0 0 2px rgba(226, 217, 243, 0.3));
-}
-
-/* Quarter phases with defined border */
-.lunar-phase-icon.first-quarter svg path,
-.lunar-phase-icon.last-quarter svg path {
-  fill: #e2d9f3;
-  filter: drop-shadow(0 0 3px rgba(226, 217, 243, 0.4));
-}
-
-/* Gibbous phases with stronger glow */
-.lunar-phase-icon.waxing-gibbous svg path,
-.lunar-phase-icon.waning-gibbous svg path {
-  fill: #e2d9f3;
-  filter: drop-shadow(0 0 4px rgba(226, 217, 243, 0.5));
-}
-
-/* Full Moon - Brightest with magical glow */
-.lunar-phase-icon.full-moon svg circle {
-  fill: #e2d9f3;
-  stroke: #7a6c95;
-  stroke-width: 1;
-  filter: drop-shadow(0 0 5px rgba(226, 217, 243, 0.6));
-}
-
+/* Add sparkle to Full Moon */
 .lunar-phase-icon.full-moon::after {
-  content: '';
+  content: '✧';
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.8) 0%,
-    rgba(226, 217, 243, 0.3) 40%,
-    transparent 70%
-  );
-  mix-blend-mode: overlay;
+  top: 10%;
+  right: 10%;
+  font-size: 0.3em; /* Relative to icon size */
+  color: #fff;
   opacity: 0.7;
-  pointer-events: none;
+  animation: sparkle-tiny 3s infinite alternate;
+  text-shadow: 0 0 2px #fff;
 }
 
-/* Add subtle animations based on phase */
-.lunar-phase-icon.waxing-crescent svg,
-.lunar-phase-icon.waxing-gibbous svg {
-  animation: waxing-shimmer 8s infinite alternate ease-in-out;
+@keyframes sparkle-tiny {
+  0% { opacity: 0.5; transform: scale(0.8); }
+  100% { opacity: 0.9; transform: scale(1.2); }
 }
 
-@keyframes waxing-shimmer {
-  0% {
-    filter: drop-shadow(0 0 2px rgba(226, 217, 243, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 4px rgba(226, 217, 243, 0.5));
-  }
+/* Style paths for other phases */
+.lunar-phase-icon:not(.new-moon):not(.full-moon) path {
+  fill: var(--lunar-light); /* Light part */
+}
+/* Waning/Waxing Gibbous have light base, dark path */
+.lunar-phase-icon.waxing-gibbous path,
+.lunar-phase-icon.waning-gibbous path {
+    fill: var(--lunar-dark); /* Dark sliver */
+}
+/* Base circle for phases */
+.lunar-phase-icon:not(.new-moon) circle {
+    stroke: var(--lunar-stroke);
+}
+.lunar-phase-icon.waxing-crescent circle,
+.lunar-phase-icon.first-quarter circle,
+.lunar-phase-icon.last-quarter circle,
+.lunar-phase-icon.waning-crescent circle {
+    fill: var(--lunar-dark);
+}
+.lunar-phase-icon.waxing-gibbous circle,
+.lunar-phase-icon.waning-gibbous circle {
+    fill: var(--lunar-light);
 }
 
-.lunar-phase-icon.waning-gibbous svg,
-.lunar-phase-icon.waning-crescent svg {
-  animation: waning-shimmer 8s infinite alternate-reverse ease-in-out;
-}
-
-@keyframes waning-shimmer {
-  0% {
-    filter: drop-shadow(0 0 2px rgba(226, 217, 243, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 4px rgba(226, 217, 243, 0.5));
-  }
-}
-
-.lunar-phase-icon.full-moon svg {
-  animation: full-moon-pulse 6s infinite alternate ease-in-out;
-}
-
-@keyframes full-moon-pulse {
-  0% {
-    filter: drop-shadow(0 0 3px rgba(226, 217, 243, 0.4));
-  }
-  100% {
-    filter: drop-shadow(0 0 6px rgba(226, 217, 243, 0.7));
-  }
-}
-
-/* Magical stars decoration */
-.lunar-phase-icon.full-moon::before {
-  content: '';
-  position: absolute;
-  inset: -30%;
-  background-image: 
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 8%),
-    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 6%),
-    radial-gradient(circle at 70% 85%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 7%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.lunar-phase-icon.full-moon:hover::before {
-  opacity: 1;
-  animation: stars-twinkle 4s infinite alternate ease-in-out;
-}
-
-@keyframes stars-twinkle {
-  0% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.7;
-    transform: scale(1.05);
-  }
-}
-
-/* Active state for current phase */
+/* Active state for current phase (if needed) */
 .lunar-phase-icon.active {
-  transform: scale(1.15);
+  transform: scale(1.1);
   filter: drop-shadow(0 0 10px rgba(181, 157, 196, 0.7));
 }
-
-.lunar-phase-icon.active:hover {
-  transform: scale(1.2) translateY(-3px);
-}
-
-/* Size variations */
-.lunar-phase-icon.small svg {
-  width: 25px;
-  height: 25px;
-}
-
-.lunar-phase-icon.medium svg {
-  width: 40px;
-  height: 40px;
-}
-
-.lunar-phase-icon.large svg {
-  width: 60px;
-  height: 60px;
-}
-
-/* Phase transition animations */
-.lunar-phase-transition-enter {
-  opacity: 0;
-  transform: scale(0.8);
-}
-
-.lunar-phase-transition-enter-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.lunar-phase-transition-exit {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.lunar-phase-transition-exit-active {
-  opacity: 0;
-  transform: scale(1.2);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+.lunar-phase-icon.active::before {
+    opacity: 1; /* Show aura always if active */
 }

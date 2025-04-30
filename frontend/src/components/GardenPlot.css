@@ -1,835 +1,160 @@
 /* frontend/src/components/GardenPlot.css */
-/* Redesigned garden plot with whimsical, airy, mystical aesthetics */
+/* Redesigned garden plot with whimsical, airy, mystical aesthetics & 90s feel */
 
 .garden-plot {
   position: relative;
   flex: 1;
-  height: 100%;
-  background-color: #1f1d2c;
-  border-radius: 12px;
+  aspect-ratio: 1 / 1; /* Make plots square */
+  max-width: 150px; /* Control max size if needed */
+  background-color: #4a3f35; /* Earthy base */
+  border-radius: 8px; /* Softer edges */
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(72, 61, 102, 0.3);
+  border: 2px solid #332a22; /* Darker border */
+  border-bottom-color: #5a4f45; /* Lighter bottom edge for 3D effect */
+  border-right-color: #5a4f45;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.4);
 }
 
-/* Subtle glow on hover */
+/* Add subtle soil texture */
+.garden-plot::before {
+  content: '';
+  position: absolute;
+  inset: 3px; /* Inset texture slightly */
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgb3BhY2l0eT0iMC4xNSIgZmlsbD0iIzE5MTUxMSI+CiAgICA8Y2lyY2xlIGN4PSI1IiBjeT0iNSIgcj0iMSIgLz4KICAgIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTUiIHI9IjEuNSIgLz4KICAgIDxjaXJjbGUgY3g9IjMiIGN5PSIxOCIgcj0iMC44IiAvPgogICAgPGNpcmNsZSBjeD0iMTciIGN5PSIyIiByPSIwLjgiIC8+CiAgICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIwLjgiIC8+CiAgPC9nPgo8L3N2Zz4=');
+  opacity: 0.5;
+  pointer-events: none;
+  border-radius: 5px;
+}
+
+/* Hover effect */
 .garden-plot:hover:not(.locked) {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 
-              0 0 15px rgba(181, 157, 196, 0.3),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border-color: rgba(181, 157, 196, 0.5);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), 0 5px 8px rgba(0,0,0,0.4);
+  border-color: var(--color-accent-secondary); /* Gold highlight */
 }
 
-/* Enhanced selected state with magical glow */
+/* Selected state */
 .garden-plot.selected:not(.locked) {
-  border: 2px solid var(--color-accent-primary);
-  box-shadow: 0 0 15px rgba(181, 157, 196, 0.6), 
-              inset 0 0 8px rgba(181, 157, 196, 0.3);
+  border: 2px solid var(--color-accent-primary); /* Lavender highlight */
+  box-shadow: 0 0 10px rgba(181, 157, 196, 0.5), inset 0 0 5px rgba(181, 157, 196, 0.2);
   z-index: 2;
 }
 
 .garden-plot.locked {
-  background-color: #2a2a3a;
+  background-color: #4a4660; /* More purple/grey */
   cursor: not-allowed;
-  opacity: 0.7;
-  border-color: rgba(50, 50, 60, 0.5);
+  opacity: 0.8;
+  border-color: #2c2a3e;
 }
 
 .locked-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(1px);
+  border-radius: inherit;
 }
 
-/* Add magical padlock styling */
+/* 90s style lock */
 .lock-icon {
-  font-size: 28px;
+  font-size: 2.5em; /* Larger lock */
   color: #7a6c95;
-  text-shadow: 0 0 8px rgba(122, 108, 149, 0.6);
-  animation: gentle-float 3s infinite ease-in-out;
+  text-shadow: 1px 1px 0 #2c2a3e, -1px -1px 0 #2c2a3e, 1px -1px 0 #2c2a3e, -1px 1px 0 #2c2a3e; /* Pixelated outline */
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
 }
 
-@keyframes gentle-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
+/* Soil visualization (no separate element needed, style the plot bg) */
+/* .plot-soil { Removed - No longer needed } */
 
-/* Improved soil with texture and transition */
-.plot-soil {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30%;
-  border-radius: 0 0 12px 12px;
-  transition: all 0.5s ease;
-  overflow: hidden;
-}
+/* Moisture level styling */
+.garden-plot.dry { background-color: #6d4c41; /* Drier brown */ }
+.garden-plot.dry::before { opacity: 0.3; } /* Less texture */
+.garden-plot.wet { background-color: #3e2723; /* Darker, wetter */ }
+.garden-plot.wet::before { opacity: 0.7; } /* More texture */
+.garden-plot.normal { background-color: #4a3f35; } /* Default */
 
-/* Add soil texture */
-.plot-soil::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgb3BhY2l0eT0iMC4xIj4KICAgIDxjaXJjbGUgY3g9IjUiIGN5PSI1IiByPSIxIiBmaWxsPSIjZmZmIiAvPgogICAgPGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMSIgZmlsbD0iI2ZmZiIgLz4KICAgIDxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjAuNSIgZmlsbD0iI2ZmZiIgLz4KICA8L2c+Cjwvc3ZnPg==');
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-/* Enhanced moisture levels with gradients */
-.garden-plot.dry .plot-soil {
-  background-color: #4e342e;
-  background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
-  background-size: 20px 20px;
-}
-
-.garden-plot.dry .plot-soil::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(211, 125, 44, 0.1), transparent 80%);
-  pointer-events: none;
-}
-
-.garden-plot.wet .plot-soil {
-  background-color: #331f1c;
-  filter: brightness(0.8) saturate(1.2);
-}
-
-.garden-plot.wet .plot-soil::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(111, 166, 204, 0.2), transparent 70%);
-  animation: water-shimmer 4s infinite alternate;
-  pointer-events: none;
-}
-
-@keyframes water-shimmer {
-  from { opacity: 0.3; }
-  to { opacity: 0.6; }
-}
-
-.garden-plot.normal .plot-soil {
-  background-color: #3e2723;
-}
-
-/* Plant visualization styles with improved animations */
+/* Plant visualization - More stylized/pixel-art inspired */
 .plant {
   position: absolute;
-  bottom: 20%;
+  bottom: 15%; /* Position relative to plot */
   left: 50%;
   transform: translateX(-50%);
-  transition: all 0.6s ease;
-  width: 80%;
+  width: 70%; /* Relative size */
   height: 70%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   z-index: 1;
-}
-
-/* Add subtle growth animation */
-.plant {
-  animation: gentle-sway 8s infinite ease-in-out alternate;
-}
-
-@keyframes gentle-sway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  33% { transform: translateX(-51%) rotate(-1deg); }
-  66% { transform: translateX(-49%) rotate(1deg); }
-}
-
-/* Base visual element */
-.plant > div {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: all 0.4s ease;
-}
-
-/* Seedling stage - Cute small beginnings */
-.seedling-visual { 
-  width: 15px; 
-  height: 25px;
-  animation: seedling-appear 1s ease-out;
-}
-
-@keyframes seedling-appear {
-  from { 
-    opacity: 0; 
-    transform: translateX(-50%) translateY(10px) scale(0.5); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateX(-50%) translateY(0) scale(1); 
-  }
-}
-
-.seedling-visual::before { /* Stem */
-  content:''; 
-  position: absolute; 
-  bottom: 0; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 2px; 
-  height: 12px; 
-  background: linear-gradient(to top, #5d8346, #7d8f4c);
-  border-radius: 1px;
-}
-
-.seedling-visual::after { /* Leaves */
-  content:''; 
-  position: absolute; 
-  bottom: 10px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 12px; 
-  height: 6px; 
-  background-color: #90a959;
-  border-radius: 50% 50% 0 0;
-  animation: leaf-wiggle 4s infinite ease-in-out alternate;
-  box-shadow: 0 0 5px rgba(144, 169, 89, 0.3);
-}
-
-@keyframes leaf-wiggle {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  25% { transform: translateX(-50%) rotate(-5deg); }
-  75% { transform: translateX(-50%) rotate(5deg); }
-}
-
-/* Sprout stage - More defined with small animation */
-.sprout-visual { 
-  width: 25px; 
-  height: 35px;
-  animation: sprout-grow 0.8s ease-out;
-}
-
-@keyframes sprout-grow {
-  from { 
-    opacity: 0.7; 
-    transform: translateX(-50%) scale(0.8); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateX(-50%) scale(1); 
-  }
-}
-
-.sprout-visual::before { /* Stem */
-  content:''; 
-  position: absolute; 
-  bottom: 0; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 3px; 
-  height: 20px; 
-  background: linear-gradient(to top, #5d8346, #7d8f4c);
-  border-radius: 1.5px;
-}
-
-.sprout-visual::after { /* Main Leaves */
-  content:''; 
-  position: absolute; 
-  bottom: 18px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 18px; 
-  height: 8px; 
-  background-color: #90a959;
-  border-radius: 50% 50% 0 0;
-  box-shadow: 0 0 8px rgba(144, 169, 89, 0.4);
-}
-
-/* Add extra leaves for sprout */
-.sprout-visual > div:first-child { 
-  position: absolute; 
-  bottom: 21px; 
-  left: 2px; 
-  width: 10px; 
-  height: 6px; 
-  background-color: #85a050;
-  border-radius: 50%; 
-  transform: rotate(-30deg);
-  animation: leaf-left-wiggle 5s infinite ease-in-out alternate;
-}
-
-@keyframes leaf-left-wiggle {
-  0%, 100% { transform: rotate(-30deg); }
-  50% { transform: rotate(-35deg); }
-}
-
-.sprout-visual > div:last-child { 
-  position: absolute; 
-  bottom: 21px; 
-  right: 2px; 
-  width: 10px; 
-  height: 6px; 
-  background-color: #85a050;
-  border-radius: 50%; 
-  transform: rotate(30deg);
-  animation: leaf-right-wiggle 5s infinite ease-in-out alternate;
-}
-
-@keyframes leaf-right-wiggle {
-  0%, 100% { transform: rotate(30deg); }
-  50% { transform: rotate(35deg); }
-}
-
-/* Growing stage - Flourishing with animated leaves */
-.growing-visual { 
-  width: 40px; 
-  height: 50px;
-  animation: growing-sway 6s infinite ease-in-out alternate;
-}
-
-@keyframes growing-sway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  33% { transform: translateX(-50%) rotate(-2deg); }
-  66% { transform: translateX(-50%) rotate(2deg); }
-}
-
-.growing-visual::before { /* Stem */
-  content:''; 
-  position: absolute; 
-  bottom: 0; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 4px; 
-  height: 35px; 
-  background: linear-gradient(to top, #5d8346, #7d8f4c);
-  border-radius: 2px;
-}
-
-.growing-visual::after { /* Main Leaves */
-  content:''; 
-  position: absolute; 
-  bottom: 25px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 25px; 
-  height: 12px; 
-  background-color: #90a959;
-  border-radius: 50% 50% 30% 30% / 100% 100% 0% 0%;
-  box-shadow: 0 0 10px rgba(144, 169, 89, 0.4);
-  animation: leaves-pulse 4s infinite ease-in-out alternate;
-}
-
-@keyframes leaves-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.05); }
-}
-
-/* Add extra leaves */
-.growing-visual > div:first-child { 
-  position: absolute; 
-  bottom: 30px; 
-  left: 50%; 
-  transform: translateX(-50%) scale(0.8) rotate(45deg);
-  width: 20px; 
-  height: 10px; 
-  background-color: #85a050;
-  border-radius: inherit;
-  animation: rotate-leaf-1 7s infinite ease-in-out alternate;
-}
-
-@keyframes rotate-leaf-1 {
-  0%, 100% { transform: translateX(-50%) scale(0.8) rotate(45deg); }
-  50% { transform: translateX(-50%) scale(0.85) rotate(50deg); }
-}
-
-.growing-visual > div:last-child { 
-  position: absolute; 
-  bottom: 28px; 
-  left: 50%; 
-  transform: translateX(-50%) scale(0.8) rotate(-45deg);
-  width: 20px; 
-  height: 10px; 
-  background-color: #85a050;
-  border-radius: inherit;
-  animation: rotate-leaf-2 7s infinite ease-in-out alternate;
-}
-
-@keyframes rotate-leaf-2 {
-  0%, 100% { transform: translateX(-50%) scale(0.8) rotate(-45deg); }
-  50% { transform: translateX(-50%) scale(0.85) rotate(-50deg); }
-}
-
-/* Maturing stage - Almost ready with more complex animations */
-.maturing-visual { 
-  width: 55px; 
-  height: 70px;
-  animation: mature-sway 7s infinite ease-in-out alternate;
-}
-
-@keyframes mature-sway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  33% { transform: translateX(-50%) rotate(-2.5deg); }
-  66% { transform: translateX(-50%) rotate(2.5deg); }
-}
-
-.maturing-visual::before { /* Stem */
-  content:''; 
-  position: absolute; 
-  bottom: 0; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 5px; 
-  height: 50px; 
-  background: linear-gradient(to top, #5d8346, #7d8f4c);
-  border-radius: 2.5px;
-}
-
-/* Leaves */
-.maturing-visual > div:nth-child(1) { 
-  position: absolute; 
-  bottom: 35px; 
-  left: 35%; 
-  transform: translateX(-50%) rotate(-30deg);
-  width: 30px; 
-  height: 15px; 
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  box-shadow: 0 0 8px rgba(144, 169, 89, 0.3);
-  animation: mature-leaf-1 8s infinite ease-in-out alternate;
-}
-
-@keyframes mature-leaf-1 {
-  0%, 100% { transform: translateX(-50%) rotate(-30deg) scale(1); }
-  50% { transform: translateX(-50%) rotate(-34deg) scale(1.05); }
-}
-
-.maturing-visual > div:nth-child(2) { 
-  position: absolute; 
-  left: 65%; 
-  transform: translateX(-50%) rotate(30deg) scaleX(-1);
-  bottom: 40px; 
-  width: 30px; 
-  height: 15px; 
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  box-shadow: 0 0 8px rgba(144, 169, 89, 0.3);
-  animation: mature-leaf-2 8s infinite ease-in-out alternate;
-}
-
-@keyframes mature-leaf-2 {
-  0%, 100% { transform: translateX(-50%) rotate(30deg) scaleX(-1) scale(1); }
-  50% { transform: translateX(-50%) rotate(34deg) scaleX(-1) scale(1.05); }
-}
-
-/* Bud */
-.maturing-visual > div:nth-child(3) { 
-  position: absolute; 
-  top: 15px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  width: 12px; 
-  height: 12px; 
-  background-color: #a58db8;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(181, 157, 196, 0.6);
-  animation: bud-pulse 5s infinite ease-in-out;
-}
-
-@keyframes bud-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 8px rgba(181, 157, 196, 0.6); }
-  50% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 12px rgba(181, 157, 196, 0.8); }
-}
-
-/* Mature stage - Full bloom with magical effects */
-.mature-visual { 
-  width: 70px; 
-  height: 85px;
-  animation: full-plant-sway 8s infinite ease-in-out alternate;
-}
-
-@keyframes full-plant-sway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  33% { transform: translateX(-50%) rotate(-3deg); }
-  66% { transform: translateX(-50%) rotate(3deg); }
-}
-
-.mature-visual::before { /* Stem */
-  content:''; 
-  position: absolute; 
-  bottom: 0; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 6px; 
-  height: 65px; 
-  background: linear-gradient(to top, #4a6c3a, #7d8f4c);
-  border-radius: 3px;
-}
-
-/* Leaves */
-.mature-visual > div:nth-child(1) { 
-  position: absolute; 
-  bottom: 45px; 
-  left: 30%; 
-  transform: translateX(-50%) rotate(-35deg);
-  width: 35px; 
-  height: 20px; 
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  filter: brightness(1.1);
-  box-shadow: 0 0 10px rgba(144, 169, 89, 0.4);
-  animation: full-leaf-1 9s infinite ease-in-out alternate;
-}
-
-@keyframes full-leaf-1 {
-  0%, 100% { transform: translateX(-50%) rotate(-35deg) scale(1); }
-  50% { transform: translateX(-50%) rotate(-38deg) scale(1.05); }
-}
-
-.mature-visual > div:nth-child(2) { 
-  position: absolute; 
-  left: 70%; 
-  transform: translateX(-50%) rotate(35deg) scaleX(-1);
-  bottom: 50px; 
-  width: 35px; 
-  height: 20px; 
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  filter: brightness(1.1);
-  box-shadow: 0 0 10px rgba(144, 169, 89, 0.4);
-  animation: full-leaf-2 9s infinite ease-in-out alternate;
-}
-
-@keyframes full-leaf-2 {
-  0%, 100% { transform: translateX(-50%) rotate(35deg) scaleX(-1) scale(1); }
-  50% { transform: translateX(-50%) rotate(38deg) scaleX(-1) scale(1.05); }
-}
-
-/* Specific mature visuals - these style the 3rd div inside .mature-visual */
-.mature-visual > div:nth-child(3) { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); }
-
-/* Mature Flower - Glowing magical flower */
-.mature-flower { 
-  width: 20px; 
-  height: 20px; 
-  background-color: #b59dc4;
-  border-radius: 50%;
-  box-shadow: 0 0 12px rgba(181, 157, 196, 0.7);
-  animation: flower-bloom 8s infinite ease-in-out;
-}
-
-@keyframes flower-bloom {
-  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 12px rgba(181, 157, 196, 0.7); }
-  50% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 18px rgba(181, 157, 196, 0.9); }
-}
-
-.mature-flower::before, .mature-flower::after { 
-  content:''; 
-  position: absolute; 
-  background-color: #c4b7d7;
-  border-radius: 50%;
-  animation: petals-wave 8s infinite ease-in-out alternate;
-}
-
-@keyframes petals-wave {
-  0%, 100% { transform: rotate(-30deg) scale(1); }
-  50% { transform: rotate(-35deg) scale(1.05); }
-}
-
-.mature-flower::before { 
-  width: 18px; 
-  height: 18px; 
-  top: -4px; 
-  left: -8px; 
-  transform: rotate(-30deg);
-}
-
-.mature-flower::after { 
-  width: 18px; 
-  height: 18px; 
-  top: -4px; 
-  right: -8px; 
-  transform: rotate(30deg);
-  animation-delay: 0.5s;
-}
-
-/* Mature Herb Visual - More lush and animated */
-.mature-herb { 
-  top: 10px !important; 
-  width: 30px; 
-  height: 25px; 
-  background: none;
-  animation: herb-sway 7s infinite ease-in-out alternate;
-}
-
-@keyframes herb-sway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  33% { transform: translateX(-50%) rotate(-5deg); }
-  66% { transform: translateX(-50%) rotate(5deg); }
-}
-
-.mature-herb::before, .mature-herb::after { 
-  content: ''; 
-  position: absolute; 
-  background-color: #90a959;
-  border-radius: 50% 50% 0 0;
-  box-shadow: 0 0 8px rgba(144, 169, 89, 0.4);
-}
-
-.mature-herb::before { 
-  width: 15px; 
-  height: 20px; 
-  top: 0; 
-  left: 0; 
-  transform: rotate(-20deg);
-  animation: herb-left 6s infinite ease-in-out alternate;
-}
-
-@keyframes herb-left {
-  0%, 100% { transform: rotate(-20deg) scale(1); }
-  50% { transform: rotate(-25deg) scale(1.05); }
-}
-
-.mature-herb::after { 
-  width: 15px; 
-  height: 20px; 
-  top: 0; 
-  right: 0; 
-  transform: rotate(20deg);
-  animation: herb-right 6s infinite ease-in-out alternate;
-}
-
-@keyframes herb-right {
-  0%, 100% { transform: rotate(20deg) scale(1); }
-  50% { transform: rotate(25deg) scale(1.05); }
-}
-
-/* Mature Root Visual - With earthy glow */
-.mature-root { 
-  top: 55px !important; 
-  width: 15px; 
-  height: 10px; 
-  background-color: #8a6d3b;
-  border-radius: 3px;
-  box-shadow: 0 0 8px rgba(138, 109, 59, 0.3);
-}
-
-.mature-root::before { 
-  content: ''; 
-  position: absolute; 
-  top: 10px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  width: 20px; 
-  height: 30px; 
-  background-color: #a0844d;
-  border-radius: 0 0 10px 10px;
-  filter: brightness(0.8);
-  box-shadow: 0 0 8px rgba(160, 132, 77, 0.3);
-  animation: root-pulse 5s infinite ease-in-out;
-}
-
-@keyframes root-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.05); }
-}
-
-/* Mature Mushroom Visual - With mystical glow */
-.mature-mushroom { 
-  top: 45px !important; 
-  width: 25px; 
-  height: 18px; 
-  background-color: #a79aad;
-  border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%;
-  box-shadow: 0 0 10px rgba(167, 154, 173, 0.3);
-  animation: mushroom-pulse 5s infinite ease-in-out;
-}
-
-@keyframes mushroom-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 10px rgba(167, 154, 173, 0.3); }
-  50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 15px rgba(167, 154, 173, 0.5); }
-}
-
-.mature-mushroom::before { /* Stem */
-  content: ''; 
-  position: absolute; 
-  bottom: -15px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  width: 8px; 
-  height: 15px; 
-  background-color: #e9e3f0;
-  border-radius: 2px;
-}
-
-/* Mature Fruit Visual - Vibrant with glow */
-.mature-fruit { 
-  top: 30px !important; 
-  width: 18px; 
-  height: 18px; 
-  background: radial-gradient(circle at 30% 30%, #d97f74, #c75e54);
-  border-radius: 50%;
-  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 12px rgba(199, 94, 84, 0.5);
-  animation: fruit-pulse 6s infinite ease-in-out;
-}
-
-@keyframes fruit-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 12px rgba(199, 94, 84, 0.5); }
-  50% { transform: translateX(-50%) scale(1.08); box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(199, 94, 84, 0.7); }
-}
-
-.mature-fruit::before { /* Stem */
-  content: ''; 
-  position: absolute; 
-  top: -5px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  width: 3px; 
-  height: 6px; 
-  background-color: #7d8f4c;
-}
-
-/* Mature Leaf/Succulent - With subtle animation */
-.mature-leaf { 
-  top: 20px !important; 
-  width: 30px; 
-  height: 40px; 
-  background-color: #81a36b;
-  border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%;
-  box-shadow: 0 0 10px rgba(129, 163, 107, 0.3);
-  animation: leaf-wave 10s infinite ease-in-out alternate;
-}
-
-@keyframes leaf-wave {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  25% { transform: translateX(-50%) rotate(-5deg); }
-  75% { transform: translateX(-50%) rotate(5deg); }
-}
-
-.mature-succulent { 
-  top: 30px !important; 
-  width: 35px; 
-  height: 35px; 
-  background: radial-gradient(circle at 30% 30%, #b1d1b4, #a1c1a4);
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(161, 193, 164, 0.4);
-  animation: succulent-pulse 8s infinite ease-in-out;
-}
-
-@keyframes succulent-pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.06); }
-}
-
-/* Health states with improved visual feedback */
-.plant.unhealthy { 
-  filter: saturate(40%) brightness(70%) contrast(1.1);
-  animation: unhealthy-movement 5s infinite ease-in-out;
-}
-
-@keyframes unhealthy-movement {
-  0%, 100% { transform: translateX(-50%) rotate(-1deg); }
-  50% { transform: translateX(-50%) rotate(1deg); }
-}
-
-.plant.fair { 
-  filter: saturate(70%) brightness(85%);
-  animation: fair-movement 6s infinite ease-in-out;
-}
-
-@keyframes fair-movement {
-  0%, 100% { transform: translateX(-50%) rotate(-0.5deg); }
-  50% { transform: translateX(-50%) rotate(0.5deg); }
-}
-
-.plant.healthy { 
-  filter: none;
-  animation: healthy-movement 7s infinite ease-in-out;
-}
-
-@keyframes healthy-movement {
-  0%, 100% { transform: translateX(-50%) rotate(-1deg); }
-  50% { transform: translateX(-50%) rotate(1deg); }
-}
-
-/* Moon blessing effect - more magical and ethereal */
+  image-rendering: pixelated; /* Key for pixel art feel if using images */
+  transition: transform 0.4s ease-out; /* Smooth growth transition */
+}
+
+/* Base visual (can be a div with background-image or nested elements) */
+.plant > div { /* Target the inner visual element */
+  width: 100%;
+  height: 100%;
+  background-size: contain; /* Adjust as needed */
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  position: relative; /* For pseudo-elements */
+}
+
+/* Define stages using background images (example placeholders) */
+/* Replace data URLs with actual pixel art SVGs or PNGs for best results */
+.seedling-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-4h-1v4h-1v1h4v-1h-1zm-1-5h2v-1h-2v1zm1-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M7 9h2v1h-2v-1zm-1-1h4v1h-4v-1z"/></svg>'); }
+.sprout-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-6h-1v6h-1v1h4v-1h-1zm-1-7h2v-1h-2v1zm1-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M6 7h4v1h-4v-1zm-1 1h6v1h-6v-1zm-1 1h8v1h-8v-1z"/></svg>'); }
+.growing-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-8h-1v8h-1v1h4v-1h-1zm-2-9h4v-1h-4v1zm2-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M5 5h6v1h-6v-1zm-1 1h8v1h-8v-1zm-1 1h10v1h-10v-1zm-1 1h12v1h-12v-1z"/></svg>'); }
+.maturing-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-10h-1v10h-1v1h4v-1h-1zm-2-11h4v-1h-4v1zm2-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M5 3h6v1h-6v-1zm-1 1h8v1h-8v-1zm-1 1h10v1h-10v-1zm-1 1h12v1h-12v-1zm-1 1h14v1h-14v-1z"/><path fill="%23b59dc4" d="M7 2h2v1h-2z"/></svg>'); } /* Added bud */
+/* Mature stage will need specific visuals per type */
+.mature-visual {
+  /* Base style, overridden by specific types below */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%235d8346" d="M8 14v-12h-1v12h-1v1h4v-1h-1zm-2-13h4v-1h-4v1zm2-0c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%237eba76" d="M4 1h8v1h-8v-1zm-1 1h10v1h-10v-1zm-1 1h12v1h-12v-1zm-1 1h14v1h-14v-1zm0 1h14v1h-14v-1z"/></svg>');
+}
+
+/* Specific Mature Plant Visuals (Using simple placeholders, replace with actual art) */
+.mature-visual .mature-flower-element {
+    position: absolute;
+    top: 5%; /* Position flower higher */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%; /* Adjust size */
+    height: 40%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23b59dc4" d="M8 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-1c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3 1.3-3 3-3z"/><path fill="%23d6a44c" d="M8 5c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+/* Add styles for .mature-herb-element, .mature-root-element etc. */
+
+/* Health states using filters (subtle) */
+.plant.unhealthy > div { filter: saturate(60%) brightness(80%); }
+.plant.fair > div { filter: saturate(85%) brightness(95%); }
+.plant.healthy > div { filter: none; }
+
+/* Moon blessing effect - subtle pixel shimmer */
 .moon-blessing-effect {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 140%;
-  height: 140%;
-  background: radial-gradient(
-    circle at center,
-    rgba(229, 225, 241, 0.4) 0%,
-    rgba(229, 225, 241, 0.2) 40%,
-    rgba(229, 225, 241, 0) 70%
-  );
-  border-radius: 50%;
-  animation: moon-pulse 4s infinite ease-in-out;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: radial-gradient(circle, rgba(229, 225, 241, 0.3) 1px, transparent 1px);
+  background-size: 5px 5px; /* Pixel grid */
+  animation: moon-shimmer 1s steps(2, end) infinite;
+  opacity: 0.7;
+  z-index: 2;
   pointer-events: none;
-  z-index: -1;
-  mix-blend-mode: screen;
 }
 
-@keyframes moon-pulse {
-  0% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.9); filter: blur(5px); }
-  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); filter: blur(3px); }
-  100% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.9); filter: blur(5px); }
+@keyframes moon-shimmer {
+  0% { background-position: 0 0; }
+  50% { background-position: 2px 2px; }
 }
 
-/* Add floating moon particles */
-.moon-blessing-effect::before,
-.moon-blessing-effect::after {
-  content: '';
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  background-color: rgba(229, 225, 241, 0.7);
-  border-radius: 50%;
-  animation: moon-particle 8s infinite ease-in-out;
-  opacity: 0;
-}
-
-.moon-blessing-effect::before {
-  top: 30%;
-  left: 70%;
-  animation-delay: 1s;
-}
-
-.moon-blessing-effect::after {
-  top: 60%;
-  left: 40%;
-  animation-delay: 2s;
-}
-
-@keyframes moon-particle {
-  0%, 100% { 
-    opacity: 0; 
-    transform: translateY(0) scale(0.5); 
-  }
-  25%, 75% { 
-    opacity: 0.8; 
-    transform: translateY(-15px) scale(1); 
-  }
-  50% { 
-    opacity: 0.5; 
-    transform: translateY(-25px) scale(0.8); 
-  }
-}
-
-/* Plot status indicators with improved visuals */
+/* Plot status icons - Pixelated text/symbols */
 .plot-status {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 4px;
+  right: 4px;
   z-index: 5;
   display: flex;
   flex-direction: column;
@@ -837,58 +162,49 @@
 }
 
 .status-icon {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 2px; /* Pixel blocky */
   font-size: 12px;
-  color: #1a1a24;
+  font-family: 'Courier New', Courier, monospace; /* Monospace for pixel feel */
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  line-height: 1;
+  border: 1px solid #2c2a3e;
+  text-shadow: none; /* Crisper text */
+  image-rendering: pixelated;
 }
 
 .status-icon:hover {
-  transform: scale(1.2);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
 }
 
-.status-icon.ready-to-harvest { 
-  background: linear-gradient(to bottom, #98d691, #7eba76);
-  animation: harvest-pulse 2s infinite alternate;
+/* Use ::before for content to allow background colors */
+.status-icon::before {
+  display: block;
+  line-height: 1; /* Ensure icon fits */
 }
 
-@keyframes harvest-pulse {
-  from { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 rgba(126, 186, 118, 0); }
-  to { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(126, 186, 118, 0.6); }
-}
+.status-icon.ready-to-harvest { background-color: var(--color-success); color: #1e401b; }
+.status-icon.needs-water { background-color: var(--color-info); color: #1d3c50; }
+.status-icon.empty-plot { background-color: var(--color-border); color: var(--color-bg-dark); }
 
-.status-icon.needs-water { 
-  background: linear-gradient(to bottom, #7a9dce, #6fa6cc);
-  animation: water-drop 2s infinite;
-}
+.status-icon.ready-to-harvest::before { content: '✓'; }
+.status-icon.needs-water::before { content: '~'; } /* Water drop is hard in pixel text */
+.status-icon.empty-plot::before { content: '+'; }
 
-@keyframes water-drop {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
-}
-
-.status-icon.empty-plot { 
-  background: linear-gradient(to bottom, #5d468a, #483d66);
-  color: #e9e3f0;
-}
 
 /* Placeholder for empty grid slots */
 .garden-plot.placeholder {
   background-color: transparent;
-  border: 1px dashed #483d66;
+  border: 1px dashed var(--color-border);
   box-shadow: none;
   cursor: default;
 }
-
-.garden-plot.placeholder:hover {
-  transform: none;
-}
+.garden-plot.placeholder::before { display: none; } /* Hide texture */
+.garden-plot.placeholder:hover { transform: none; }

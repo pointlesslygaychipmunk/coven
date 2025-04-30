@@ -1,133 +1,176 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import './WeatherEffectsOverlay.css';
-import { WeatherFate, Season } from 'coven-shared'; // Use shared types
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import './WeatherEffectsOverlay.css'; // Ensure this uses the new styles
+// Import base WeatherFate and Season from shared
+import { WeatherFate as BaseWeatherFate, Season } from 'coven-shared';
 
-type TimeOfDay = 'day' | 'night'; // Keep local or move to shared if needed globally
+// Extend WeatherFate locally to include the new types for comparison
+// Ideally, update this in coven-shared itself
+type ExtendedWeatherFate = BaseWeatherFate | 'snowy' | 'magical'; // Added 'snowy' and 'magical'
+
+type TimeOfDay = 'day' | 'night';
 type Intensity = 'light' | 'medium' | 'heavy';
 
 interface WeatherEffectsOverlayProps {
-  weatherType: WeatherFate;
+  weatherType: ExtendedWeatherFate; // Use the extended type
   intensity?: Intensity;
-  timeOfDay?: TimeOfDay; // Make optional, default to day?
-  season?: Season; // Make optional, default to Spring?
+  timeOfDay?: TimeOfDay;
+  season?: Season;
 }
+
+// Helper to generate random number in range
+const random = (min: number, max: number) => Math.random() * (max - min) + min;
 
 const WeatherEffectsOverlay: React.FC<WeatherEffectsOverlayProps> = ({
   weatherType,
   intensity = 'medium',
-  timeOfDay = 'day', // Default to day
-  season = 'Spring' // Default to Spring
+  timeOfDay = 'day',
+  season = 'Spring'
 }) => {
   const [thunderFlash, setThunderFlash] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null); // Ref for container dimensions
 
   // Memoize particle count calculation
   const particleCount = useMemo(() => {
-    const baseCount = { light: 25, medium: 60, heavy: 120 }[intensity] || 60;
+    const baseCount = { light: 30, medium: 70, heavy: 150 }[intensity] || 70;
     let modifier = 1.0;
 
-    // Adjust count based on weather type and season for realism
-    if ((weatherType === 'rainy' || weatherType === 'stormy') && season === 'Spring') modifier = 1.3;
-    if ((weatherType === 'windy') && season === 'Fall') modifier = 1.4;
-    if ((weatherType === 'foggy') && season === 'Fall') modifier = 1.2;
-    if ((weatherType === 'normal' || weatherType === 'clear') && timeOfDay === 'night') return 100; // Fixed star count
+    if ((weatherType === 'rainy' || weatherType === 'stormy') && season === 'Spring') modifier = 1.2;
+    if (weatherType === 'windy' && season === 'Fall') modifier = 1.3;
+    if (weatherType === 'snowy' && season === 'Winter') modifier = 1.2;
+    if ((weatherType === 'clear' || weatherType === 'normal') && timeOfDay === 'night') return 100; // Fixed star count
 
-    return Math.round(baseCount * modifier);
+    return Math.max(10, Math.round(baseCount * modifier)); // Ensure minimum count
   }, [intensity, season, weatherType, timeOfDay]);
 
-  // Generate particles based on weather type
+  // Generate particles - more detailed properties
   const particles = useMemo(() => {
     const newParticles: React.ReactNode[] = [];
-    const type = weatherType; // Alias for clarity
+    const type: ExtendedWeatherFate = weatherType; // Use extended type here
 
-    if (type === 'rainy' || type === 'stormy') {
-      for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < particleCount; i++) {
+      const delay = random(0, 5); // Wider delay range
+      const duration = random(1, 3); // Base duration
+
+      if (type === 'rainy' || type === 'stormy') {
         newParticles.push(
           <div key={`rain-${i}`} className="rain-drop" style={{
-            left: `${Math.random() * 105 - 5}%`, // Allow slight offscreen start
-            animationDelay: `${Math.random() * 1.5}s`,
-            animationDuration: `${0.6 + Math.random() * 0.5}s`
+            left: `${random(-5, 105)}%`,
+            animationDelay: `${delay}s`,
+            animationDuration: `${random(0.6, 1.3)}s` // Slightly varied fall speed
           }}/>
         );
-      }
-    } else if (type === 'windy') {
-      for (let i = 0; i < particleCount; i++) {
+      } else if (type === 'windy') {
         newParticles.push(
           <div key={`wind-${i}`} className="wind-particle" style={{
-            top: `${Math.random() * 100}%`,
-            opacity: 0.1 + Math.random() * 0.3,
-            animationDelay: `${Math.random() * 4}s`,
-            animationDuration: `${1.5 + Math.random() * 2.5}s`
+            top: `${random(0, 100)}%`,
+            left: `${random(-20, 80)}%`, // Adjusted start
+            opacity: random(0.1, 0.4), // More subtle
+            animationDelay: `${delay}s`,
+            animationDuration: `${duration + 1}s` // Longer duration
           }}/>
         );
-      }
-    } else if ((type === 'clear' || type === 'normal') && timeOfDay === 'night') {
-       for (let i = 0; i < particleCount; i++) { // Use particleCount for stars too
-          const size = `${0.8 + Math.random() * 1.5}px`; // Slightly larger stars
+      } else if ((type === 'clear' || type === 'normal') && timeOfDay === 'night') {
+        const size = random(1, 2.5); // Pixel size variation
+        newParticles.push(
+          <div key={`star-${i}`} className="star" style={{
+            top: `${random(0, 100)}%`, left: `${random(0, 100)}%`,
+            width: `${size}px`, height: `${size}px`,
+            animationDelay: `${random(0, 15)}s`,
+            animationDuration: `${random(5, 15)}s`
+          }}/>
+        );
+      } else if (type === 'snowy') { // Comparison is now valid with ExtendedWeatherFate
+          const size = random(3, 6);
           newParticles.push(
-             <div key={`star-${i}`} className="star" style={{
-                top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
-                width: size, height: size,
-                animationDelay: `${Math.random() * 6}s`, // Longer delay variation
-                animationDuration: `${3 + Math.random() * 4}s` // Longer duration variation
-             }}/>
+              <div key={`snow-${i}`} className="snowflake" style={{
+                  left: `${random(-10, 110)}%`,
+                  width: `${size}px`, height: `${size}px`,
+                  opacity: random(0.6, 1.0),
+                  animationDelay: `${random(0, 10)}s`,
+                  animationDuration: `${random(10, 18)}s`,
+                  '--x-drift': `${random(-40, 40)}px` // CSS variable for drift
+              } as React.CSSProperties}/>
           );
-       }
+      } else if (type === 'dry' && season === 'Summer') {
+           const size = random(1, 3);
+           newParticles.push(
+               <div key={`dust-${i}`} className="dust-particle" style={{
+                   top: `${random(10, 90)}%`, // Allow higher/lower start
+                   left: `${random(0, 100)}%`,
+                   width: `${size}px`, height: `${size}px`,
+                   opacity: random(0.1, 0.3), // Subtler dust
+                   animationDelay: `${random(0, 12)}s`,
+                   animationDuration: `${random(12, 25)}s`,
+                   '--x-drift': `${random(-60, 60)}px`,
+                   '--y-drift': `${random(-30, 30)}px`,
+                   '--max-opacity': random(0.2, 0.4) // Random max opacity per particle
+               } as React.CSSProperties}/>
+           );
+      } else if (type === 'magical') { // Comparison is now valid with ExtendedWeatherFate
+           const size = random(3, 7); // Slightly larger magical particles
+           newParticles.push(
+               <div key={`magic-${i}`} className="mist-particle" style={{
+                    top: `${random(0, 100)}%`,
+                    left: `${random(0, 100)}%`,
+                    width: `${size}px`, height: `${size}px`,
+                    animationDelay: `${random(0, 10)}s`,
+                    animationDuration: `${random(10, 20)}s`,
+               } as React.CSSProperties}/>
+           );
+      }
     }
-    // Add Snow particles if needed
-    // else if (type === 'snow') { ... }
-
     return newParticles;
-  }, [weatherType, timeOfDay, particleCount]);
+  }, [weatherType, timeOfDay, particleCount, season]); // Include season
 
-  // Trigger thunder flashes for stormy weather
+  // Trigger thunder flashes
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (weatherType === 'stormy') {
       intervalId = setInterval(() => {
-        if (Math.random() < 0.15) { // 15% chance per interval
+        if (Math.random() < 0.18) { // Slightly more frequent
           setThunderFlash(true);
-          setTimeout(() => setThunderFlash(false), 150); // Short flash duration
+          setTimeout(() => setThunderFlash(false), random(80, 200));
         }
-      }, 3000 + Math.random() * 4000); // Random interval between 3-7 seconds
+      }, random(2000, 5000));
     }
-
     return () => {
       if (intervalId) clearInterval(intervalId);
-      setThunderFlash(false); // Ensure flash is off on unmount/weather change
+      setThunderFlash(false);
     };
   }, [weatherType]);
 
   // Determine the main CSS class for the overlay
-  const overlayClass = `weather-overlay ${weatherType} ${intensity} ${timeOfDay}`;
+  const overlayClass = `weather-overlay weather-${weatherType} intensity-${intensity} time-${timeOfDay} season-${season.toLowerCase()}`;
 
   return (
-    <div className={overlayClass}>
-      {/* Base time of day tint */}
-      <div className={`time-overlay ${timeOfDay}`} />
+    <div ref={containerRef} className={overlayClass}>
+      {/* Base time/season tint overlays */}
+      <div className={`time-overlay time-${timeOfDay}`} />
+      <div className={`seasonal-overlay season-${season.toLowerCase()}-overlay`} />
 
-      {/* Base seasonal tint */}
-      <div className={`seasonal-overlay ${season.toLowerCase()}-overlay`} />
+      {/* Weather-specific particle containers */}
+      {(type => {
+        switch (type) {
+          case 'rainy':
+          case 'stormy': return <div className="rain-container">{particles}</div>;
+          case 'windy': return <div className="wind-container">{particles}</div>;
+          case 'snowy': return <div className="snow-container">{particles}</div>;
+          case 'clear':
+          case 'normal': return timeOfDay === 'night' ? <div className="clear-night-overlay">{particles}</div> : null;
+          case 'dry': return season === 'Summer' ? <div className="dust-container">{particles}</div> : null;
+          case 'magical': return <div className="magical-mist-container">{particles}</div>;
+          default: return null;
+        }
+      })(weatherType)}
 
-      {/* Weather-specific particle containers / effects */}
-      {(weatherType === 'rainy' || weatherType === 'stormy') && (
-        <div className="rain-container">{particles}</div>
-      )}
-       {(weatherType === 'windy') && (
-        <div className="wind-container">{particles}</div>
-      )}
-       {(weatherType === 'clear' || weatherType === 'normal') && timeOfDay === 'night' && (
-        <div className="clear-night-overlay">{particles}</div>
-      )}
-
-      {/* Full screen overlays (fog, clouds, etc.) */}
+      {/* Full screen overlays */}
       {weatherType === 'foggy' && <div className="fog-container" />}
-      {weatherType === 'cloudy' && <div className="cloud-overlay" />}
-       {(weatherType === 'stormy') && <div className="cloud-overlay heavy" />} {/* Heavier clouds for storm */}
-       {weatherType === 'dry' && <div className="dry-overlay" />}
-       {/* {weatherType === 'magical' && <div className="magical-mist" />} // Uncomment if needed */}
+      {(weatherType === 'cloudy' || weatherType === 'stormy') && <div className={`cloud-overlay ${weatherType === 'stormy' ? 'heavy' : ''}`} />}
+      {weatherType === 'dry' && <div className="dry-overlay" />}
+      {weatherType === 'magical' && <div className="magical-mist" />}
 
-       {/* Thunder flash sits on top */}
-       {thunderFlash && <div className="thunder-flash" />}
+      {/* Thunder flash on top */}
+      {thunderFlash && <div className="thunder-flash" />}
     </div>
   );
 };

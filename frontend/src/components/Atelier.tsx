@@ -1,160 +1,136 @@
 import React, { useState, useEffect } from 'react';
-import './Atelier.css';
-import LunarPhaseIcon from './LunarPhaseIcon'; // Assuming LunarPhaseIcon exists and works
-import { InventoryItem, BasicRecipeInfo, AtelierSpecialization, MoonPhase, ItemType, ItemCategory, Rarity } from 'coven-shared'; // Use shared types
+import './Atelier.css'; // Ensure this uses the new styles
+import LunarPhaseIcon from './LunarPhaseIcon';
+import { InventoryItem, BasicRecipeInfo, AtelierSpecialization, MoonPhase, ItemType, ItemCategory, Rarity } from 'coven-shared';
 
 // Define the AtelierTab type
-type AtelierTab = 'potions' | 'charm' | 'talisman';
+type AtelierTab = 'charm' | 'talisman' | 'tool'; // Added tool example
 
-// Define a local type for potential crafting results if needed
-// This might be fetched or derived from known recipes
-interface CraftingResult {
-    id: string;
+// Simplified CraftingResult for frontend display
+interface CraftingResultDisplay {
+    id: string; // Recipe/Result Item ID
     name: string;
     description: string;
-    type: ItemType; // Use shared ItemType
-    category: ItemCategory; // Use shared ItemCategory
-    rarity: Rarity; // Use shared Rarity
-    imagePath?: string;
-    lunarRestriction?: MoonPhase; // Use shared type
-    levelRequirement?: number; // Optional level restriction
+    type: ItemType;
+    category: ItemCategory;
+    rarity: Rarity;
+    // Add image placeholder if needed
+    levelRequirement?: number;
 }
 
 interface AtelierProps {
-  playerItems: InventoryItem[]; // Use InventoryItem type
-  // Expects ingredient IDs and the *intended* result ID
-  onCraftItem: (ingredientIds: string[], resultItemId: string) => void;
-  lunarPhase: MoonPhase; // Use shared type
+  playerItems: InventoryItem[];
+  onCraftItem: (ingredientInvItemIds: string[], resultItemId: string) => void; // Pass *inventory* IDs of used items
+  lunarPhase: MoonPhase;
   playerLevel: number;
-  playerSpecialization?: AtelierSpecialization; // Optional: Pass player specialization for bonuses
-  knownRecipes?: BasicRecipeInfo[]; // Optional: Pass known recipes
+  playerSpecialization?: AtelierSpecialization;
+  knownRecipes?: BasicRecipeInfo[];
 }
 
 const Atelier: React.FC<AtelierProps> = ({
-  playerItems = [], // Default prop
+  playerItems = [],
   onCraftItem,
   lunarPhase,
   playerLevel,
-  playerSpecialization, // Use the prop
-  knownRecipes = [] // Default to empty array
+  playerSpecialization,
+  knownRecipes = []
 }) => {
-  const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
-  const [possibleResults, setPossibleResults] = useState<CraftingResult[]>([]);
-  const [activeTab, setActiveTab] = useState<AtelierTab>('potions');
+  const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]); // Store selected inventory item *instances*
+  const [possibleResults, setPossibleResults] = useState<CraftingResultDisplay[]>([]);
+  const [activeTab, setActiveTab] = useState<AtelierTab>('charm'); // Default tab
 
-   // Function to check if an item can be selected (has quantity > 0)
-   const canSelectItem = (item: InventoryItem): boolean => {
-    // Allow selection if the item is not already selected OR if player has more than the currently selected count
-     const selectedCount = selectedItems.filter(sel => sel.id === item.id).length;
-     return item.quantity > selectedCount;
-   }
+  // Function to check if an item instance can be selected
+  const canSelectItem = (item: InventoryItem): boolean => {
+    const selectedCount = selectedItems.filter(sel => sel.id === item.id).length;
+    return item.quantity > selectedCount;
+  }
 
-  // Calculate possible crafting results based on selected ingredients and known recipes
+  // Find possible crafts based on selected ingredients (using base IDs for recipe matching)
   useEffect(() => {
     if (selectedItems.length === 0) {
       setPossibleResults([]);
       return;
     }
 
-    const selectedIds = selectedItems.map(item => item.baseId); // Use BASE IDs for checking against recipes
+    const selectedBaseIds = selectedItems.map(item => item.baseId); // Use BASE IDs for recipe lookup
 
-    // Simulate finding recipes based on selected ingredients
     // --- Placeholder Crafting Logic ---
-    // Replace with backend API call: POST /api/atelier/check { ingredientBaseIds } -> returns CraftingResult[]
-    const findPotentialCrafts = (ingredientBaseIds: string[]): CraftingResult[] => {
-        const results: CraftingResult[] = [];
-        // Example: Simple 2-ingredient check (replace with real logic/API call)
-        if (ingredientBaseIds.length === 2) {
-             // We're not using these variables, so we can remove them
-             // const item1Base = playerItems.find(i => i.baseId === ingredientBaseIds[0]);
-             // const item2Base = playerItems.find(i => i.baseId === ingredientBaseIds[1]);
+    // In a real app, this would likely be an API call:
+    // fetch('/api/atelier/check', { method: 'POST', body: JSON.stringify({ ingredientBaseIds: selectedBaseIds }) })
+    const findPotentialCrafts = (/* ingredientBaseIds: string[] */): CraftingResultDisplay[] => { // Removed unused parameter
+        const results: CraftingResultDisplay[] = [];
+        // Basic check against known recipes
+        knownRecipes.forEach(known => {
+            // TODO: Implement actual recipe matching logic based on known.ingredients
+            // This is a very simplified placeholder check: Needs ingredient matching!
+            const recipeMatchesSelection = true; // Replace with real check based on known.ingredients and selectedBaseIds!
 
-            // Use knownRecipes prop if available (basic check)
-            knownRecipes.forEach(known => {
-                 // Weak check - needs improvement based on actual recipe structure
-                 if (known.type === 'charm' && activeTab === 'charm') {
-                      results.push({ id: known.id, name: known.name, description: known.description || "A charm...", type: 'charm', category: 'charm', rarity: 'common' });
-                 } else if (known.type === 'talisman' && activeTab === 'talisman') {
-                     results.push({ id: known.id, name: known.name, description: known.description || "A talisman...", type: 'talisman', category: 'talisman', rarity: 'common' });
-                 }
-                 // Add potion logic if needed, though Brewing component handles that primarily
-            });
+            if (recipeMatchesSelection) {
+                // Check if recipe type matches the active tab
+                if ((activeTab === 'charm' && known.type === 'charm') ||
+                    (activeTab === 'talisman' && known.type === 'talisman') ||
+                    (activeTab === 'tool' && known.type === 'tool') ) { // Add other types as needed
+                     results.push({
+                         id: known.id, // ID of the item to be created
+                         name: known.name,
+                         description: known.description || "A crafted item.",
+                         type: known.type as ItemType, // Cast assuming knownRecipe has compatible type
+                         category: known.category as ItemCategory, // Cast assuming knownRecipe has compatible category
+                         rarity: (known as any).rarity || 'common', // TODO: Get rarity from knownRecipe if available, cast needed if not in BasicRecipeInfo
+                         levelRequirement: (known as any).levelRequirement // If available
+                     });
+                }
+            }
+        });
 
-            // Default discovery placeholders (using base IDs now)
-             if (ingredientBaseIds.includes('ing_moonbud') && ingredientBaseIds.includes('ing_silverleaf')) {
-                 results.push({ id: 'charm_moon_silver', name: 'Moon Silver Charm', description: 'A charm shimmering with lunar and silver light.', type: 'charm', category: 'charm', rarity: 'uncommon' });
-             }
-             if (ingredientBaseIds.includes('ing_ancient_ginseng') && ingredientBaseIds.includes('ing_emberberry')) {
-                 results.push({ id: 'talisman_ginseng_ember', name: 'Ginseng Ember Talisman', description: 'A talisman radiating warmth and vitality.', type: 'talisman', category: 'talisman', rarity: 'rare', levelRequirement: 5 });
-             }
-        } else if (ingredientBaseIds.length === 3) {
-             // Example 3-ingredient craft
-              if (ingredientBaseIds.includes('ing_ancient_ginseng') && ingredientBaseIds.includes('ing_moonbud') && selectedItems.some(i => i.baseId === 'tool_glass_vial')) { // Check if a vial *instance* is selected
-                   results.push({ id: 'potion_potent_ginseng_essence', name: 'Potent Ginseng Essence', description: 'A highly concentrated essence.', type: 'potion', category: 'essence', rarity: 'rare', levelRequirement: 8 });
-              }
+        // Example hardcoded discoveries (can be removed if using recipes only)
+        if (selectedBaseIds.length === 2 && selectedBaseIds.includes('ing_moonbud') && selectedBaseIds.includes('ing_silverleaf') && activeTab === 'charm') {
+            results.push({ id: 'charm_moon_silver', name: 'Moon Silver Charm', description: 'Shimmers with lunar light.', type: 'charm', category: 'charm', rarity: 'uncommon' });
         }
+        if (selectedBaseIds.length === 3 && selectedBaseIds.includes('misc_wood_birch') && selectedBaseIds.includes('gem_quartz') && selectedBaseIds.includes('tool_knife') && activeTab === 'talisman') {
+             results.push({ id: 'talisman_birch_quartz', name: 'Carved Birch Talisman', description: 'A simple protective talisman.', type: 'talisman', category: 'talisman', rarity: 'common' });
+        }
+
+
         return results;
     };
+    // --- End Placeholder ---
 
-    const potentialResults = findPotentialCrafts(selectedIds);
+    const potentialResults = findPotentialCrafts(/* selectedBaseIds */); // Pass if needed by actual logic
 
-    // Filter results based on current lunar phase and level if relevant
+    // Filter based on level etc.
     const filteredResults = potentialResults.filter(result => {
-      if (result.lunarRestriction && result.lunarRestriction !== lunarPhase) return false;
       if (result.levelRequirement && result.levelRequirement > playerLevel) return false;
-       // Filter by active tab
-       if (activeTab === 'potions' && result.type !== 'potion') return false;
-       if (activeTab === 'charm' && result.type !== 'charm') return false;
-       if (activeTab === 'talisman' && result.type !== 'talisman') return false;
+      // Add lunar phase checks if needed based on recipe data
       return true;
     });
 
     setPossibleResults(filteredResults);
 
-  }, [selectedItems, knownRecipes, lunarPhase, playerLevel, playerItems, activeTab]); // Add dependencies
+  }, [selectedItems, knownRecipes, lunarPhase, playerLevel, activeTab]); // Rerun on tab change
 
   const handleItemSelect = (item: InventoryItem) => {
-    // Allow selecting tools or other non-ingredients if needed by recipes
-    // if (item.type !== 'ingredient') return;
+    if (!canSelectItem(item)) return;
+    if (selectedItems.length >= 3) return; // Max 3 components for now
 
-     const canAdd = canSelectItem(item);
-     if (!canAdd) {
-         console.log(`Cannot select more ${item.name}, only ${item.quantity} available.`);
-         return; // Don't add if player doesn't have enough
-     }
-
-    // Limit selection size (e.g., max 3)
-     if (selectedItems.length >= 3) {
-         console.log("Max 3 items allowed for crafting.");
-         return;
-     }
-
-    // Add the item (we track instances, so duplicates are allowed if quantity permits)
     setSelectedItems([...selectedItems, item]);
   };
 
   const handleItemRemove = (indexToRemove: number) => {
-     const newSelection = [...selectedItems];
-     newSelection.splice(indexToRemove, 1);
-     setSelectedItems(newSelection);
+    setSelectedItems(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleCraft = (result: CraftingResult) => {
-    const ingredientIds = selectedItems.map(item => item.id); // Pass the unique inventory item IDs
-    console.log(`Attempting craft for: ${result.name} using [${ingredientIds.join(', ')}]`);
-
-    // Call the backend interaction function via props
-    // Pass the IDs of the ingredients used and the ID of the intended result item
-    onCraftItem(ingredientIds, result.id); // Pass result.id instead of the whole object
-
-    // Clear selected items optimisticly (or wait for state update from parent)
-    setSelectedItems([]);
+  const handleCraft = (result: CraftingResultDisplay) => {
+    // We need to pass the specific inventory item IDs used, not just the base IDs
+    const ingredientInvItemIds = selectedItems.map(item => item.id);
+    onCraftItem(ingredientInvItemIds, result.id); // Pass inventory IDs and the ID of the item to create
+    setSelectedItems([]); // Optimistic clear
   };
 
-  // Filter player inventory to show only usable ingredients/items
-  const availableIngredients = playerItems.filter(
-      item => (item.type === 'ingredient' || item.type === 'tool' || item.type === 'ritual_item') && item.quantity > 0 // Allow tools etc.
-  );
+  // Filter inventory for display (ingredients, tools, gems, etc.)
+  const availableComponents = playerItems.filter(
+      item => ['ingredient', 'tool', 'gem', 'misc', 'ritual_item'].includes(item.type) && item.quantity > 0 // Expand allowed types
+  ).sort((a,b) => a.name.localeCompare(b.name));
 
 
   return (
@@ -162,42 +138,42 @@ const Atelier: React.FC<AtelierProps> = ({
       <div className="atelier-header">
         <h2>Witch's Atelier {playerSpecialization && <span className='spec-badge'>({playerSpecialization})</span>}</h2>
         <div className="phase-indicator">
-          <LunarPhaseIcon phase={lunarPhase} size={30} />
+          <LunarPhaseIcon phase={lunarPhase} size={24} /> {/* Smaller icon */}
           <span>{lunarPhase}</span>
         </div>
       </div>
 
       <div className="atelier-workspace">
-        {/* Ingredients Panel */}
+        {/* Ingredients/Components Panel */}
         <div className="ingredients-panel">
-          <h3>Available Components</h3>
+          <h3>Components</h3>
           <div className="ingredient-list">
-            {availableIngredients.length > 0 ? (
-              availableIngredients.map(item => {
+            {availableComponents.length > 0 ? (
+              availableComponents.map(item => {
                  const isSelectable = canSelectItem(item);
                  const selectedCount = selectedItems.filter(sel => sel.id === item.id).length;
-                 const isSelectedInstanceCount = selectedItems.filter(sel => sel.baseId === item.baseId).length; // Count how many of this *type* are selected
+                 const isCurrentlySelected = selectedItems.some(sel => sel.id === item.id); // Is this specific instance selected?
 
                  return (
                     <div
                       key={item.id} // Use the unique inventory ID as key
-                      className={`ingredient-item ${!isSelectable ? 'disabled' : ''} ${isSelectedInstanceCount > 0 ? 'selected-dim' : ''}`} // Dim if any instance of this baseId is selected
+                      className={`ingredient-item ${!isSelectable && !isCurrentlySelected ? 'disabled' : ''} ${isCurrentlySelected ? 'selected-dim' : ''}`} // Dim if selected, disable if cannot select more
                       onClick={isSelectable ? () => handleItemSelect(item) : undefined}
-                      title={isSelectable ? `${item.name}\nQty: ${item.quantity}\nQuality: ${item.quality || 'N/A'}%` : `Not enough ${item.name} available (Need ${selectedCount+1}, Have ${item.quantity})`}
+                      title={isSelectable ? `${item.name} (Qty: ${item.quantity})` : `Not enough ${item.name}`}
                     >
                       <div className="item-image">
-                        {/* Placeholder Image Logic */}
                          <div className="placeholder-image">{item.name.charAt(0).toUpperCase()}</div>
+                         {/* Actual image would go here */}
                       </div>
                       <div className="item-name">{item.name}</div>
-                       <div className="item-quantity">x{item.quantity}</div>
-                       {/* Display selected count */}
-                        {isSelectedInstanceCount > 0 && <div className="selected-count-badge">{isSelectedInstanceCount}</div>}
+                       <div className="item-quantity">x{item.quantity}</div> {/* Show total quantity */}
+                       {/* Selected count badge (optional) */}
+                       {selectedCount > 0 && <div className="selected-count-badge">{selectedCount}</div>}
                     </div>
                  );
               })
             ) : (
-                 <p className="no-ingredients">No ingredients in inventory.</p>
+                 <p className="no-ingredients">No components available.</p>
             )}
           </div>
         </div>
@@ -205,7 +181,7 @@ const Atelier: React.FC<AtelierProps> = ({
         {/* Crafting Area */}
         <div className="crafting-area">
           <h3>Crafting Bench</h3>
-          <div className="cauldron"> {/* Reusing cauldron style for now */}
+          <div className="cauldron"> {/* Reusing class, styled as bench in CSS */}
             {selectedItems.length > 0 ? (
               <div className="selected-ingredients">
                 {selectedItems.map((item, index) => ( // Use index for unique key when duplicates allowed
@@ -219,41 +195,40 @@ const Atelier: React.FC<AtelierProps> = ({
                     <span className="remove-item">×</span>
                   </div>
                 ))}
+                 {/* Fill remaining slots visually */}
+                 {Array.from({ length: 3 - selectedItems.length }).map((_, i) => (
+                     <div key={`slot-${i}`} className="selected-item placeholder-slot"></div>
+                 ))}
               </div>
             ) : (
               <div className="empty-cauldron">
-                Add up to 3 components<br/>to see possible crafts
+                Place up to 3 components here...
               </div>
             )}
           </div>
-           {/* Clear Button */}
-            {selectedItems.length > 0 && (
-                <button onClick={() => setSelectedItems([])} className="clear-button">
-                    Clear Components
-                </button>
-            )}
+           {selectedItems.length > 0 && (
+               <button onClick={() => setSelectedItems([])} className="clear-button">Clear Bench</button>
+           )}
         </div>
 
         {/* Results Panel */}
         <div className="results-panel">
            <div className="tabs">
-               <button className={activeTab === 'charm' ? 'active' : ''} onClick={() => setActiveTab('charm')}>Charms</button>
-               <button className={activeTab === 'talisman' ? 'active' : ''} onClick={() => setActiveTab('talisman')}>Talismans</button>
-               {/* Add other tabs like Potions if Atelier crafts them */}
-               {/* <button className={activeTab === 'potions' ? 'active' : ''} onClick={() => setActiveTab('potions')}>Potions</button> */}
+               <button className={activeTab === 'charm' ? 'active' : ''} onClick={() => { setActiveTab('charm'); /* No need to clear here, useEffect handles results */ }}>Charms</button>
+               <button className={activeTab === 'talisman' ? 'active' : ''} onClick={() => { setActiveTab('talisman'); }}>Talismans</button>
+               <button className={activeTab === 'tool' ? 'active' : ''} onClick={() => { setActiveTab('tool'); }}>Tools</button>
            </div>
           <h3>Possible Creations</h3>
           <div className="results-list">
-            {selectedItems.length > 0 ? (
-                possibleResults.length > 0 ? (
-                possibleResults
-                    // Filter results based on the active tab (already done in useEffect)
-                    .map(result => (
+            {selectedItems.length === 0 ? (
+                 <div className="no-results">Select components first.</div>
+            ) : possibleResults.length > 0 ? (
+                possibleResults.map(result => (
                     <div
                         key={result.id}
                         className="result-item"
                         onClick={() => handleCraft(result)}
-                        title={`Click to attempt crafting ${result.name}`}
+                        title={`Click to craft ${result.name}`}
                     >
                         <div className="result-image">
                              <div className="placeholder-image">{result.name.charAt(0).toUpperCase()}</div>
@@ -262,14 +237,14 @@ const Atelier: React.FC<AtelierProps> = ({
                         <div className="result-name">{result.name}</div>
                         <div className="result-description">{result.description}</div>
                          <div className={`result-rarity ${result.rarity}`}>{result.rarity}</div>
+                         {result.levelRequirement && <div className="level-req">Lv.{result.levelRequirement}</div>}
                         </div>
+                        {/* Add a craft button directly? */}
+                        {/* <button className="craft-now-btn">Craft</button> */}
                     </div>
-                    ))
-                ) : (
-                <div className="no-results">No known recipes match selected components for {activeTab}.</div>
-                )
+                ))
             ) : (
-                 <div className="no-results">Select components to see possible crafts.</div>
+                <div className="no-results">No known crafts match for {activeTab}.</div>
             )}
           </div>
         </div>

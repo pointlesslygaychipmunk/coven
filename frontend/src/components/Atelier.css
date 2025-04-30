@@ -1,51 +1,19 @@
-/* atelier-redesign.css - Enhanced styling for the Atelier crafting interface */
+/* frontend/src/components/Atelier.css */
+/* Redesigned Atelier with cozy, handmade, 90s workshop feel */
 
-/* Atelier Container */
 .atelier-container {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-bg-panel);
-  color: var(--color-text-light);
+  background-color: #4a3f35; /* Wood workbench color */
   border-radius: var(--border-radius-lg);
   padding: 25px;
-  box-shadow: var(--shadow-inset), var(--shadow-soft);
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-medium), inset 0 0 80px rgba(0,0,0,0.3);
   position: relative;
-}
-
-/* Add magical workshop ambiance */
-.atelier-container::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at top left,
-    rgba(181, 157, 196, 0.15) 0%,
-    transparent 60%
-  );
-  pointer-events: none;
-  border-radius: inherit;
-  z-index: -1;
-}
-
-/* Add subtle hanging herbs and tools decor */
-.atelier-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background-image: 
-    radial-gradient(circle at 10% 0, rgba(126, 186, 118, 0.15) 0%, transparent 30%),
-    radial-gradient(circle at 30% -10px, rgba(181, 157, 196, 0.15) 0%, transparent 30%),
-    radial-gradient(circle at 50% -5px, rgba(214, 164, 76, 0.15) 0%, transparent 30%),
-    radial-gradient(circle at 70% -10px, rgba(181, 157, 196, 0.15) 0%, transparent 30%),
-    radial-gradient(circle at 90% 0, rgba(126, 186, 118, 0.15) 0%, transparent 30%);
-  z-index: -1;
-  pointer-events: none;
+  overflow: hidden;
+  border: 3px solid #332a22; /* Darker wood frame */
+  /* Wood grain texture */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%235a4f45' fill-opacity='0.1'%3E%3Cpath fill-rule='evenodd' d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2v40h-2V0zm40 2h-40v2h40V2zM0 40h40v2H0v-2zm40-40h40v2H40V0z'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(to bottom, #5a4f45, #4a3f35);
+  color: var(--color-text-light);
 }
 
 /* Atelier Header */
@@ -53,124 +21,76 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-border-light);
-  padding-bottom: 15px;
-  margin-bottom: 20px;
-  flex-shrink: 0;
+  border-bottom: 2px solid #332a22; /* Darker wood border */
+  padding: 10px 15px;
+  margin: -25px -25px 20px -25px; /* Extend to edges */
+  background: linear-gradient(to bottom, #6d5f53, #5a4f45); /* Lighter wood top */
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
   position: relative;
-}
-
-/* Add subtle flourish beneath header */
-.atelier-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 120px;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    var(--color-accent-primary) 0%,
-    transparent 100%
-  );
+  z-index: 1;
 }
 
 .atelier-header h2 {
   margin: 0;
   color: var(--color-text-heading);
-  font-weight: 500;
+  font-weight: normal;
   font-size: 26px;
-  letter-spacing: 1px;
   font-family: var(--font-primary);
   display: flex;
   align-items: center;
-  gap: 10px;
-  position: relative;
+  gap: 12px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
-/* Add woodworking/crafting icon before title */
+/* Tools icon */
 .atelier-header h2::before {
-  content: '';
-  display: inline-block;
-  width: 28px;
-  height: 28px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23B59DC4"><path d="M14.5,7.3L13.5,8V7H10.5V10L9.5,10.7V11.7L14.5,8.3V7.3M8,20H5V18H8V20M14,20H11V18H14V20M15,18H18V20H15V18M5,11H7V13H5V11M5,15H7V17H5V15M19,15.33L15.67,12H7.33L4,15.33V17H20V15.33M8.33,5H7L8,7H10L8.33,5M13.67,5H10.33L12,7H14L13.67,5M16,5H14.67L16,7H18L16,5M10.5,6H13.5V7.67L12,8.67L10.5,7.67V6" /></svg>');
-  background-size: contain;
-  background-repeat: no-repeat;
+  content: '🛠️'; /* Tools emoji */
+  font-size: 24px;
+  color: var(--color-accent-secondary); /* Gold accent */
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
 }
 
-/* Specialization badge */
 .spec-badge {
   font-size: 14px;
   color: var(--color-accent-primary);
   font-family: var(--font-secondary);
   font-weight: 300;
   margin-left: 10px;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0,0,0,0.3);
   padding: 3px 8px;
   border-radius: 12px;
-  background-color: rgba(0,0,0,0.1);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
+  background-color: rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
 }
 
-.atelier-header h2:hover .spec-badge {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  border-color: var(--color-accent-primary);
-}
-
-/* Lunar Phase Indicator */
 .phase-indicator {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background-color: var(--color-bg-medium);
-  padding: 8px 15px;
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add subtle glow effect */
-.phase-indicator::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(181, 157, 196, 0.2) 0%,
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.phase-indicator:hover::before {
-  opacity: 1;
+  gap: 8px;
+  background-color: rgba(0,0,0,0.2);
+  padding: 6px 12px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-bg-dark);
 }
 
 .phase-indicator span {
   font-size: 14px;
   color: var(--color-accent-primary);
+  font-weight: bold;
   font-family: var(--font-primary);
-  font-weight: 500;
-  letter-spacing: 0.5px;
 }
 
-/* Main Workspace */
+/* Atelier Workspace Layout */
 .atelier-workspace {
   display: grid;
-  grid-template-columns: 1fr 1.3fr 1fr;
-  gap: 25px;
-  flex: 1;
-  overflow: hidden;
+  grid-template-columns: 2fr 3fr 2fr;
+  gap: 20px;
+  height: calc(100% - 70px); /* Adjust based on header */
 }
 
 /* Panel Styling */
 .ingredients-panel, .crafting-area, .results-panel {
-  background-color: var(--color-bg-medium);
+  background-color: rgba(62, 58, 82, 0.6); /* Purple tinted panel */
   border-radius: var(--border-radius-md);
   padding: 15px;
   box-shadow: var(--shadow-inset);
@@ -178,333 +98,142 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  position: relative;
-}
-
-/* Add parchment texture */
-.ingredients-panel::before, .crafting-area::before, .results-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z0AswK4SAFXuAf8EPy+xAAAAAElFTkSuQmCC');
-  opacity: 0.02;
-  pointer-events: none;
-  mix-blend-mode: overlay;
-  border-radius: inherit;
-}
-
-/* Add ambient workshop decorations */
-.ingredients-panel::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background-image: 
-    radial-gradient(circle at 20% -10px, rgba(126, 186, 118, 0.15) 0%, transparent 30%),
-    radial-gradient(circle at 80% -5px, rgba(181, 157, 196, 0.15) 0%, transparent 30%);
-  opacity: 0.8;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.results-panel::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background-image: 
-    radial-gradient(circle at 30% -10px, rgba(214, 164, 76, 0.15) 0%, transparent 30%),
-    radial-gradient(circle at 70% -5px, rgba(111, 166, 204, 0.15) 0%, transparent 30%);
-  opacity: 0.8;
-  z-index: -1;
-  pointer-events: none;
+  backdrop-filter: blur(3px);
+  /* Parchment texture */
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TtSIVBTuIOASpThZERcRJq1CkCqVWaNXB5NIvaNKQpLg4Cq4FBz8Wqw4uzro6uAqC4AeIm5uToouU+L+k0CLGg+N+vLv3uHsHCK0q08zQJKBplpFOJoRcflUIvMKPIAYREJGZZcxJUgq+4+seAb7exXhW/31/joFCwSxgQCSeYbphEW8QT29aDebE+0SR8qIoEJ8Ljht8IvFJ6qbHS74nFkscrHQr8SyxWCpxLXE1qRPJc5wWKo21ytU8O1+YVnO1qHQls4jpSFJclVKhspjlN1RlI1UnUyyleCp1juYs+QfHWZaizFOqMTcQxxKSUEGUjQ1UUEMDUTxaacdIOs3Dj/h45/ETciXAyFmAgRpVFPsBH3fD/N7Z276fAPxn4JKu+2NNMPpJerWrRY+A4W1g8VrX9HVgcAd4MuGKbspDUygWgPcz+qYcMHgLDKy52vd2rTOA+S3QM9mt6SIhNrD4+e6MniO3gaFNoLfO9rY9xvHAE/CorwsKboGBLWBm3dHbw93dgff395z194fZPHLClBQq+gAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+UEBwkPJYm73h4AAALwSURBVGhD7Zm9axRRFMXfjCERdSUJafInpLKxE7GxEJt0FoKkSCMWYmUh9nZ2NiIpBAsRIdWCYLpgpZ0StBM/wI/OZNfz5r6RCbvZDDN33mYHFn5v73n33HfuzDz2JY3aonq+JB3dNuXQiCv7eSHOGGFMxmKnXSm16kq7y+qVG+r2OjrHxsYi5mRO5rYbptLKSOf3tLfgyr5JjZgSu61YdBrlupLnO+hEpIwY2/ZYcJ7VXOO7umfWWBtjp12RzpY7jBj3vp1QqXYE9+x3FVzrvHPmETmTaXasWlUXU3bvTnK/q3vJWewRJ83ot/b6usvOWdsGXSuHrj0zZnL3pG0mwdhMJnhR0vbcB0SZVhV/EHFJLmNT6J4kXJuBfYbmcM1kjHV42QdEJMVfEmvFtvdIAQtQwF4YsFMFUOBTkIaG7JQx/JLYyADhW3yjG90xMDQnoLOYoP23YMzEmCkRmw8Ih9hoJojmqTELCRqbJxYHCP98rCE5wU7JDR3oDo2JSRMGCLm54gADdHdYxPH3QwPCfwb8Rze606AdIBMpw3/GIfR3yI0ZA2MzIz4g4hJI5gQx1zCInpADOWFAyM0Vh+YMkxtHBogJXDXmPyXHJL7zDXKjO2VIZoBUW657s+Z+7brpTH6OiUmTrAOkoNQfkOKePyDlD1OAkIvaXg2Q/5gzH2Z+nJ0txqc/nv6QXz5Vgm81nSt3/zzWZy+/6JPs0UqeDFx7/5N+fzumk73D5jLzYdDi8K/DjRmtFu9PNcrq86wYr5ZeDYpZA1uLp3X65w+tZ3qEA57vkQORj9tXtHr+uImAjvnOk33L/KqDaVu8v8c/d21/g0eJi3cvmH9Qlf5+N8kixZ3Yfft5Vt8+r+ncmUNpn3yL5TtXtbiwa3sDR0SQ4r43K1o7c1TTU0eG+5yTucX6bXMxc0TEfC++ajhiDo8d6H+WvjInc02+wfkjM9LunfyPbQsVe2z7ESj7ebH9A7nq/CfhkB07AAAAAElFTkSuQmCC');
+  background-blend-mode: overlay;
+  background-size: 100px;
+  opacity: 0.6;
 }
 
 /* Panel Headers */
 .ingredients-panel h3, .crafting-area h3, .results-panel h3 {
-  margin: 0 0 15px 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--color-border-light);
-  color: var(--color-accent-primary);
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-heading);
   font-size: 18px;
   font-weight: 500;
   text-align: center;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-family: var(--font-primary);
-  position: relative;
-}
-
-/* Add decorative flourish beneath headers */
-.ingredients-panel h3::after, .crafting-area h3::after, .results-panel h3::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 1px;
-  background-color: var(--color-accent-primary);
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
 }
 
 /* Ingredients List */
 .ingredient-list, .results-list {
   flex: 1;
   overflow-y: auto;
-  padding: 5px 8px 5px 5px;
-  margin-right: -5px;
+  padding: 10px 5px 5px 0; /* Adjust padding for scrollbar */
 }
 
 .ingredient-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* Smaller items */
+  gap: 10px;
 }
 
-/* Ingredient Item Enhancement */
+/* Ingredient Item - 90s Icon Style */
 .ingredient-item {
   background-color: var(--color-bg-light);
+  border: 1px solid var(--color-bg-medium);
+  border-bottom-color: var(--color-border);
+  border-right-color: var(--color-border);
   border-radius: var(--border-radius-sm);
-  padding: 10px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
   aspect-ratio: 1 / 1.2;
-  min-height: 90px;
+  min-height: 80px;
   position: relative;
-  overflow: hidden;
-}
-
-/* Add subtle shine effect */
-.ingredient-item::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: transform 0.5s ease;
-  transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  pointer-events: none;
-}
-
-.ingredient-item:hover::before {
-  transform: translateX(100%) translateY(100%) rotate(45deg);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
 .ingredient-item:hover {
   background-color: var(--color-border);
-  transform: translateY(-3px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  border-color: var(--color-accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
+.ingredient-item:hover .item-name { color: var(--color-bg-dark); }
+.ingredient-item:hover .item-quantity { color: var(--color-bg-medium); }
 
-.ingredient-item.selected-dim {
-  opacity: 0.5;
-  cursor: default;
-}
+.ingredient-item.selected-dim { opacity: 0.6; } /* Keep dimming */
+.ingredient-item.disabled { opacity: 0.4; cursor: not-allowed; }
+.ingredient-item.disabled:hover { transform: none; background-color: var(--color-bg-light); box-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
 
-.ingredient-item.selected-dim:hover {
-  transform: none;
-  background-color: var(--color-bg-light);
-  border-color: var(--color-border);
-  box-shadow: none;
-}
-
-.ingredient-item.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.ingredient-item.disabled:hover {
-  transform: none;
-  background-color: var(--color-bg-light);
-}
-
-/* Ingredient Image */
 .item-image {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   background-color: var(--color-bg-panel);
-  border-radius: 50%;
+  border-radius: var(--border-radius-sm); /* Less round */
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   overflow: hidden;
-  border: 1px solid var(--color-border-light);
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-inset);
+  image-rendering: pixelated; /* If using images */
 }
 
-.ingredient-item:hover .item-image {
-  transform: scale(1.05);
-  border-color: var(--color-accent-primary);
-}
-
-.item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.placeholder-image {
-  font-size: 20px;
-  color: var(--color-accent-primary);
-  font-weight: bold;
-}
-
-/* Item Text */
-.item-name {
-  font-size: 12px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  color: var(--color-text-light);
-  font-weight: 500;
-  font-family: var(--font-primary);
-  transition: color 0.3s ease;
-}
-
-.ingredient-item:hover .item-name {
-  color: var(--color-text-heading);
-}
-
-.item-quantity {
-  font-size: 11px;
-  color: var(--color-text-dark);
-  font-family: var(--font-secondary);
-}
+.placeholder-image { font-size: 18px; color: var(--color-accent-primary); font-weight: bold; }
+.item-name { font-size: 11px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; color: var(--color-text-light); font-weight: 500; margin-bottom: 2px; }
+.item-quantity { font-size: 10px; color: var(--color-text-dark); }
 
 /* Selected Count Badge */
 .selected-count-badge {
   position: absolute;
   top: 2px;
   right: 2px;
-  background-color: var(--color-accent-primary);
+  background-color: var(--color-accent-secondary); /* Gold badge */
   color: var(--color-bg-dark);
   font-size: 10px;
   font-weight: bold;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  min-width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  padding: 0 3px;
+  line-height: 1; /* Ensure text centers vertically */
 }
 
-.ingredient-item:hover .selected-count-badge {
-  transform: scale(1.1);
-  background-color: var(--color-accent-secondary);
-}
+/* Crafting Area */
+.crafting-area { align-items: center; justify-content: center; }
 
-/* Crafting Area Enhancement */
-.crafting-area {
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 20px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add ambient crafting particles */
-.crafting-area::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 80% 20%, rgba(181, 157, 196, 0.08) 0%, transparent 3%),
-    radial-gradient(circle at 20% 80%, rgba(181, 157, 196, 0.08) 0%, transparent 3%),
-    radial-gradient(circle at 65% 60%, rgba(181, 157, 196, 0.08) 0%, transparent 2%),
-    radial-gradient(circle at 35% 30%, rgba(181, 157, 196, 0.08) 0%, transparent 2%);
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.8;
-  animation: ambient-float 40s infinite ease-in-out alternate;
-}
-
-@keyframes ambient-float {
-  from { background-position: 0% 0%; }
-  to { background-position: 2% 2%; }
-}
-
-/* Crafting Bench (similar styling to cauldron) */
-.cauldron {
-  width: 75%;
-  max-width: 250px;
-  aspect-ratio: 1 / 1;
-  background-color: var(--color-bg-panel);
-  border-radius: 10%;
-  margin: 20px auto;
+/* Crafting Bench - Wood texture */
+.cauldron { /* Reusing class, but styling differently */
+  width: 80%;
+  max-width: 280px;
+  aspect-ratio: 1.5 / 1; /* Wider bench */
+  background-color: #6d5f53; /* Wood color */
+  border-radius: var(--border-radius-sm);
+  margin: 15px auto;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow:
-    inset 0 0 25px rgba(93, 70, 138, 0.4),
-    0 8px 15px rgba(0, 0, 0, 0.4);
-  border: 3px solid var(--color-border-light);
-  overflow: hidden;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4), var(--shadow-inset);
+  border: 2px solid #4a3f35;
+  border-bottom-color: #7d6f63;
+  border-right-color: #7d6f63;
+  /* Wood grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%234a3f35' fill-opacity='0.2'%3E%3Cpath fill-rule='evenodd' d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2v40h-2V0zm40 2h-40v2h40V2zM0 40h40v2H0v-2zm40-40h40v2H40V0z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* Add wood texture to crafting surface */
-.cauldron::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFElEQVQYlWNgYGD4TwRmoJggChUCAIYzA/0EurqOAAAAAElFTkSuQmCC');
-  opacity: 0.1;
-  background-size: 8px 8px;
-  mix-blend-mode: overlay;
-}
+.empty-cauldron { color: var(--color-text-light); font-style: italic; text-align: center; padding: 10px; z-index: 1; }
 
-/* Add subtle edge highlight */
-.cauldron::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 10%;
-  background: 
-    linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.1) 0%, 
-      transparent 50%,
-      rgba(0, 0, 0, 0.1) 100%);
-  pointer-events: none;
-}
-
-.empty-cauldron {
-  padding: 20px;
-  text-align: center;
-  color: var(--color-text-medium);
-  font-style: italic;
-  font-size: 14px;
-  z-index: 1;
-  font-family: var(--font-secondary);
-}
-
-/* Selected Ingredients */
+/* Selected Items on Bench */
 .selected-ingredients {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 15px;
+  gap: 8px;
+  padding: 10px;
   width: 90%;
   max-height: 80%;
   overflow-y: auto;
@@ -513,477 +242,146 @@
   z-index: 1;
 }
 
-/* Selected Item Enhancement */
 .selected-item {
-  background-color: var(--color-accent-primary);
-  color: var(--color-bg-dark);
-  border-radius: 15px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 500;
+  background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
+  color: var(--color-text-light);
+  border: 1px solid var(--color-bg-dark);
+  border-radius: var(--border-radius-sm);
+  padding: 5px 8px;
+  font-size: 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  font-family: var(--font-secondary);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* Add subtle shine effect */
-.selected-item::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: transform 0.5s ease;
-  transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  pointer-events: none;
-}
-
-.selected-item:hover::before {
-  transform: translateX(100%) translateY(100%) rotate(45deg);
-}
-
-.selected-item:hover {
-  background-color: var(--color-text-light);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-}
-
-/* Remove Button Enhancement */
-.remove-item {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.4);
-  margin-left: 3px;
-  font-weight: bold;
-  line-height: 1;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3), var(--shadow-inset);
 }
-
-.selected-item:hover .remove-item {
-  color: var(--color-danger);
+.selected-item:hover { transform: translateY(-1px); background: linear-gradient(to bottom, #6a6582, #4e4a68); }
+.remove-item { font-size: 14px; color: var(--color-danger); margin-left: 3px; font-weight: bold; }
+.placeholder-slot { /* Style for empty visual slots */
+    width: 60px; /* Example size */
+    height: 28px;
+    background: rgba(0,0,0,0.1);
+    border: 1px dashed var(--color-border);
+    box-shadow: none;
+    cursor: default;
+    border-radius: var(--border-radius-sm);
 }
 
 /* Clear Button */
 .clear-button {
-  margin-top: 15px;
-  background-color: var(--color-bg-light);
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
   color: var(--color-text-medium);
-  border: 1px solid var(--color-border);
-  padding: 8px 15px;
-  font-size: 13px;
+  border: 1px solid var(--color-bg-dark);
   border-radius: var(--border-radius-sm);
+  font-size: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: var(--font-primary);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
 }
+.clear-button:hover { background: linear-gradient(to bottom, #6a6582, #4e4a68); color: var(--color-text-light); }
 
-/* Add subtle shine effect */
-.clear-button::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: transform 0.5s ease;
-  transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  pointer-events: none;
-}
-
-.clear-button:hover::before {
-  transform: translateX(100%) translateY(100%) rotate(45deg);
-}
-
-.clear-button:hover {
-  background-color: var(--color-border);
-  color: var(--color-text-light);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-}
-
-/* Tab Navigation */
+/* Tabs */
 .tabs {
   display: flex;
-  gap: 5px;
-  margin-bottom: 15px;
-  flex-shrink: 0;
-  border-radius: var(--border-radius-sm);
-  background-color: var(--color-bg-panel);
+  gap: 3px; /* Tight spacing */
+  margin-bottom: 10px;
+  background-color: rgba(0,0,0,0.1);
   padding: 3px;
-  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-bg-dark);
 }
 
 .tabs button {
   flex: 1;
   background-color: var(--color-bg-light);
-  border: 1px solid transparent;
+  border: 1px solid var(--color-bg-medium);
+  border-bottom-color: var(--color-border);
+  border-right-color: var(--color-border);
   border-radius: var(--border-radius-sm);
-  padding: 8px 10px;
+  padding: 6px 8px;
   color: var(--color-text-medium);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-family: var(--font-primary);
   font-size: 13px;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
 }
-
-/* Add subtle shine effect */
-.tabs button::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: transform 0.5s ease;
-  transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  pointer-events: none;
-}
-
-.tabs button:hover::before {
-  transform: translateX(100%) translateY(100%) rotate(45deg);
-}
-
-.tabs button:hover {
-  background-color: var(--color-border);
-  color: var(--color-text-light);
-}
-
+.tabs button:hover { background-color: var(--color-border); color: var(--color-bg-dark); }
 .tabs button.active {
   background-color: var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
   color: var(--color-bg-dark);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border-color: var(--color-border-light);
+  box-shadow: var(--shadow-inset);
 }
 
-/* Result Items Enhancement */
+/* Result Items */
 .result-item {
   background-color: var(--color-bg-light);
+  border: 1px solid var(--color-bg-medium);
   border-radius: var(--border-radius-sm);
-  padding: 12px;
-  margin-bottom: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid var(--color-border);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
-
-/* Add subtle shine effect */
-.result-item::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transition: transform 0.5s ease;
-  transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  pointer-events: none;
-}
-
-.result-item:hover::before {
-  transform: translateX(100%) translateY(100%) rotate(45deg);
-}
-
-.result-item:hover {
-  background-color: var(--color-border);
-  transform: translateX(3px);
-  border-color: var(--color-accent-primary);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-}
-
-/* Add subtle magical glow */
-.result-item::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center right,
-    rgba(181, 157, 196, 0.1) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.result-item:hover::after {
-  opacity: 1;
-}
+.result-item:hover { background-color: var(--color-border); transform: translateX(2px); }
 
 .result-image {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   background-color: var(--color-bg-panel);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: var(--border-radius-sm);
+  display: flex; align-items: center; justify-content: center;
   overflow: hidden;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   flex-shrink: 0;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
+  image-rendering: pixelated;
 }
+.result-details { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.result-name { font-size: 14px; color: var(--color-text-light); font-weight: 500; font-family: var(--font-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-description { font-size: 11px; color: var(--color-text-medium); line-height: 1.3; height: 2.6em; overflow: hidden; }
+.result-rarity { font-size: 11px; font-style: italic; margin-top: auto; text-align: right; text-transform: capitalize; font-family: var(--font-secondary); font-weight: bold; }
+.level-req { font-size: 11px; text-align: right; color: var(--color-text-dark); margin-top: 2px; font-weight: bold;}
 
-.result-item:hover .result-image {
-  transform: scale(1.05);
-  border-color: var(--color-accent-primary);
-}
+/* Rarity Colors */
+.result-rarity.common { color: var(--color-text-dark); }
+.result-rarity.uncommon { color: var(--color-success); }
+.result-rarity.rare { color: var(--color-info); }
+.result-rarity.legendary { color: var(--color-warning); }
 
-.result-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.no-results { text-align: center; padding: 15px; color: var(--color-text-medium); font-style: italic; font-size: 13px; }
 
-/* Result Details */
-.result-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.result-name {
-  font-size: 15px;
-  color: var(--color-accent-primary);
-  font-weight: 500;
-  font-family: var(--font-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.3s ease;
-}
-
-.result-item:hover .result-name {
-  color: var(--color-text-heading);
-}
-
-.result-description {
-  font-size: 12px;
-  color: var(--color-text-medium);
-  line-height: 1.3;
-  height: 2.6em;
-  overflow: hidden;
-  font-family: var(--font-secondary);
-}
-
-.result-rarity {
-  font-size: 12px;
-  font-style: italic;
-  margin-top: auto;
-  text-align: right;
-  text-transform: capitalize;
-  font-family: var(--font-secondary);
-  transition: all 0.3s ease;
-}
-
-.result-item:hover .result-rarity {
-  transform: scale(1.05);
-}
-
-/* Rarity Color Variations */
-.result-rarity.common {
-  color: var(--color-text-dark);
-}
-
-.result-rarity.uncommon {
-  color: var(--color-success);
-}
-
-.result-rarity.rare {
-  color: var(--color-info);
-}
-
-.result-rarity.legendary {
-  color: var(--color-warning);
-}
-
-/* No results message */
-.no-results {
-  padding: 20px;
-  text-align: center;
-  color: var(--color-text-medium);
-  font-style: italic;
-  font-size: 14px;
-  font-family: var(--font-secondary);
-}
-
-/* Animations */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Magical Crafting Animation */
-@keyframes crafting-glow {
-  0%, 100% { box-shadow: 0 0 10px rgba(181, 157, 196, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(181, 157, 196, 0.5); }
-}
-
+/* Crafting Animations (Placeholder - Add specific animations if needed) */
 .crafting-active .cauldron {
-  animation: crafting-glow 2s infinite ease-in-out;
+  animation: workbench-shake 0.5s infinite alternate;
 }
 
-/* Add sparkle effect for successful crafting */
-@keyframes sparkle {
-  0% { transform: scale(0) rotate(0deg); opacity: 0; }
-  50% { transform: scale(1) rotate(180deg); opacity: 1; }
-  100% { transform: scale(0) rotate(360deg); opacity: 0; }
-}
-
-.craft-sparkle {
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23F5F0E5"><path d="M12 0L14 9.5L24 12L14 14.5L12 24L10 14.5L0 12L10 9.5z"/></svg>');
-  background-size: contain;
-  pointer-events: none;
-  z-index: 10;
-  animation: sparkle 1s ease-out forwards;
+@keyframes workbench-shake {
+  0% { transform: translateX(-1px); }
+  100% { transform: translateX(1px); }
 }
 
 /* Responsive Adjustments */
 @media (max-width: 1200px) {
-  .atelier-workspace {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 15px;
-  }
-  
-  .ingredients-panel {
-    grid-column: 1 / 2;
-    grid-row: 1 / 3;
-  }
-  
-  .crafting-area {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-  }
-  
-  .results-panel {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-  }
+  .atelier-workspace { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
+  .ingredients-panel { grid-column: 1 / 2; grid-row: 1 / 3; }
+  .crafting-area { grid-column: 2 / 3; grid-row: 1 / 2; }
+  .results-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
 }
 
 @media (max-width: 768px) {
-  .atelier-workspace {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 15px;
-  }
-  
-  .ingredients-panel {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    max-height: 300px;
-  }
-  
-  .crafting-area {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
-  }
-  
-  .results-panel {
-    grid-column: 1 / 2;
-    grid-row: 3 / 4;
-  }
-  
-  .atelier-header h2 {
-    font-size: 22px;
-  }
-  
-  .atelier-header h2::before {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .spec-badge {
-    font-size: 12px;
-    padding: 2px 6px;
-  }
-  
-  .phase-indicator {
-    padding: 6px 10px;
-  }
-  
-  .phase-indicator span {
-    font-size: 12px;
-  }
-  
-  .ingredient-list {
-    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-    gap: 8px;
-  }
-  
-  .ingredient-item {
-    min-height: 80px;
-  }
-  
-  .item-image {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .item-name {
-    font-size: 11px;
-  }
-  
-  .result-item {
-    padding: 10px;
-    gap: 10px;
-  }
-  
-  .result-image {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .result-name {
-    font-size: 14px;
-  }
-  
-  .result-description {
-    font-size: 11px;
-  }
+  .atelier-workspace { grid-template-columns: 1fr; grid-template-rows: 300px auto 300px; }
+  .ingredients-panel, .crafting-area, .results-panel { grid-column: 1 / 2; }
+  .ingredients-panel { grid-row: 1 / 2; }
+  .crafting-area { grid-row: 2 / 3; }
+  .results-panel { grid-row: 3 / 4; }
+  .atelier-header h2 { font-size: 22px; }
+  .ingredient-list { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+  .item-image { width: 35px; height: 35px; }
 }
