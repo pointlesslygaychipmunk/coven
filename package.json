@@ -24,7 +24,6 @@
       "@utils/*": ["./src/utils/*"],
       "@images/*": ["./src/images/*"]
     }
-    // No emit can be inferred or set if needed: "noEmit": true
   },
   "include": ["src", "vite.config.ts", "src/index.tsx"],
   "references": [{ "path": "../shared" }]
