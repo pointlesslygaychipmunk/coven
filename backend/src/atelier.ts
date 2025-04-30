@@ -1,8 +1,9 @@
 // src/atelier.ts
 // Define specialization options and their bonuses
 
-import { AtelierSpecialization, ItemCategory, ItemType, Season, MoonPhase } from "coven-shared";
+import { AtelierSpecialization, ItemCategory, ItemType } from "coven-shared"; // Removed Season, MoonPhase
 import type { Skills } from "coven-shared"; // Import Skills type for growthBonus
+
 // Full specialization details interface (can stay local to backend)
 export interface AtelierSpecializationDetails {
   id: AtelierSpecialization; // Use the shared type
@@ -95,7 +96,7 @@ export function getSpecializationBonus(
     case 'harvest':
       // Quality bonus during harvest
       if (specialization === 'Essence' && (itemCategory === 'flower' || itemCategory === 'root')) {
-        return { bonusMultiplier: 1.1, description: "Essence Atelier bonus: +10% quality when harvesting flowers and roots" }; // Nerfed slightly
+        return { bonusMultiplier: 1.1, description: "Essence Atelier bonus: +10% quality when harvesting flowers and roots" };
       }
       if (specialization === 'Fermentation' && itemCategory === 'herb') {
         return { bonusMultiplier: 1.1, description: "Fermentation Atelier bonus: +10% quality when harvesting herbs" };
@@ -104,7 +105,7 @@ export function getSpecializationBonus(
         return { bonusMultiplier: 1.1, description: "Distillation Atelier bonus: +10% quality when harvesting fruits and flowers" };
       }
       if (specialization === 'Infusion' && (itemCategory === 'herb' || itemCategory === 'leaf')) {
-        return { bonusMultiplier: 1.15, description: "Infusion Atelier bonus: +15% quality when harvesting herbs and leaves" }; // Nerfed slightly
+        return { bonusMultiplier: 1.15, description: "Infusion Atelier bonus: +15% quality when harvesting herbs and leaves" };
       }
       break;
 
@@ -119,7 +120,7 @@ export function getSpecializationBonus(
       }
       if (specialization === 'Distillation' && itemType === 'potion') {
         // Chance for extra yield
-        return { bonusMultiplier: 1.0, chanceForExtra: 0.15, description: "Distillation Expertise: 15% chance for double yield" }; // Nerfed yield chance
+        return { bonusMultiplier: 1.0, chanceForExtra: 0.15, description: "Distillation Expertise: 15% chance for double yield" };
       }
       if (specialization === 'Infusion' && (itemCategory === 'tonic' || itemCategory === 'elixir')) {
         return { bonusMultiplier: 1.20, description: "Infusion Atelier bonus: +20% effectiveness for tonics and elixirs" }; // Affects quality/effect

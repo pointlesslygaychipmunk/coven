@@ -1,7 +1,7 @@
 // src/ingredients.ts
 // Defines all plant ingredients, their properties, and growth requirements
 
-import { ItemCategory, Season, MoonPhase, WeatherFate, ItemType, Item, Rarity } from "coven-shared";
+import { ItemCategory, Season, MoonPhase, WeatherFate, Item, Rarity } from "coven-shared"; // Removed unused ItemType
 
 // Full ingredient definition with growing properties
 // Make this extend the base Item type for consistency
@@ -195,7 +195,7 @@ export function getIngredientData(name: string): Ingredient | undefined { // Kee
 
 // Calculate growth modifier based on growing conditions
 export function calculateGrowthModifier(
-  ingredient: Ingredient,
+  ingredient: Ingredient, // Expects the detailed Ingredient type
   currentSeason: Season,
   currentMoonPhase: MoonPhase,
   moisture: number,
@@ -255,7 +255,7 @@ export function calculateGrowthModifier(
 
 // Calculate harvest quality based on growing conditions and plant state
 export function calculateHarvestQuality(
-  ingredient: Ingredient,
+  ingredient: Ingredient, // Expects the detailed Ingredient type
   plantHealth: number,
   plantAge: number,
   harvestMoonPhase: MoonPhase,
@@ -311,7 +311,7 @@ export function calculateHarvestQuality(
 
 // Check for mutation
 export function checkForMutation(
-  ingredient: Ingredient,
+  ingredient: Ingredient, // Expects the detailed Ingredient type
   weather: WeatherFate,
   moonPhase: MoonPhase,
   // adjacentPlants: string[] // Consider passing full Plant objects if more detail needed

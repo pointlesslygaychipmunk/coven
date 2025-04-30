@@ -18,12 +18,6 @@ const gameHandler = new GameHandler();
 
 // Middleware
 app.use(cors()); // Enable CORS for all origins (adjust for production)
-// Example for production CORS:
-// const corsOptions = {
-//   origin: 'https://your-frontend-domain.com', // Replace with your frontend domain
-//   optionsSuccessStatus: 200
-// };
-// app.use(cors(corsOptions));
 app.use(express.json()); // Parse JSON request bodies
 
 // Serve static files from the frontend build directory
@@ -34,8 +28,9 @@ if (!fs.existsSync(frontendDistPath)) {
     // Optionally exit: process.exit(1);
 } else {
     console.log(`[Server] Serving static files from: ${frontendDistPath}`);
+    app.use(express.static(frontendDistPath)); // Only use static middleware if path exists
 }
-app.use(express.static(frontendDistPath));
+
 
 // Logging Middleware (Simple)
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -62,7 +57,7 @@ const handleRequest = (handlerFn: () => any, res: Response, actionName: string) 
 };
 
 // GET Current Game State
-app.get('/api/state', (req: Request, res: Response) => {
+app.get('/api/state', (_req: Request, res: Response) => { // Mark req as unused with _
   handleRequest(() => gameHandler.getState(), res, 'get game state');
 });
 
@@ -70,24 +65,30 @@ app.get('/api/state', (req: Request, res: Response) => {
 app.post('/api/plant', (req: Request, res: Response) => {
     const { playerId, slotId, seedItemId } = req.body; // Expect seedItemId (Inventory ID)
     if (playerId === undefined || slotId === undefined || seedItemId === undefined) {
+       // Explicitly return after sending error response
        return res.status(400).json({ error: 'Missing parameters (playerId, slotId, seedItemId)' });
     }
+    // If parameters are valid, proceed to handleRequest
     handleRequest(() => gameHandler.plantSeed(playerId, Number(slotId), seedItemId), res, 'plant seed');
 });
 
 app.post('/api/water', (req: Request, res: Response) => {
   const { playerId } = req.body; // Only need playerId now
    if (playerId === undefined) {
+      // Explicitly return after sending error response
       return res.status(400).json({ error: 'Missing parameters (playerId)' });
    }
+  // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.waterPlants(playerId, true), res, 'water plants'); // Pass success=true
 });
 
 app.post('/api/harvest', (req: Request, res: Response) => {
   const { playerId, slotId } = req.body;
    if (playerId === undefined || slotId === undefined) {
+      // Explicitly return after sending error response
       return res.status(400).json({ error: 'Missing parameters (playerId, slotId)' });
    }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.harvestPlant(playerId, Number(slotId)), res, 'harvest plant');
 });
 
@@ -95,8 +96,10 @@ app.post('/api/harvest', (req: Request, res: Response) => {
 app.post('/api/brew', (req: Request, res: Response) => {
   const { playerId, ingredientInvItemIds } = req.body; // Expect array of inventory IDs
    if (playerId === undefined || !Array.isArray(ingredientInvItemIds) || ingredientInvItemIds.length !== 2) {
+      // Explicitly return after sending error response
       return res.status(400).json({ error: 'Missing or invalid parameters (playerId, ingredientInvItemIds[2])' });
    }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.brewPotion(playerId, ingredientInvItemIds as string[]), res, 'brew potion'); // Pass string[]
 });
 
@@ -104,16 +107,20 @@ app.post('/api/brew', (req: Request, res: Response) => {
 app.post('/api/market/buy', (req: Request, res: Response) => {
   const { playerId, itemId } = req.body; // itemId is the MarketItem ID
    if (playerId === undefined || itemId === undefined) {
-      return res.status(400).json({ error: 'Missing parameters (playerId, itemId)' });
+       // Explicitly return after sending error response
+       return res.status(400).json({ error: 'Missing parameters (playerId, itemId)' });
    }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.buyItem(playerId, itemId), res, 'buy item');
 });
 
 app.post('/api/market/sell', (req: Request, res: Response) => {
   const { playerId, itemId } = req.body; // Rename for clarity: this is inventoryItemId
    if (playerId === undefined || itemId === undefined) { // Check for itemId (which is inventoryItemId)
-      return res.status(400).json({ error: 'Missing parameters (playerId, itemId=inventoryItemId)' });
+       // Explicitly return after sending error response
+       return res.status(400).json({ error: 'Missing parameters (playerId, itemId=inventoryItemId)' });
    }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.sellItem(playerId, itemId), res, 'sell item');
 });
 
@@ -121,8 +128,10 @@ app.post('/api/market/sell', (req: Request, res: Response) => {
 app.post('/api/fulfill', (req: Request, res: Response) => {
   const { playerId, requestId } = req.body;
   if (playerId === undefined || requestId === undefined) {
+     // Explicitly return after sending error response
      return res.status(400).json({ error: 'Missing parameters (playerId, requestId)' });
   }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.fulfillRequest(playerId, requestId), res, 'fulfill request');
 });
 
@@ -130,8 +139,10 @@ app.post('/api/fulfill', (req: Request, res: Response) => {
 app.post('/api/ritual/claim', (req: Request, res: Response) => {
     const { playerId, ritualId } = req.body;
      if (playerId === undefined || ritualId === undefined) {
+        // Explicitly return after sending error response
         return res.status(400).json({ error: 'Missing parameters (playerId, ritualId)' });
      }
+     // If parameters are valid, proceed to handleRequest
     handleRequest(() => gameHandler.claimRitualReward(playerId, ritualId), res, 'claim ritual reward');
 });
 
@@ -139,13 +150,15 @@ app.post('/api/ritual/claim', (req: Request, res: Response) => {
 app.post('/api/end-turn', (req: Request, res: Response) => {
   const { playerId } = req.body;
    if (playerId === undefined) {
+      // Explicitly return after sending error response
       return res.status(400).json({ error: 'Missing parameters (playerId)' });
    }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => gameHandler.endTurn(playerId), res, 'end turn');
 });
 
 // POST Save/Load game
-app.post('/api/save', (req: Request, res: Response) => {
+app.post('/api/save', (_req: Request, res: Response) => { // Mark req as unused with _
   handleRequest(() => {
       const saveData = gameHandler.saveGame();
       return { success: true, saveData }; // Wrap response
@@ -155,8 +168,10 @@ app.post('/api/save', (req: Request, res: Response) => {
 app.post('/api/load', (req: Request, res: Response) => {
   const { saveData } = req.body;
    if (saveData === undefined) {
+      // Explicitly return after sending error response
       return res.status(400).json({ error: 'Missing parameters (saveData)' });
    }
+   // If parameters are valid, proceed to handleRequest
   handleRequest(() => {
       const success = gameHandler.loadGame(saveData);
       if (success) {
@@ -171,16 +186,23 @@ app.post('/api/load', (req: Request, res: Response) => {
 
 // --- Serve Frontend ---
 // Needs to be defined AFTER all API routes
-app.get('*', (req: Request, res: Response) => {
-  const indexPath = path.join(frontendDistPath, 'index.html');
-  // console.log(`[Server] Serving index.html for ${req.url} from: ${indexPath}`);
-  res.sendFile(indexPath, (err) => {
-      if (err) {
-          console.error("[Server] Error sending index.html:", err);
-          res.status(500).send("Error serving application.");
-      }
-  });
-});
+// Only attempt to serve frontend if the directory exists
+if (fs.existsSync(frontendDistPath)) {
+    app.get('*', (req: Request, res: Response) => { // Mark req as unused
+        const indexPath = path.join(frontendDistPath, 'index.html');
+        // console.log(`[Server] Serving index.html for ${req.url} from: ${indexPath}`);
+        res.sendFile(indexPath, (err) => {
+            if (err) {
+                console.error("[Server] Error sending index.html:", err);
+                // Avoid sending another response if headers already sent
+                if (!res.headersSent) {
+                    res.status(500).send("Error serving application.");
+                }
+            }
+        });
+    });
+}
+
 
 // --- Load SSL Certificates (Optional) ---
 let sslOptions: https.ServerOptions | undefined = undefined;

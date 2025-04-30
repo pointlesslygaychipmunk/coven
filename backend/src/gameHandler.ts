@@ -3,15 +3,11 @@
 
 import { GameEngine } from "./gameEngine.js";
 import {
-    GameState, MoonPhase, Season, RitualQuest,
-    MarketItem, Player, JournalEntry, Skills // Added Skills
+    GameState, MoonPhase, Season, Skills // Removed unused RitualQuest, MarketItem, Player, JournalEntry
 } from "coven-shared"; // Use shared package
 
-import { createCustomRumor, spreadRumor } from "./rumorEngine.js";
-// Note: checkQuestStepCompletion and claimRitualRewards are now likely called *within* gameEngine actions
-// If you need direct access here, re-import them. For now, assuming engine handles it.
-import { checkQuestStepCompletion, claimRitualRewards } from "./questSystem.js";
-import { getSpecialization } from './atelier.js'; // Import needed for potentially displaying spec name
+// Removed unused imports for rumorEngine, questSystem, atelier
+
 // GameHandler: Connects the server's API endpoints to the game engine
 export class GameHandler {
     private engine: GameEngine; // Make engine private
@@ -70,10 +66,11 @@ export class GameHandler {
     // Claim rewards from a completed ritual
     claimRitualReward(playerId: string, ritualId: string): GameState {
         console.log(`[GameHandler] Claim Ritual action: P:${playerId}, Ritual:${ritualId}`);
-        // Direct call to engine's claim method (or keep helper if preferred)
+        // Direct call to engine's claim method (which was added earlier)
         const success = this.engine.claimRitualReward(playerId, ritualId);
         if (!success) {
             console.warn(`[GameHandler] Failed to claim reward for ritual ${ritualId} for player ${playerId}.`);
+            // Optionally, the engine might add a journal entry for failure
         }
         return this.engine.getState();
     }
@@ -109,9 +106,10 @@ export class GameHandler {
     spreadRumor(playerId: string, rumorId: string): GameState {
         console.log(`[GameHandler] Spread Rumor action: P:${playerId}, RumorID:${rumorId}`);
         // Call engine's method or helper function
-        const success = this.engine.spreadRumor(playerId, rumorId); // Assuming engine has this method
+        const success = this.engine.spreadRumor(playerId, rumorId); // Call engine's method (added earlier)
         if (!success) {
              console.warn(`[GameHandler] Failed to spread rumor ${rumorId} for player ${playerId}.`);
+             // Optionally, engine handles journal entry
         }
         return this.engine.getState();
     }
@@ -179,8 +177,8 @@ export class GameHandler {
 
     debugAdvancePhase(): GameState {
         console.log(`[DEBUG] Advancing game phase...`);
-        this.engine.advancePhase(); // Call engine's method (might need to make it public or have a debug wrapper)
+        this.engine.advancePhase(); // Call engine's method
         return this.engine.getState();
     }
 
-} // Make sure this closing brace for the GameHandler class exists and is correctly placed.
+}

@@ -2,8 +2,8 @@
 // Defines all game items (seeds, ingredients, potions, tools) and their base properties.
 // This acts as the master database for item types.
 
-import { ItemType, ItemCategory, Item, Season, MarketItem, Rarity } from "coven-shared"; // Import MarketItem
-import { INGREDIENTS, SEEDS, Ingredient, SeedItem } from "./ingredients.js"; // Import plant/seed data
+import { ItemType, ItemCategory, Item, MarketItem } from "coven-shared"; // Removed unused Season, Rarity
+import { INGREDIENTS, SEEDS } from "./ingredients.js"; // Removed unused Ingredient, SeedItem (they are included in INGREDIENTS/SEEDS arrays)
 
 // Master list of all potential items in the game
 export const ITEMS: Item[] = [
@@ -179,19 +179,5 @@ export function getInitialMarket(): MarketItem[] {
 }
 
 // Example function to generate item description if missing (can be expanded)
-function generateItemDescription(item: Item): string {
-   if (item.description) return item.description;
-
-   switch (item.type) {
-    case "seed":
-      return `Seeds for growing ${item.name.replace(" Seed", "")}.`;
-    case "ingredient":
-      return `A key ingredient, ${item.name}, used in various concoctions.`;
-    case "potion":
-       return `A brewed potion: ${item.name}.`;
-     case "tool":
-       return `A useful tool: ${item.name}.`;
-     default:
-       return `An interesting item: ${item.name}.`;
-   }
-}
+// Removed as it was unused
+// function generateItemDescription(item: Item): string { ... }

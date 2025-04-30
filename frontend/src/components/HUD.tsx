@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import './HUD.css';
 import LunarPhaseIcon from './LunarPhaseIcon'; // Ensure this component exists and works
+import { MoonPhase } from 'coven-shared'; // Import shared type
 
 interface HUDProps {
   playerName: string;
   gold: number;
   day: number;
-  lunarPhase: string;
+  lunarPhase: MoonPhase; // Correctly typed as MoonPhase
   reputation: number;
   playerLevel: number;
   onChangeLocation: (location: string) => void;
@@ -17,7 +18,7 @@ const HUD: React.FC<HUDProps> = ({
   playerName,
   gold,
   day,
-  lunarPhase,
+  lunarPhase, // Already typed as MoonPhase via props
   reputation,
   playerLevel,
   onChangeLocation,
@@ -69,14 +70,7 @@ const HUD: React.FC<HUDProps> = ({
   };
 
   // Close menu if clicking outside (basic implementation)
-  // useEffect(() => {
-  //     const handleClickOutside = (event: MouseEvent) => {
-  //         // Check if the click is outside the menu and the menu button
-  //         // Requires refs on the menu and button, more complex setup
-  //     };
-  //     document.addEventListener('mousedown', handleClickOutside);
-  //     return () => document.removeEventListener('mousedown', handleClickOutside);
-  // }, [menuOpen]);
+  // useEffect(() => { ... }); // Keep commented out for now
 
 
   return (
@@ -100,6 +94,7 @@ const HUD: React.FC<HUDProps> = ({
         {/* Lunar Display */}
         <div className="lunar-display">
           <div className="lunar-icon">
+            {/* Pass the lunarPhase prop directly - no casting needed */}
             <LunarPhaseIcon phase={lunarPhase} size={40} />
           </div>
           <div className="lunar-info">

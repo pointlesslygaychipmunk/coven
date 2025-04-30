@@ -2,7 +2,7 @@
 // Generates rumors each turn and adds them to the game state.
 // Rumors affect market prices, item availability, and player decisions.
 
-import { GameState, Rumor, Season, MoonPhase, MarketItem, Player, Rarity } from "coven-shared"; // Added Rarity
+import { GameState, Rumor, Player } from "coven-shared"; // Removed unused Season, MoonPhase, MarketItem, Rarity
 import { ITEMS } from "./items.js"; // Access item database
 
 // Counter for unique rumor IDs
@@ -104,17 +104,17 @@ export function generateRumors(state: GameState): Rumor[] {
 
     // Determine price effect based on rumor category
     let priceEffect = 0;
-    let affectsQuality = false;
+    // let affectsQuality = false; // Removed as it was unused
     if (category === 'shortage') {
       priceEffect = 0.1 + Math.random() * 0.15; // +10% to +25%
     } else if (category === 'surplus') {
       priceEffect = - (0.1 + Math.random() * 0.15); // -10% to -25%
     } else if (category === 'quality_good') {
       priceEffect = 0.05 + Math.random() * 0.10; // +5% to +15% (quality perception)
-      affectsQuality = true;
+      // affectsQuality = true;
     } else if (category === 'quality_bad') {
        priceEffect = - (0.05 + Math.random() * 0.10); // -5% to -15%
-       affectsQuality = true;
+       // affectsQuality = true;
     } else if (category === 'special') {
         // Special rumors might not always have a direct price effect initially
         priceEffect = Math.random() < 0.5 ? (0.05 + Math.random() * 0.10) : 0;
@@ -131,8 +131,7 @@ export function generateRumors(state: GameState): Rumor[] {
       verified: false, // Starts unverified
       origin: generateRumorSource(),
       turnsActive: 0,
-      // Add affectsQuality flag if needed elsewhere
-      // affectsQuality: affectsQuality
+      // affectsQuality: affectsQuality // Removed as unused
     };
 
     newRumors.push(newRumor);
@@ -225,6 +224,7 @@ export function verifyRumor(state: GameState, playerId: string, rumorId: string)
   // Verification might depend on player skills (e.g., Trading, Herbalism) or specific actions
   // Simple example: 50% base chance + skill bonus
   const player = state.players.find(p => p.id === playerId);
+  // Ensure player and skills exist before accessing
   const tradingSkill = player?.skills?.trading || 1;
   const verificationChance = 0.5 + (tradingSkill / 20); // 50% + up to 50% from skill
 
@@ -237,12 +237,12 @@ export function verifyRumor(state: GameState, playerId: string, rumorId: string)
       }
       console.log(`[RumorEngine] Player ${playerId} verified rumor ${rumorId}.`);
       // Add Journal Entry
-      state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You verified the rumor: "${rumor.content}"`, category: 'market', importance: 3, readByPlayer: false });
+      state.journal.push({ id: `jv-${Date.now()}`, turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You verified the rumor: "${rumor.content}"`, category: 'market', importance: 3, readByPlayer: false });
       return true;
   } else {
        console.log(`[RumorEngine] Player ${playerId} failed to verify rumor ${rumorId}.`);
        // Add Journal Entry
-       state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You couldn't confirm the truth of the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
+       state.journal.push({ id: `jf-${Date.now()}`, turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You couldn't confirm the truth of the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
        return false;
   }
 }
@@ -256,7 +256,7 @@ export function spreadRumor(state: GameState, player: Player, rumorId: string): 
 
   // Spreading costs a small amount of reputation or has a chance based on skill
   if (player.reputation < 2) {
-      state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `Your reputation isn't high enough to effectively spread rumors.`, category: 'market', importance: 1, readByPlayer: false });
+      state.journal.push({ id: `jsr-${Date.now()}`, turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `Your reputation isn't high enough to effectively spread rumors.`, category: 'market', importance: 1, readByPlayer: false });
       return false; // Not enough reputation
   }
   player.reputation -= 1; // Cost to spread
@@ -274,7 +274,7 @@ export function spreadRumor(state: GameState, player: Player, rumorId: string): 
   }
 
   console.log(`[RumorEngine] Player ${player.id} spread rumor ${rumorId}, spread increased to ${rumor.spread}.`);
-   state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You helped spread the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
+   state.journal.push({ id: `js-${Date.now()}`, turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `You helped spread the rumor: "${rumor.content}"`, category: 'market', importance: 2, readByPlayer: false });
 
   return true;
 }
@@ -304,6 +304,6 @@ export function createCustomRumor(
 
   state.rumors.push(newRumor);
   console.log(`[RumorEngine] Created custom rumor: ${content}`);
-   state.journal.push({ id: Date.now(), turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `A new rumor started: "${content}"`, category: 'market', importance: 3, readByPlayer: false });
+   state.journal.push({ id: `jc-${Date.now()}`, turn: state.time.dayCount, date: state.time.phaseName + ", " + state.time.season + " Y" + state.time.year, text: `A new rumor started: "${content}"`, category: 'market', importance: 3, readByPlayer: false });
   return newRumor;
 }

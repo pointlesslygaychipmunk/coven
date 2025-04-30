@@ -1,8 +1,8 @@
 // src/townRequests.ts
 // Generates town requests (orders from towns) based on season and needs.
 
-import { TownRequest, Season, GameState, Item, Rarity, ItemCategory } from "coven-shared"; // Import GameState
-import { ITEMS, getItemData } from "./items.js"; // Access item database for validation, added getItemData
+import { TownRequest, Season, GameState, Item } from "coven-shared"; // Removed unused Rarity, ItemCategory
+import { ITEMS, getItemData } from "./items.js"; // Access item database for validation, kept getItemData
 
 let requestCounter = 0;
 
@@ -30,6 +30,8 @@ interface RequestTemplate {
     max: number;
     rewardMult: number;
     difficultyBoost?: number;
+    // Optional: Add a field to specify properties if filtering by them
+    // requiredProperty?: string;
 }
 const requestTemplates: Record<Season, RequestTemplate[]> = {
   "Spring": [
@@ -116,12 +118,11 @@ export function generateTownRequests(state: GameState): TownRequest[] { // Accep
     // Calculate rewards based on item base value, quantity, and multiplier
     const baseItemValue = itemToRequest.value;
     // Adjust reward multiplier based on item properties if needed
-    let rewardMultiplier: number;
-    // Add primaryProperty to template definition if needed
-    if (itemToRequest.primaryProperty) {
-      rewardMultiplier = template.rewardMult * (itemToRequest.primaryProperty === 'soothing' ? 1.1 : 1.0); // Example based on Item with potential primaryProperty
-    } else {
-      rewardMultiplier = template.rewardMult;
+    let rewardMultiplier: number = template.rewardMult; // Initialize with template multiplier
+    // Example based on Item with potential primaryProperty
+    // This check remains illustrative, as primaryProperty might not be standard on all Item types
+    if (itemToRequest.primaryProperty === 'soothing') {
+         rewardMultiplier *= 1.1;
     }
 
     const rewardGold = Math.round(quantity * baseItemValue * rewardMultiplier * (1 + Math.random() * 0.2)); // Add slight random bonus
@@ -131,9 +132,10 @@ export function generateTownRequests(state: GameState): TownRequest[] { // Accep
      const suitableRequesters = townRequesters.filter(r =>
          r.roles.includes('any') ||
          r.roles.includes(itemToRequest.type) ||
-         (itemToRequest.category && r.roles.includes(itemToRequest.category as string)) || // Cast category as string if needed
+         r.roles.includes(itemToRequest.category) || // Removed cast, category is mandatory on Item
          (itemToRequest.rarity && itemToRequest.rarity !== 'common' && r.roles.some(role => role.includes('rare'))) || // Ensure rarity exists before check
-         (itemToRequest.primaryProperty && r.roles.some(role => role.includes(itemToRequest.primaryProperty))) // Match primary property to role
+         // Safely check primaryProperty before using it
+         (itemToRequest.primaryProperty && r.roles.some(role => role.includes(itemToRequest.primaryProperty!))) // Use non-null assertion or conditional check
      );
      const requester = suitableRequesters.length > 0
          ? suitableRequesters[Math.floor(Math.random() * suitableRequesters.length)]

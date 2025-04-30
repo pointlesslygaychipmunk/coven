@@ -3,17 +3,18 @@
 // Manages weather changes, plant growth, and time progression
 
 import {
-    GameState, Season, WeatherFate, MoonPhase, Plant, Rarity,
-    GardenSlot, GameTime, JournalEntry, Player, Ingredient // Added Ingredient type
+    GameState, Season, WeatherFate, MoonPhase, Plant,
+    GardenSlot, GameTime, JournalEntry // Removed Player, Rarity, Ingredient (from coven-shared)
 } from "coven-shared";
-import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription } from "./ingredients.js"; // Import helpers, added getGrowthStageDescription
+import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription, Ingredient } from "./ingredients.js"; // Import helpers, Ingredient type added here
 
-// Ordered arrays for moon phases and seasons
-const MoonPhases: MoonPhase[] = [
+// Ordered arrays for moon phases and seasons - Exported for use elsewhere
+export const MoonPhases: MoonPhase[] = [ // Added export
     "New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous",
     "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"
 ];
-const Seasons: Season[] = ["Spring", "Summer", "Fall", "Winter"];
+export const Seasons: Season[] = ["Spring", "Summer", "Fall", "Winter"]; // Added export
+
 // Define how many phases (turns) are in a season. 8 phases/cycle * 3 cycles = 24
 const PHASES_PER_SEASON = MoonPhases.length * 3;
 
@@ -66,7 +67,7 @@ function applyGrowthAndWeather(
     plant: Plant,
     slot: GardenSlot,
     weather: WeatherFate,
-    currentPhase: MoonPhase, // Assuming Ingredient type is imported and includes Rarity
+    currentPhase: MoonPhase,
     currentSeason: Season
 ): {
     didGrow: boolean,
@@ -76,14 +77,14 @@ function applyGrowthAndWeather(
 } {
     // Initial checks
     if (!plant) return { didGrow: false, didWither: false, becameMature: false, messages: [] };
-    const plantData = getIngredientData(plant.name); // Get base data
+    const plantData = getIngredientData(plant.name); // Get base data using the imported helper
     if (!plantData) {
          console.error(`[TurnEngine] Missing ingredient data for plant: ${plant.name}`);
          return { didGrow: false, didWither: false, becameMature: false, messages: [`Error processing ${plant.name}: Missing data.`] };
     }
 
     const result = { didGrow: false, didWither: false, becameMature: false, messages: [] as string[] };
-    const initialGrowth = plant.growth ?? 0;
+    // Removed unused initialGrowth variable
     const maxGrowth = plant.maxGrowth ?? plantData.growthTime; // Use plantData growthTime as maxGrowth
     plant.maxGrowth = maxGrowth; // Ensure maxGrowth is set on the plant object
 
@@ -151,7 +152,7 @@ function applyGrowthAndWeather(
 
     // --- Growth Calculation (Only if healthy enough and not mature) ---
     if (!plant.mature && plant.health > 30) {
-        const growthCalc = calculateGrowthModifier(
+        const growthCalc = calculateGrowthModifier( // Ensure calculateGrowthModifier takes Ingredient type
             plantData, currentSeason, currentPhase, currentMoisture, slot.sunlight ?? 70
         );
         let growthIncrease = growthCalc.growthModifier; // Base growth is 1.0 * modifier
@@ -195,17 +196,17 @@ export function processTurn(state: GameState): GameState {
     const turnEvents: { text: string, category: string, importance: number, player?: string }[] = [];
 
     // --- Time Advancement ---
-    const oldPhaseName = state.time.phaseName;
+    // Removed unused oldPhaseName variable
     const oldSeason = state.time.season;
     state.time.phase = (state.time.phase + 1) % MoonPhases.length;
     state.time.phaseName = MoonPhases[state.time.phase];
     state.time.dayCount += 1;
 
-    let seasonChanged = false;
+    // Removed unused seasonChanged variable
     // Check for season change (based on dayCount and phases per season)
     if (state.time.dayCount > 1 && (state.time.dayCount -1) % PHASES_PER_SEASON === 0) {
         state.time.season = nextSeason(oldSeason);
-        seasonChanged = true;
+        // seasonChanged = true; // Removed
         turnEvents.push({ text: `The season changes. Welcome, ${state.time.season}!`, category: 'season', importance: 5 });
         if (state.time.season === "Spring") {
             state.time.year += 1;

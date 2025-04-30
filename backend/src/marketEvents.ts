@@ -1,7 +1,8 @@
 // src/marketEvents.ts
 // Handles periodic market adjustments, including memory decay towards
 // base prices, rumor impacts, and seasonal fluctuations.
-import { GameState, MarketItem, Rumor, Season, MoonPhase, ItemCategory, ItemType } from "coven-shared";
+import { GameState, MarketItem, Season, MoonPhase, ItemCategory, ItemType } // Removed unused Rumor type
+    from "coven-shared";
 import { getItemData } from "./items.js"; // Access base item data
 
 const BASE_DEMAND = 50;
@@ -105,7 +106,6 @@ function applyMoonPhaseEffects(state: GameState): void {
     const factors: string[] = []; // For logging/journal
 
     // Define moon phase effects (category/type, price multiplier, availability flag)
-    // Added more specific effects based on vision
     const moonEffects: Partial<Record<MoonPhase, {
         priceEffects?: Partial<Record<ItemCategory | ItemType, number>>;
         availability?: 'add' | 'remove';
@@ -113,30 +113,30 @@ function applyMoonPhaseEffects(state: GameState): void {
         generalEffect?: number; // General multiplier for all items? (Use sparingly)
     }>> = {
         "New Moon": {
-            priceEffects: { "ritual_item": 1.15, "seed": 0.95, "mushroom": 1.1 }, // Rituals stronger, bad planting, good mushroom harvest?
+            priceEffects: { "ritual_item": 1.15, "seed": 0.95, "mushroom": 1.1 },
             availability: 'add', items: ["ing_nightcap"]
         },
         "Waxing Crescent": {
-            priceEffects: { "seed": 1.15, "herb": 1.05 } // Good planting, herbs growing
+            priceEffects: { "seed": 1.15, "herb": 1.05 }
         },
         "First Quarter": {
-            priceEffects: { "tool": 1.05, "fruit": 1.05 } // Crafting, fruits developing
+            priceEffects: { "tool": 1.05, "fruit": 1.05 }
         },
         "Waxing Gibbous": {
-            priceEffects: { "root": 1.1, "potion": 1.05 } // Roots gathering energy, potions gaining potency
+            priceEffects: { "root": 1.1, "potion": 1.05 }
         },
         "Full Moon": {
-            priceEffects: { "potion": 1.25, "flower": 1.1, "crystal": 1.1 }, // Potions peak, flowers bloom, crystals charged
-            availability: 'add', items: ["ritual_moonstone", "ing_sacred_lotus", "ing_moonbud"] // Make Moonbud more common too
+            priceEffects: { "potion": 1.25, "flower": 1.1, "crystal": 1.1 },
+            availability: 'add', items: ["ritual_moonstone", "ing_sacred_lotus", "ing_moonbud"]
         },
         "Waning Gibbous": {
-            priceEffects: { "ingredient": 1.05, "elixir": 1.05 } // Good general harvest, elixirs settling
+            priceEffects: { "ingredient": 1.05, "elixir": 1.05 }
         },
         "Last Quarter": {
-            priceEffects: { "herb": 0.9, "talisman": 1.1 } // Herbs declining, good time for protective talismans?
+            priceEffects: { "herb": 0.9, "talisman": 1.1 }
         },
         "Waning Crescent": {
-            priceEffects: { "crystal": 0.9, "ingredient": 0.95 } // Crystals discharging, ingredients losing potency
+            priceEffects: { "crystal": 0.9, "ingredient": 0.95 }
         }
     };
 
@@ -146,7 +146,6 @@ function applyMoonPhaseEffects(state: GameState): void {
         state.market.forEach(item => {
             const categoryMultiplier = effect.priceEffects![item.category] ?? 1.0;
             const typeMultiplier = effect.priceEffects![item.type] ?? 1.0;
-            // Prioritize category effect, then type effect if category doesn't match
             const multiplier = categoryMultiplier !== 1.0 ? categoryMultiplier : typeMultiplier;
 
             if (multiplier !== 1.0) {
@@ -161,7 +160,6 @@ function applyMoonPhaseEffects(state: GameState): void {
     }
 
     // --- Handle Item Availability ---
-    // Define all items potentially affected by moon phases
     const allMoonAffectedItemIds = new Set<string>();
     Object.values(moonEffects).forEach(phaseEffect => {
         phaseEffect?.items?.forEach(id => allMoonAffectedItemIds.add(id));
@@ -173,7 +171,6 @@ function applyMoonPhaseEffects(state: GameState): void {
     state.market = state.market.filter(item => {
         if (allMoonAffectedItemIds.has(item.id) && !itemsToAddThisPhase.has(item.id)) {
             factors.push(`${item.name} became unavailable as the ${currentPhase} begins.`);
-            // Clear demand/supply? Optional, might recover when it returns
              delete state.marketData.demand[item.name];
              delete state.marketData.supply[item.name];
             return false; // Remove from market
@@ -186,7 +183,6 @@ function applyMoonPhaseEffects(state: GameState): void {
         if (!state.market.some(item => item.id === itemId)) {
             const itemData = getItemData(itemId);
             if (itemData) {
-                // Determine starting price based on potential phase effect
                 let startingPrice = itemData.value || 10;
                 if (effect?.priceEffects) {
                      const categoryMultiplier = effect.priceEffects[itemData.category ?? 'misc'] ?? 1.0;
@@ -204,6 +200,7 @@ function applyMoonPhaseEffects(state: GameState): void {
                     rarity: itemData.rarity || 'uncommon',
                     priceHistory: [Math.max(1, startingPrice)],
                     lastPriceChange: state.time.dayCount
+                    // volatility and blackMarketOnly should default or be set based on itemData if available
                 };
                 state.market.push(newItem);
                 ensureMarketData(state, newItem.name); // Init demand/supply
@@ -213,9 +210,7 @@ function applyMoonPhaseEffects(state: GameState): void {
     });
 
     // Add journal entries if significant changes occurred
-    // if (factors.length > 1) { // Avoid logging just one minor change maybe
-    //     state.journal.push({ /* Add journal entry about moon effects */ });
-    // }
+    // if (factors.length > 1) { state.journal.push({ /* Add journal entry about moon effects */ }); }
 }
 
 // Apply seasonal effects (price, supply/demand)
@@ -270,6 +265,9 @@ function applySeasonalEffects(state: GameState): void {
             ensureMarketData(state, item.name);
             state.marketData.supply[item.name] = Math.min(95, state.marketData.supply[item.name] + 10);
             state.marketData.demand[item.name] = Math.min(95, state.marketData.demand[item.name] + 5);
+            // Could also add a small price modifier here?
+            // item.price = Math.max(1, Math.round(item.price * 1.03)); // Slight price increase in season
+            // factors.push(`${item.name} is in season!`);
         }
     });
 
@@ -283,6 +281,7 @@ function applyRumorEffects(state: GameState): void {
   const factors: string[] = [];
 
   activeRumors.forEach(rumor => {
+    // Check if affectedItem is defined before proceeding
     if (!rumor.affectedItem) return;
 
     const affectedMarketItems = state.market.filter(item => item.name === rumor.affectedItem);
@@ -291,8 +290,9 @@ function applyRumorEffects(state: GameState): void {
     const spreadFactor = (rumor.spread ?? 0) / 100; // 0.0 to 1.0
 
     // --- Price Effect ---
-    if (rumor.priceEffect) {
-      const effectStrength = spreadFactor * rumor.priceEffect;
+    // Check if priceEffect exists and is non-zero before applying
+    if (rumor.priceEffect !== undefined && rumor.priceEffect !== 0) {
+      const effectStrength = spreadFactor * rumor.priceEffect; // No need to check undefined here as it's checked above
       affectedMarketItems.forEach(item => {
         const oldPrice = item.price;
         item.price = Math.max(1, Math.round(item.price * (1 + effectStrength)));
@@ -304,16 +304,29 @@ function applyRumorEffects(state: GameState): void {
     }
 
     // --- Demand/Supply Effect ---
-    // Shortage rumors increase demand & decrease supply, Surplus do the opposite
-    ensureMarketData(state, rumor.affectedItem);
-    const demandChange = (rumor.priceEffect > 0 ? 1 : (rumor.priceEffect < 0 ? -1 : 0)) * spreadFactor * 20; // Max +/- 20 change
-    const supplyChange = (rumor.priceEffect > 0 ? -1 : (rumor.priceEffect < 0 ? 1 : 0)) * spreadFactor * 15; // Max +/- 15 change
+    ensureMarketData(state, rumor.affectedItem); // Ensure market data exists
 
-    if(demandChange !== 0) state.marketData.demand[rumor.affectedItem] = Math.max(5, Math.min(95, state.marketData.demand[rumor.affectedItem] + demandChange));
-    if(supplyChange !== 0) state.marketData.supply[rumor.affectedItem] = Math.max(5, Math.min(95, state.marketData.supply[rumor.affectedItem] + supplyChange));
+    // Check if priceEffect exists before calculating demand/supply changes based on it
+    if (rumor.priceEffect !== undefined) {
+        const demandChange = (rumor.priceEffect > 0 ? 1 : (rumor.priceEffect < 0 ? -1 : 0)) * spreadFactor * 20; // Max +/- 20 change
+        const supplyChange = (rumor.priceEffect > 0 ? -1 : (rumor.priceEffect < 0 ? 1 : 0)) * spreadFactor * 15; // Max +/- 15 change
 
-    if(demandChange !== 0 || supplyChange !== 0) {
-        factors.push(`Rumor adjusted supply/demand for ${rumor.affectedItem}.`);
+        if(demandChange !== 0) {
+            state.marketData.demand[rumor.affectedItem] = Math.max(5, Math.min(95, (state.marketData.demand[rumor.affectedItem] ?? BASE_DEMAND) + demandChange)); // Use default if undefined
+        }
+        if(supplyChange !== 0) {
+            state.marketData.supply[rumor.affectedItem] = Math.max(5, Math.min(95, (state.marketData.supply[rumor.affectedItem] ?? BASE_SUPPLY) + supplyChange)); // Use default if undefined
+        }
+
+        if(demandChange !== 0 || supplyChange !== 0) {
+            factors.push(`Rumor adjusted supply/demand for ${rumor.affectedItem}.`);
+        }
+    } else {
+        // Handle case where rumor affects item but has no priceEffect (e.g., special rumor)
+        // Maybe a slight random shift in demand/supply?
+        // if (Math.random() < 0.1 * spreadFactor) { // Small chance based on spread
+        //     state.marketData.demand[rumor.affectedItem] = Math.max(5, Math.min(95, (state.marketData.demand[rumor.affectedItem] ?? BASE_DEMAND) + (Math.random() < 0.5 ? 5 : -5)));
+        // }
     }
   });
 
@@ -375,19 +388,28 @@ function updateInflation(state: GameState): void {
        state.marketData.inflation = newInflation;
 
        // Apply gradual inflation adjustment to *base* prices
-       // Adjust slightly slower to prevent wild base price swings
-       const basePriceAdjustmentFactor = (newInflation - previousInflation) * 0.01; // Apply 1% of the inflation change this turn
+       const basePriceAdjustmentFactor = (newInflation - previousInflation) * 0.1; // Apply 10% of the inflation change this turn to base prices
        state.market.forEach(item => {
-            // Don't adjust black market base prices with global inflation? Or maybe less effect?
             if(!item.blackMarketOnly) {
                const oldBase = item.basePrice;
                item.basePrice = Math.max(1, Math.round(oldBase * (1 + basePriceAdjustmentFactor)));
-               // If base price changed, potentially update current price slightly towards it?
-               // Optional: item.price = Math.round(item.price * (1 + basePriceAdjustmentFactor * 0.1)); // Very slight pull
-               // console.log(`[Inflation] ${item.name} base price changed ${oldBase} -> ${item.basePrice}`);
+               if (item.basePrice !== oldBase) {
+                 // console.log(`[Inflation] ${item.name} base price changed ${oldBase} -> ${item.basePrice}`);
+                 // Optionally, pull current price slightly towards new base
+                 // item.price = Math.round(item.price + (item.basePrice - item.price) * 0.05); // 5% pull towards new base
+               }
             }
         });
-       state.journal.push({ id: `inf-${state.time.dayCount}`, turn: state.time.dayCount, date: `${state.time.phaseName}, ${state.time.season} Y${state.time.year}`, text: `Market prices feel ${newInflation > 1.05 ? 'inflated' : (newInflation < 0.95 ? 'deflated' : 'stable')} (${newInflation.toFixed(2)}).`, category: 'market', importance: 2, readByPlayer: false });
+       // Add Journal entry only if inflation deviates significantly from 1.0
+        if (Math.abs(newInflation - 1.0) > 0.05) {
+             state.journal.push({
+                  id: `inf-${state.time.dayCount}`,
+                  turn: state.time.dayCount,
+                  date: `${state.time.phaseName}, ${state.time.season} Y${state.time.year}`,
+                  text: `Market prices feel ${newInflation > 1.0 ? 'inflated' : 'deflated'} (${newInflation.toFixed(2)}).`,
+                  category: 'market', importance: 2, readByPlayer: false
+             });
+        }
   }
 
   state.marketData.tradingVolume = 0; // Reset volume for next turn

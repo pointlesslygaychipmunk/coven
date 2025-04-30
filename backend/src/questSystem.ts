@@ -2,8 +2,8 @@
 // Manages ritual quest progression and completion
 
 import {
-    GameState, RitualQuest, Player, MoonPhase, BasicRecipeInfo,
-    Season, InventoryItem, JournalEntry, RitualQuestStep, RitualReward // Added missing types
+    GameState, RitualQuest, Player, Season, // Removed unused MoonPhase, BasicRecipeInfo
+    InventoryItem, JournalEntry, RitualQuestStep, RitualReward // Kept used types
 } from "coven-shared"; // Use shared package
 import { getItemData } from "./items.js"; // Import item helper
 import { getRecipeById } from './brewing.js'; // Assuming getRecipeById exists
@@ -26,7 +26,7 @@ export const RITUAL_QUESTS: RitualQuest[] = [
         totalSteps: 2,
         steps: [
             { description: "Brew a Moon Glow Serum", completed: false },
-            { description: "Harvest 3 Moonbuds", completed: false }
+            { description: "Harvest 3 Moonbuds", completed: false } // Note: Multi-count steps need tracking logic
         ],
         rewards: [ { type: 'skill', value: 'brewing', quantity: 0.5 } ],
         unlocked: true, // Example starting ritual
@@ -58,7 +58,7 @@ export const RITUAL_QUESTS: RitualQuest[] = [
       stepsCompleted: 0,
       totalSteps: 3,
       steps: [
-        { description: "Plant 3 different seeds during Spring", completed: false },
+        { description: "Plant 3 different seeds during Spring", completed: false }, // Note: Multi-count steps need tracking logic
         { description: "Harvest a Glimmerroot with 80+ quality", completed: false },
         { description: "Craft a Spring Revival Tonic", completed: false }
       ],
@@ -174,9 +174,10 @@ export function checkQuestStepCompletion(
                      // step.description = "Harvest a Moonbud"; stepCompleted = true; // Or...
                      console.warn("[Quest] Step 'Harvest 3 Moonbuds' requires tracking logic not implemented.");
                      // To make it work simply for now, let's assume *any* moonbud harvest progresses it once.
-                      // if (!step.progress) step.progress = 0; // Add temporary progress counter
-                     // step.progress++;
-                      //if (step.progress >= 3) stepCompleted = true;
+                      if (!step.progress) step.progress = 0; // Add temporary progress counter
+                      step.progress++;
+                      if (step.progress >= 3) stepCompleted = true;
+                      else addQuestJournalEntry(state, `Harvested Moonbud (${step.progress}/3) for "${ritual.name}".`, 2); // Log progress
                  }
                  break;
              case "Harvest a Glimmerroot with 80+ quality":
@@ -189,6 +190,9 @@ export function checkQuestStepCompletion(
                 if (actionType === 'plant' && currentSeason === "Spring") {
                     console.warn("[Quest] Step 'Plant 3 different seeds' requires tracking logic.");
                     // Need to track unique seeds planted this spring
+                    // Placeholder: complete on first plant action during spring
+                     // stepCompleted = true;
+                     // This needs a proper implementation tracking player.plantedSeedsThisSpring or similar.
                 }
                  break;
 
@@ -259,10 +263,9 @@ export function progressRituals(state: GameState): void {
 }
 
 
-// Award ritual rewards to a player
-// Moved helper function import to top level
-// Ensure addItemToInventory and addSkillXp are accessible (e.g., import from gameEngine or pass engine instance)
-import { addItemToInventory, addSkillXp } from "./gameEngine.js"; // Assuming these are exported or accessible
+// Ensure addItemToInventory and addSkillXp are accessible
+// Correctly import from gameEngine.ts
+import { addItemToInventory, addSkillXp } from "./gameEngine.js";
 
 // Helper function to check if a player has completed a ritual
 export const isRitualClaimed = (player: Player, ritualId: string): boolean => player.completedRituals.includes(ritualId);
@@ -304,16 +307,15 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
                     break;
 
                 case 'item':
-                    const itemName = String(reward.value);
-                    const itemData = getItemData(itemName); // Use ID if value is ID, or name lookup? Assume ID for now
+                    const itemBaseId = String(reward.value); // Assume value is the base item ID
+                    const itemData = getItemData(itemBaseId);
                     if (itemData) {
                         const quantity = reward.quantity ?? 1;
-                         // Rewards are usually high quality
-                        addItemToInventory(player, itemData, quantity, 95);
+                        addItemToInventory(player, itemData, quantity, 95); // Rewards are high quality
                         addQuestJournalEntry(state, `Received ${quantity}x ${itemData.name}.`);
                     } else {
-                         console.error(`[Quest] Reward item not found: ${itemName}`);
-                         addQuestJournalEntry(state, `Error: Could not find reward item ${itemName}.`, 1);
+                         console.error(`[Quest] Reward item not found: ${itemBaseId}`);
+                         addQuestJournalEntry(state, `Error: Could not find reward item ${itemBaseId}.`, 1);
                     }
                     break;
 
@@ -321,7 +323,7 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
                     const skillName = String(reward.value);
                     const skillAmount = reward.quantity ?? 1; // Use quantity for XP amount
                     if (player.skills.hasOwnProperty(skillName)) {
-                        addSkillXp(player, skillName as keyof Player['skills'], skillAmount); // Use addSkillXp helper
+                        addSkillXp(player, skillName as keyof Player['skills'], skillAmount); // Use imported addSkillXp
                         addQuestJournalEntry(state, `${skillName.charAt(0).toUpperCase() + skillName.slice(1)} skill increased.`);
                     } else {
                          console.warn(`[Quest] Reward skill not found on player: ${skillName}`);
@@ -338,10 +340,19 @@ export function claimRitualRewards(state: GameState, player: Player, ritualId: s
                     const recipeId = String(reward.value);
                     if (!player.knownRecipes.includes(recipeId)) {
                          player.knownRecipes.push(recipeId);
-                          // Find recipe name for journal - use local function
-                          // Assuming getRecipeById is correctly imported/defined
-                         const recipeData = getRecipeById(recipeId);
-                         addQuestJournalEntry(state, `Learned new recipe: ${recipeData?.name || recipeId}!`, 4);
+                          const recipeData = getRecipeById(recipeId); // Use imported function
+                          addQuestJournalEntry(state, `Learned new recipe: ${recipeData?.name || recipeId}!`, 4);
+                           // Also update the global knownRecipes list in GameState
+                           if (recipeData && !state.knownRecipes?.some(r => r.id === recipeId)) {
+                               const basicInfo: BasicRecipeInfo = { // Recreate BasicRecipeInfo structure
+                                   id: recipeData.id,
+                                   name: recipeData.name,
+                                   category: recipeData.category,
+                                   description: recipeData.description,
+                                   type: recipeData.type
+                               };
+                               state.knownRecipes = [...(state.knownRecipes || []), basicInfo];
+                           }
                     }
                      break;
 

@@ -2,7 +2,7 @@
 // Defines brewing recipes and interactions for creating skincare potions
 
 import { MoonPhase, AtelierSpecialization, ItemType, ItemCategory, InventoryItem } from "coven-shared";
-import { Player, Item, Skills } from "coven-shared"; // Import Player and other types
+import { Player, Skills } from "coven-shared"; // Removed unused Item type
 import { getSpecializationBonus } from './atelier.js'; // Import necessary function
 
 // Define a recipe for brewing skincare products
@@ -194,19 +194,13 @@ export function findMatchingRecipe(
         const recipeIngs = recipe.ingredients.map(ing => ing.itemName).sort();
 
         // Check if the selected ingredients match the recipe ingredients (order doesn't matter)
-        if (
-            (recipeIngs[0] === ingredientNames[0] && recipeIngs[1] === ingredientNames[1])
-            // Removed second condition as sorting covers it
-        ) {
+        if ( recipeIngs[0] === ingredientNames[0] && recipeIngs[1] === ingredientNames[1] ) {
              // Check if player has enough quantity of each ingredient
              const hasEnough = recipe.ingredients.every(reqIng => {
                  // Check against the *specifically selected* inventory items for this brew attempt
                  // Need to consider quantity requested vs quantity available in *each* selected stack
                  const itemsUsedForThisIngredient = ingredientInvItems.filter(item => item.name === reqIng.itemName);
                  const totalAvailable = itemsUsedForThisIngredient.reduce((sum, item) => sum + item.quantity, 0);
-                 // This check is a bit flawed, as we pass specific INV IDs later.
-                 // A better check would be done *before* calling findMatchingRecipe,
-                 // ensuring the passed `ingredientInvItems` *already* represent available quantity.
                  // For now, assume the UI passes items the player *can* use.
                  return totalAvailable >= reqIng.quantity;
              });
@@ -216,9 +210,6 @@ export function findMatchingRecipe(
             }
         }
     }
-
-    // Optional: Check if any *unknown* recipe matches for experimentation (lower success?)
-    // This requires iterating through all RECIPES, not just player.knownRecipes
 
     return undefined; // No known, craftable recipe found
 }
@@ -289,9 +280,10 @@ export function calculateBrewingSuccess(
   factors: string[] // Explain the calculation
 } {
   const factors: string[] = [];
+  const DEFAULT_ITEM_QUALITY = 70; // Added default quality for calculations
 
   // Calculate average ingredient quality
-  const avgIngredientQuality = ingredientQualities.reduce((sum, q) => sum + q, 0) / ingredientQualities.length;
+  const avgIngredientQuality = ingredientQualities.reduce((sum, q) => sum + q, 0) / ingredientQualities.length || DEFAULT_ITEM_QUALITY; // Handle empty array case
   factors.push(`Base quality from ingredients: ${avgIngredientQuality.toFixed(0)}%`);
 
   // Base success chance (adjust base and scaling)
@@ -384,7 +376,7 @@ export function brewPotion(
     // Maybe return 'Ruined Brewage' or similar instead of quality 0?
     return {
       success: false,
-      resultItemName: "Ruined Brewage", // Define this item
+      resultItemName: "misc_ruined_brewage", // Use ID for consistency
       quantityProduced: 0,
       quality: 0
     };

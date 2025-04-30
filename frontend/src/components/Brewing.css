@@ -296,7 +296,8 @@
   .result-quality { font-size: 13px; color: var(--color-text-medium); }
 
   .recipe-match { background-color: rgba(93, 70, 138, 0.1); border: 1px solid var(--color-border-light); border-radius: var(--border-radius-sm); padding: 12px; animation: fade-in 0.4s ease-out; }
-  .recipe-match h4 { margin: 0 0 8px 0; color: var(--color-accent-primary); font-size: 15px; }
+  /* Removed empty .recipe-match h4 {} rule */
+  .recipe-match h4 { margin: 0 0 8px 0; color: var(--color-accent-primary); font-size: 15px; } /* Keep this if styling is needed */
   /* .recipe-name is defined below */
   .recipe-description { font-size: 13px; font-family: var(--font-secondary); line-height: 1.4; margin: 8px 0; color: var(--color-text-medium); }
   .recipe-properties { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }

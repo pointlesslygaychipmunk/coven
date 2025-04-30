@@ -3,6 +3,9 @@ import './Market.css';
 import { InventoryItem, MarketItem, Rumor, TownRequest } from 'coven-shared'; // Use shared types
 import Requests from './Requests'; // Import Requests component
 
+// Define default quality locally if needed for display fallback
+const DEFAULT_ITEM_QUALITY = 70;
+
 interface MarketProps {
   playerGold: number;
   playerInventory: InventoryItem[];
@@ -13,7 +16,7 @@ interface MarketProps {
   onBuyItem: (itemId: string) => void;
   onSellItem: (inventoryItemId: string) => void; // Expect inventory item ID
   onFulfillRequest: (requestId: string) => void;
-  onSpreadRumor?: (rumorId: string) => void; // Optional rumor spreading
+  // onSpreadRumor?: (rumorId: string) => void; // Removed unused prop
 }
 
 const Market: React.FC<MarketProps> = ({
@@ -26,7 +29,7 @@ const Market: React.FC<MarketProps> = ({
   onBuyItem,
   onSellItem,
   onFulfillRequest,
-  onSpreadRumor
+  // onSpreadRumor // Removed unused prop
 }) => {
   // State
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'requests'>('buy');
@@ -133,11 +136,8 @@ const Market: React.FC<MarketProps> = ({
   };
 
   // Handle request selection
-  const handleRequestClick = (requestId: string) => {
-    setSelectedRequestId(requestId);
-    setSelectedItemId(null);
-    setSelectedInventoryItemId(null);
-  };
+  // Removed unused handleRequestClick function
+  // const handleRequestClick = (requestId: string) => { ... }
 
   // Check if player can afford the selected market item
   const canAffordItem = (): boolean => {
@@ -179,17 +179,21 @@ const Market: React.FC<MarketProps> = ({
     return (
       <div className="market-items-grid">
         {items.map(item => {
-          const invItem = item as InventoryItem; // Assume InventoryItem structure for potential quality/qty
-          const marketData = isSellTab ? marketItems.find(mi => mi.id === invItem.baseId) : item as MarketItem; // Use baseId for lookup
-          const displayPrice = marketData?.price ?? item.value ?? 0; // Fallback value if needed
+          const invItem = isSellTab ? item as InventoryItem : undefined; // Only cast if sell tab
+          const marketData = isSellTab ? marketItems.find(mi => mi.id === invItem?.baseId) : item as MarketItem; // Use baseId for lookup if sell tab
+          // Use market price directly for buy tab, derive from market data for sell tab preview
+          const displayPrice = marketData?.price ?? 0; // Use market price as the base
           const quality = invItem?.quality; // Get quality if it's an inventory item
           const quantity = invItem?.quantity; // Get quantity
 
           // Calculate potential sell price for display on Sell tab item card
-          let sellPreviewPrice = displayPrice;
+          let sellPreviewPrice = 0;
            if (isSellTab && quality !== undefined && marketData) {
-               const qualityMultiplier = 0.5 + ((quality ?? 50) / 100) * 0.7; // Same logic as details panel
+               const qualityMultiplier = 0.5 + ((quality ?? DEFAULT_ITEM_QUALITY) / 100) * 0.7; // Use local DEFAULT_ITEM_QUALITY
                sellPreviewPrice = Math.max(1, Math.round(marketData.price * qualityMultiplier));
+           } else if (isSellTab && !marketData) {
+               // Handle case where inventory item exists but corresponding market item doesn't (shouldn't happen with current filtering)
+               sellPreviewPrice = Math.max(1, Math.round((item.value || 1) * 0.5)); // Fallback to low price based on base value
            }
 
 
@@ -213,7 +217,9 @@ const Market: React.FC<MarketProps> = ({
                   </div>
               )}
               <div className="market-item-price">
-                  {formatPrice(isSellTab ? sellPreviewPrice : displayPrice)} {/* Show calculated sell price preview */}
+                  {/* Display market price for Buy, calculated sell preview for Sell */}
+                  {formatPrice(isSellTab ? sellPreviewPrice : displayPrice)}
+                  {/* Show trend based on marketData, regardless of tab */}
                   {marketData && <span className={`trend-indicator ${getTrendClass(marketData)}`}>{getPriceTrendIcon(marketData)}</span>}
               </div>
               <div className="market-item-category">{item.category}</div>
@@ -225,13 +231,19 @@ const Market: React.FC<MarketProps> = ({
   };
 
 
-  // Render Town Requests List (moved to separate component for modularity)
+  // Render Town Requests List (using imported component)
   const renderTownRequestsTab = () => (
-      <Requests
-          townRequests={townRequests}
-          playerInventory={playerInventory}
-          onFulfillRequest={onFulfillRequest}
-      />
+      <div className="market-requests-tab"> {/* Added wrapper div */}
+          <Requests
+              townRequests={townRequests}
+              playerInventory={playerInventory}
+              onFulfillRequest={(reqId) => {
+                  // Wrap fulfill action and potentially clear selection
+                  onFulfillRequest(reqId);
+                  setSelectedRequestId(null); // Clear selection after fulfilling
+              }}
+          />
+      </div>
   );
 
   // Render Details Panel
@@ -272,10 +284,8 @@ const Market: React.FC<MarketProps> = ({
     // --- Sell Tab Details ---
     if (activeTab === 'sell' && selectedDetails && 'quantity' in selectedDetails) {
          const item = selectedDetails as InventoryItem;
-         // Find corresponding market data for price trend and base sell price
-         const marketData = marketItems.find(mi => mi.id === item.baseId); // Use baseId
-         const baseSellPrice = marketData?.price ?? item.value ?? 0;
-         // Adjust sell price based on quality
+         const marketData = marketItems.find(mi => mi.id === item.baseId);
+         const baseSellPrice = marketData?.price ?? 0; // Use 0 if no market data? Or item's base value?
          const qualityMultiplier = 0.5 + ((item.quality ?? DEFAULT_ITEM_QUALITY) / 100) * 0.7;
          const actualSellPrice = Math.max(1, Math.round(baseSellPrice * qualityMultiplier));
          const trendClass = marketData ? getTrendClass(marketData) : 'stable';
@@ -303,7 +313,7 @@ const Market: React.FC<MarketProps> = ({
                  )}
              </div>
            <div className="market-actions-panel">
-             <button className="secondary" onClick={() => onSellItem(item.id)} disabled={item.quantity <= 0}>
+             <button className="secondary" onClick={() => onSellItem(item.id)} disabled={item.quantity <= 0 || !marketData}> {/* Disable if not sellable */}
                Sell 1 ( {formatPrice(actualSellPrice)} )
              </button>
               {/* TODO: Add Sell All / Sell Stack button */}
@@ -320,6 +330,10 @@ const Market: React.FC<MarketProps> = ({
          const totalQuantity = playerInventory
              .filter(item => item.name === request.item)
              .reduce((sum, item) => sum + item.quantity, 0);
+         const avgQuality = totalQuantity > 0
+            ? Math.round(playerInventory.filter(i => i.name === request.item).reduce((s, i) => (s + (i.quality ?? DEFAULT_ITEM_QUALITY) * i.quantity), 0) / totalQuantity)
+            : DEFAULT_ITEM_QUALITY; // Calculate average quality
+
 
         return (
             <div className="market-item-details">
@@ -327,13 +341,13 @@ const Market: React.FC<MarketProps> = ({
                 <div className="selected-item-description">{request.description}</div>
                 <div className="request-requirements">
                     <div><strong>Need:</strong> {request.quantity} x {request.item}</div>
-                    <div><strong>You Have:</strong> {totalQuantity} {requiredItemInv?.quality ? `(Avg Q: ~${Math.round(playerInventory.filter(i=>i.name === request.item).reduce((s,i)=>(s+(i.quality??50)*i.quantity), 0)/totalQuantity)}%)` : ''}</div>
+                    <div><strong>You Have:</strong> {totalQuantity} {totalQuantity > 0 ? `(Avg Q: ~${avgQuality}%)` : ''}</div>
                     <hr style={{borderColor: 'var(--color-border)', margin: '10px 0'}}/>
                     <div><strong>Reward:</strong></div>
                     <div>💰 {request.rewardGold} Gold</div>
                     <div>⭐ +{request.rewardInfluence} Reputation</div>
                      <div className="request-difficulty" style={{justifyContent:'flex-start', marginLeft:0, marginTop:'5px'}}>
-                         Difficulty:  
+                         Difficulty:   {/* Added non-breaking space */}
                           {Array(request.difficulty).fill('★').join('')}
                           {Array(5 - request.difficulty).fill('☆').join('')}
                       </div>
@@ -347,6 +361,7 @@ const Market: React.FC<MarketProps> = ({
         );
     }
 
+    // Fallback if no details match
     return <div className="market-item-details empty">Select an item or request</div>;
   };
 
