@@ -5,8 +5,7 @@
 import {
     Player, InventoryItem, Plant, MoonPhase, Season, JournalEntry,
     Skills, Item, AtelierSpecialization, BasicRecipeInfo,
-    MarketItem, TownRequest, RitualQuest, Rumor,
-    GameTime, GameState
+    MarketItem, TownRequest, GameState
 } from "coven-shared";
 
 import { processTurn, MoonPhases, Seasons } from "./turnEngine.js";
@@ -162,20 +161,20 @@ export class GameEngine {
     
     const startingRecipeIds = ["recipe_cooling_tonic", "recipe_moon_glow_serum"];
     this.state.knownRecipes = startingRecipeIds
-        .map(id => { 
-            const recipe = getRecipeById(id); 
-            if (recipe) { 
-                return { 
-                    id: recipe.id, 
-                    name: recipe.name, 
-                    category: recipe.category, 
-                    description: recipe.description, 
-                    type: recipe.type 
-                }; 
-            } 
-            return null; 
-        })
-        .filter((r): r is BasicRecipeInfo => r !== null);
+    .map(id => { 
+        const recipe = getRecipeById(id); 
+        if (recipe) { 
+            return { 
+                id: recipe.id, 
+                name: recipe.name, 
+                category: recipe.category, 
+                description: recipe.description, 
+                type: recipe.type 
+            } as BasicRecipeInfo; 
+        } 
+        return null; 
+    })
+    .filter((r): r is NonNullable<typeof r> => r !== null) as BasicRecipeInfo[];
         
     initialPlayer.knownRecipes = startingRecipeIds; 
     this.state.townRequests = generateTownRequests(this.state); 
@@ -318,7 +317,7 @@ export class GameEngine {
          const player = this.state.players.find((p: Player) => p.id === playerId); 
          if (!player) return false;
          
-         const slot = player.garden.find(s => s.id === slotId); 
+         const slot = player.garden.find((s: GardenSlot) => s.id === slotId); 
          if (!slot) return false;
          
          const seedInvItem = findInventoryItemById(player, seedInventoryItemId); 
@@ -395,7 +394,7 @@ export class GameEngine {
         if (!player) return false; 
         
         let wateredCount = 0; 
-        player.garden.forEach(slot => { 
+        player.garden.forEach((slot: GardenSlot) => { 
             if (slot.plant && !slot.plant.mature) { 
                 slot.plant.watered = true; 
                 wateredCount++; 
@@ -420,7 +419,7 @@ export class GameEngine {
         const player = this.state.players.find((p: Player) => p.id === playerId); 
         if (!player) return false; 
         
-        const slot = player.garden.find(s => s.id === slotId); 
+        const slot = player.garden.find((s: GardenSlot) => s.id === slotId); 
         if (!slot || !slot.plant || !slot.plant.mature) { 
             this.addJournal("Cannot harvest.", 'garden', 1); 
             return false; 

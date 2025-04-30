@@ -3,7 +3,7 @@
 // base prices, rumor impacts, and seasonal fluctuations.
 
 // Use package name import
-import { GameState, MarketItem, Season, MoonPhase, ItemCategory, ItemType, Rumor, Item } from "coven-shared"; // Add Rumor, Item back for explicit typing
+import { GameState, MarketItem, Season, MoonPhase, ItemCategory, ItemType, Rumor } from "coven-shared";
 import { getItemData } from "./items.js"; // Access base item data
 
 const BASE_DEMAND = 50;
@@ -90,7 +90,7 @@ function applyMoonPhaseEffects(state: GameState): void {
         "Last Quarter": { priceEffects: { "herb": 0.9, "talisman": 1.1 } },
         "Waning Crescent": { priceEffects: { "crystal": 0.9, "ingredient": 0.95 } }
     };
-    const effect = moonEffects[currentPhase]; // Type inference should work here
+    const effect = moonEffects[currentPhase as keyof typeof moonEffects];
     if (effect?.priceEffects) {
         // Add explicit type for item parameter
         state.market.forEach((item: MarketItem) => {
@@ -125,7 +125,7 @@ function applySeasonalEffects(state: GameState): void {
     const currentSeason = state.time.season; const factors: string[] = [];
     const seasonalPriceMods: Partial<Record<Season, Partial<Record<ItemCategory | ItemType, number>>>> = { /* ... definitions ... */ };
     const seasonalSupplyDemandMods: Partial<Record<Season, Partial<Record<ItemCategory | ItemType, { supply: number, demand: number }>>>> = { /* ... definitions ... */ };
-    const priceEffects = seasonalPriceMods[currentSeason] ?? {}; const sdEffects = seasonalSupplyDemandMods[currentSeason] ?? {};
+    const priceEffects = seasonalPriceMods[currentSeason as keyof typeof seasonalPriceMods] ?? {}; const sdEffects = seasonalSupplyDemandMods[currentSeason as keyof typeof seasonalSupplyDemandMods] ?? {};
     // Add explicit type for item parameter
     state.market.forEach((item: MarketItem) => {
         const categoryPriceMod = priceEffects[item.category] ?? 1.0; const typePriceMod = priceEffects[item.type] ?? 1.0; const priceMultiplier = categoryPriceMod !== 1.0 ? categoryPriceMod : typePriceMod;

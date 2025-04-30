@@ -51,6 +51,30 @@ export interface BasicRecipeInfo {
   type?: ItemType;
 }
 
+// --- Main Game State ---
+export type GameState = {
+  players: Player[];
+  market: MarketItem[];
+  marketData: {
+    inflation: number;
+    demand: Record<string, number>;
+    supply: Record<string, number>;
+    volatility: number;
+    blackMarketAccessCost: number;
+    blackMarketUnlocked: boolean;
+    tradingVolume: number;
+  };
+  townRequests: TownRequest[];
+  rituals: RitualQuest[];
+  rumors: Rumor[];
+  journal: JournalEntry[];
+  events: Event[];
+  currentPlayerIndex: number;
+  time: GameTime;
+  version: string;
+  knownRecipes: BasicRecipeInfo[];
+};
+
 // Game Time structure
 export type GameTime = {
   year: number;

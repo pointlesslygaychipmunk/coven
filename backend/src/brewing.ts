@@ -2,7 +2,7 @@
 // Defines brewing recipes and interactions for creating skincare potions
 
 // Import from shared types
-import { MoonPhase, AtelierSpecialization, ItemType, ItemCategory, InventoryItem, Player, Skills, BasicRecipeInfo } from "coven-shared";
+import { MoonPhase, AtelierSpecialization, ItemType, ItemCategory, InventoryItem, Player, Skills } from "coven-shared";
 import { getSpecializationBonus } from './atelier.js';
 
 // Define a recipe for brewing skincare products

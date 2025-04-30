@@ -21,7 +21,7 @@ const rumorTemplates: Record<RumorTemplateCategory, string[]> = {
 
 // Selects a random item name
 function pickRandomItemName(state: GameState): string {
-  const availableMarketItems = state.market.map((item: MarketItem) => item.name).filter((name): name is string => !!name);
+  const availableMarketItems = state.market.map((item: MarketItem) => item.name).filter((name: unknown): name is string => !!name);
   const commonItems = ITEMS.filter(item => item.type === 'ingredient' || item.type === 'potion').map(item => item.name);
   const potentialTargets = [...new Set([...availableMarketItems, ...commonItems])];
   if (potentialTargets.length === 0) return "local herbs";

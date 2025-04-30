@@ -2,7 +2,7 @@
 // Generates town requests (orders from towns) based on season and needs.
 
 // Use package name import
-import { TownRequest, Season, GameState, Item, ItemCategory } from "coven-shared"; // Added ItemCategory
+import { TownRequest, Season, GameState, Item } from "coven-shared";
 import { ITEMS } from "./items.js";
 
 let requestCounter = 0;
@@ -37,7 +37,7 @@ function generateRequestDescription(requester: TownRequester, item: string, quan
 }
 
 export function generateTownRequests(state: GameState): TownRequest[] {
-  const currentSeason = state.time.season; const templatesForSeason = requestTemplates[currentSeason] || [];
+  const currentSeason = state.time.season; const templatesForSeason = requestTemplates[currentSeason as keyof typeof requestTemplates] || [];
   const possibleItems = ITEMS; const requests: TownRequest[] = []; const numRequestsToGenerate = 1 + Math.floor(Math.random() * 3);
   const existingRequestItems = state.townRequests.map((r: TownRequest) => r.item); // Added type
   for (let i = 0; i < numRequestsToGenerate && templatesForSeason.length > 0; i++) {

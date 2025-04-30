@@ -1,7 +1,7 @@
 // src/ingredients.ts
 // Defines all plant ingredients, their properties, and growth requirements
 
-import { ItemCategory, Season, MoonPhase, WeatherFate, Item, Rarity } from "coven-shared";
+import { ItemCategory, Season, MoonPhase, WeatherFate, Item } from "coven-shared";
 
 // Ingredient now inherits 'name', 'value', 'description', 'id', 'rarity' from Item
 export interface Ingredient extends Item {
