@@ -8,15 +8,16 @@
     "frontend",
     "backend"
   ],
-  "scripts": {
+"scripts": {
     "dev": "concurrently \"npm:dev:shared\" \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:shared": "npm run dev --workspace=coven-shared",
     "dev:frontend": "npm run dev --workspace=coven-frontend",
     "dev:backend": "npm run dev --workspace=coven-backend",
+
     "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
     "build:shared": "npm run build --workspace=coven-shared",
-    "build:backend": "npm run build --workspace=coven-backend",
-    "build:frontend": "npm run build --workspace=coven-frontend",
+    "build:backend": "cd backend && npx tsc && cd ..",
+    "build:frontend": "npm run build --workspace=coven-frontend"
     "start": "npm run start --workspace=coven-backend",
     "postinstall": "npm run build:shared"
   },

@@ -1,5 +1,5 @@
 {
-  "extends": "C:/Users/Miles/new-coven/tsconfig.base.json",
+  "extends": "./tsconfig.base.local.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
