@@ -179,8 +179,8 @@ try {
 }
 
 // Start Server
-const HTTP_PORT = process.env.PORT || 80;
-const HTTPS_PORT = process.env.HTTPS_PORT || 443;
+const HTTP_PORT = process.env.PORT || 8080;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 http.createServer(app).listen(HTTP_PORT, () => {
   console.log(` Backend server listening at http://localhost:${HTTP_PORT} ✨`);
   console.log(`--------------------------------------------------`);
