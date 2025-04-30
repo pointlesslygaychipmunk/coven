@@ -23,7 +23,7 @@
     "rootDir": "./src",
     "composite": true,
     "types": ["node", "express"],
-    "lib": ["ES2022"], // Added comma here
+    "lib": ["ES2022"],
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
