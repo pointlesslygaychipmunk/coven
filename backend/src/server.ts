@@ -1,5 +1,5 @@
 // backend/src/server.ts
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction, Application } from 'express';
 import cors from 'cors';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -11,7 +11,8 @@ import { GameHandler } from './gameHandler.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const app = express();
+// Add explicit type annotation for app
+const app: Application = express();
 const gameHandler = new GameHandler();
 
 app.use(cors());
@@ -36,7 +37,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // Helper function for API responses
-const handleRequest = (handlerFn: () => any, res: Response, actionName: string) => {
+const handleRequest = (handlerFn: () => any, res: Response, actionName: string): void => {
     try {
         res.json(handlerFn());
     } catch (error: unknown) {
@@ -47,19 +48,106 @@ const handleRequest = (handlerFn: () => any, res: Response, actionName: string) 
 };
 
 // --- API Routes ---
-app.get('/api/state', (_req: Request, res: Response) => handleRequest(gameHandler.getState.bind(gameHandler), res, 'get state'));
-app.post('/api/plant', (req: Request, res: Response) => { const { playerId, slotId, seedItemId } = req.body; if (playerId === undefined || slotId === undefined || seedItemId === undefined) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.plantSeed(playerId, Number(slotId), seedItemId), res, 'plant'); });
-// Corrected waterPlants call - only pass playerId
-app.post('/api/water', (req: Request, res: Response) => { const { playerId } = req.body; if (playerId === undefined) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.waterPlants(playerId), res, 'water'); });
-app.post('/api/harvest', (req: Request, res: Response) => { const { playerId, slotId } = req.body; if (playerId === undefined || slotId === undefined) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.harvestPlant(playerId, Number(slotId)), res, 'harvest'); });
-app.post('/api/brew', (req: Request, res: Response) => { const { playerId, ingredientInvItemIds } = req.body; if (!playerId || !Array.isArray(ingredientInvItemIds) || ingredientInvItemIds.length !== 2) return res.status(400).json({ error: 'Missing/invalid params' }); handleRequest(() => gameHandler.brewPotion(playerId, ingredientInvItemIds as string[]), res, 'brew'); });
-app.post('/api/market/buy', (req: Request, res: Response) => { const { playerId, itemId } = req.body; if (!playerId || !itemId) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.buyItem(playerId, itemId), res, 'buy'); });
-app.post('/api/market/sell', (req: Request, res: Response) => { const { playerId, itemId } = req.body; if (!playerId || !itemId) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.sellItem(playerId, itemId), res, 'sell'); });
-app.post('/api/fulfill', (req: Request, res: Response) => { const { playerId, requestId } = req.body; if (!playerId || !requestId) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.fulfillRequest(playerId, requestId), res, 'fulfill'); });
-app.post('/api/ritual/claim', (req: Request, res: Response) => { const { playerId, ritualId } = req.body; if (!playerId || !ritualId) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.claimRitualReward(playerId, ritualId), res, 'claim'); });
-app.post('/api/end-turn', (req: Request, res: Response) => { const { playerId } = req.body; if (!playerId) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => gameHandler.endTurn(playerId), res, 'end turn'); });
-app.post('/api/save', (_req: Request, res: Response) => handleRequest(() => ({ success: true, saveData: gameHandler.saveGame() }), res, 'save'));
-app.post('/api/load', (req: Request, res: Response) => { const { saveData } = req.body; if (saveData === undefined) return res.status(400).json({ error: 'Missing params' }); handleRequest(() => { const success = gameHandler.loadGame(saveData); if (success) { return { success: true, state: gameHandler.getState() }; } else { throw new Error("Load failed."); } }, res, 'load'); });
+app.get('/api/state', (_req: Request, res: Response): void => handleRequest(gameHandler.getState.bind(gameHandler), res, 'get state'));
+
+app.post('/api/plant', (req: Request, res: Response): void => { 
+    const { playerId, slotId, seedItemId } = req.body; 
+    if (playerId === undefined || slotId === undefined || seedItemId === undefined) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.plantSeed(playerId, Number(slotId), seedItemId), res, 'plant'); 
+});
+
+app.post('/api/water', (req: Request, res: Response): void => { 
+    const { playerId } = req.body; 
+    if (playerId === undefined) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.waterPlants(playerId), res, 'water'); 
+});
+
+app.post('/api/harvest', (req: Request, res: Response): void => { 
+    const { playerId, slotId } = req.body; 
+    if (playerId === undefined || slotId === undefined) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.harvestPlant(playerId, Number(slotId)), res, 'harvest'); 
+});
+
+app.post('/api/brew', (req: Request, res: Response): void => { 
+    const { playerId, ingredientInvItemIds } = req.body; 
+    if (!playerId || !Array.isArray(ingredientInvItemIds) || ingredientInvItemIds.length !== 2) {
+        res.status(400).json({ error: 'Missing/invalid params' });
+        return;
+    }
+    handleRequest(() => gameHandler.brewPotion(playerId, ingredientInvItemIds as string[]), res, 'brew'); 
+});
+
+app.post('/api/market/buy', (req: Request, res: Response): void => { 
+    const { playerId, itemId } = req.body; 
+    if (!playerId || !itemId) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.buyItem(playerId, itemId), res, 'buy'); 
+});
+
+app.post('/api/market/sell', (req: Request, res: Response): void => { 
+    const { playerId, itemId } = req.body; 
+    if (!playerId || !itemId) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.sellItem(playerId, itemId), res, 'sell'); 
+});
+
+app.post('/api/fulfill', (req: Request, res: Response): void => { 
+    const { playerId, requestId } = req.body; 
+    if (!playerId || !requestId) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.fulfillRequest(playerId, requestId), res, 'fulfill'); 
+});
+
+app.post('/api/ritual/claim', (req: Request, res: Response): void => { 
+    const { playerId, ritualId } = req.body; 
+    if (!playerId || !ritualId) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.claimRitualReward(playerId, ritualId), res, 'claim'); 
+});
+
+app.post('/api/end-turn', (req: Request, res: Response): void => { 
+    const { playerId } = req.body; 
+    if (!playerId) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => gameHandler.endTurn(playerId), res, 'end turn'); 
+});
+
+app.post('/api/save', (_req: Request, res: Response): void => handleRequest(() => ({ success: true, saveData: gameHandler.saveGame() }), res, 'save'));
+
+app.post('/api/load', (req: Request, res: Response): void => { 
+    const { saveData } = req.body; 
+    if (saveData === undefined) {
+        res.status(400).json({ error: 'Missing params' });
+        return;
+    }
+    handleRequest(() => { 
+        const success = gameHandler.loadGame(saveData); 
+        if (success) { 
+            return { success: true, state: gameHandler.getState() }; 
+        } else { 
+            throw new Error("Load failed."); 
+        } 
+    }, res, 'load'); 
+});
 
 // Serve Frontend
 if (fs.existsSync(frontendDistPath)) {
@@ -82,8 +170,13 @@ try {
     if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
         sslOptions = { key: fs.readFileSync(keyPath), cert: fs.readFileSync(certPath) };
         console.log("[Server] SSL certificates loaded.");
-    } else { console.log("[Server] SSL certificates not found. Starting HTTP only."); }
-} catch (err) { console.error("[Server] Error reading SSL certificates:", err); console.log("[Server] HTTP only."); }
+    } else { 
+        console.log("[Server] SSL certificates not found. Starting HTTP only."); 
+    }
+} catch (err) { 
+    console.error("[Server] Error reading SSL certificates:", err); 
+    console.log("[Server] HTTP only."); 
+}
 
 // Start Server
 const HTTP_PORT = process.env.PORT || 8080;
