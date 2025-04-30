@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Atelier.css';
 import LunarPhaseIcon from './LunarPhaseIcon'; // Assuming LunarPhaseIcon exists and works
 import { InventoryItem, BasicRecipeInfo, AtelierSpecialization, MoonPhase, ItemType, ItemCategory, Rarity } from 'coven-shared'; // Use shared types
+type AtelierTab = 'potions' | 'charms' | 'talismans';
 
 // Define a local type for potential crafting results if needed
 // This might be fetched or derived from known recipes
