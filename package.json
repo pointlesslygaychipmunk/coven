@@ -10,16 +10,13 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm:dev:shared\" \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "dev:shared": "npm run dev --workspace=coven-shared"
+    "dev:shared": "npm run dev --workspace=coven-shared",
     "dev:frontend": "npm run dev --workspace=coven-frontend",
     "dev:backend": "npm run dev --workspace=coven-backend",
-
-    "build": "tsc -b tsconfig.json && npm run build:frontend"
-
+    "build": "tsc -b tsconfig.json && npm run build:frontend",
     "build:frontend": "npm run build --workspace=coven-frontend",
-    "build:frontend": "npm run build --workspace=coven-frontend"
-    "postinstall": "tsc -b shared/tsconfig.json",
     "postinstall": "tsc -b shared/tsconfig.json"
+  },
   "devDependencies": {
     "@types/node": "^22.15.3",
     "concurrently": "^8.2.2",
