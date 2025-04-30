@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "ESNext", // Keep ESNext for frontend bundling
+    "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "Bundler", // Bundler is good for Vite
     "resolveJsonModule": true,
@@ -22,10 +22,6 @@
       "@images/*": ["./src/images/*"]
     },
     "composite": true
-    // Removed "allowImportingTsExtensions" as it's usually not needed with noEmit
-    // Removed "noEmit": true as Vite handles the build process, but keep it if you only use tsc for type checking
-    // Retained "skipLibCheck": true as it's inherited and good for monorepos.
-    // Retained "isolatedModules": true as it's good practice with transpilers like Babel/Vite.
   },
   "include": ["src", "vite.config.ts", "src/index.tsx"],
   "references": [{ "path": "../shared" }]

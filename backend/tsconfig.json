@@ -8,7 +8,12 @@
     "rootDir": "./src",
     "resolveJsonModule": true,
     "composite": true,
-    "types": ["node", "express"] // Explicitly include types needed
+    "types": ["node", "express"],
+    "baseUrl": ".",
+    "paths": {
+      "coven-shared": ["../shared/src/index.ts"],
+      "coven-shared/*": ["../shared/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
