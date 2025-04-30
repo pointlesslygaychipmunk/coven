@@ -5,7 +5,7 @@
 // Use package name import
 import { GameState, Season, WeatherFate, MoonPhase, Plant, GardenSlot, GameTime, JournalEntry, Player } from "coven-shared";
 // Import specific Ingredient type from ingredients.ts
-import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription, Ingredient } from "./ingredients.js";
+import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription } from "./ingredients.js";
 
 // Ordered arrays for moon phases and seasons - Exported for use elsewhere
 export const MoonPhases: MoonPhase[] = [ "New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent" ];

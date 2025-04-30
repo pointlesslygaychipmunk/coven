@@ -5,7 +5,7 @@
 import {
     Player, InventoryItem, Plant, MoonPhase, Season, JournalEntry,
     Skills, Item, AtelierSpecialization, BasicRecipeInfo,
-    MarketItem, TownRequest, GameState
+    MarketItem, TownRequest, GameState, GardenSlot
 } from "coven-shared";
 
 import { processTurn, MoonPhases, Seasons } from "./turnEngine.js";
