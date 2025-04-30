@@ -1,31 +1,34 @@
 {
-  "extends": "../tsconfig.base.json", // Can keep extends here as Vite might handle it differently
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "ESNext",
-    "skipLibCheck": true,
+    "useDefineForClassFields": true,
     "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "composite": true, // Ensure composite is true
-    "declaration": true, // Add declaration
-    "declarationMap": true, // Add declarationMap
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "allowJs": false,
+    "module": "ESNext",
+    "jsx": "react-jsx",
     "baseUrl": ".",
-    "paths": { // Keep internal paths
+    "paths": {
       "@shared/*": ["../shared/src/*"],
-      "coven-shared": ["../shared/src/index.ts"], // This path might still be useful for Vite's resolver
+      "coven-shared": ["../shared/src/index.ts"],
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
       "@images/*": ["./src/images/*"]
     }
-    // No emit can be inferred or set if needed: "noEmit": true
   },
-  "include": ["src", "vite.config.ts", "src/index.tsx"],
-  "references": [{ "path": "../shared" }] // Ensure reference exists
+  "include": ["src", "vite.config.ts", "src/index.tsx"]
 }
