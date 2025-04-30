@@ -2,7 +2,7 @@
 // Generates town requests (orders from towns) based on season and needs.
 
 // Use relative path import with .js extension
-import { TownRequest, Season, GameState, Item } from "../shared/src/index.js";
+import { TownRequest, Season, GameState, Item } from "coven-shared";
 import { ITEMS /*, getItemData */ } from "./items.js"; // getItemData is unused
 
 let requestCounter = 0;

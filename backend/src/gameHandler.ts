@@ -3,7 +3,7 @@
 
 import { GameEngine } from "./gameEngine.js";
 // Use relative path import with .js extension
-import { GameState, MoonPhase, Season, Skills } from "../shared/src/index.js";
+import { GameState, MoonPhase, Season, Skills } from "coven-shared";
 
 // GameHandler: Connects the server's API endpoints to the game engine
 export class GameHandler {

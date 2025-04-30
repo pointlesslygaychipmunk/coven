@@ -3,7 +3,7 @@
 // Manages weather changes, plant growth, and time progression
 
 // Use relative path import with .js extension
-import { GameState, Season, WeatherFate, MoonPhase, Plant, GardenSlot, GameTime, JournalEntry } from "../shared/src/index.js";
+import { GameState, Season, WeatherFate, MoonPhase, Plant, GardenSlot, GameTime, JournalEntry } from "coven-shared";
 // Import specific Ingredient type from ingredients.ts
 import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription, Ingredient } from "./ingredients.js"; // Removed unused Ingredient import
 

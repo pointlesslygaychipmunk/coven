@@ -2,7 +2,7 @@
 // Handles periodic market adjustments, including memory decay towards
 // base prices, rumor impacts, and seasonal fluctuations.
 // Use relative path import with .js extension
-import { GameState, MarketItem, Season, MoonPhase, ItemCategory, ItemType } from "../shared/src/index.js";
+import { GameState, MarketItem, Season, MoonPhase, ItemCategory, ItemType } from "coven-shared";
 import { getItemData } from "./items.js";
 
 const BASE_DEMAND = 50;

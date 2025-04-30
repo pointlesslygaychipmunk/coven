@@ -3,7 +3,7 @@
 // This acts as the master database for item types.
 
 // Use relative path import with .js extension
-import { ItemType, ItemCategory, Item, MarketItem } from "../shared/src/index.js";
+import { ItemType, ItemCategory, Item, MarketItem } from "coven-shared";
 import { INGREDIENTS, SEEDS } from "./ingredients.js"; // Removed unused SeedItem
 
 // Master list of all potential items in the game

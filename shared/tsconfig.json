@@ -20,7 +20,6 @@
     "allowJs": false,
     "module": "NodeNext",
     "outDir": "./dist",
-    "rootDir": "./src",
     "lib": ["ES2022"]
   },
   "include": ["src/**/*"],

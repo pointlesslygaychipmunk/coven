@@ -2,8 +2,8 @@
 // Define specialization options and their bonuses
 
 // Use relative path import with .js extension
-import { AtelierSpecialization, ItemCategory, ItemType } from "../shared/src/index.js";
-import type { Skills } from "../shared/src/index.js"; // Use relative path import
+import { AtelierSpecialization, ItemCategory, ItemType } from "coven-shared";
+import type { Skills } from "coven-shared"; // Use relative path import
 
 // Full specialization details interface (can stay local to backend)
 export interface AtelierSpecializationDetails {

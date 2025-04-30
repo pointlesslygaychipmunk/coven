@@ -3,7 +3,7 @@
 // Rumors affect market prices, item availability, and player decisions.
 
 // Use relative path import with .js extension
-import { GameState, Rumor, Player } from "../shared/src/index.js";
+import { GameState, Rumor, Player } from "coven-shared";
 import { ITEMS } from "./items.js";
 
 let rumorCount = 0;
