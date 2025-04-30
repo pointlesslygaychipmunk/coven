@@ -1,37 +1,14 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "sourceMap": true,
-    "declaration": true, // Ensure declaration is true
-    "declarationMap": true, // Ensure declarationMap is true
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "allowJs": false,
-    "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true, // Ensure composite is true
-    // "types": ["node", "express"], // Keep commented out
-    // "baseUrl": ".", // REMOVED baseUrl
-    // "paths": { // REMOVED paths
-    //   "coven-shared": ["../shared/src/index.ts"]
-    // },
-    "lib": ["ES2022"]
+    "types": ["node", "express"],
+    "composite": true,
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "../shared" } // Project reference remains crucial
+    { "path": "../shared" }
   ]
 }
