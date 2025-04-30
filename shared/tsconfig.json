@@ -1,5 +1,5 @@
 {
-    "extends": "../../tsconfig.base.json", // Inherit base settings
+    "extends": "../../new-coven/tsconfig.base.json", // Update path to correct location
     "compilerOptions": {
       /* Specific overrides for the shared package */
       "target": "ESNext",          // Use modern target, compatible with others

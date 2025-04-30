@@ -1,3 +1,15 @@
 {
-  "extends": "./tsconfig.base.local.json",
+  "extends": "./tsconfig.base.local.json", // Keep using local for now
+  "compilerOptions": {
+    // ... backend specific options ...
+    "outDir": "./dist",
+    "rootDir": "./src",
+     // Ensure composite is true here too if extending base that has it
+    "composite": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [ // <-- ADD THIS SECTION BACK
+    { "path": "../shared" }
+  ]
 }
