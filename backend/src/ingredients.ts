@@ -1,7 +1,8 @@
 // src/ingredients.ts
 // Defines all plant ingredients, their properties, and growth requirements
 
-import { ItemCategory, Season, MoonPhase, WeatherFate, Item /*, Rarity */ } from "../shared/src/index.js"; // Rarity unused here
+// Using package name import - assuming pnpm links it correctly
+import { ItemCategory, Season, MoonPhase, WeatherFate, Item, Rarity } from "coven-shared";
 
 // Ingredient now inherits 'name', 'value', 'description', 'id', 'rarity' from Item
 export interface Ingredient extends Item {
@@ -58,17 +59,64 @@ export const SEEDS: SeedItem[] = INGREDIENTS.map(ing => ({
 // --- Helper Functions ---
 export function getIngredientById(id: string): Ingredient | undefined { return INGREDIENTS.find(i => i.id === id); }
 export function getIngredientData(name: string): Ingredient | undefined { return INGREDIENTS.find(i => i.name === name); }
-export function calculateGrowthModifier( ingredient: Ingredient, currentSeason: Season, currentMoonPhase: MoonPhase, moisture: number, sunlight: number = 70 ): { growthModifier: number; factors: string[] } { /* ... */ }
-export function calculateHarvestQuality( ingredient: Ingredient, plantHealth: number, plantAge: number, harvestMoonPhase: MoonPhase, harvestSeason: Season ): { quality: number; bonusFactors: string[] } { /* ... */ }
-export function checkForMutation(ingredient: Ingredient, weather: WeatherFate, moonPhase: MoonPhase): string | null { /* ... */ }
-export function getGrowthStageDescription( plantName: string, currentGrowth: number | undefined, maxGrowth: number | undefined ): string { /* ... */ }
-export function groupIngredientsByCategory(): Record<ItemCategory, Ingredient[]> { /* ... */ }
+
+export function calculateGrowthModifier( ingredient: Ingredient, currentSeason: Season, currentMoonPhase: MoonPhase, moisture: number, sunlight: number = 70 ): { growthModifier: number; factors: string[] } {
+    const factors: string[] = []; let modifier = 1.0;
+    if (currentSeason === ingredient.bestSeason) { modifier *= 1.5; factors.push(`Optimal season (${currentSeason}): +50% growth`); }
+    else if (currentSeason === ingredient.worstSeason) { modifier *= 0.5; factors.push(`Challenging season (${currentSeason}): -50% growth`); }
+    else { factors.push(`Neutral season (${currentSeason})`); }
+    if (currentMoonPhase === "Waxing Gibbous" || currentMoonPhase === "First Quarter") { modifier *= 1.1; factors.push(`Waxing moon phase (${currentMoonPhase}): +10% growth`); }
+    else if (currentMoonPhase === "Waning Crescent") { modifier *= 0.95; factors.push(`Waning Crescent phase: -5% growth`); }
+    const idealMoistureMidpoint = ingredient.idealMoisture; const moistureDifference = Math.abs(moisture - idealMoistureMidpoint);
+    if (moistureDifference < 10) modifier *= 1.2; else if (moistureDifference > 30) modifier *= 0.7; else if (moistureDifference > 20) modifier *= 0.9;
+    if (ingredient.idealSunlight !== undefined) { const idealSun = ingredient.idealSunlight; const sunlightDifference = Math.abs(sunlight - idealSun); if (sunlightDifference < 15) modifier *= 1.15; else if (sunlightDifference > 40) modifier *= 0.75; else if (sunlightDifference > 25) modifier *= 0.9; }
+    else { if(sunlight > 40 && sunlight < 80) modifier *= 1.05; }
+    modifier = Math.max(0.1, modifier);
+    return { growthModifier: modifier, factors };
+}
+
+export function calculateHarvestQuality( ingredient: Ingredient, plantHealth: number, plantAge: number, harvestMoonPhase: MoonPhase, harvestSeason: Season ): { quality: number; bonusFactors: string[] } {
+    const bonusFactors: string[] = []; let quality = 50;
+    const healthBonus = (plantHealth - 50) * 0.5; quality += healthBonus; bonusFactors.push(`Health(${plantHealth}): ${healthBonus >= 0 ? '+' : ''}${healthBonus.toFixed(0)}`);
+    const optimalAge = (ingredient.growthTime || 3) * 1.5; const ageFactor = Math.min(1.0, plantAge / optimalAge);
+    const ageQualityBonus = ageFactor * 15; quality += ageQualityBonus; if (ageQualityBonus > 5) bonusFactors.push(`Age(${plantAge}): +${ageQualityBonus.toFixed(0)}`);
+    if (ingredient.idealMoonPhase && harvestMoonPhase === ingredient.idealMoonPhase) { quality += 20; bonusFactors.push(`Moon(${harvestMoonPhase}): +20`); }
+    else if (harvestMoonPhase === "Full Moon") { quality += 5; bonusFactors.push(`Full Moon: +5`); }
+    if (harvestSeason === ingredient.bestSeason) { quality += 10; bonusFactors.push(`Season(${harvestSeason}): +10`); }
+    else if (harvestSeason === ingredient.worstSeason) { quality -= 15; bonusFactors.push(`Season(${harvestSeason}): -15`); }
+    if (ingredient.harvestBonus && ( (ingredient.idealMoonPhase && harvestMoonPhase === ingredient.idealMoonPhase) || harvestSeason === ingredient.bestSeason) ) { if (ingredient.harvestBonus.toLowerCase().includes("quality") || ingredient.harvestBonus.toLowerCase().includes("potent")) { quality += 10; bonusFactors.push(`Bonus: +10`); } }
+    quality = Math.round(Math.min(100, Math.max(10, quality)));
+    return { quality, bonusFactors };
+}
+
+export function checkForMutation(ingredient: Ingredient, weather: WeatherFate, moonPhase: MoonPhase): string | null {
+    if (!ingredient.mutationChance || !ingredient.mutationTypes || ingredient.mutationTypes.length === 0) return null;
+    let currentMutationChance = ingredient.mutationChance;
+    if (moonPhase === "Full Moon" || moonPhase === "New Moon") currentMutationChance *= 1.5;
+    if (weather === "stormy" || weather === "windy") currentMutationChance *= 1.3;
+    if (Math.random() < currentMutationChance) {
+        const mutationIndex = Math.floor(Math.random() * ingredient.mutationTypes.length);
+        const mutationType = ingredient.mutationTypes[mutationIndex];
+        console.log(`MUTATION! ${ingredient.name} -> ${mutationType} (Chance: ${currentMutationChance.toFixed(3)})`);
+        return mutationType;
+    } return null;
+}
+
+export function getGrowthStageDescription( plantName: string, currentGrowth: number | undefined, maxGrowth: number | undefined ): string {
+    if (currentGrowth === undefined || maxGrowth === undefined || maxGrowth <= 0) return `${plantName} (Growth stage unknown)`;
+    const percentage = Math.min(100, Math.max(0, (currentGrowth / maxGrowth) * 100));
+    if (percentage >= 100) return `Mature ${plantName}`; if (percentage >= 75) return `Maturing ${plantName}`; if (percentage >= 50) return `Developing ${plantName}`; if (percentage >= 25) return `Sprouting ${plantName}`; if (percentage > 0) return `Seedling ${plantName}`; return `Planted ${plantName} Seed`;
+}
+
+export function groupIngredientsByCategory(): Record<ItemCategory, Ingredient[]> {
+    const grouped: Partial<Record<ItemCategory, Ingredient[]>> = {};
+    const ingredientCategories: ItemCategory[] = ['herb', 'flower', 'root', 'fruit', 'mushroom', 'leaf', 'succulent', 'essence', 'crystal'];
+    INGREDIENTS.forEach(ingredient => { if (ingredient && ingredient.category) { const category = ingredient.category; if (ingredientCategories.includes(category)) { if (!grouped[category]) grouped[category] = []; grouped[category]!.push(ingredient); } } else { console.warn(`Skipping ingredient due to missing data: ${ingredient?.id}`); } });
+    ingredientCategories.forEach(cat => { if (!grouped[cat]) grouped[cat] = []; });
+    return grouped as Record<ItemCategory, Ingredient[]>;
+}
+
 export function getSeasonalIngredients(season: Season): Ingredient[] { return INGREDIENTS.filter(ing => ing.bestSeason === season); }
 export function getMoonPhaseIngredients(phase: MoonPhase): Ingredient[] { return INGREDIENTS.filter(ing => ing.idealMoonPhase === phase); }
 
-// Implementation details for functions above (copied from previous version for brevity)
-export function calculateGrowthModifier(/* ... */): { growthModifier: number; factors: string[] } { /* ... implementation ... */ }
-export function calculateHarvestQuality(/* ... */): { quality: number; bonusFactors: string[] } { /* ... implementation ... */ }
-export function checkForMutation(/* ... */): string | null { /* ... implementation ... */ }
-export function getGrowthStageDescription(/* ... */): string { /* ... implementation ... */ }
-export function groupIngredientsByCategory(): Record<ItemCategory, Ingredient[]> { /* ... implementation ... */ }
+// REMOVED Duplicate function definitions that previously started around line 70
