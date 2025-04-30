@@ -164,7 +164,7 @@ if (fs.existsSync(frontendDistPath)) {
 
 // SSL Certificates
 let sslOptions: https.ServerOptions | undefined = undefined;
-const keyPath = path.join(__dirname, '../certs/key.pem');
+const keyPath = path.join(__dirname, '../certs/privkey.pem');
 const certPath = path.join(__dirname, '../certs/cert.pem');
 try {
     if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
