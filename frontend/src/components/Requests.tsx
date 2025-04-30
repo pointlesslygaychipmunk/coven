@@ -23,8 +23,7 @@ const Requests: React.FC<RequestsProps> = ({
     return totalQuantity >= request.quantity;
   };
 
-  // Format price (reusable, maybe move to utils)
-  // const formatPrice = (price: number): string => `${price} G`;
+  // Format price function removed since it's not used
 
   return (
     <div className="requests-container">
@@ -43,8 +42,7 @@ const Requests: React.FC<RequestsProps> = ({
           <div className="request-list">
             {townRequests.map(request => {
               const playerCanFulfill = canFulfill(request);
-              // Find *any* stack for quality display (or calculate average if needed)
-              const requiredItemInv = playerInventory.find(item => item.name === request.item);
+              // We don't need to find the specific item instance, just calculate the total quantity
               const totalQuantity = playerInventory
                   .filter(item => item.name === request.item)
                   .reduce((sum, item) => sum + item.quantity, 0);

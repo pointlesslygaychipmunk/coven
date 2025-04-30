@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './Atelier.css';
 import LunarPhaseIcon from './LunarPhaseIcon'; // Assuming LunarPhaseIcon exists and works
 import { InventoryItem, BasicRecipeInfo, AtelierSpecialization, MoonPhase, ItemType, ItemCategory, Rarity } from 'coven-shared'; // Use shared types
-type AtelierTab = 'potions' | 'charms' | 'talismans';
+
+// Define the AtelierTab type
+type AtelierTab = 'potions' | 'charm' | 'talisman';
 
 // Define a local type for potential crafting results if needed
 // This might be fetched or derived from known recipes
@@ -63,17 +65,16 @@ const Atelier: React.FC<AtelierProps> = ({
         const results: CraftingResult[] = [];
         // Example: Simple 2-ingredient check (replace with real logic/API call)
         if (ingredientBaseIds.length === 2) {
-             const item1Base = playerItems.find(i => i.baseId === ingredientBaseIds[0]);
-             const item2Base = playerItems.find(i => i.baseId === ingredientBaseIds[1]);
-             // const name1 = item1Base?.name;
-             // const name2 = item2Base?.name;
+             // We're not using these variables, so we can remove them
+             // const item1Base = playerItems.find(i => i.baseId === ingredientBaseIds[0]);
+             // const item2Base = playerItems.find(i => i.baseId === ingredientBaseIds[1]);
 
             // Use knownRecipes prop if available (basic check)
             knownRecipes.forEach(known => {
                  // Weak check - needs improvement based on actual recipe structure
-                 if (known.type === 'charm' && activeTab === 'charms') {
+                 if (known.type === 'charm' && activeTab === 'charm') {
                       results.push({ id: known.id, name: known.name, description: known.description || "A charm...", type: 'charm', category: 'charm', rarity: 'common' });
-                 } else if (known.type === 'talisman' && activeTab === 'talismans') {
+                 } else if (known.type === 'talisman' && activeTab === 'talisman') {
                      results.push({ id: known.id, name: known.name, description: known.description || "A talisman...", type: 'talisman', category: 'talisman', rarity: 'common' });
                  }
                  // Add potion logic if needed, though Brewing component handles that primarily
@@ -103,8 +104,8 @@ const Atelier: React.FC<AtelierProps> = ({
       if (result.levelRequirement && result.levelRequirement > playerLevel) return false;
        // Filter by active tab
        if (activeTab === 'potions' && result.type !== 'potion') return false;
-       if (activeTab === 'charms' && result.type !== 'charm') return false;
-       if (activeTab === 'talismans' && result.type !== 'talisman') return false;
+       if (activeTab === 'charm' && result.type !== 'charm') return false;
+       if (activeTab === 'talisman' && result.type !== 'talisman') return false;
       return true;
     });
 
@@ -211,7 +212,7 @@ const Atelier: React.FC<AtelierProps> = ({
                   <div
                     key={`${item.id}-${index}`} // Use index to ensure key uniqueness for identical items
                     className="selected-item"
-                    onClick={() => handleItemRemove(item, index)} // Pass index to remove specific instance
+                    onClick={() => handleItemRemove(index)} // Pass index to remove specific instance
                     title={`Remove ${item.name}`}
                   >
                     {item.name}

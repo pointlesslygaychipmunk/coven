@@ -30,11 +30,14 @@ const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({
         );
 
       case 'Waxing Crescent': {
-        const d = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius}`;
+        // Use the path directly instead of storing in unused 'd' variable
         return (
           <>
             <circle cx={cx} cy={cy} r={effectiveRadius} fill={darkColor} stroke={strokeColor} strokeWidth={strokeWidth} />
-            <path d={d} fill={lightColor} />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius}`} 
+              fill={lightColor} 
+            />
           </>
         );
       }
@@ -50,12 +53,15 @@ const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({
       }
 
       case 'Waxing Gibbous': {
-         const d = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 1 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius}`;
+        // Use the path directly instead of storing in unused 'd' variable
         return (
            <>
              <circle cx={cx} cy={cy} r={effectiveRadius} fill={lightColor} stroke={strokeColor} strokeWidth={strokeWidth} />
              {/* Draw the dark sliver */}
-              <path d={`M ${cx},${cy - effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius}`} fill={darkColor} />
+              <path 
+                d={`M ${cx},${cy - effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius}`} 
+                fill={darkColor} 
+              />
            </>
         );
       }
@@ -67,12 +73,15 @@ const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({
         );
 
       case 'Waning Gibbous': {
-         const d = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 1 0 ${cx},${cy + effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 1 ${cx},${cy - effectiveRadius}`;
+        // Use the path directly instead of storing in unused 'd' variable
         return (
           <>
             <circle cx={cx} cy={cy} r={effectiveRadius} fill={lightColor} stroke={strokeColor} strokeWidth={strokeWidth} />
             {/* Draw the dark sliver on the other side */}
-             <path d={`M ${cx},${cy - effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy + effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy - effectiveRadius}`} fill={darkColor} />
+             <path 
+               d={`M ${cx},${cy - effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy + effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy - effectiveRadius}`} 
+               fill={darkColor} 
+             />
           </>
         );
       }
