@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import './CovenHUD.css';
-
-// Define types
-type MoonPhase = 'New Moon' | 'Waxing' | 'Full Moon' | 'Waning';
+import { MoonPhase } from 'coven-shared'; // Import the shared MoonPhase type
 
 interface LunarPhaseIconProps {
   phase: MoonPhase;
@@ -18,9 +16,9 @@ const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({ phase, size }) => {
       style={{ 
         width: size, 
         height: size, 
-        backgroundColor: phase === 'Full Moon' ? '#f0f0f0' : 
-                         phase === 'New Moon' ? '#333' : 
-                         phase === 'Waxing' ? 'linear-gradient(to right, #333, #f0f0f0)' : 
+        backgroundColor: phase.includes('Full') ? '#f0f0f0' : 
+                         phase.includes('New') ? '#333' : 
+                         phase.includes('Waxing') ? 'linear-gradient(to right, #333, #f0f0f0)' : 
                          'linear-gradient(to left, #333, #f0f0f0)',
         borderRadius: '50%' 
       }}
@@ -43,7 +41,7 @@ const CovenHUD: React.FC<CovenHUDProps> = ({
   playerName = "Elspeth",
   gold = 75,
   day = 3,
-  lunarPhase = "Waxing",
+  lunarPhase = "Waxing Crescent", // Updated default value to match MoonPhase type
   reputation = 12,
   playerLevel = 2,
   onChangeLocation,
