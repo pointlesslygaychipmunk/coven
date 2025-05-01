@@ -42,10 +42,10 @@
   --pixel-pattern-light: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQIW2NkQAOMJMgAIQAGDQAAMRAA/e8AAAAASUVORK5CYII=');
 }
 
-/* Game window container - fixed size for authentic 90s feel */
+/* Game window container - fixed size for authentic 90s feel, but larger */
 .game-window {
-  width: 800px; /* Standard VGA resolution width - more authentic */
-  height: 600px; /* Standard VGA resolution height - better fits modern screens */
+  width: 900px; /* Increased from 800px for more viewing space */
+  height: 700px; /* Increased from 600px for more viewing space */
   margin: 0 auto;
   position: relative;
   overflow: hidden;
@@ -625,35 +625,36 @@
   pointer-events: none;
 }
 
-/* Decorative elements */
+/* Decorative elements - fixed to prevent overlapping */
 .corner-decoration {
   position: absolute;
-  width: 40px;
-  height: 40px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M40 0v40H0V0h40zM37 3H3v34h34V3z" fill="%234a2c6f"/><path d="M37 3v34H3V3h34zM35 5H5v30h30V5z" fill="%237b4dab"/><path d="M15 15L5 5v10h10zM25 15l10-10v10H25zM15 25L5 35v-10h10zM25 25l10 10v-10H25z" fill="%234a2c6f"/></svg>');
+  width: 32px; /* Slightly smaller to prevent overlap */
+  height: 32px; /* Slightly smaller to prevent overlap */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M32 0v32H0V0h32zM30 2H2v28h28V2z" fill="%234a2c6f"/><path d="M30 2v28H2V2h28zM28 4H4v24h24V4z" fill="%237b4dab"/><path d="M12 12L4 4v8h8zM20 12l8-8v8h-8zM12 20l-8 8v-8h8zM20 20l8 8v-8h-8z" fill="%234a2c6f"/></svg>');
   pointer-events: none;
+  z-index: 5; /* Ensure these stay above content but below other UI elements */
 }
 
 .corner-decoration.top-left {
-  top: 0;
-  left: 0;
+  top: 2px;
+  left: 2px;
 }
 
 .corner-decoration.top-right {
-  top: 0;
-  right: 0;
+  top: 2px;
+  right: 2px;
   transform: rotate(90deg);
 }
 
 .corner-decoration.bottom-left {
-  bottom: 0;
-  left: 0;
+  bottom: 2px;
+  left: 2px;
   transform: rotate(270deg);
 }
 
 .corner-decoration.bottom-right {
-  bottom: 0;
-  right: 0;
+  bottom: 2px;
+  right: 2px;
   transform: rotate(180deg);
 }
 
