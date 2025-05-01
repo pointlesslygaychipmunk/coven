@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Garden.css';
 import GardenPlot from './GardenPlot';
-import SeasonalAttunementPuzzle from './SeasonalAttunementPuzzle'; // Import the new puzzle
+import SeasonalAttunementPuzzle from './SeasonalAttunementPuzzle';
 import { InventoryItem, GardenSlot, Season, WeatherFate } from 'coven-shared';
 
 interface GardenProps {
@@ -9,7 +9,7 @@ interface GardenProps {
   inventory: InventoryItem[];
   onPlant: (slotId: number, seedInventoryItemId: string) => void;
   onHarvest: (slotId: number) => void;
-  onWater: (puzzleBonus: number) => void; // MODIFIED: Expects puzzle bonus
+  onWater: (puzzleBonus: number) => void;
   weatherFate: WeatherFate;
   season: Season;
 }
@@ -19,17 +19,16 @@ const Garden: React.FC<GardenProps> = ({
   inventory,
   onPlant,
   onHarvest,
-  onWater, // Now expects puzzle bonus
+  onWater,
   weatherFate = 'normal',
   season = 'Spring'
 }) => {
   const [selectedPlotId, setSelectedPlotId] = useState<number | null>(null);
-  const [showInventory, setShowInventory] = useState<boolean>(false);
   const [selectedSeedInventoryItemId, setSelectedSeedInventoryItemId] = useState<string | null>(null);
-  const [attunementAnimation, setAttunementAnimation] = useState<boolean>(false); // Renamed state
+  const [attunementAnimation, setAttunementAnimation] = useState<boolean>(false);
   const [showWhisper, setShowWhisper] = useState<string | null>(null);
   const [gardenTip, setGardenTip] = useState<string>('');
-  const [showAttunementPuzzle, setShowAttunementPuzzle] = useState<boolean>(false); // New state for puzzle
+  const [showAttunementPuzzle, setShowAttunementPuzzle] = useState<boolean>(false);
 
   // Garden whispers (tips that appear randomly)
   const gardenWhispers = [
@@ -60,15 +59,15 @@ const Garden: React.FC<GardenProps> = ({
     setGardenTip(randomTip); // Set initial tip
 
     const whisperInterval = setInterval(() => {
-      if (Math.random() < 0.25 && !showWhisper && !showAttunementPuzzle) { // Don't show during puzzle
+      if (Math.random() < 0.25 && !showWhisper && !showAttunementPuzzle) {
         const randomWhisper = gardenWhispers[Math.floor(Math.random() * gardenWhispers.length)];
         setShowWhisper(randomWhisper);
-        setTimeout(() => setShowWhisper(null), 7000); // Shorter display
+        setTimeout(() => setShowWhisper(null), 7000);
       }
-    }, 30000); // Check every 30 seconds
+    }, 30000);
 
     return () => clearInterval(whisperInterval);
-  }, [showWhisper, showAttunementPuzzle]); // Added dependencies
+  }, [showWhisper, showAttunementPuzzle]);
 
   // Get available seeds from inventory
   const getAvailableSeeds = (): InventoryItem[] => {
@@ -86,14 +85,11 @@ const Garden: React.FC<GardenProps> = ({
     const plot = plots.find(p => p.id === plotId);
     if (!plot || plot.isUnlocked === false) return;
 
+    // Simply select or deselect the plot - no longer affects inventory visibility
     if (selectedPlotId === plotId) {
       setSelectedPlotId(null);
-      setShowInventory(false);
-      setSelectedSeedInventoryItemId(null);
     } else {
       setSelectedPlotId(plotId);
-      setShowInventory(plot.plant === null); // Show inventory only if plot is empty
-      setSelectedSeedInventoryItemId(null);
     }
   };
 
@@ -104,13 +100,13 @@ const Garden: React.FC<GardenProps> = ({
 
   // Handle planting the selected seed
   const handlePlant = () => {
-    if (selectedPlotId !== null && selectedSeedInventoryItemId) {
-      onPlant(selectedPlotId, selectedSeedInventoryItemId);
-      setSelectedSeedInventoryItemId(null);
-      setShowInventory(false);
-      // Optional: Keep plot selected after planting? Deselecting for now.
-      // setSelectedPlotId(null);
+    const selectedPlot = getSelectedPlot();
+    if (!selectedPlot || selectedPlot.plant || selectedPlotId === null || !selectedSeedInventoryItemId) {
+      return;
     }
+    
+    onPlant(selectedPlotId, selectedSeedInventoryItemId);
+    setSelectedSeedInventoryItemId(null);
   };
 
   // Handle harvesting from the selected plot
@@ -124,77 +120,69 @@ const Garden: React.FC<GardenProps> = ({
 
   // Start the seasonal attunement puzzle
   const handleStartAttunement = () => {
-      if(showAttunementPuzzle) return; // Prevent opening multiple puzzles
-      setShowAttunementPuzzle(true);
+    if(showAttunementPuzzle) return;
+    setShowAttunementPuzzle(true);
   };
 
   // Handle when attunement puzzle completes
   const handlePuzzleComplete = (result: { success: boolean; bonus: number; message: string }) => {
     setShowAttunementPuzzle(false);
-    setShowWhisper(result.message); // Show the result message as a whisper
-    setTimeout(() => setShowWhisper(null), 5000); // Clear whisper after 5s
+    setShowWhisper(result.message);
+    setTimeout(() => setShowWhisper(null), 5000);
 
     if (result.success) {
-        setAttunementAnimation(true); // Trigger visual feedback
-        // Call the onWater prop, passing the bonus score
-        onWater(result.bonus);
-        setTimeout(() => setAttunementAnimation(false), 1500); // Duration of animation
+      setAttunementAnimation(true);
+      onWater(result.bonus);
+      setTimeout(() => setAttunementAnimation(false), 1500);
     } else {
-        // Handle failure - maybe a different visual/sound cue?
-        console.log("Attunement failed, no watering bonus applied.");
-        // Still call onWater but with 0 bonus if failure should still trigger base watering
-        onWater(0);
+      onWater(0);
     }
   };
 
-  // Handle skipping the puzzle (calls onWater with 0 bonus)
+  // Handle skipping the puzzle
   const handleSkipPuzzle = () => {
     setShowAttunementPuzzle(false);
     setShowWhisper("Skipped attunement. Energies remain unchanged.");
     setTimeout(() => setShowWhisper(null), 5000);
-    onWater(0); // Apply base watering without bonus
+    onWater(0);
   };
 
-   // Easter Egg: Handle secret spot click
-   const handleSecretSpotClick = (e: React.MouseEvent) => {
-       e.stopPropagation(); // Prevent plot selection
-       const randomHanbangTip = hanbangTips[Math.floor(Math.random() * hanbangTips.length)];
-       setShowWhisper(`Hanbang Secret: ${randomHanbangTip}`);
-       // Hide after a while
-       setTimeout(() => {
-            // Only clear if this specific whisper is still showing
-            setShowWhisper(prev => prev === `Hanbang Secret: ${randomHanbangTip}` ? null : prev);
-       }, 9000);
-   };
-
+  // Easter Egg: Handle secret spot click
+  const handleSecretSpotClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const randomHanbangTip = hanbangTips[Math.floor(Math.random() * hanbangTips.length)];
+    setShowWhisper(`Hanbang Secret: ${randomHanbangTip}`);
+    setTimeout(() => {
+      setShowWhisper(prev => prev === `Hanbang Secret: ${randomHanbangTip}` ? null : prev);
+    }, 9000);
+  };
 
   // Render garden plots in a grid (3x3)
   const renderPlots = () => {
-      // Assuming plots array always represents the potential 9 slots
-      const gridPlots = Array.from({ length: 9 }).map((_, i) => {
-          const plot = plots.find(p => p.id === i);
-          if (plot) {
-               return (
-                   <GardenPlot
-                       key={plot.id}
-                       plot={plot}
-                       selected={selectedPlotId === plot.id}
-                       onClick={() => handlePlotClick(plot.id)}
-                       season={season} // Pass season to plot
-                   />
-               );
-          } else {
-              // Render a locked placeholder if plot data doesn't exist for this index
-               return (
-                 <div key={`placeholder-${i}`} className={`garden-plot placeholder locked`}>
-                   <div className="locked-overlay"><div className="lock-icon">🔒</div></div>
-                 </div>
-               );
-          }
-      });
-      return gridPlots;
+    // Assuming plots array always represents the potential 9 slots
+    const gridPlots = Array.from({ length: 9 }).map((_, i) => {
+      const plot = plots.find(p => p.id === i);
+      if (plot) {
+        return (
+          <GardenPlot
+            key={plot.id}
+            plot={plot}
+            selected={selectedPlotId === plot.id}
+            onClick={() => handlePlotClick(plot.id)}
+            season={season}
+          />
+        );
+      } else {
+        // Render a locked placeholder if plot data doesn't exist for this index
+        return (
+          <div key={`placeholder-${i}`} className={`garden-plot placeholder locked`}>
+            <div className="locked-overlay"><div className="lock-icon">🔒</div></div>
+          </div>
+        );
+      }
+    });
+    return gridPlots;
   };
-
 
   // Render weather indicator
   const renderWeatherIndicator = () => {
@@ -245,7 +233,8 @@ const Garden: React.FC<GardenProps> = ({
         <div className="plot-details empty">
           <div className="parchment-scroll">
             <div className="scroll-content">
-              <p>Select a garden plot to view details or plant a seed.</p>
+              <h3>Plot Details</h3>
+              <p>Select a garden plot to view details.</p>
               <p className="garden-tip">{gardenTip}</p>
             </div>
           </div>
@@ -254,26 +243,25 @@ const Garden: React.FC<GardenProps> = ({
     }
 
     // Locked plot view
-     if (selectedPlot.isUnlocked === false) {
-         return (
-             <div className="plot-details empty">
-                 <div className="parchment-scroll">
-                     <div className="scroll-content">
-                         <h3>Plot {selectedPlot.id + 1}</h3>
-                         <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
-                         <div className="lock-icon" style={{fontSize: '40px', margin: '20px auto'}}>🔒</div>
-                     </div>
-                 </div>
-             </div>
-         );
-     }
-
+    if (selectedPlot.isUnlocked === false) {
+      return (
+        <div className="plot-details empty">
+          <div className="parchment-scroll">
+            <div className="scroll-content">
+              <h3>Plot {selectedPlot.id + 1}</h3>
+              <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
+              <div className="lock-icon" style={{fontSize: '40px', margin: '20px auto'}}>🔒</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // Details for unlocked plot
     const plant = selectedPlot.plant;
     const growthPercent = plant?.growth !== undefined && plant.maxGrowth
-                          ? Math.min(100, Math.max(0, (plant.growth / plant.maxGrowth) * 100))
-                          : 0;
+                        ? Math.min(100, Math.max(0, (plant.growth / plant.maxGrowth) * 100))
+                        : 0;
 
     return (
       <div className="plot-details">
@@ -291,7 +279,6 @@ const Garden: React.FC<GardenProps> = ({
                 <div className="stat-bar"><div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }} /></div>
                 <div className="stat-value">{selectedPlot.moisture || 0}%</div>
               </div>
-              {/* Optional: Sunlight */}
             </div>
 
             {plant ? (
@@ -311,10 +298,10 @@ const Garden: React.FC<GardenProps> = ({
                     <div className="stat-label">Age</div>
                     <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
                   </div>
-                   <div className="plant-stat">
-                     <div className="stat-label">Watered</div>
-                     <div className="stat-value">{selectedPlot.moisture > 40 ? 'Yes' : 'No'}</div>
-                   </div>
+                  <div className="plant-stat">
+                    <div className="stat-label">Watered</div>
+                    <div className="stat-value">{selectedPlot.moisture > 40 ? 'Yes' : 'No'}</div>
+                  </div>
                 </div>
                 {plant.moonBlessed && <div className="plant-blessing" title="Influenced by the moon"><span className="moon-icon">🌙</span> Moon Blessed</div>}
                 {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
@@ -331,35 +318,40 @@ const Garden: React.FC<GardenProps> = ({
             ) : (
               <div className="empty-plot-actions">
                 <p>This plot is empty.</p>
-                <button className="action-button plant" onClick={() => setShowInventory(true)}>Plant Seed Here</button>
               </div>
             )}
+            
+            {/* Garden Actions moved to plot details for mobile */}
+            <div className="garden-actions">
+              <button
+                className="garden-action-button attune"
+                onClick={handleStartAttunement}
+                title="Perform seasonal attunement puzzle"
+                disabled={showAttunementPuzzle}
+              >
+                <span className="button-icon">🌿</span> Attune Energies
+              </button>
+            </div>
           </div>
         </div>
       </div>
     );
   };
 
-  // Render inventory panel for seed selection
+  // Render inventory panel - Always visible
   const renderInventoryPanel = () => {
     const seeds = getAvailableSeeds();
     const selectedPlot = getSelectedPlot();
-
-    // Don't render if no plot selected or plot is not empty/unlocked
-    if (!selectedPlot || selectedPlot.plant || selectedPlot.isUnlocked === false) {
-        if(showInventory) setShowInventory(false); // Automatically close if plot becomes invalid
-        return null;
-    }
+    const canPlant = selectedPlot && !selectedPlot.plant && selectedPlot.isUnlocked !== false;
 
     return (
       <div className="inventory-panel">
         <div className="parchment-scroll">
           <div className="scroll-content">
-            <h3>Select Seed for Plot {selectedPlotId !== null ? selectedPlotId + 1 : ''}</h3>
+            <h3>Seed Pouch</h3>
             {seeds.length === 0 ? (
               <div className="inventory-panel empty">
                 <p>Your seed pouch is empty!</p>
-                <button className="close-button" onClick={() => setShowInventory(false)}>Close</button>
               </div>
             ) : (
               <>
@@ -369,7 +361,7 @@ const Garden: React.FC<GardenProps> = ({
                       key={seed.id}
                       className={`seed-item ${selectedSeedInventoryItemId === seed.id ? 'selected' : ''}`}
                       onClick={() => handleSeedSelect(seed.id)}
-                      title={`Plant ${seed.name} (Qty: ${seed.quantity})`}
+                      title={`${seed.name} (Qty: ${seed.quantity})`}
                     >
                       <div className="seed-image"><div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div></div>
                       <div className="seed-info">
@@ -379,21 +371,22 @@ const Garden: React.FC<GardenProps> = ({
                     </div>
                   ))}
                 </div>
-                <div className="seed-actions">
-                  <button
-                    className="action-button plant"
-                    disabled={!selectedSeedInventoryItemId}
-                    onClick={handlePlant}
-                  >
-                    Plant {inventory.find(s => s.id === selectedSeedInventoryItemId)?.name || 'Selected Seed'}
-                  </button>
-                  <button
-                    className="close-button"
-                    onClick={() => { setShowInventory(false); setSelectedSeedInventoryItemId(null); }}
-                  >
-                    Cancel Planting
-                  </button>
-                </div>
+                
+                {/* Planting action - Only enabled when a valid plot is selected */}
+                {canPlant && selectedSeedInventoryItemId && (
+                  <div className="seed-actions">
+                    <button
+                      className="action-button plant"
+                      onClick={handlePlant}
+                    >
+                      Plant {inventory.find(s => s.id === selectedSeedInventoryItemId)?.name || 'Selected Seed'}
+                    </button>
+                  </div>
+                )}
+                
+                {!canPlant && (
+                  <p className="garden-tip">Select an empty plot to plant a seed.</p>
+                )}
               </>
             )}
           </div>
@@ -415,25 +408,15 @@ const Garden: React.FC<GardenProps> = ({
       <div className="garden-content">
         <div className="garden-grid">
           {renderPlots()}
-           {/* Easter Egg Click Spot */}
-           <div className="garden-secret-spot" onClick={handleSecretSpotClick} title="Inspect closer..."></div>
+          {/* Easter Egg Click Spot */}
+          <div className="garden-secret-spot" onClick={handleSecretSpotClick} title="Inspect closer..."></div>
         </div>
 
-        <div className="garden-sidebar">
-          {showInventory && selectedPlotId !== null ? renderInventoryPanel() : renderPlotDetails()}
+        {/* Plot Details - Always visible */}
+        {renderPlotDetails()}
 
-          {/* General Garden Actions */}
-          <div className="garden-actions">
-            <button
-              className="garden-action-button attune" // Changed class from water
-              onClick={handleStartAttunement} // Changed handler
-              title="Perform seasonal attunement puzzle"
-              disabled={showAttunementPuzzle} // Disable while puzzle is open
-            >
-              <span className="button-icon">🌿</span> Attune Energies
-            </button>
-          </div>
-        </div>
+        {/* Inventory - Always visible */}
+        {renderInventoryPanel()}
       </div>
 
       {/* Floating garden whisper */}
@@ -448,8 +431,6 @@ const Garden: React.FC<GardenProps> = ({
           onComplete={handlePuzzleComplete}
           onSkip={handleSkipPuzzle}
           season={season}
-          // Optional: Pass difficulty based on player level/skill?
-          // difficulty={playerLevel > 5 ? 'medium' : 'easy'}
         />
       )}
     </div>

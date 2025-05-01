@@ -1,16 +1,11 @@
-/* 90s Adventure Game Garden UI - Complete Redesign */
+/* Garden.css - Fixed Layout with Permanent Inventory Panel */
 
 /* 
- * This stylesheet transforms the garden interface into a nostalgic
- * 90s point-and-click adventure game aesthetic with pixelated 
- * borders, chunky buttons, and that classic game feel
+ * Main container with improved sizing constraints
  */
-
-/* Main Container - The game "window" */
-.garden-container {
+ .garden-container {
   display: flex;
   flex-direction: column;
-  /* Dark wood texture background */
   background-color: #6b4f37;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%236b4f37"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%235d4037" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%235d4037" opacity="0.2"/></svg>');
   color: #f4e9d9;
@@ -18,6 +13,7 @@
   padding: 20px;
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
   height: 100%;
+  min-height: 600px; /* Ensure minimum height */
   overflow: hidden;
   font-family: 'Courier New', monospace;
   position: relative;
@@ -32,7 +28,7 @@
   image-rendering: pixelated;
 }
 
-/* Garden Header - Game title bar */
+/* Garden Header - Fixed height */
 .garden-header {
   display: flex;
   justify-content: space-between;
@@ -42,6 +38,8 @@
   margin-bottom: 15px;
   position: relative;
   flex-shrink: 0;
+  height: 40px; /* Fixed height for header */
+  width: 100%;
 }
 
 .garden-header h2 {
@@ -54,10 +52,12 @@
   text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
 }
 
-/* Weather and Season - Status indicators */
+/* Weather and Season Indicators - Now with fixed width */
 .garden-indicators {
   display: flex;
   gap: 10px;
+  width: 200px; /* Fixed width */
+  justify-content: flex-end;
 }
 
 .weather-indicator, .season-indicator {
@@ -68,9 +68,9 @@
   background-color: #8d6e63;
   border-radius: 4px;
   border: 2px solid;
-  /* Classic bevel effect */
   border-color: #a1887f #5d4037 #5d4037 #a1887f;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  width: 90px; /* Fixed width */
 }
 
 .weather-icon, .season-icon {
@@ -85,18 +85,18 @@
   font-weight: bold;
 }
 
-/* Main content area */
+/* Main content area - Now with fixed three-column layout */
 .garden-content {
-  display: flex;
-  flex: 1;
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr; /* Fixed proportions for grid/plot-details/inventory */
   gap: 15px;
-  overflow: hidden;
+  flex: 1;
   min-height: 0;
+  height: calc(100% - 70px); /* Adjust height based on header */
 }
 
-/* Garden Grid - The play area */
+/* Garden Grid - Now stays in place */
 .garden-grid {
-  flex: 3;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
@@ -110,23 +110,30 @@
   border: 2px solid;
   border-color: #5d4037 #c19a70 #c19a70 #5d4037;
   overflow: auto;
+  height: 100%;
 }
 
-/* Garden Sidebar - Inventory and details */
-.garden-sidebar {
-  flex: 1.2;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  min-width: 280px;
-}
-
-/* Plot details and inventory panels - Looks like scrolls/parchment */
-.plot-details, .inventory-panel {
+/* Plot Details Panel - Fixed positioning */
+.plot-details {
   background-color: #795548;
   border-radius: 4px;
   padding: 15px;
-  flex: 1;
+  height: 100%; /* Full height */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Inventory Panel - ALWAYS visible and fixed in place */
+.inventory-panel {
+  background-color: #795548;
+  border-radius: 4px;
+  padding: 15px;
+  height: 100%; /* Full height */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -147,6 +154,7 @@
   padding: 15px;
   scrollbar-width: thin;
   scrollbar-color: #a1887f #e0d6c9;
+  height: calc(100% - 30px); /* Account for padding */
 }
 
 .parchment-scroll::-webkit-scrollbar { width: 8px; }
@@ -348,79 +356,7 @@
 .plant-season .boost { color: #388e3c; }
 .plant-season .penalty { color: #d32f2f; }
 
-/* Action Buttons - Chunky 90s style */
-.scroll-content .action-button {
-  padding: 8px 15px;
-  background-color: #d3c6a6;
-  color: #5d4037;
-  border: 2px solid;
-  border-color: #e0d6c9 #a1887f #a1887f #e0d6c9;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  width: 100%;
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
-  margin-top: 10px;
-  image-rendering: pixelated;
-}
-
-.scroll-content .action-button:hover:not(:disabled) {
-  background-color: #c1b29f;
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
-}
-
-.scroll-content .action-button:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  border-color: #a1887f #e0d6c9 #e0d6c9 #a1887f;
-}
-
-.scroll-content .action-button:disabled { 
-  opacity: 0.6; 
-  cursor: not-allowed; 
-  transform: none; 
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
-}
-
-.scroll-content .action-button.harvest { 
-  background-color: #a5d6a7; 
-  border-color: #c8e6c9 #66bb6a #66bb6a #c8e6c9; 
-  color: #1b5e20; 
-}
-
-.scroll-content .action-button.harvest:hover:not(:disabled) { 
-  background-color: #90a959; 
-}
-
-.scroll-content .action-button.plant { 
-  background-color: #90caf9; 
-  border-color: #bbdefb #42a5f5 #42a5f5 #bbdefb; 
-  color: #0d47a1; 
-}
-
-.scroll-content .action-button.plant:hover:not(:disabled) { 
-  background-color: #7a9dce; 
-}
-
-.scroll-content .close-button {
-  padding: 6px 12px; 
-  font-size: 13px; 
-  margin-top: 10px;
-  background-color: #e0d6c9; 
-  color: #8a6d3b;
-  border-color: #f4e9d9 #a1887f #a1887f #f4e9d9;
-}
-
-.scroll-content .close-button:hover { 
-  background-color: #d3c6a6; 
-  color: #5d4037; 
-}
-
-/* Seed list styling */
+/* Seed list styling - Always visible in inventory panel */
 .seed-list {
   flex: 1;
   overflow-y: auto;
@@ -428,6 +364,7 @@
   padding-right: 8px;
   scrollbar-width: thin;
   scrollbar-color: #a1887f #e0d6c9;
+  max-height: calc(100% - 80px); /* Limit height to prevent overflow */
 }
 
 .seed-list::-webkit-scrollbar { width: 8px; }
@@ -500,20 +437,13 @@
   font-family: 'Courier New', monospace; 
 }
 
-.seed-actions { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 8px; 
-  margin-top: auto; 
-  padding-top: 10px; 
-}
-
-/* Bottom Garden Actions */
+/* Garden actions - Fixed position at bottom of panels */
 .garden-actions {
   margin-top: auto;
   padding-top: 15px;
   border-top: 1px dotted #a1887f;
   flex-shrink: 0;
+  width: 100%;
 }
 
 .garden-action-button {
@@ -589,6 +519,7 @@
   box-shadow: 0 0 15px rgba(181, 157, 196, 0.4);
   animation: whisper-fade 8s ease-in-out forwards;
   white-space: nowrap;
+  pointer-events: none; /* Make sure it doesn't interfere with clicks */
 }
 
 @keyframes whisper-fade {
@@ -598,361 +529,49 @@
   100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
 }
 
-/* Attunement animation overlay */
-.attunement-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, rgba(181, 157, 196, 0.3) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 50;
-  animation: attunement-pulse 2s ease-out forwards;
-}
-
-@keyframes attunement-pulse {
-  0% { opacity: 0; transform: scale(0.5); }
-  50% { opacity: 0.5; }
-  100% { opacity: 0; transform: scale(1.5); }
-}
-
-/* Secret Easter Egg spot */
-.garden-secret-spot {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 15px;
-  height: 15px;
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%237eba76" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>') 8 8, pointer;
-  z-index: 10;
-}
-
-/* Responsive adjustments */
+/* Responsive adjustments with more stability */
 @media (max-width: 900px) {
-  .garden-content { flex-direction: column; height: auto; }
-  .garden-grid { min-height: 40vh; }
-  .garden-sidebar { flex: none; min-width: 0; }
+  .garden-content {
+    grid-template-columns: 1fr; /* Stack in single column */
+    grid-template-rows: auto auto auto; /* Let heights be determined by content */
+    height: auto;
+  }
+  
+  .garden-grid { 
+    min-height: 40vh; /* Ensure grid has decent height */
+    order: 1; /* Grid first */
+  }
+  
+  .plot-details { 
+    min-height: 300px;
+    order: 2; /* Details second */
+  }
+  
+  .inventory-panel { 
+    min-height: 300px;
+    order: 3; /* Inventory last */
+  }
 }
 
 @media (max-width: 600px) {
   .garden-header h2 { font-size: 20px; }
-  .garden-indicators { gap: 5px; }
-  .weather-indicator, .season-indicator { padding: 4px 6px; }
+  .garden-indicators { 
+    gap: 5px; 
+    width: 150px; /* Smaller on mobile */
+  }
+  .weather-indicator, .season-indicator { 
+    padding: 4px 6px; 
+    width: 70px; /* Smaller on mobile */
+  }
   .weather-icon, .season-icon { font-size: 14px; }
   .weather-label, .season-label { font-size: 11px; }
+  
   .garden-grid { 
     gap: 5px; 
     padding: 5px; 
-    grid-template-columns: repeat(2, 1fr); 
-    grid-template-rows: repeat(auto-fill, minmax(90px, 1fr)); 
+    grid-template-columns: repeat(2, 1fr); /* Show only 2 columns on very small screens */
   }
+  
   .plot-details h3, .inventory-panel h3 { font-size: 16px; }
   .scroll-content .action-button { font-size: 13px; padding: 6px 12px; }
-}
-
-/* Garden Plot Specific Styling */
-.garden-plot {
-  position: relative;
-  flex: 1;
-  aspect-ratio: 1 / 1;
-  min-width: 80px;
-  background-color: #8d6e63;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238d6e63"/><circle cx="2" cy="3" r="1" fill="%235d4037" opacity="0.3"/><circle cx="7" cy="6" r="1" fill="%235d4037" opacity="0.3"/><circle cx="5" cy="9" r="1" fill="%235d4037" opacity="0.3"/><circle cx="8" cy="1" r="1" fill="%235d4037" opacity="0.3"/></svg>');
-  border-radius: 4px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  /* 90s Bevel Border */
-  border: 3px solid;
-  border-color: #a1887f #5d4037 #5d4037 #a1887f;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
-  image-rendering: pixelated;
-}
-
-.garden-plot:hover:not(.locked) {
-  transform: translateY(-3px) translateX(-1px);
-  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
-  border-color: #b59dc4;
-}
-
-.garden-plot.selected:not(.locked) {
-  border-color: #ffd54f;
-  box-shadow: 0 0 0 3px #ffd54f, 5px 5px 0px rgba(0, 0, 0, 0.3);
-  transform: translateY(-3px) translateX(-1px) scale(1.02);
-}
-
-.garden-plot.locked {
-  background-color: #555;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%23555"/><path d="M0 0h20v20H0z" stroke-width="1" stroke="%23333" fill="none"/><path d="M0 0L20 20M0 20L20 0" stroke-width="2" stroke="%23444" fill="none"/></svg>');
-  cursor: not-allowed;
-  opacity: 0.8;
-  border-color: #777 #333 #333 #777;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-}
-
-.locked-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 2px;
-}
-
-.lock-icon {
-  font-size: 32px;
-  color: #aaa;
-  text-shadow: 1px 1px 0px #333;
-}
-
-/* Represents the soil mound inside the plot */
-.plot-soil {
-  position: absolute;
-  bottom: 2px;
-  left: 2px;
-  right: 2px;
-  height: 45%;
-  background-color: #795548;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23795548"/><circle cx="3" cy="2" r="1" fill="%234e342e" opacity="0.4"/><circle cx="8" cy="7" r="1" fill="%234e342e" opacity="0.4"/><circle cx="1" cy="8" r="1" fill="%234e342e" opacity="0.4"/></svg>');
-  border-radius: 4px 4px 0 0;
-  transition: all 0.4s ease;
-  border-top: 2px solid #a1887f;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-/* Moisture levels affect soil appearance */
-.garden-plot.dry .plot-soil {
-  background-color: #a1887f;
-  filter: brightness(1.1);
-}
-
-.garden-plot.wet .plot-soil {
-  background-color: #4e342e;
-  filter: brightness(0.8);
-}
-
-/* Plot status indicators */
-.plot-status {
-  position: absolute;
-  top: 5px; 
-  right: 5px;
-  z-index: 5;
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px;
-}
-
-.status-icon {
-  width: 18px; 
-  height: 18px;
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  border-radius: 3px;
-  font-size: 12px;
-  color: #fff;
-  font-weight: bold;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.5);
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  text-align: center;
-}
-
-.status-icon.ready-to-harvest { 
-  background-color: #689f38;
-  animation: harvestPulseIcon 1.5s infinite;
-}
-
-.status-icon.needs-water { 
-  background-color: #1e88e5;
-}
-
-.status-icon.empty-plot { 
-  background-color: #757575;
-  color: #e0e0e0;
-}
-
-@keyframes harvestPulseIcon {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); box-shadow: 0 0 5px #a5d6a7, 1px 1px 2px rgba(0, 0, 0, 0.5); }
-}
-
-/* Seasonal Attunement Puzzle Styles */
-.seasonal-attunement-puzzle {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-}
-
-.puzzle-container {
-  background-color: #795548;
-  border-radius: 8px;
-  padding: 20px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  border: 6px solid transparent;
-  border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%235d4037"/><path d="M3 3h12v12H3z" fill="%238d6e63"/><path d="M6 6h6v6H6z" fill="%23a1887f"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%235d4037"/></svg>');
-  border-image-slice: 6;
-  border-image-width: 6px;
-  border-image-outset: 0;
-  border-image-repeat: round;
-  border-style: solid;
-  image-rendering: pixelated;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.puzzle-header {
-  text-align: center;
-  color: #f4e9d9;
-  margin-bottom: 15px;
-  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-  border-bottom: 2px solid #a1887f;
-  padding-bottom: 10px;
-}
-
-.puzzle-header h2 {
-  margin: 0 0 5px 0;
-  font-family: 'Courier New', monospace;
-  font-size: 20px;
-}
-
-.puzzle-description {
-  color: #f4e9d9;
-  font-family: 'Times New Roman', serif;
-  font-size: 14px;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  border: 1px solid #5d4037;
-}
-
-.puzzle-board {
-  background-color: #f4e9d9;
-  border-radius: 4px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  border: 2px solid;
-  border-color: #5d4037 #a1887f #a1887f #5d4037;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.puzzle-elements {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-  gap: 10px;
-  padding: 10px;
-}
-
-.puzzle-element {
-  aspect-ratio: 1;
-  background-color: #e0d6c9;
-  border: 3px solid;
-  border-color: #f4e9d9 #a1887f #a1887f #f4e9d9;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 24px;
-  transition: all 0.2s ease;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.puzzle-element:hover {
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
-}
-
-.puzzle-element:active {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  border-color: #a1887f #f4e9d9 #f4e9d9 #a1887f;
-}
-
-.puzzle-element.selected {
-  background-color: #b59dc4;
-  border-color: #9c71ad;
-  transform: scale(0.95);
-  box-shadow: 0 0 8px rgba(181, 157, 196, 0.6), inset 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.puzzle-timer {
-  width: 100%;
-  height: 10px;
-  background-color: #e0d6c9;
-  border: 1px solid #a1887f;
-  border-radius: 5px;
-  overflow: hidden;
-  margin: 10px 0;
-}
-
-.timer-fill {
-  height: 100%;
-  background-color: #ffd54f;
-  width: 100%;
-  transition: width linear;
-}
-
-.puzzle-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.puzzle-button {
-  flex: 1;
-  padding: 8px 15px;
-  background-color: #8d6e63;
-  color: #f4e9d9;
-  border: 2px solid;
-  border-color: #a1887f #5d4037 #5d4037 #a1887f;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-  text-align: center;
-}
-
-.puzzle-button:hover {
-  background-color: #a1887f;
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
-}
-
-.puzzle-button:active {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  border-color: #5d4037 #a1887f #a1887f #5d4037;
-}
-
-.puzzle-button.submit {
-  background-color: #ffd54f;
-  color: #4e342e;
-  border-color: #ffe08a #a07c2c #a07c2c #ffe08a;
-}
-
-.puzzle-button.submit:hover {
-  background-color: #e6c46c;
-}
-
-.puzzle-button.skip {
-  background-color: #bdbdbd;
-  color: #424242;
-  border-color: #e0e0e0 #757575 #757575 #e0e0e0;
-}
-
-.puzzle-button.skip:hover {
-  background-color: #9e9e9e;
 }
