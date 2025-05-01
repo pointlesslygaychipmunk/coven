@@ -1,588 +1,17 @@
-/* Garden.css - Enhanced with 90s Adventure Game Styling */
+/* 90s Style Garden Component - Fullscreen with No Spirit Effects */
 
-/* Master container for the entire garden view */
-.garden-container {
-  display: flex;
-  flex-direction: column;
-  background-color: #6b4f37; /* Dark wood color */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%236b4f37"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%235d4037" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%235d4037" opacity="0.2"/></svg>');
-  color: #e4dbee; /* Light text for contrast */
-  border-radius: 0px; /* Square corners for 90s look */
-  padding: 15px; /* Reduced padding */
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3); /* 90s style shadow */
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: 'Courier New', monospace; /* Classic 90s font */
-  position: relative;
-  
-  /* Ornate pixelated border - 90s style */
-  border: 6px solid transparent;
-  border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%235d4037"/><path d="M3 3h12v12H3z" fill="%238d6e63"/><path d="M6 6h6v6H6z" fill="%23a1887f"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%235d4037"/></svg>');
-  border-image-slice: 6;
-  border-image-width: 6px;
-  border-image-outset: 0;
-  border-image-repeat: round;
-  border-style: solid;
-  image-rendering: pixelated; /* Crisp pixel art borders */
-}
-
-/* Garden header with title and status indicators */
-.garden-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #8d6e63; /* Brown border */
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-  position: relative;
-}
-
-.garden-header h2 {
-  margin: 0;
-  color: #ffc107; /* Golden text */
-  font-weight: bold;
-  font-size: 22px;
-  letter-spacing: 1px;
-  font-family: 'Courier New', monospace;
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4); /* Classic 90s text shadow */
-}
-
-/* Weather and season indicators */
-.garden-indicators {
-  display: flex;
-  gap: 10px;
-}
-
-.weather-indicator, .season-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  background-color: #5d4037; /* Brown background */
-  border-radius: 0px; /* Square for 90s look */
-  border: 2px solid;
-  border-color: #8d6e63 #3e2723 #3e2723 #8d6e63; /* Classic bevel */
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
-}
-
-.weather-icon, .season-icon {
-  font-size: 16px;
-  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.5));
-}
-
-.weather-label, .season-label {
-  font-size: 14px;
-  color: #e4dbee; /* Light text */
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-}
-
-/* Main content area with grid and sidebar */
-.garden-content {
-  display: flex;
-  flex: 1;
-  gap: 15px;
-  height: calc(100% - 60px); /* Account for header */
-  min-height: 0; /* Fix for flexbox overflow */
-}
-
-/* Garden grid - 90s game style plot layout */
-.garden-grid {
-  flex: 3; /* Take more space */
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 10px;
-  padding: 12px;
-  background-color: #8d6e63; /* Brown soil color */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%238d6e63"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%235d4037" opacity="0.3"/></svg>');
-  border-radius: 0px; /* Square for 90s look */
-  border: 3px solid;
-  border-color: #5d4037 #a1887f #a1887f #5d4037; /* 90s bevel border */
-  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inset for depth */
-  position: relative;
-  overflow: hidden;
-}
-
-/* Garden sidebar */
-.garden-sidebar {
-  flex: 1.3; /* Wider sidebar */
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  min-width: 250px;
-  max-width: 320px;
-  min-height: 0; /* Fix for flexbox overflow */
-}
-
-/* Panels styling */
-.plot-details, .inventory-panel {
-  background-color: #3a2f4a; /* Dark purple bg */
-  border-radius: 0px; /* Square corners for 90s style */
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  border: 3px solid;
-  border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
-  position: relative;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* Panel headers */
-.plot-details h3, .inventory-panel h3 {
-  margin: 0 0 10px;
-  color: #ffc107; /* Golden header */
-  font-size: 18px;
-  font-weight: bold;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  border-bottom: 2px solid #5d468a; /* Purple border */
-  padding-bottom: 8px;
-  font-family: 'Courier New', monospace;
-}
-
-/* Plot details area */
-.plot-stats {
-  margin-bottom: 10px;
-}
-
-.plot-stat {
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 3px;
-  font-size: 14px;
-  color: #e4dbee;
-}
-
-/* 90s style progress bars */
-.stat-bar, .progress-bar {
-  height: 14px;
-  background-color: #2d2038; /* Dark purple bg */
-  border: 2px solid;
-  border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Inverted bevel for inset */
-  border-radius: 0px; /* Square for 90s look */
-  overflow: hidden;
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-/* Progress bar fills with 90s patterns */
-.stat-fill.fertility {
-  background-color: #9c27b0; /* Purple */
-  background-image: linear-gradient(45deg, #9c27b0 25%, #ba68c8 25%, #ba68c8 50%, #9c27b0 50%, #9c27b0 75%, #ba68c8 75%, #ba68c8 100%);
-  background-size: 10px 10px; /* Checkerboard pattern */
-  height: 100%;
-  transition: width 0.5s ease;
-}
-
-.stat-fill.moisture {
-  background-color: #2196f3; /* Blue */
-  background-image: linear-gradient(45deg, #2196f3 25%, #64b5f6 25%, #64b5f6 50%, #2196f3 50%, #2196f3 75%, #64b5f6 75%, #64b5f6 100%);
-  background-size: 10px 10px; /* Checkerboard pattern */
-  height: 100%;
-  transition: width 0.5s ease;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #4caf50; /* Green */
-  background-image: linear-gradient(45deg, #4caf50 25%, #81c784 25%, #81c784 50%, #4caf50 50%, #4caf50 75%, #81c784 75%, #81c784 100%);
-  background-size: 10px 10px; /* Checkerboard pattern */
-  transition: width 0.5s ease;
-}
-
-/* Plant info styling */
-.plant-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.plant-info h4 {
-  font-size: 16px;
-  margin: 0;
-  text-align: center;
-  color: #a5d6a7; /* Light green */
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
-}
-
-.plant-progress {
-  margin-bottom: 8px;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 3px;
-  font-size: 14px;
-}
-
-.progress-value, .stat-value {
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  margin-top: 2px;
-  color: #e4dbee;
-}
-
-.plant-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.plant-stat {
-  background-color: #2d2038; /* Dark purple */
-  padding: 5px;
-  border-radius: 0px; /* Square for 90s look */
-  text-align: center;
-  border: 2px solid;
-  border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s inset bevel */
-}
-
-.plant-blessing {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  margin-bottom: 10px;
-  color: #e1bee7; /* Light purple */
-  font-size: 14px;
-}
-
-.moon-icon {
-  color: #e1bee7;
-  filter: drop-shadow(0 0 2px rgba(225, 190, 231, 0.5));
-}
-
-/* 90s style buttons with chunky design */
-.action-button {
-  padding: 8px 10px;
-  background-color: #ffc107; /* Gold button */
-  color: #2d2038; /* Dark text */
-  border: 3px solid;
-  border-color: #ffe082 #cc9a05 #cc9a05 #ffe082; /* 90s gold bevel */
-  border-radius: 0px; /* Square corners for 90s look */
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: center;
-  margin-top: 5px;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3); /* Chunky shadow */
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
-}
-
-.action-button:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
-}
-
-.action-button:active:not(.disabled) {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
-  border-color: #cc9a05 #ffe082 #ffe082 #cc9a05; /* Inverted bevel when pressed */
-}
-
-.action-button.harvest {
-  background-color: #4caf50; /* Green button */
-  border-color: #81c784 #2e7d32 #2e7d32 #81c784; /* Green bevel */
-}
-
-.action-button.disabled {
-  opacity: 0.6;
-  background-color: #757575; /* Gray button */
-  border-color: #9e9e9e #424242 #424242 #9e9e9e; /* Gray bevel */
-  color: #e0e0e0;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-}
-
-.garden-actions {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.garden-action-button {
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  background-color: #5d468a; /* Purple button */
-  color: #e4dbee;
-  border: 3px solid;
-  border-color: #7a6c95 #2d2038 #2d2038 #7a6c95; /* Purple bevel */
-  font-family: 'Courier New', monospace;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
-  border-radius: 0px; /* Square for 90s look */
-}
-
-.garden-action-button:hover {
-  background-color: #7a6c95;
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
-}
-
-.garden-action-button:active {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
-  border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Inverted bevel when pressed */
-}
-
-/* Seed inventory styling - Icon grid with tooltips */
-.seed-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-  overflow-y: auto;
-  max-height: 150px;
-  border: 2px solid;
-  border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s inset bevel */
-  padding: 8px;
-  background-color: #2d2038; /* Dark purple */
-}
-
-.seed-item {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #3a2f4a; /* Slightly lighter purple */
-  border: 3px solid;
-  border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
-  border-radius: 0px; /* Square for 90s look */
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.seed-item:hover {
-  background-color: #4a3b5c; /* Lighter on hover */
-  transform: translateY(-2px);
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
-}
-
-.seed-item.selected {
-  background-color: #5d468a; /* Purple when selected */
-  border-color: #b59dc4 #2d2038 #2d2038 #b59dc4; /* Highlighted bevel */
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3), 2px 2px 0px rgba(0, 0, 0, 0.3);
-}
-
-.seed-image {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #795548; /* Brown seed */
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 2px solid #5d4037; /* Brown border */
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-}
-
-.seed-placeholder {
-  color: #c8e6c9; /* Light green */
-  font-weight: bold;
-  font-size: 18px;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
-}
-
-/* Quantity indicator */
-.seed-quantity-badge {
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  background-color: #4caf50; /* Green */
-  color: #fff;
-  border: 2px solid #2d2038;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-/* FIXED: Seed Actions section with buttons stacked vertically */
-.seed-actions {
-  display: flex; /* Always display */
-  flex-direction: column; /* Stack buttons vertically */
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.action-button.plant {
-  width: 100%;
-  background-color: #795548; /* Brown like clear button */
-  border-color: #a1887f #4e342e #4e342e #a1887f;
-  color: #fff;
-  margin-bottom: 0; /* Remove margin between buttons */
-}
-
-.action-button.clear {
-  width: 100%;
-  background-color: #795548; /* Brown for clear */
-  border-color: #a1887f #4e342e #4e342e #a1887f;
-  color: #fff;
-}
-
-/* Status area */
-.action-status {
-  margin-top: 8px;
-  min-height: 40px; /* Reserve space for messages */
-}
-
-.garden-tip {
-  font-style: italic;
-  font-size: 13px;
-  color: #b59dc4; /* Light purple */
-  text-align: center;
-  font-family: 'Times New Roman', serif;
-  margin: 5px 0;
-}
-
-/* Whisper animation */
-.garden-whisper {
-  position: absolute;
-  left: 50%;
-  top: 30%;
-  transform: translateX(-50%);
-  background-color: rgba(93, 64, 55, 0.8);
-  color: #e4dbee;
-  padding: 10px 20px;
-  border-radius: 0px; /* Square for 90s look */
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
-  font-family: 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 16px;
-  max-width: 400px;
-  text-align: center;
-  z-index: 100;
-  animation: whisperAppear 0.6s ease-out forwards, whisperFade 0.6s ease-in 4.4s forwards;
-  border: 3px solid;
-  border-color: #a1887f #5d4037 #5d4037 #a1887f; /* 90s bevel */
-}
-
-@keyframes whisperAppear {
-  from { opacity: 0; transform: translate(-50%, -20px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-@keyframes whisperFade {
-  from { opacity: 1; transform: translate(-50%, 0); }
-  to { opacity: 0; transform: translate(-50%, -20px); }
-}
-
-/* Attunement animation */
-.attunement-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, rgba(76, 175, 80, 0.2) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 100;
-  animation: attunementPulse 1.5s ease-out forwards;
-}
-
-@keyframes attunementPulse {
-  0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* Responsive adaptations */
-@media (max-width: 900px) {
-  .garden-content {
-    flex-direction: column;
-  }
-  
-  .garden-grid {
-    min-height: 300px;
-    max-height: 50vh;
-  }
-  
-  .garden-sidebar {
-    flex: none;
-    min-width: 0;
-    max-width: none;
-    width: 100%;
-  }
-  
-  .seed-actions {
-    flex-direction: column; /* Ensure buttons stay vertical */
-  }
-}
-
-@media (max-width: 600px) {
-  .garden-container {
-    padding: 10px;
-  }
-  
-  .garden-header h2 {
-    font-size: 18px;
-  }
-  
-  .garden-indicators {
-    gap: 5px;
-  }
-  
-  .weather-indicator, .season-indicator {
-    padding: 4px 6px;
-  }
-  
-  .weather-icon, .season-icon {
-    font-size: 14px;
-  }
-  
-  .weather-label, .season-label {
-    font-size: 11px;
-  }
-  
-  .garden-grid {
-    gap: 5px;
-    padding: 5px;
-  }
-  
-  .seed-actions {
-    gap: 4px; /* Tighter spacing */
-  }
-  
-  .action-button {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
-}
-
-/* 90s Style Garden Component with Icons-Only Seed Pouch */
-
-/* Main container */
+/* Main container - fills the entire window */
 .garden-container {
   display: flex;
   flex-direction: column;
   background-color: #2d2038; /* Dark purple background */
   color: #e4dbee; /* Light text */
   border: 2px solid #5d468a; /* Purple border */
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
   overflow: hidden;
   font-family: 'Courier New', monospace; /* Classic 90s font */
 }
@@ -594,6 +23,7 @@
   align-items: center;
   padding: 10px 15px;
   border-bottom: 1px solid #5d468a;
+  background-color: #2d2038;
 }
 
 .garden-header h2 {
@@ -622,6 +52,7 @@
   display: flex;
   flex: 1;
   height: calc(100% - 50px);
+  overflow: hidden;
 }
 
 /* Garden grid */
@@ -634,6 +65,7 @@
   padding: 15px;
   background-color: #3a2f4a;
   border-right: 1px solid #5d468a;
+  overflow: hidden;
 }
 
 /* Garden sidebar */
@@ -666,6 +98,7 @@
   padding: 15px;
   display: flex;
   flex-direction: column;
+  background-color: #2d2038;
 }
 
 .inventory-panel h3 {
@@ -755,6 +188,116 @@
   cursor: not-allowed;
 }
 
+/* Progress bars and stats */
+.plot-stat {
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+  font-size: 14px;
+}
+
+.stat-bar, .progress-bar {
+  height: 14px;
+  background-color: #2d2038;
+  border: 1px solid #5d468a;
+  overflow: hidden;
+}
+
+.stat-fill.fertility {
+  background-color: #9c27b0; /* Purple */
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.stat-fill.moisture {
+  background-color: #2196f3; /* Blue */
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4caf50; /* Green */
+  transition: width 0.5s ease;
+}
+
+/* Plant stats layout */
+.plant-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.plant-stat {
+  background-color: #3a2f4a;
+  padding: 5px;
+  text-align: center;
+  border: 1px solid #5d468a;
+}
+
+/* Plant blessing without glow */
+.plant-blessing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: #e1bee7; /* Light purple */
+  font-size: 14px;
+}
+
+.moon-icon {
+  color: #e1bee7;
+}
+
+/* Harvest button */
+.harvest-button {
+  background-color: #3a2f4a;
+  color: #e4dbee;
+  border: 1px solid #5d468a;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.harvest-button:hover {
+  background-color: #4a3b5c;
+}
+
+/* Attune button */
+.attune-button {
+  background-color: #3a2f4a;
+  color: #e4dbee;
+  border: 1px solid #5d468a;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.attune-button:hover:not([disabled]) {
+  background-color: #4a3b5c;
+}
+
+.attune-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Tip text */
 .garden-tip {
   font-style: italic;
@@ -781,11 +324,23 @@
   z-index: 100;
 }
 
-/* Attunement animation overlay */
+/* Attunement animation overlay without spirits */
 .attunement-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, rgba(93, 70, 138, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(93, 70, 138, 0.2) 0%, transparent 70%);
   pointer-events: none;
   z-index: 100;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .garden-content {
+    flex-direction: column;
+  }
+  
+  .garden-sidebar {
+    max-width: none;
+    width: 100%;
+  }
 }
