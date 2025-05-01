@@ -1,441 +1,100 @@
-/* HUD.css - Fixed sizing and contained buttons */
+/* HUD Sidebar fixes */
 
 .coven-hud-sidebar {
   position: relative;
-  float: left;
-  width: 220px; /* Fixed width */
-  height: 100%; /* Full height */
-  min-height: 600px; /* Minimum height */
-  max-height: 100vh; /* Maximum height */
-  background-color: #4a3b5c; /* Dark purple-ish stone base */
+  float: none;
+  width: 220px; 
+  height: 100%; 
+  background-color: #4a3b5c;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%234a3b5c"/><path d="M0 0h10v10H0zm10 10h10v10H10zm10 10h10v10H20zm10 10h10v10H30zm10 10h10v10H40zm10 10h10v10H50z M50 0h10v10H50zM40 10h10v10H40zM30 20h10v10H30zM20 30h10v10H20zM10 40h10v10H10zM0 50h10v10H0z" fill="%233a2f4a" fill-opacity="0.4"/></svg>');
   border-right: 4px solid;
   border-image: url('data:image/svg+xml;utf8,<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h8v8H0z" fill="%23483d66"/><path d="M2 2h4v4H2z" fill="%235d468a"/><path d="M0 0h2v2H0zm6 0h2v2H6zM0 6h2v2H0zm6 6h2v2H6z" fill="%233a2f4a"/></svg>') 4 stretch;
   padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Spacing between sections */
+  gap: 15px;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
   z-index: 10;
-  font-family: 'Courier New', monospace;
-  color: #f4e9d9;
+  font-family: var(--font-secondary);
+  color: var(--color-text-light);
   image-rendering: pixelated;
-  overflow-y: auto; /* Enable scrolling if content exceeds height */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  box-sizing: border-box; /* Include padding in width calculation */
+  flex: 0 0 220px; /* Fixed flex width, don't grow or shrink */
+  overflow: hidden; /* Prevent scrolling */
 }
 
-/* Player Info Panel - Fixed height */
-.player-panel {
-  background-color: #5d468a;
-  border: 2px solid;
-  border-color: #7a5da7 #3a2f4a #3a2f4a #7a5da7;
-  border-radius: 4px;
-  padding: 12px;
-  text-align: center;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4), 2px 2px 0px rgba(0, 0, 0, 0.2);
-  height: 130px; /* Fixed height */
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.player-portrait {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  margin: 0 auto 10px;
-  background-color: #6a4c93;
-  border: 3px solid #7a5da7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.player-avatar {
-  font-size: 32px;
-  font-family: 'Times New Roman', serif;
-  color: #f4e9d9;
-  text-shadow: 1px 1px 0px #3a2f4a;
-}
-
-/* Easter Egg Sparkle Effect */
-.player-portrait.sparkling::after {
-  content: '✨';
-  position: absolute;
-  top: -5px; right: -5px;
-  font-size: 18px;
-  animation: sparkleEffect 1s forwards;
-  text-shadow: 0 0 5px yellow;
-}
-
-@keyframes sparkleEffect {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(1); opacity: 0; }
-}
-
-.player-name {
-  font-size: 18px;
-  color: #f4e9d9;
-  font-family: 'Courier New', monospace;
-  margin-bottom: 4px;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%; /* Fixed width */
-}
-
-.player-level {
-  font-size: 13px;
-  color: #baaad7;
-  font-family: 'Courier New', monospace;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.level-number {
-  color: #ffd54f;
-  font-weight: bold;
-}
-
-/* Lunar Display Panel - Fixed height */
-.lunar-panel {
-  background-color: #5d468a;
-  border: 2px solid;
-  border-color: #7a5da7 #3a2f4a #3a2f4a #7a5da7;
-  border-radius: 4px;
-  padding: 10px;
-  text-align: center;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4), 2px 2px 0px rgba(0, 0, 0, 0.2);
-  height: 90px; /* Fixed height */
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.lunar-icon {
-  margin-bottom: 5px;
-  display: flex;
-  justify-content: center;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.lunar-info {
-  font-family: 'Courier New', monospace;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.lunar-phase {
-  font-size: 14px;
-  color: #b59dc4;
-  margin-bottom: 3px;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%; /* Fixed width */
-}
-
-.day-count {
-  font-size: 13px;
-  color: #baaad7;
-}
-
-/* Resources Panel - Fixed height */
-.resources-panel {
-  background-color: #5d468a;
-  border: 2px solid;
-  border-color: #7a5da7 #3a2f4a #3a2f4a #7a5da7;
-  border-radius: 4px;
-  padding: 10px;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4), 2px 2px 0px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  height: 100px; /* Fixed height */
-  box-sizing: border-box;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.resource-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #6a4c93;
-  padding: 5px 10px;
-  border-radius: 4px;
-  border: 1px solid #7a5da7;
-  box-sizing: border-box;
-}
-
-.resource-icon {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid rgba(0,0,0,0.3);
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.4);
-}
-
-.resource-item.gold .resource-icon { background-color: #ffd54f; }
-.resource-item.reputation .resource-icon { background-color: #b59dc4; }
-
-.resource-value {
-  font-size: 16px;
-  font-weight: bold;
-  font-family: 'Courier New', monospace;
-  color: #f4e9d9;
-  flex-grow: 1;
-  text-align: right;
-}
-
-.resource-item.gold .resource-value { 
-  color: #ffd54f; 
-  text-shadow: 1px 1px 0px #a07c2c; 
-}
-
-.resource-item.reputation .resource-value { 
-  color: #b59dc4; 
-  text-shadow: 1px 1px 0px #5d468a; 
-}
-
-/* Navigation Panel - Takes remaining space with scrolling */
+/* Navigation Panel - Make it non-scrollable */
 .navigation-panel {
-  margin-top: auto; /* Pushes navigation to bottom if space allows */
+  margin-top: auto; /* Pushes navigation and end day to bottom */
   display: flex;
   flex-direction: column;
   gap: 15px; /* Space between nav and end day */
-  flex-shrink: 1; /* Allow shrinking if needed */
-  min-height: 200px; /* Minimum height */
-  overflow-y: auto; /* Allow scrolling if too small */
-  scrollbar-width: thin;
-  scrollbar-color: #7a5da7 #3a2f4a;
-  box-sizing: border-box;
+  flex-shrink: 0; /* Prevent shrinking */
 }
-
-.navigation-panel::-webkit-scrollbar { width: 6px; }
-.navigation-panel::-webkit-scrollbar-track { background: #3a2f4a; border-radius: 3px; }
-.navigation-panel::-webkit-scrollbar-thumb { background-color: #7a5da7; border-radius: 3px; }
 
 .location-tabs {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 100%; /* Full width */
-  box-sizing: border-box;
-}
-
-.location-tab {
-  padding: 10px 12px;
-  background-color: #6a4c93;
-  color: #baaad7;
-  border: 2px solid;
-  border-color: #7a5da7 #3a2f4a #3a2f4a #7a5da7;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-align: left;
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-  transform: translateY(0);
-  width: 100%; /* Full width */
-  height: 40px; /* Fixed height */
-  box-sizing: border-box;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.location-tab:hover {
-  background-color: #7a5da7;
-  color: #f4e9d9;
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
-}
-
-.location-tab:active {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  border-color: #3a2f4a #7a5da7 #7a5da7 #3a2f4a;
-}
-
-.location-tab.active {
-  background-color: #b59dc4;
-  color: #3a2f4a;
-  font-weight: bold;
-  border-color: #f4e9d9 #8a6fa3 #8a6fa3 #f4e9d9;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3), 2px 2px 3px rgba(0, 0, 0, 0.3);
-}
-
-.location-tab.active .location-icon {
-  filter: brightness(0.8);
-}
-
-.location-icon {
-  font-size: 18px;
-  width: 20px; /* Fixed width for alignment */
-  text-align: center;
-  filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.3));
-  flex-shrink: 0; /* Prevent icon from shrinking */
-}
-
-.location-name {
-  flex-grow: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* End Day Button - Fixed height */
-.end-day-button {
-  padding: 12px 15px;
-  background-color: #ffd54f;
-  color: #3a2f4a;
-  border: 2px solid;
-  border-color: #ffe08a #a07c2c #a07c2c #ffe08a;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  width: 100%;
-  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-  transform: translateY(0);
-  height: 45px; /* Fixed height */
-  box-sizing: border-box;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 190px; /* Maximum width to prevent overflow */
-  margin: 0 auto; /* Center if smaller than parent */
   flex-shrink: 0; /* Prevent shrinking */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.end-day-button:hover:not(:disabled) {
-  background-color: #e6c46c;
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
+/* Calculate heights to ensure everything fits without scrolling */
+@media (min-height: 700px) {
+  .player-panel, .lunar-panel, .resources-panel {
+    flex-shrink: 0; /* Don't allow shrinking */
+  }
 }
 
-.end-day-button:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  border-color: #a07c2c #ffe08a #ffe08a #a07c2c;
-}
-
-.end-day-button.confirm {
-  background-color: #f44336;
-  color: white;
-  border-color: #e57373 #b71c1c #b71c1c #e57373;
-  animation: confirmPulse 1s infinite alternate;
-}
-
-.end-day-button.confirm:hover:not(:disabled) {
-  background-color: #d32f2f;
-}
-
-.end-day-button.confirm:active:not(:disabled) {
-  border-color: #b71c1c #e57373 #e57373 #b71c1c;
-}
-
-@keyframes confirmPulse {
-  from { box-shadow: 2px 2px 3px rgba(0,0,0,0.3), 0 0 5px #f44336; }
-  to   { box-shadow: 2px 2px 3px rgba(0,0,0,0.3), 0 0 15px #f44336; }
-}
-
-/* Easter Egg Status Message Area (Positioned at bottom of HUD) */
-.hud-status-message {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  background-color: rgba(0,0,0,0.7);
-  color: #ffd54f;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  padding: 5px 10px;
-  border-radius: 4px;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  pointer-events: none;
-  z-index: 110;
-  box-sizing: border-box;
-  max-width: calc(100% - 20px); /* Ensure it stays within sidebar */
-  white-space: normal; /* Allow text to wrap */
-}
-
-.hud-status-message.visible {
-  opacity: 1;
-}
-
-/* Responsive adjustments for HUD */
-@media (max-height: 600px) {
+@media (max-height: 699px) {
+  /* For smaller heights, reduce some padding/margins to fit everything */
   .coven-hud-sidebar {
     padding: 10px;
     gap: 10px;
   }
   
-  .player-panel {
-    height: 110px;
+  .player-panel, .lunar-panel, .resources-panel {
+    padding: 8px;
   }
   
   .player-portrait {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 8px;
   }
   
-  .lunar-panel {
-    height: 70px;
-  }
-  
-  .resources-panel {
-    height: 80px;
+  .location-tabs {
+    gap: 4px;
   }
   
   .location-tab {
-    height: 34px;
     padding: 8px 10px;
-    font-size: 14px;
+  }
+  
+  .navigation-panel {
+    gap: 10px;
   }
   
   .end-day-button {
-    height: 38px;
-    padding: 8px 10px;
-    font-size: 14px;
+    padding: 10px;
   }
 }
 
-/* Make sure HUD works in all parent containers */
-.app-container .coven-hud-sidebar,
-.game-container .coven-hud-sidebar,
-.layout-container .coven-hud-sidebar {
-  height: 100%;
-  width: 220px;
-  box-sizing: border-box;
-}
-
-/* Prevent any parent container from affecting HUD sizing */
-* > .coven-hud-sidebar {
-  flex: 0 0 220px; /* Fixed size that won't grow or shrink */
+/* Responsive layout for mobile - ensure everything fits */
+@media (max-width: 768px) {
+  .coven-hud-sidebar {
+    float: none;
+    width: 100%;
+    height: auto;
+    min-height: 80px;
+    flex: 0 0 auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    overflow: visible; /* Allow content to be visible on mobile */
+  }
+  
+  /* Other mobile styles remain the same */
 }
