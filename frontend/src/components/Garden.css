@@ -1,10 +1,10 @@
-/* Garden.css - 90s Adventure Game Style with Fixed Button Layout */
+/* Garden.css - Properly Fixed 90s Adventure Game Style */
 
 /* Master container for the entire garden view */
 .garden-container {
   display: flex;
   flex-direction: column;
-  background-color: #2d2038; /* Dark purple background, matching HUD */
+  background-color: #2d2038; /* Dark purple background matching screenshot */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%232d2038"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%233a2f4a" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%233a2f4a" opacity="0.2"/></svg>');
   color: #e4dbee; /* Light text for contrast */
   border-radius: 0px; /* Square corners for 90s look */
@@ -103,6 +103,7 @@
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inset for depth */
   position: relative;
   overflow: hidden;
+  align-content: start; /* FIXED: Prevents plots stacking on top of each other */
 }
 
 /* Garden sidebar */
@@ -114,10 +115,12 @@
   min-width: 250px;
   max-width: 320px;
   min-height: 0; /* Fix for flexbox overflow */
+  height: 100%; /* Ensure full height */
+  overflow-y: auto; /* Allow scrolling if needed */
 }
 
-/* Panels styling */
-.plot-details, .inventory-panel {
+/* FIXED: Seed Pouch larger than Plot Details */
+.plot-details {
   background-color: #3a2f4a; /* Dark purple bg */
   border-radius: 0px; /* Square corners for 90s style */
   padding: 12px;
@@ -127,7 +130,21 @@
   border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
   position: relative;
-  flex: 1;
+  flex: 1; /* Takes 1/3 of available space */
+  overflow: hidden;
+}
+
+.inventory-panel {
+  background-color: #3a2f4a; /* Dark purple bg */
+  border-radius: 0px; /* Square corners for 90s style */
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  border: 3px solid;
+  border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
+  position: relative;
+  flex: 1.5; /* Takes 2/3 of available space - FIXED: Larger than plot details */
   overflow: hidden;
 }
 
@@ -278,6 +295,8 @@
   margin-top: 5px;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3); /* Chunky shadow */
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+  display: block; /* FIXED: Ensures button is a block element */
+  width: 100%; /* FIXED: Full width */
 }
 
 .action-button:hover:not(.disabled) {
@@ -350,7 +369,7 @@
   gap: 8px;
   margin-bottom: 12px;
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 190px; /* FIXED: Taller seed list area */
   border: 2px solid;
   border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s inset bevel */
   padding: 8px;
@@ -423,22 +442,24 @@
   font-weight: bold;
 }
 
-/* FIXED: Seed Actions section with Plant button ALWAYS above Clear button */
+/* FIXED: Seed Actions section with STATIC buttons */
 .seed-actions {
   display: flex; /* Always displayed */
   flex-direction: column; /* Stack buttons vertically */
   gap: 8px;
   margin-top: 10px;
+  margin-bottom: 10px; /* Add bottom margin */
 }
 
-/* Make Plant button always above Clear button */
+/* Static Plant button always above Clear button */
 .action-button.plant {
   width: 100%;
   background-color: #795548; /* Brown button */
   border-color: #a1887f #4e342e #4e342e #a1887f; /* Brown bevel */
   color: #fff;
   margin-bottom: 0; /* Remove margin between buttons */
-  order: 1; /* Ensure this is first (above) in the flex column */
+  display: block; /* FIXED: Always a block, not conditional */
+  position: static; /* FIXED: Never floating */
 }
 
 .action-button.clear {
@@ -446,7 +467,8 @@
   background-color: #795548; /* Brown for clear */
   border-color: #a1887f #4e342e #4e342e #a1887f; /* Brown bevel */
   color: #fff;
-  order: 2; /* Ensure this is second (below) in the flex column */
+  display: block; /* FIXED: Always a block, not conditional */
+  position: static; /* FIXED: Never floating */
 }
 
 /* Status area */
@@ -512,6 +534,33 @@
   100% { opacity: 0; }
 }
 
+/* Fix for flexbox overflow issues */
+.garden-container, .garden-content, .garden-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.garden-content {
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* FIXED: Ensure all HUD buttons are visible, no off-screen elements */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.garden-container {
+  height: 100%;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
 /* Responsive adaptations */
 @media (max-width: 900px) {
   .garden-content {
@@ -528,10 +577,17 @@
     min-width: 0;
     max-width: none;
     width: 100%;
+    overflow-y: auto;
   }
   
   .seed-actions {
     flex-direction: column; /* Ensure buttons stay vertical */
+  }
+  
+  /* FIXED: Ensure HUD is fully visible on mobile */
+  .coven-hud-sidebar {
+    max-height: 40vh;
+    overflow-y: auto;
   }
 }
 

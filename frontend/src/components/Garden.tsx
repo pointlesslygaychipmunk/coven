@@ -374,19 +374,19 @@ const Garden: React.FC<GardenProps> = ({
               ))}
             </div>
             
-            {/* Always present static action buttons in the correct order */}
+            {/* FIXED: Always present static Plant and Clear buttons in correct order */}
             <div className="seed-actions">
               <button
                 className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
                 disabled={!canPlant || !selectedSeedId}
-                onClick={canPlant && selectedSeedId ? handlePlant : undefined}
+                onClick={handlePlant}
               >
                 Plant Selected Seed
               </button>
               <button
                 className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
                 disabled={!selectedSeedId}
-                onClick={selectedSeedId ? handleClearSelection : undefined}
+                onClick={handleClearSelection}
               >
                 Clear Selection
               </button>
