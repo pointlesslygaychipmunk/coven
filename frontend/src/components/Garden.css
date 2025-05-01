@@ -560,6 +560,57 @@
   gap: 8px;
 }
 
+/* Fixed seed action buttons - always visible */
+.fixed-actions {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(244, 233, 213, 0.9);
+  padding: 10px;
+  margin: -10px -10px 10px -10px;
+  border-bottom: 2px solid #7a5c3d;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.fixed-actions .action-button {
+  position: relative;
+  background-color: #68904a;
+  border: 2px solid #4d6e32;
+  font-weight: bold;
+}
+
+.fixed-actions .action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+.fixed-actions .action-button.plant {
+  margin-bottom: 8px;
+}
+
+.fixed-actions .action-button:hover:not(.disabled) {
+  background-color: #76a055;
+  transform: translateY(-2px);
+}
+
+.fixed-actions .action-button:active:not(.disabled) {
+  transform: translateY(1px);
+}
+
+.fixed-actions .action-button.clear {
+  background-color: #8b7250;
+  border-color: #6d5940;
+}
+
+.fixed-actions .action-button.clear:hover:not(.disabled) {
+  background-color: #a58e6a;
+}
+
 /* Garden tip section */
 .garden-tip {
   font-style: italic;

@@ -381,6 +381,26 @@ const Garden: React.FC<GardenProps> = ({
           <div className="scroll-ornament right"></div>
         </div>
         <div className="parchment-content">
+          {/* Fixed seed action buttons - always visible */}
+          <div className="seed-actions fixed-actions">
+            <button
+              className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
+              disabled={!canPlant || !selectedSeedId}
+              onClick={handlePlant}
+            >
+              <div className="button-icon"></div>
+              <span>Plant Seed</span>
+            </button>
+            <button
+              className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
+              disabled={!selectedSeedId}
+              onClick={handleClearSelection}
+            >
+              <div className="button-icon"></div>
+              <span>Clear</span>
+            </button>
+          </div>
+          
           {seeds.length === 0 ? (
             <p>Your seed pouch is empty!</p>
           ) : (
@@ -399,25 +419,6 @@ const Garden: React.FC<GardenProps> = ({
                     <div className="seed-name">{seed.name}</div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="seed-actions">
-                <button
-                  className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
-                  disabled={!canPlant || !selectedSeedId}
-                  onClick={handlePlant}
-                >
-                  <div className="button-icon"></div>
-                  <span>Plant Seed</span>
-                </button>
-                <button
-                  className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
-                  disabled={!selectedSeedId}
-                  onClick={handleClearSelection}
-                >
-                  <div className="button-icon"></div>
-                  <span>Clear</span>
-                </button>
               </div>
               
               <p className="garden-tip">{gardenTip}</p>
