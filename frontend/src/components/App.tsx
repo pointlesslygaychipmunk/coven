@@ -137,6 +137,33 @@ const App: React.FC = () => {
 
     // Fetch initial game state
     useEffect(() => {
+        // Add this to the top of your useEffect section in App.tsx
+
+// Handle window resize to fix mobile viewport issues
+useEffect(() => {
+    // Fix for mobile viewport height (100vh issue)
+    const setVh = () => {
+      // First we get the viewport height and we multiply it by 1% to get a value for a vh unit
+      let vh = window.innerHeight * 0.01;
+      // Then we set the value in the --vh custom property to the root of the document
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+  
+    // Set the initial value
+    setVh();
+  
+    // We add an event listener for when the window resizes or orientation changes
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+  
+    // We return a function to remove the event listeners when the component unmounts
+    return () => {
+      window.removeEventListener('resize', setVh);
+      window.removeEventListener('orientationchange', setVh);
+    };
+  }, []);
+  
+  // The rest of your existing useEffect hooks can stay as they are
         const fetchInitialState = async () => {
             try {
                 setLoading(true);
