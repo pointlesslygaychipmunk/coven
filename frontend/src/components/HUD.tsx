@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './HUD.css';
-import LunarPhaseIcon from './LunarPhaseIcon';
 import { MoonPhase } from 'coven-shared';
 
 interface HUDProps {
