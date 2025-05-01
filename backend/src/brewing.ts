@@ -166,8 +166,7 @@ export function calculateBrewingSuccess(
 
 // Simulate the brewing result
 export function brewPotion(
-  recipe: Recipe, ingredientQualities: number[], player: Player, currentMoonPhase: MoonPhase
-): { success: boolean, resultItemName?: string, quantityProduced?: number; quality: number, bonusFactor?: string } {
+recipe: Recipe, ingredientQualities: number[], player: Player, _phaseName: string, _puzzleBonus: number, currentMoonPhase: MoonPhase): { success: boolean, resultItemName?: string, quantityProduced?: number; quality: number, bonusFactor?: string } {
   const { successChance, potentialQuality, factors } = calculateBrewingSuccess(
     recipe, ingredientQualities, player.skills, currentMoonPhase, player.atelierSpecialization
   );
