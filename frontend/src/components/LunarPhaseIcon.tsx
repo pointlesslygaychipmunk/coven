@@ -1,117 +1,259 @@
 import React from 'react';
-import './LunarPhaseIcon.css'; // Ensure this uses the new styles
-import { MoonPhase } from 'coven-shared';
+import './LunarPhaseIcon.css';
+import { MoonPhase } from 'coven-shared'; // Import the shared type
 
 interface LunarPhaseIconProps {
-  phase: MoonPhase;
+  phase: MoonPhase; // Use the shared type
   size?: number;
-  className?: string; // Allow passing additional classes
+  showLabel?: boolean;
 }
 
 const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({
   phase,
   size = 40,
-  className = '' // Default to empty string
+  showLabel = false
 }) => {
+  // Calculate dimensions
   const radius = size / 2;
   const cx = radius;
   const cy = radius;
-  const strokeWidth = Math.max(1, size / 30); // Thinner stroke for style
-  const effectiveRadius = radius - strokeWidth / 2; // Adjust for stroke
+  const strokeWidth = Math.max(1, size / 30); // Scale stroke width based on size
+  const effectiveRadius = radius - strokeWidth; // Adjust for stroke
+  
+  // Set CSS variables for stroke width
+  const styleVars = {
+    '--stroke-width': `${strokeWidth}px`
+  } as React.CSSProperties;
 
-  // Define colors using CSS variables (fallback provided)
-  const darkColor = "var(--lunar-dark, #342f48)";
-  const lightColor = "var(--lunar-light, #e2d9f3)";
-  const strokeColor = "var(--lunar-stroke, #7a6c95)";
-
-  // Simplified phase logic focusing on path generation
-  const renderMoonPhase = () => {
-    let pathD = "";
-    let baseCircleFill = darkColor; // Default to dark (New Moon)
-    let pathFill = lightColor; // Default path fill is light
-
+  // Get a CSS class based on the phase for special effects
+  const getPhaseClass = (): string => {
     switch (phase) {
-      case 'Waxing Crescent':
-        pathD = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius} Z`;
-        break;
-      case 'First Quarter':
-        // Draw right half light
-        pathD = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} L ${cx},${cy - effectiveRadius} Z`;
-        break;
-      case 'Waxing Gibbous':
-        baseCircleFill = lightColor; // Base is light
-        pathFill = darkColor; // Path is dark sliver
-        // Draw dark sliver on the left
-        pathD = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 1 ${cx},${cy + effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 0 ${cx},${cy - effectiveRadius} Z`;
-        break;
-      case 'Full Moon':
-        baseCircleFill = lightColor; // Light
-        break;
-      case 'Waning Gibbous':
-        baseCircleFill = lightColor; // Base is light
-        pathFill = darkColor; // Path is dark sliver
-        // Draw dark sliver on the right
-        pathD = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 0 ${cx},${cy + effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 1 ${cx},${cy - effectiveRadius} Z`;
-        break;
-      case 'Last Quarter':
-        // Draw left half light
-        pathD = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 0 ${cx},${cy + effectiveRadius} L ${cx},${cy - effectiveRadius} Z`;
-        break;
-      case 'Waning Crescent':
-        // Draw light sliver on the left
-        pathD = `M ${cx},${cy - effectiveRadius} A ${effectiveRadius},${effectiveRadius} 0 0 0 ${cx},${cy + effectiveRadius} A ${effectiveRadius * 0.6},${effectiveRadius} 0 0 1 ${cx},${cy - effectiveRadius} Z`;
-        break;
-      case 'New Moon':
-      default:
-        // Base circle is already dark, no path needed
-        break;
+      case 'Full Moon': return 'fullmoon';
+      case 'New Moon': return 'newmoon';
+      default: return '';
     }
-
-    // Add a filter definition for reuse (could be moved to a global SVG defs file)
-    // If placing globally, remove this defs section from here.
-    const filterDef = (
-        <filter id="moon-texture">
-            <feTurbulence type="fractalNoise" baseFrequency="0.7" seed="1" numOctaves="2" result="noise"/>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-    );
-
-    return (
-      <>
-        <defs>{filterDef}</defs>
-        {/* Base circle */}
-        <circle
-          cx={cx}
-          cy={cy}
-          r={effectiveRadius}
-          fill={baseCircleFill}
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          filter="url(#moon-texture)"
-        />
-        {/* Phase-specific path */}
-        {pathD && (
-          <path
-            d={pathD}
-            fill={pathFill}
-            filter="url(#moon-texture)"
-          />
-        )}
-        {/* Optional: Add subtle crater details */}
-        {/* <circle cx={cx * 0.7} cy={cy * 0.6} r={radius * 0.1} fill={baseCircleFill === lightColor ? darkColor : lightColor} opacity="0.1" filter="url(#moon-texture)" />
-        <circle cx={cx * 1.2} cy={cy * 1.3} r={radius * 0.08} fill={baseCircleFill === lightColor ? darkColor : lightColor} opacity="0.08" filter="url(#moon-texture)" /> */}
-      </>
-    );
   };
 
-  // Add phase name as a class for specific CSS targeting
-  const phaseClassName = phase.toLowerCase().replace(/\s+/g, '-');
+  // Generate SVG for moon phase
+  const renderMoonPhase = () => {
+    switch (phase) {
+      case 'New Moon':
+        // Dark circle with subtle outline
+        return (
+          <circle 
+            cx={cx} 
+            cy={cy} 
+            r={effectiveRadius} 
+            className="moon-dark" 
+          />
+        );
+
+      case 'Waxing Crescent': {
+        // Dark circle with crescent of light on right side
+        return (
+          <>
+            <circle 
+              cx={cx} 
+              cy={cy} 
+              r={effectiveRadius} 
+              className="moon-dark" 
+            />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} 
+                  A ${effectiveRadius},${effectiveRadius} 0 0 1 
+                  ${cx},${cy + effectiveRadius} 
+                  A ${effectiveRadius * 0.7},${effectiveRadius} 0 0 0 
+                  ${cx},${cy - effectiveRadius}`} 
+              className="moon-light" 
+            />
+          </>
+        );
+      }
+
+      case 'First Quarter': {
+        // Right half is light, left half is dark
+        return (
+          <>
+            <circle 
+              cx={cx} 
+              cy={cy} 
+              r={effectiveRadius} 
+              className="moon-dark" 
+            />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} 
+                  A ${effectiveRadius},${effectiveRadius} 0 0 1 
+                  ${cx},${cy + effectiveRadius} 
+                  L ${cx},${cy - effectiveRadius}`} 
+              className="moon-light" 
+            />
+          </>
+        );
+      }
+
+      case 'Waxing Gibbous': {
+        // Mostly light with dark crescent on left
+        return (
+          <>
+            <circle 
+              cx={cx} 
+              cy={cy} 
+              r={effectiveRadius} 
+              className="moon-light" 
+            />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} 
+                  A ${effectiveRadius * 0.7},${effectiveRadius} 0 0 1 
+                  ${cx},${cy + effectiveRadius} 
+                  A ${effectiveRadius},${effectiveRadius} 0 0 0 
+                  ${cx},${cy - effectiveRadius}`} 
+              className="moon-dark" 
+            />
+          </>
+        );
+      }
+
+      case 'Full Moon':
+        // Fully light circle
+        return (
+          <circle 
+            cx={cx} 
+            cy={cy} 
+            r={effectiveRadius} 
+            className="moon-light" 
+          />
+        );
+
+      case 'Waning Gibbous': {
+        // Mostly light with dark crescent on right
+        return (
+          <>
+            <circle 
+              cx={cx} 
+              cy={cy} 
+              r={effectiveRadius} 
+              className="moon-light" 
+            />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} 
+                  A ${effectiveRadius * 0.7},${effectiveRadius} 0 0 0 
+                  ${cx},${cy + effectiveRadius} 
+                  A ${effectiveRadius},${effectiveRadius} 0 0 1 
+                  ${cx},${cy - effectiveRadius}`} 
+              className="moon-dark" 
+            />
+          </>
+        );
+      }
+
+      case 'Last Quarter': {
+        // Left half is light, right half is dark
+        return (
+          <>
+            <circle 
+              cx={cx} 
+              cy={cy} 
+              r={effectiveRadius} 
+              className="moon-dark" 
+            />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} 
+                  A ${effectiveRadius},${effectiveRadius} 0 0 0 
+                  ${cx},${cy + effectiveRadius} 
+                  L ${cx},${cy - effectiveRadius}`} 
+              className="moon-light" 
+            />
+          </>
+        );
+      }
+
+      case 'Waning Crescent': {
+        // Dark circle with crescent of light on left side
+        return (
+          <>
+            <circle 
+              cx={cx} 
+              cy={cy} 
+              r={effectiveRadius} 
+              className="moon-dark" 
+            />
+            <path 
+              d={`M ${cx},${cy - effectiveRadius} 
+                  A ${effectiveRadius},${effectiveRadius} 0 0 0 
+                  ${cx},${cy + effectiveRadius} 
+                  A ${effectiveRadius * 0.7},${effectiveRadius} 0 0 1 
+                  ${cx},${cy - effectiveRadius}`} 
+              className="moon-light" 
+            />
+          </>
+        );
+      }
+
+      default: 
+        // Default to Full Moon if phase name is unknown
+        return (
+          <circle 
+            cx={cx} 
+            cy={cy} 
+            r={effectiveRadius} 
+            className="moon-light" 
+          />
+        );
+    }
+  };
+
+  // Create descriptive texts for moon phases
+  const getMoonPhaseDescription = (): string => {
+    switch (phase) {
+      case 'New Moon': 
+        return 'Dark and mysterious, a time for new beginnings';
+      case 'Waxing Crescent': 
+        return 'Growing in power, a time for intention setting';
+      case 'First Quarter': 
+        return 'At the crossroads, a time for decision making';
+      case 'Waxing Gibbous': 
+        return 'Almost complete, a time for refinement';
+      case 'Full Moon': 
+        return 'At its peak power, a time for completion and celebration';
+      case 'Waning Gibbous': 
+        return 'Slowly releasing, a time for gratitude';
+      case 'Last Quarter': 
+        return 'Letting go, a time for release and reflection';
+      case 'Waning Crescent': 
+        return 'Fading away, a time for rest and surrender';
+      default:
+        return 'A mysterious phase of the moon';
+    }
+  };
 
   return (
-    <div className={`lunar-phase-icon ${phaseClassName} ${className}`} style={{ width: size, height: size }} title={phase}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label={`${phase} icon`}>
-        {renderMoonPhase()}
-      </svg>
+    <div 
+      className={`lunar-phase-icon ${getPhaseClass()}`} 
+      style={{ width: size, height: size, ...styleVars }}
+      title={showLabel ? undefined : `${phase}: ${getMoonPhaseDescription()}`}
+    >
+      <div className="lunar-phase-container">
+        {/* Background glow effect */}
+        <div className="lunar-phase-glow"></div>
+        
+        {/* Stars background */}
+        <div className="lunar-phase-stars"></div>
+        
+        {/* The actual moon SVG */}
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          {renderMoonPhase()}
+        </svg>
+        
+        {/* Shadow overlay for depth */}
+        <div className="lunar-phase-shadow"></div>
+        
+        {/* Show tooltip if not showing label */}
+        {!showLabel && (
+          <div className="lunar-phase-tooltip">
+            {phase}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

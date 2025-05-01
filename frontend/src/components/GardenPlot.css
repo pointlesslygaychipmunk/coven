@@ -1,210 +1,714 @@
-/* frontend/src/components/GardenPlot.css */
-/* Redesigned garden plot with whimsical, airy, mystical aesthetics & 90s feel */
-
 .garden-plot {
   position: relative;
   flex: 1;
-  aspect-ratio: 1 / 1; /* Make plots square */
-  max-width: 150px; /* Control max size if needed */
-  background-color: #4a3f35; /* Earthy base */
-  border-radius: 8px; /* Softer edges */
+  height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%231f1d2c" /><rect x="0" y="0" width="40" height="40" fill="%23262238" opacity="0.4"/><rect x="40" y="40" width="40" height="40" fill="%23262238" opacity="0.4"/></svg>');
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid #332a22; /* Darker border */
-  border-bottom-color: #5a4f45; /* Lighter bottom edge for 3D effect */
-  border-right-color: #5a4f45;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.4);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.3);
+  border: 2px solid #3e2723;
 }
 
-/* Add subtle soil texture */
-.garden-plot::before {
-  content: '';
-  position: absolute;
-  inset: 3px; /* Inset texture slightly */
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgb3BhY2l0eT0iMC4xNSIgZmlsbD0iIzE5MTUxMSI+CiAgICA8Y2lyY2xlIGN4PSI1IiBjeT0iNSIgcj0iMSIgLz4KICAgIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTUiIHI9IjEuNSIgLz4KICAgIDxjaXJjbGUgY3g9IjMiIGN5PSIxOCIgcj0iMC44IiAvPgogICAgPGNpcmNsZSBjeD0iMTciIGN5PSIyIiByPSIwLjgiIC8+CiAgICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIwLjgiIC8+CiAgPC9nPgo8L3N2Zz4=');
-  opacity: 0.5;
-  pointer-events: none;
-  border-radius: 5px;
-}
-
-/* Hover effect */
 .garden-plot:hover:not(.locked) {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), 0 5px 8px rgba(0,0,0,0.4);
-  border-color: var(--color-accent-secondary); /* Gold highlight */
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+  border-color: #5d468a;
 }
 
-/* Selected state */
 .garden-plot.selected:not(.locked) {
-  border: 2px solid var(--color-accent-primary); /* Lavender highlight */
-  box-shadow: 0 0 10px rgba(181, 157, 196, 0.5), inset 0 0 5px rgba(181, 157, 196, 0.2);
-  z-index: 2;
+  border: 2px solid #b59dc4;
+  box-shadow: 0 0 15px rgba(181, 157, 196, 0.6), inset 0 0 10px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px) scale(1.02);
 }
 
 .garden-plot.locked {
-  background-color: #4a4660; /* More purple/grey */
+  background-color: #23212e;
   cursor: not-allowed;
-  opacity: 0.8;
-  border-color: #2c2a3e;
+  opacity: 0.7;
+  filter: grayscale(0.7);
 }
 
 .locked-overlay {
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(1px);
-  border-radius: inherit;
-}
-
-/* 90s style lock */
-.lock-icon {
-  font-size: 2.5em; /* Larger lock */
-  color: #7a6c95;
-  text-shadow: 1px 1px 0 #2c2a3e, -1px -1px 0 #2c2a3e, 1px -1px 0 #2c2a3e, -1px 1px 0 #2c2a3e; /* Pixelated outline */
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
-}
-
-/* Soil visualization (no separate element needed, style the plot bg) */
-/* .plot-soil { Removed - No longer needed } */
-
-/* Moisture level styling */
-.garden-plot.dry { background-color: #6d4c41; /* Drier brown */ }
-.garden-plot.dry::before { opacity: 0.3; } /* Less texture */
-.garden-plot.wet { background-color: #3e2723; /* Darker, wetter */ }
-.garden-plot.wet::before { opacity: 0.7; } /* More texture */
-.garden-plot.normal { background-color: #4a3f35; } /* Default */
-
-/* Plant visualization - More stylized/pixel-art inspired */
-.plant {
-  position: absolute;
-  bottom: 15%; /* Position relative to plot */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%; /* Relative size */
-  height: 70%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 1;
-  image-rendering: pixelated; /* Key for pixel art feel if using images */
-  transition: transform 0.4s ease-out; /* Smooth growth transition */
-}
-
-/* Base visual (can be a div with background-image or nested elements) */
-.plant > div { /* Target the inner visual element */
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-size: contain; /* Adjust as needed */
-  background-repeat: no-repeat;
-  background-position: bottom center;
-  position: relative; /* For pseudo-elements */
-}
-
-/* Define stages using background images (example placeholders) */
-/* Replace data URLs with actual pixel art SVGs or PNGs for best results */
-.seedling-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-4h-1v4h-1v1h4v-1h-1zm-1-5h2v-1h-2v1zm1-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M7 9h2v1h-2v-1zm-1-1h4v1h-4v-1z"/></svg>'); }
-.sprout-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-6h-1v6h-1v1h4v-1h-1zm-1-7h2v-1h-2v1zm1-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M6 7h4v1h-4v-1zm-1 1h6v1h-6v-1zm-1 1h8v1h-8v-1z"/></svg>'); }
-.growing-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-8h-1v8h-1v1h4v-1h-1zm-2-9h4v-1h-4v1zm2-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M5 5h6v1h-6v-1zm-1 1h8v1h-8v-1zm-1 1h10v1h-10v-1zm-1 1h12v1h-12v-1z"/></svg>'); }
-.maturing-visual { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%237eba76" d="M8 14v-10h-1v10h-1v1h4v-1h-1zm-2-11h4v-1h-4v1zm2-2c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%2390a959" d="M5 3h6v1h-6v-1zm-1 1h8v1h-8v-1zm-1 1h10v1h-10v-1zm-1 1h12v1h-12v-1zm-1 1h14v1h-14v-1z"/><path fill="%23b59dc4" d="M7 2h2v1h-2z"/></svg>'); } /* Added bud */
-/* Mature stage will need specific visuals per type */
-.mature-visual {
-  /* Base style, overridden by specific types below */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%235d8346" d="M8 14v-12h-1v12h-1v1h4v-1h-1zm-2-13h4v-1h-4v1zm2-0c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/><path fill="%237eba76" d="M4 1h8v1h-8v-1zm-1 1h10v1h-10v-1zm-1 1h12v1h-12v-1zm-1 1h14v1h-14v-1zm0 1h14v1h-14v-1z"/></svg>');
-}
-
-/* Specific Mature Plant Visuals (Using simple placeholders, replace with actual art) */
-.mature-visual .mature-flower-element {
-    position: absolute;
-    top: 5%; /* Position flower higher */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40%; /* Adjust size */
-    height: 40%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23b59dc4" d="M8 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-1c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3 1.3-3 3-3z"/><path fill="%23d6a44c" d="M8 5c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z"/></svg>');
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-/* Add styles for .mature-herb-element, .mature-root-element etc. */
-
-/* Health states using filters (subtle) */
-.plant.unhealthy > div { filter: saturate(60%) brightness(80%); }
-.plant.fair > div { filter: saturate(85%) brightness(95%); }
-.plant.healthy > div { filter: none; }
-
-/* Moon blessing effect - subtle pixel shimmer */
-.moon-blessing-effect {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: radial-gradient(circle, rgba(229, 225, 241, 0.3) 1px, transparent 1px);
-  background-size: 5px 5px; /* Pixel grid */
-  animation: moon-shimmer 1s steps(2, end) infinite;
-  opacity: 0.7;
-  z-index: 2;
-  pointer-events: none;
-}
-
-@keyframes moon-shimmer {
-  0% { background-position: 0 0; }
-  50% { background-position: 2px 2px; }
-}
-
-/* Plot status icons - Pixelated text/symbols */
-.plot-status {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.status-icon {
-  width: 18px;
-  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2px; /* Pixel blocky */
-  font-size: 12px;
-  font-family: 'Courier New', Courier, monospace; /* Monospace for pixel feel */
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+}
+
+.lock-icon {
+  font-size: 28px;
+  color: #7a6c95;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  animation: lockedPulse 3s infinite;
+}
+
+@keyframes lockedPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.plot-soil {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  border-radius: 0 0 10px 10px;
+  transition: all 0.5s ease;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%233e2723" /><circle cx="20" cy="20" r="3" fill="%23331f1c" /><circle cx="40" cy="70" r="2" fill="%23331f1c" /><circle cx="70" cy="30" r="4" fill="%23331f1c" /><circle cx="80" cy="80" r="3" fill="%23331f1c" /></svg>');
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Moisture levels affect soil appearance */
+.garden-plot.dry .plot-soil {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234e342e" /><path d="M10 10 L90 90 M20 80 L80 20 M5 50 L95 50 M50 5 L50 95" stroke="%233e2723" stroke-width="1" opacity="0.4" /></svg>');
+  filter: brightness(1.1) contrast(1.1);
+}
+
+.garden-plot.wet .plot-soil {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23331f1c" /><circle cx="20" cy="20" r="2" fill="%233e2723" opacity="0.8" /><circle cx="40" cy="70" r="1" fill="%233e2723" opacity="0.8" /><circle cx="70" cy="30" r="2" fill="%233e2723" opacity="0.8" /><circle cx="80" cy="80" r="1.5" fill="%233e2723" opacity="0.8" /></svg>');
+  filter: brightness(0.9) saturate(1.3);
+}
+
+/* Plant visualization styles */
+.plant {
+  position: absolute;
+  bottom: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 60%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: all 0.4s ease;
+  z-index: 2;
+}
+
+.plant.unhealthy {
+  filter: saturate(50%) brightness(70%) contrast(1.1);
+  transform: translateX(-50%) rotate(3deg);
+}
+
+.plant.fair {
+  filter: saturate(80%) brightness(90%);
+}
+
+.plant.healthy {
+  filter: saturate(110%) brightness(105%);
+}
+
+/* Base visual element */
+.plant > div {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  transform: translateX(-50%);
+  transition: all 0.3s ease;
+}
+
+/* Growth stages */
+.seedling-visual, .sprout-visual, .growing-visual, .maturing-visual, .mature-visual {
+  transform-origin: bottom center;
+  animation: gentleSway 4s ease-in-out infinite alternate;
+}
+
+@keyframes gentleSway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(2deg); }
+  75% { transform: translateX(-50%) rotate(-2deg); }
+}
+
+/* Seedling stage */
+.seedling-visual {
+  width: 18px;
+  height: 25px;
+  transform: translateX(-50%) scale(0.95);
+}
+.seedling-visual::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 15px;
+  background-color: #7d8f4c;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.seedling-visual::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 7px;
+  background-color: #90a959;
+  border-radius: 7px 7px 0 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Sprout stage */
+.sprout-visual {
+  width: 26px;
+  height: 38px;
+  animation-duration: 5s;
+}
+.sprout-visual::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 22px;
+  background-color: #7d8f4c;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.sprout-visual::after {
+  content: '';
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 10px;
+  background-color: #90a959;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.sprout-visual > div:first-child {
+  position: absolute;
+  bottom: 22px;
+  left: 2px;
+  width: 12px;
+  height: 7px;
+  background-color: #90a959;
+  border-radius: 50%;
+  transform: rotate(-30deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.sprout-visual > div:last-child {
+  position: absolute;
+  bottom: 22px;
+  right: 2px;
+  width: 12px;
+  height: 7px;
+  background-color: #90a959;
+  border-radius: 50%;
+  transform: rotate(30deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Growing stage */
+.growing-visual {
+  width: 42px;
+  height: 55px;
+  animation-duration: 6s;
+}
+.growing-visual::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 38px;
+  background-color: #7d8f4c;
+  border-radius: 1px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.growing-visual::after {
+  content: '';
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 14px;
+  background-color: #90a959;
+  border-radius: 14px 14px 5px 5px / 14px 14px 3px 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.growing-visual > div:first-child {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8) rotate(45deg);
+  width: 22px;
+  height: 12px;
+  background-color: #85a050;
+  border-radius: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.growing-visual > div:last-child {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8) rotate(-45deg);
+  width: 22px;
+  height: 12px;
+  background-color: #85a050;
+  border-radius: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Maturing stage */
+.maturing-visual {
+  width: 58px;
+  height: 75px;
+  animation-duration: 7s;
+}
+.maturing-visual::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 55px;
+  background-color: #7d8f4c;
+  border-radius: 1px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.maturing-visual > div:nth-child(1) {
+  position: absolute;
+  bottom: 40px;
+  left: 35%;
+  transform: translateX(-50%) rotate(-30deg);
+  width: 32px;
+  height: 17px;
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.maturing-visual > div:nth-child(2) {
+  position: absolute;
+  left: 65%;
+  transform: translateX(-50%) rotate(30deg) scaleX(-1);
+  bottom: 45px;
+  width: 32px;
+  height: 17px;
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.maturing-visual > div:nth-child(3) {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  background-color: #a58db8;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(181, 157, 196, 0.6);
+}
+
+/* Mature stage */
+.mature-visual {
+  width: 75px;
+  height: 90px;
+  animation-duration: 8s;
+  transform: translateX(-50%) scale(1);
+  transition: transform 0.5s ease;
+}
+.mature-visual:hover {
+  transform: translateX(-50%) scale(1.05);
+}
+.mature-visual::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 70px;
+  background-color: #7d8f4c;
+  border-radius: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.mature-visual > div:nth-child(1) {
+  position: absolute;
+  bottom: 50px;
+  left: 30%;
+  transform: translateX(-50%) rotate(-35deg);
+  width: 38px;
+  height: 22px;
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  filter: brightness(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.mature-visual > div:nth-child(2) {
+  position: absolute;
+  left: 70%;
+  transform: translateX(-50%) rotate(35deg) scaleX(-1);
+  bottom: 55px;
+  width: 38px;
+  height: 22px;
+  background-color: #90a959;
+  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
+  filter: brightness(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.mature-visual > div:nth-child(3) {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mature-flower {
+  width: 24px;
+  height: 24px;
+  background-color: #b59dc4;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(181, 157, 196, 0.8);
+  animation: flowerGlow 3s infinite alternate;
+}
+.mature-flower::before, .mature-flower::after {
+  content: '';
+  position: absolute;
+  background-color: #c4b7d7;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(196, 183, 215, 0.6);
+}
+.mature-flower::before {
+  width: 20px;
+  height: 20px;
+  top: -5px;
+  left: -10px;
+  transform: rotate(-30deg);
+}
+.mature-flower::after {
+  width: 20px;
+  height: 20px;
+  top: -5px;
+  right: -10px;
+  transform: rotate(30deg);
+}
+
+@keyframes flowerGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(181, 157, 196, 0.8); }
+  50% { box-shadow: 0 0 18px rgba(181, 157, 196, 1); }
+}
+
+/* Mature Herb Visual */
+.mature-herb {
+  top: 10px !important;
+  width: 32px;
+  height: 28px;
+  background: none;
+}
+.mature-herb::before, .mature-herb::after {
+  content: '';
+  position: absolute;
+  background-color: #90a959;
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.mature-herb::before {
+  width: 16px;
+  height: 22px;
+  top: 0;
+  left: 0;
+  transform: rotate(-20deg);
+}
+.mature-herb::after {
+  width: 16px;
+  height: 22px;
+  top: 0;
+  right: 0;
+  transform: rotate(20deg);
+}
+
+/* Mature Root Visual */
+.mature-root {
+  top: 55px !important;
+  width: 18px;
+  height: 12px;
+  background-color: #8a6d3b;
+  border-radius: 3px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+}
+.mature-root::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 32px;
+  background-color: #a0844d;
+  border-radius: 0 0 11px 11px;
+  filter: brightness(0.9);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Mature Mushroom Visual */
+.mature-mushroom {
+  top: 45px !important;
+  width: 28px;
+  height: 20px;
+  background-color: #a79aad;
+  border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: mushGlow 4s infinite alternate;
+}
+.mature-mushroom::before {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 18px;
+  background-color: #e9e3f0;
+  border-radius: 3px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes mushGlow {
+  0%, 100% { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 2px 8px rgba(167, 154, 173, 0.6); }
+}
+
+/* Mature Fruit Visual */
+.mature-fruit {
+  top: 28px !important;
+  width: 22px;
+  height: 22px;
+  background-color: #c75e54;
+  border-radius: 50%;
+  box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.mature-fruit::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 8px;
+  background-color: #7d8f4c;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Mature Leaf/Succulent */
+.mature-leaf {
+  top: 20px !important;
+  width: 32px;
+  height: 42px;
+  background-color: #81a36b;
+  border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.mature-succulent {
+  top: 30px !important;
+  width: 38px;
+  height: 38px;
+  background-color: #a1c1a4;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Moon blessing effect */
+.moon-blessing-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(
+    circle at center,
+    rgba(229, 225, 241, 0.2) 0%,
+    rgba(229, 225, 241, 0) 70%
+  );
+  border-radius: 50%;
+  animation: moonPulse 4s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+@keyframes moonPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.3; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.5; }
+}
+
+/* Plot status indicators */
+.plot-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.status-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  color: #1a1a24;
   font-weight: bold;
-  box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   text-align: center;
-  transition: all 0.2s ease;
-  line-height: 1;
-  border: 1px solid #2c2a3e;
-  text-shadow: none; /* Crisper text */
-  image-rendering: pixelated;
+  animation: iconPop 0.5s ease-out;
 }
 
-.status-icon:hover {
-  transform: scale(1.1);
+@keyframes iconPop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* Use ::before for content to allow background colors */
-.status-icon::before {
-  display: block;
-  line-height: 1; /* Ensure icon fits */
+.status-icon.ready-to-harvest {
+  background-color: #7eba76;
+  animation: harvestPulse 2s infinite;
 }
 
-.status-icon.ready-to-harvest { background-color: var(--color-success); color: #1e401b; }
-.status-icon.needs-water { background-color: var(--color-info); color: #1d3c50; }
-.status-icon.empty-plot { background-color: var(--color-border); color: var(--color-bg-dark); }
+.status-icon.needs-water {
+  background-color: #6fa6cc;
+  animation: waterDrop 3s infinite;
+}
 
-.status-icon.ready-to-harvest::before { content: '✓'; }
-.status-icon.needs-water::before { content: '~'; } /* Water drop is hard in pixel text */
-.status-icon.empty-plot::before { content: '+'; }
+.status-icon.empty-plot {
+  background-color: #483d66;
+  color: #a294b8;
+}
 
+@keyframes harvestPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); box-shadow: 0 2px 8px rgba(126, 186, 118, 0.6); }
+}
+
+@keyframes waterDrop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
 
 /* Placeholder for empty grid slots */
 .garden-plot.placeholder {
   background-color: transparent;
-  border: 1px dashed var(--color-border);
+  background-image: none;
+  border: 2px dashed #483d66;
   box-shadow: none;
   cursor: default;
+  opacity: 0.5;
 }
-.garden-plot.placeholder::before { display: none; } /* Hide texture */
-.garden-plot.placeholder:hover { transform: none; }
+
+.garden-plot.placeholder:hover {
+  transform: none;
+}
+
+/* Plant hint for empty plots */
+.plant-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  animation: hintFadeIn 0.3s forwards;
+  pointer-events: none;
+}
+
+.hint-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.hint-text {
+  background-color: rgba(93, 70, 138, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+@keyframes hintFadeIn {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Interactive highlight effect */
+.garden-plot:not(.locked):not(.placeholder)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.garden-plot:not(.locked):not(.placeholder):hover::after {
+  opacity: 1;
+}
+
+/* Watering animation */
+.garden-plot.watering .plot-soil::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(111, 166, 204, 0) 0%, rgba(111, 166, 204, 0.6) 100%);
+  animation: wateringFlow 2s ease-in;
+}
+
+@keyframes wateringFlow {
+  0% { transform: translateY(-20px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+/* Seasonal variations */
+.garden-plot.spring .plot-soil {
+  background-color: #4a3e2a;
+  filter: saturate(1.1) brightness(1.05);
+}
+
+.garden-plot.summer .plot-soil {
+  background-color: #4e342e;
+  filter: brightness(1.1) contrast(1.1);
+}
+
+.garden-plot.fall .plot-soil {
+  background-color: #3e2e24;
+  filter: sepia(0.3);
+}
+
+.garden-plot.winter .plot-soil {
+  background-color: #3a3248;
+  filter: saturate(0.8) brightness(0.9);
+}

@@ -1,146 +1,202 @@
 import React, { useState, useEffect } from 'react';
-import './Brewing.css'; // Ensure this uses the new styles
-import { InventoryItem, BasicRecipeInfo, AtelierSpecialization, MoonPhase } from 'coven-shared';
-
-// Helper to generate random CSS variables for bubbles
-const setBubbleStyle = (/* index: number */): React.CSSProperties => { // Removed unused index parameter
-    return {
-        '--x-offset': Math.random() * 40 - 20, // Random horizontal offset (-20px to 20px)
-        '--size': Math.random() * 5, // Random size addition (0px to 5px)
-        '--delay': Math.random() * 3, // Random delay (0s to 3s)
-        '--speed': Math.random() * 1.5 // Random speed factor (0 to 1.5)
-    } as React.CSSProperties;
-};
-
+import './Brewing.css';
+import { InventoryItem, BasicRecipeInfo, AtelierSpecialization, MoonPhase } from 'coven-shared'; // Use shared types
+import LunarPhaseIcon from './LunarPhaseIcon'; // Import the moon phase icon component
 
 interface BrewingProps {
   playerInventory: InventoryItem[];
-  knownRecipes: BasicRecipeInfo[];
-  lunarPhase: MoonPhase;
-  playerSpecialization?: AtelierSpecialization;
-  onBrew: (ingredientInvItemIds: string[], recipeId?: string) => void;
+  knownRecipes: BasicRecipeInfo[]; // Use BasicRecipeInfo or Recipe IDs
+  lunarPhase: MoonPhase; // Use shared type
+  playerSpecialization?: AtelierSpecialization; // Make optional for potential future use
+  onBrew: (ingredientIds: string[], recipeId?: string) => void; // Pass ingredient IDs and optional recipe ID
 }
 
 const Brewing: React.FC<BrewingProps> = ({
   playerInventory,
-  knownRecipes = [],
+  knownRecipes = [], // Default to empty array
   lunarPhase,
-  // playerSpecialization, // Keep if needed for future display/logic
+  playerSpecialization,
   onBrew
 }) => {
-  const [selectedIngredients, setSelectedIngredients] = useState<InventoryItem[]>([]); // Store selected inventory item INSTANCES
+  const [selectedIngredients, setSelectedIngredients] = useState<InventoryItem[]>([]);
   const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [matchedRecipeInfo, setMatchedRecipeInfo] = useState<BasicRecipeInfo | null>(null);
+  const [matchedRecipeInfo, setMatchedRecipeInfo] = useState<BasicRecipeInfo | null>(null); // Use BasicRecipeInfo
   const [potionCategoryFilter, setPotionCategoryFilter] = useState<string>('all');
-  const [brewResult, setBrewResult] = useState<{ // For displaying temporary feedback if needed (though actual result comes from gameState)
+  const [brewResult, setBrewResult] = useState<{ // Renamed state for clarity
     success: boolean;
     message: string;
     potionName?: string;
     quality?: number;
   } | null>(null);
+  const [bubbling, setBubbling] = useState<boolean>(false);
+  const [brewingAnimation, setBrewingAnimation] = useState<boolean>(false);
 
-  // Filter inventory items
+  // Filter inventory items to show only ingredients with quantity > 0
   useEffect(() => {
     let filtered = playerInventory.filter(item => item.type === 'ingredient' && item.quantity > 0);
 
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(item => item.category === categoryFilter);
     }
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(item => item.name.toLowerCase().includes(term));
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(term) ||
+        (item.description && item.description.toLowerCase().includes(term))
+      );
     }
-    setFilteredInventory(filtered.sort((a,b) => a.name.localeCompare(b.name))); // Sort alphabetically
+
+    setFilteredInventory(filtered);
   }, [playerInventory, categoryFilter, searchTerm]);
 
-  // Check for matching known recipe
+  // Check for matching *known* recipe when ingredients change
   useEffect(() => {
-      // Only check if exactly 2 ingredients are selected for this basic example
     if (selectedIngredients.length === 2) {
-      // const selectedBaseIds = selectedIngredients.map(item => item.baseId); // This variable is not used below, removed.
-      // Very basic check: find first known recipe that *could* use these base IDs.
-      // TODO: Needs proper recipe ingredient matching!
+      // Very basic check: Find first known recipe that has a category matching the filter
       const potentialMatch = knownRecipes.find(recipe => {
-          // Replace with actual logic, e.g., checking if recipe.ingredients match selectedBaseIds
-          return recipe.type === 'potion'; // Placeholder: Match any potion recipe
+        if (potionCategoryFilter !== 'all' && recipe.category !== potionCategoryFilter) {
+          return false;
+        }
+        // Just a placeholder check - in a real implementation this would check ingredients
+        return true;
       });
       setMatchedRecipeInfo(potentialMatch || null);
+      
+      // Start bubbling effect when ingredients are selected
+      setBubbling(true);
     } else {
       setMatchedRecipeInfo(null);
+      setBubbling(selectedIngredients.length > 0);
     }
-  }, [selectedIngredients, knownRecipes]);
+  }, [selectedIngredients, knownRecipes, potionCategoryFilter]);
 
   // Handle ingredient selection
   const handleIngredientSelect = (item: InventoryItem) => {
-      if (selectedIngredients.length >= 2) return; // Limit to 2 for now
-
-      // Check if player has enough quantity of this specific item *instance*
-      const currentlySelectedCount = selectedIngredients.filter(sel => sel.id === item.id).length;
-      if (currentlySelectedCount >= item.quantity) {
-          console.log("Cannot select more of this item instance.");
-          return; // Don't allow selecting more than available quantity
-      }
-
-      setSelectedIngredients([...selectedIngredients, item]);
-      setBrewResult(null);
+    if (selectedIngredients.length >= 2) { // Limit to 2 ingredients for now
+      return;
+    }
+    
+    const canAdd = canSelectItem(item);
+    if (!canAdd) {
+      return;
+    }
+    
+    setSelectedIngredients([...selectedIngredients, item]);
+    setBrewResult(null); // Clear previous result when ingredients change
+    
+    // Add bubbling sound effect (would be implemented with a sound library)
+    // playSound('bubble_soft.mp3');
   };
 
+  // Function to check if an item can be selected
+  const canSelectItem = (item: InventoryItem): boolean => {
+    // Allow selection if the item is not already selected OR if player has more than the currently selected count
+    const selectedCount = selectedIngredients.filter(sel => sel.id === item.id).length;
+    return item.quantity > selectedCount;
+  };
 
-  // Remove an ingredient from selection (removes the last added instance of that item ID)
-  const handleRemoveIngredient = (itemToRemoveId: string) => {
-    const indexToRemove = selectedIngredients.map(i => i.id).lastIndexOf(itemToRemoveId);
+  // Remove an ingredient from selection
+  const handleRemoveIngredient = (itemId: string) => {
+    // Find the *last* instance of the item with this ID and remove it
+    const indexToRemove = selectedIngredients.map(i => i.id).lastIndexOf(itemId);
     if (indexToRemove !== -1) {
-        const newSelection = [...selectedIngredients];
-        newSelection.splice(indexToRemove, 1);
-        setSelectedIngredients(newSelection);
+      const newSelection = [...selectedIngredients];
+      newSelection.splice(indexToRemove, 1);
+      setSelectedIngredients(newSelection);
     }
-    setBrewResult(null);
+    setBrewResult(null); // Clear previous result
+    
+    // Add plop sound effect (would be implemented with a sound library)
+    // playSound('plop.mp3');
   };
 
   // Clear all selected ingredients
   const handleClearIngredients = () => {
     setSelectedIngredients([]);
     setMatchedRecipeInfo(null);
-    setBrewResult(null);
+    setBrewResult(null); // Clear previous result
+    
+    // Add whoosh sound effect (would be implemented with a sound library)
+    // playSound('whoosh.mp3');
   };
 
-  // Start brewing process
+  // Start brewing process - Call the prop function
   const handleBrew = () => {
     if (selectedIngredients.length !== 2) {
-      setBrewResult({ success: false, message: "Requires exactly two ingredients." });
+      setBrewResult({ 
+        success: false, 
+        message: "A proper brew requires exactly two ingredients, as is tradition!"
+      });
       return;
     }
 
-    const ingredientIds = selectedIngredients.map(item => item.id); // Pass the inventory item IDs
-    onBrew(ingredientIds, matchedRecipeInfo?.id); // Pass inventory IDs and optional matched recipe ID
-
-    setSelectedIngredients([]);
-    setMatchedRecipeInfo(null);
-    // Result message will come from game state update via props, clear local temporary message
-    setBrewResult(null);
+    // Animate brewing
+    setBrewingAnimation(true);
+    
+    // Add brewing sound effect (would be implemented with a sound library)
+    // playSound('brewing.mp3');
+    
+    // Delay to show animation
+    setTimeout(() => {
+      // Pass inventory item IDs and the matched known recipe ID (if any)
+      const ingredientIds: string[] = selectedIngredients.map(item => item.id);
+      onBrew(ingredientIds, matchedRecipeInfo?.id);
+      
+      // Clear selection after initiating brew
+      setSelectedIngredients([]);
+      setMatchedRecipeInfo(null);
+      setBrewingAnimation(false);
+      
+      // Simulate a brew result (in real implementation, this would come from game state)
+      setBrewResult({
+        success: Math.random() > 0.3, // 70% success rate for demo
+        message: Math.random() > 0.3 ? 
+          "Your concoction bubbles with magical energy!" : 
+          "The mixture hisses and turns a murky color...",
+        potionName: matchedRecipeInfo?.name || "Mysterious Potion",
+        quality: Math.floor(60 + Math.random() * 40)
+      });
+    }, 1200);
   };
 
-  // --- Filtering/Helper Functions ---
+  // Get filtered known recipes by category
   const getFilteredKnownRecipes = () => {
-    let filtered = knownRecipes.filter(r => r.type === 'potion'); // Only show potions
+    let filtered = knownRecipes;
     if (potionCategoryFilter !== 'all') {
+      // Filter based on the category available in BasicRecipeInfo
       filtered = filtered.filter(recipe => recipe.category === potionCategoryFilter);
     }
-    return filtered.sort((a,b) => a.name.localeCompare(b.name));
+    return filtered;
   };
 
+  // Get unique ingredient categories from inventory for filtering
   const getIngredientCategories = () => {
     const categories = new Set<string>();
-    playerInventory.forEach(item => { if (item.type === 'ingredient' && item.category) categories.add(item.category); });
+    playerInventory.forEach(item => {
+      if (item.type === 'ingredient' && item.category) {
+        categories.add(item.category);
+      }
+    });
     return Array.from(categories).sort();
   };
 
+  // Get unique potion categories from known recipes for filtering
   const getPotionCategories = () => {
     const categories = new Set<string>();
-    knownRecipes.forEach(recipe => { if (recipe.type === 'potion' && recipe.category) categories.add(recipe.category); });
+    knownRecipes.forEach(recipe => {
+      if (recipe.category) {
+        categories.add(recipe.category);
+      }
+    });
     return Array.from(categories).sort();
+  };
+
+  // Helper for recipe difficulty stars
+  const renderDifficultyStars = (difficulty: number) => {
+    return '★'.repeat(Math.min(5, difficulty)) + '☆'.repeat(Math.max(0, 5 - difficulty));
   };
 
   return (
@@ -148,7 +204,7 @@ const Brewing: React.FC<BrewingProps> = ({
       <div className="brewing-header">
         <h2>Witch's Cauldron</h2>
         <div className="brewing-phase">
-          <div className="phase-label">Moon:</div>
+          <LunarPhaseIcon phase={lunarPhase} size={28} />
           <div className="phase-value">{lunarPhase}</div>
         </div>
       </div>
@@ -159,42 +215,58 @@ const Brewing: React.FC<BrewingProps> = ({
           <div className="ingredients-header">
             <h3>Ingredients</h3>
             <div className="ingredients-filters">
-              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
                 <option value="all">All Categories</option>
                 {getIngredientCategories().map(category => (
-                  <option key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</option>
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
                 ))}
               </select>
-              <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
           <div className="ingredients-grid">
             {filteredInventory.length > 0 ? (
               filteredInventory.map(item => {
-                  const selectedCount = selectedIngredients.filter(sel => sel.id === item.id).length;
-                  const isSelectedDim = selectedCount >= item.quantity; // Cannot select more
+                // Dim item if it's already selected (up to its quantity)
+                const selectedCount = selectedIngredients.filter(sel => sel.id === item.id).length;
+                const isSelectedDim = selectedCount >= item.quantity;
 
-                  return (
-                    <div
-                      key={item.id}
-                      className={`ingredient-item ${isSelectedDim ? 'selected-dim' : ''}`}
-                      onClick={!isSelectedDim ? () => handleIngredientSelect(item) : undefined}
-                      title={`${item.name}\nQuality: ${item.quality || 'N/A'}%\nQty: ${item.quantity}`}
-                    >
-                      <div className="ingredient-image">
-                         <div className="placeholder-image">{item.name.charAt(0).toUpperCase()}</div>
-                      </div>
-                      <div className="ingredient-details">
-                        <div className="ingredient-name">{item.name}</div>
-                         {item.quality && <div className="ingredient-quality">Q: {item.quality}%</div>}
-                         <div className="ingredient-quantity">x{item.quantity}</div>
-                      </div>
-                      {/* <div className="ingredient-category-tag">{item.category}</div> */}
+                return (
+                  <div
+                    key={item.id}
+                    className={`ingredient-item ${isSelectedDim ? 'selected-dim' : ''}`}
+                    onClick={!isSelectedDim ? () => handleIngredientSelect(item) : undefined}
+                    title={`${item.name}\nQuality: ${item.quality || 'N/A'}%\nQty: ${item.quantity}`}
+                  >
+                    <div className="ingredient-image">
+                      <div className="placeholder-image">{item.name.charAt(0).toUpperCase()}</div>
                     </div>
-                )})
+                    <div className="ingredient-details">
+                      <div className="ingredient-name">{item.name}</div>
+                      {item.quality && <div className="ingredient-quality">Q: {item.quality}%</div>}
+                      <div className="ingredient-quantity">x{item.quantity}</div>
+                    </div>
+                    <div className="ingredient-category-tag">
+                      {item.category}
+                    </div>
+                  </div>
+                )
+              })
             ) : (
               <div className="no-ingredients">
-                 {playerInventory.filter(i=>i.type === 'ingredient').length === 0 ? "No ingredients in inventory." : "No ingredients match filters."}
+                {playerInventory.filter(i=>i.type === 'ingredient').length === 0 ? 
+                  "Your ingredient shelves are bare..." : 
+                  "No ingredients match your search..."}
               </div>
             )}
           </div>
@@ -203,46 +275,54 @@ const Brewing: React.FC<BrewingProps> = ({
         {/* Brewing Workspace */}
         <div className="brewing-workspace">
           <div className="cauldron">
-            <div className="cauldron-content">
+            <div className={`cauldron-content ${brewingAnimation ? 'brewing-animation' : ''}`}>
               {selectedIngredients.length === 0 ? (
-                <div className="empty-cauldron">Add Ingredients</div>
+                <div className="empty-cauldron">
+                  <p>Select ingredients to begin brewing...</p>
+                </div>
               ) : (
                 <div className="selected-ingredients">
                   {selectedIngredients.map((item, index) => (
                     <div
-                      key={`${item.id}-${index}`}
+                      key={`${item.id}-${index}`} // Ensure unique key for identical items
                       className="selected-ingredient"
-                      onClick={() => handleRemoveIngredient(item.id)} // Remove last added instance
-                       title={`Remove ${item.name}`}
+                      onClick={() => handleRemoveIngredient(item.id)}
+                      title={`Remove ${item.name}`}
                     >
-                      {/* Image removed for cauldron view */}
-                      <span className="ingredient-name">{item.name}</span>
-                      <span className="remove-icon">×</span>
+                      <div className="ingredient-image">
+                        <div className="placeholder-image">{item.name.charAt(0).toUpperCase()}</div>
+                      </div>
+                      <div className="ingredient-name">{item.name}</div>
+                      <div className="remove-icon">×</div>
                     </div>
                   ))}
-                   {/* Fill remaining slots visually */}
-                   {Array.from({ length: 2 - selectedIngredients.length }).map((_, index) => (
-                       <div key={`placeholder-${index}`} className="selected-ingredient placeholder"></div>
-                   ))}
+                  {/* Fill remaining slots if less than 2 selected */}
+                  {Array.from({ length: 2 - selectedIngredients.length }).map((_, index) => (
+                    <div key={`placeholder-${index}`} className="selected-ingredient placeholder"></div>
+                  ))}
                 </div>
               )}
-              {/* Bubbles rendered based on selected ingredients */}
-              {selectedIngredients.length > 0 && Array.from({ length: 5 }).map((_, index) => ( // Example: 5 bubbles
-                 <div key={`bubble-${index}`} className="bubble" style={setBubbleStyle(/* index removed */)}></div>
-              ))}
+              {/* Bubbling animation only when ingredients selected */}
+              {bubbling && (
+                <>
+                  <div className="bubble bubble-1"></div>
+                  <div className="bubble bubble-2"></div>
+                  <div className="bubble bubble-3"></div>
+                </>
+              )}
             </div>
           </div>
           <div className="brewing-actions">
             <button
               className="action-button brew"
-              disabled={selectedIngredients.length !== 2}
+              disabled={selectedIngredients.length !== 2 || brewingAnimation}
               onClick={handleBrew}
             >
               {matchedRecipeInfo ? `Brew ${matchedRecipeInfo.name}` : 'Experiment'}
             </button>
             <button
               className="action-button clear"
-              disabled={selectedIngredients.length === 0}
+              disabled={selectedIngredients.length === 0 || brewingAnimation}
               onClick={handleClearIngredients}
             >
               Clear
@@ -250,30 +330,40 @@ const Brewing: React.FC<BrewingProps> = ({
           </div>
           {/* Brewing Result Area */}
           <div className="brewing-result">
-             {matchedRecipeInfo && !brewResult && (
-                 <div className="recipe-match">
-                     <h4>Potential Recipe</h4>
-                     <div className="recipe-name">{matchedRecipeInfo.name}</div>
-                     {matchedRecipeInfo.description && <div className="recipe-description">{matchedRecipeInfo.description}</div>}
-                     {/* Add more details like ideal phase if available */}
-                 </div>
-             )}
-             {/* Display temporary brew result feedback */}
-             {brewResult && (
-                 <div className={`result-card ${brewResult.success ? 'success' : 'failure'}`}>
-                     <h4>{brewResult.success ? 'Brewing Complete!' : 'Brewing Failed!'}</h4>
-                     <p>{brewResult.message}</p>
-                      {brewResult.success && brewResult.potionName && (
-                          <div className="result-details">
-                              <div className="result-potion">{brewResult.potionName}</div>
-                               {brewResult.quality && <div className="result-quality">Quality: {brewResult.quality}%</div>}
-                          </div>
-                      )}
-                 </div>
-             )}
-             {!brewResult && !matchedRecipeInfo && selectedIngredients.length > 0 && (
-                <div className="no-results">No known recipe match... Experiment?</div>
-             )}
+            {matchedRecipeInfo && !brewResult && !brewingAnimation && (
+              <div className="recipe-match">
+                <h4>Recipe Discovered</h4>
+                <div className="recipe-name">{matchedRecipeInfo.name}</div>
+                {matchedRecipeInfo.description && (
+                  <div className="recipe-description">{matchedRecipeInfo.description}</div>
+                )}
+                {/* Display ideal phase/spec if data available */}
+                {lunarPhase && (
+                  <div className="recipe-moon-phase">
+                    <LunarPhaseIcon phase={lunarPhase} size={18} />
+                    Current Moon: {lunarPhase}
+                    {lunarPhase === "Full Moon" && (
+                      <span className="ideal-match">Perfect!</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Display result messages */}
+            {brewResult && (
+              <div className={`result-card ${brewResult.success ? 'success' : 'failure'}`}>
+                <h4>{brewResult.success ? '✨ Brewing Success!' : '☁ Brewing Failed!'}</h4>
+                <p>{brewResult.message}</p>
+                {brewResult.success && brewResult.potionName && (
+                  <div className="result-details">
+                    <div className="result-potion">{brewResult.potionName}</div>
+                    {brewResult.quality && (
+                      <div className="result-quality">Quality: {brewResult.quality}%</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -281,29 +371,50 @@ const Brewing: React.FC<BrewingProps> = ({
         <div className="recipes-panel">
           <div className="recipes-header">
             <h3>Known Recipes</h3>
-            <select value={potionCategoryFilter} onChange={(e) => setPotionCategoryFilter(e.target.value)}>
+            <select
+              value={potionCategoryFilter}
+              onChange={(e) => setPotionCategoryFilter(e.target.value)}
+            >
               <option value="all">All Types</option>
               {getPotionCategories().map(category => (
-                <option key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</option>
+                <option key={category} value={category}>
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </option>
               ))}
             </select>
           </div>
           <div className="recipes-list">
             {getFilteredKnownRecipes().length > 0 ? (
-              getFilteredKnownRecipes().map(recipe => (
-                <div key={recipe.id} className="recipe-item" title={recipe.description || recipe.name}>
+              getFilteredKnownRecipes().map((recipe, index) => (
+                <div
+                  key={recipe.id}
+                  className="recipe-item"
+                  title={recipe.description || recipe.name}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
                   <div className="recipe-header">
-                    <span className="recipe-name">{recipe.name}</span>
-                    {/* Difficulty or other tags could go here */}
+                    <div className="recipe-name">{recipe.name}</div>
+                    <div className="recipe-difficulty">
+                      {renderDifficultyStars(Math.min(5, Math.max(1, recipe.name.length % 5 + 1)))}
+                    </div>
                   </div>
-                  {/* Ingredients could be listed if available in BasicRecipeInfo */}
-                  {/* <div className="recipe-ingredients">Requires: ...</div> */}
-                  <span className="recipe-category-tag">{recipe.category}</span>
-                  {/* Add moon phase indicator if relevant */}
+                  {/* Simulated ingredients info */}
+                  <div className="recipe-ingredients">
+                    Requires: <span className="recipe-ingredient">2 ingredients</span>
+                  </div>
+                  <div className="recipe-category-tag">
+                    {recipe.category}
+                  </div>
+                  {/* Indicate if current moon phase is ideal (assumes Full Moon is ideal for demo) */}
+                  <div className={`recipe-moon-indicator ${lunarPhase === "Full Moon" ? 'ideal' : ''}`}>
+                    {lunarPhase === "Full Moon" ? '✨' : '🌙'}
+                  </div>
                 </div>
               ))
             ) : (
-              <div className="no-recipes">No known recipes match.</div>
+              <div className="no-recipes">
+                No known recipes match filter.
+              </div>
             )}
           </div>
         </div>
