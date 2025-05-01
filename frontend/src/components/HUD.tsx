@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import './CovenHUD.css';
-import { MoonPhase } from 'coven-shared'; // Import the shared MoonPhase type
+import './HUD.css'; // Changed to match the existing CSS file name
+import { MoonPhase } from 'coven-shared';
 
 interface LunarPhaseIconProps {
   phase: MoonPhase;
@@ -26,7 +26,7 @@ const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({ phase, size }) => {
   );
 };
 
-interface CovenHUDProps {
+interface HUDProps {
   playerName: string;
   gold: number;
   day: number;
@@ -37,7 +37,7 @@ interface CovenHUDProps {
   onAdvanceDay: () => void;
 }
 
-const CovenHUD: React.FC<CovenHUDProps> = ({
+const HUD: React.FC<HUDProps> = ({
   playerName = "Elspeth",
   gold = 75,
   day = 3,
@@ -201,4 +201,4 @@ const CovenHUD: React.FC<CovenHUDProps> = ({
   );
 };
 
-export default CovenHUD;
+export default HUD;
