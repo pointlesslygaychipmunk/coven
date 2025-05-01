@@ -1,22 +1,23 @@
-/* GardenPlot.css - 90s Point-and-Click Adventure Game Style */
+/* GardenPlot.css - Enhanced 90s Point-and-Click Adventure Game Style */
 
 /* Base plot styling with pixelated textures */
 .garden-plot {
   position: relative;
   flex: 1;
   aspect-ratio: 1 / 1; /* Keep plots square */
-  min-width: 80px;
+  min-width: 80px; /* Minimum size */
+  /* Pixelated dirt texture */
   background-color: #8d6e63; /* Base dirt color */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238d6e63"/><circle cx="2" cy="3" r="1" fill="%235d4037" opacity="0.3"/><circle cx="7" cy="6" r="1" fill="%235d4037" opacity="0.3"/><circle cx="5" cy="9" r="1" fill="%235d4037" opacity="0.3"/><circle cx="8" cy="1" r="1" fill="%235d4037" opacity="0.3"/></svg>');
-  border-radius: 0px; /* Square corners for 90s look */
+  border-radius: 4px; /* Subtle rounding */
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smoother transition */
   /* Classic 90s Bevel Border */
   border: 3px solid;
   border-color: #a1887f #5d4037 #5d4037 #a1887f; /* Light top/left, dark bottom/right */
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2); /* Sharp 90s style shadow */
-  image-rendering: pixelated; /* Crisp pixelated look */
+  image-rendering: pixelated; /* Ensure crisp pixelated look */
 }
 
 .garden-plot:hover:not(.locked) {
@@ -48,11 +49,11 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 0px; /* Match parent */
+  border-radius: 2px; /* Match parent */
 }
 
 .lock-icon {
-  font-size: 24px;
+  font-size: 32px; /* Larger icon */
   color: #aaa;
   text-shadow: 1px 1px 0px #333;
 }
@@ -64,10 +65,10 @@
   left: 2px;
   right: 2px;
   height: 45%; /* Soil takes up lower part */
-  background-color: #795548; /* Soil color */
+  background-color: #795548; /* Slightly different soil color */
   /* Pixelated soil texture */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23795548"/><circle cx="3" cy="2" r="1" fill="%234e342e" opacity="0.4"/><circle cx="8" cy="7" r="1" fill="%234e342e" opacity="0.4"/><circle cx="1" cy="8" r="1" fill="%234e342e" opacity="0.4"/></svg>');
-  border-radius: 0px; /* Square for 90s look */
+  border-radius: 4px 4px 0 0; /* Rounded top */
   transition: all 0.4s ease;
   border-top: 2px solid #a1887f; /* Soil mound highlight */
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -188,7 +189,7 @@
   background-color: #7cb342; border: 1px solid #558b2f; border-radius: 0 50%; transform: rotate(45deg);
 }
 
-/* Maturing: Larger plant with multiple leaves */
+/* Maturing: Larger plant, maybe hints of color */
 .maturing-visual {
   width: 32px;
   height: 40px;
@@ -359,7 +360,7 @@
 .status-icon {
   width: 18px; height: 18px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 0px; /* Square-ish icons */
+  border-radius: 3px; /* Square-ish icons */
   font-size: 12px;
   color: #fff; /* White icons */
   font-weight: bold;
@@ -370,12 +371,12 @@
 }
 
 .status-icon.ready-to-harvest { 
-  background-color: #689f38; /* Green */ 
+  background-color: #689f38; /* Darker green */ 
   animation: harvestPulseIcon 1.5s infinite;
 }
 
 .status-icon.needs-water { 
-  background-color: #1e88e5; /* Blue */ 
+  background-color: #1e88e5; /* Darker blue */ 
 }
 
 .status-icon.empty-plot { 
@@ -403,7 +404,7 @@
   box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2); 
 }
 
-/* Plant hint for empty plots */
+/* Plant hint for empty plots - More pixelated style */
 .plant-hint {
   position: absolute;
   top: calc(50% - 10px);
@@ -417,7 +418,7 @@
   pointer-events: none;
   background-color: rgba(0, 0, 0, 0.7);
   padding: 3px 8px;
-  border-radius: 0px; /* Square for 90s look */
+  border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   image-rendering: pixelated;
 }
@@ -504,8 +505,8 @@
   box-shadow: 0 0 8px rgba(220,240,255,0.6); 
 }
 
-.delay-1 { animation-delay: 1.5s; }
-.delay-2 { animation-delay: 3s; }
+.delay-1 { animation-delay: 1.5s !important; }
+.delay-2 { animation-delay: 3s !important; }
 
 .garden-particle {
   position: absolute; 
@@ -528,7 +529,7 @@
   left: 50%; 
   transform: translateX(-50%);
   background-color: rgba(244, 233, 217, 0.95); /* Parchment-like */
-  border-radius: 0px; /* Square for 90s look */
+  border-radius: 8px; 
   padding: 4px 8px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   animation: bubbleAppear 0.5s ease-out forwards;
