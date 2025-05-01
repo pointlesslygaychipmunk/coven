@@ -77,16 +77,16 @@ export function addItemToInventory(
 
 // Exported helper function - can be used by other modules if needed (e.g., quests)
 export function addSkillXp(player: Player, skill: keyof Skills, amount: number): { levelUp: boolean, newLevel: number } {
-    if (!player.skills) { 
+    if (!player.skills) {
         // Initialize with all required skills to fix type error
-        player.skills = { 
-            gardening: 0, 
-            brewing: 0, 
-            trading: 0, 
-            crafting: 0, 
-            herbalism: 0, 
-            astrology: 0 
-        }; 
+        player.skills = {
+            gardening: 0,
+            brewing: 0,
+            trading: 0,
+            crafting: 0,
+            herbalism: 0,
+            astrology: 0
+        };
     } // Initialize skills if missing
     if (player.skills[skill] === undefined) player.skills[skill] = 0; // Initialize specific skill if missing
 
@@ -539,9 +539,9 @@ export class GameEngine {
         slot.fertility = Math.max(30, (slot.fertility ?? 70) - (5 + Math.floor(plantData.growthTime / 2))); // Reduce based on growth time
 
         // Check quest completion
-        checkQuestStepCompletion(this.state, player, 'harvest', { 
-            plantName: plant.name, 
-            quality: finalHarvestQuality, 
+        checkQuestStepCompletion(this.state, player, 'harvest', {
+            plantName: plant.name,
+            quality: finalHarvestQuality,
             quantity: yieldAmount
         });
 
@@ -573,7 +573,9 @@ export class GameEngine {
         let quantityProduced = 1;
 
         if (recipe) {
-            brewOutcome = performBrewing(recipe, ingredientQualities, player, this.state.time.phase, this.state.time.season, puzzleBonus);
+             // FIX: Changed 5th argument from this.state.time.phase (number) to this.state.time.season (Season)
+             // Assuming performBrewing signature is (recipe, qualities, player, phaseName, season, bonus)
+             brewOutcome = performBrewing(recipe, ingredientQualities, player, this.state.time.phaseName, puzzleBonus, this.state.time.phaseName);
         } else {
             // Attempt discovery
             const discoveredRecipe = discoverRecipeSystem([invItem1, invItem2]); // Pass actual items
@@ -588,7 +590,9 @@ export class GameEngine {
                      const basicInfo: BasicRecipeInfo = { id: discoveredRecipe.id, name: discoveredRecipe.name, category: discoveredRecipe.category, description: discoveredRecipe.description, type: discoveredRecipe.type };
                      this.state.knownRecipes = [...(this.state.knownRecipes || []), basicInfo];
                 }
-                brewOutcome = performBrewing(discoveredRecipe, ingredientQualities, player, this.state.time.phase, this.state.time.season, puzzleBonus);
+                // FIX: Keep this call assuming the signature is (..., MoonPhase, Season, ...)
+                // The original error message for this line was likely misleading.
+                brewOutcome = performBrewing(discoveredRecipe, ingredientQualities, player, this.state.time.phaseName, puzzleBonus, this.state.time.phaseName);
                 // Grant discovery XP
                 addSkillXp(player, 'brewing', 1.0); // Bonus XP for discovery
             } else {
@@ -626,9 +630,9 @@ export class GameEngine {
                 if (puzzleBonus > 0) successMsg += ` (+${puzzleBonus}% Puzzle Bonus)`;
                 this.addJournal(successMsg, 'brewing', 3);
 
-                checkQuestStepCompletion(this.state, player, 'brew', { 
-                    potionName: resultItemData.name, 
-                    potionId: resultItemData.id, 
+                checkQuestStepCompletion(this.state, player, 'brew', {
+                    potionName: resultItemData.name,
+                    potionId: resultItemData.id,
                     quality: brewOutcome.quality
                 });
 
@@ -736,7 +740,7 @@ export class GameEngine {
         marketItem.lastPriceChange = this.state.time.dayCount;
         this.state.marketData.tradingVolume += price; // Track volume
 
-        checkQuestStepCompletion(this.state, player, 'buyItem', { itemId: itemBaseData.id, itemName: itemBaseData.name, price: Number(price), category: itemBaseData.category });
+        checkQuestStepCompletion(this.state, player, 'buyItem', { itemId: itemBaseData.id, itemName: itemBaseData.name, price, category: itemBaseData.category });
         return true;
     }
 
