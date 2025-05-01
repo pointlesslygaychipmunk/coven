@@ -1,4 +1,4 @@
-/* HUD.css - 90s Adventure Game Style */
+/* HUD.css - 90s Adventure Game Style with Fixed Layout */
 
 .coven-hud-sidebar {
   position: relative;
@@ -361,7 +361,6 @@
 /* Mobile Layout */
 @media (max-width: 768px) {
   .coven-hud-sidebar {
-    float: none;
     width: 100%;
     height: auto;
     min-height: 80px;
@@ -370,6 +369,8 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 4px solid #5d468a;
   }
   
   .player-panel, .lunar-panel, .resources-panel {

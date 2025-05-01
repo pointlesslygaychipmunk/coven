@@ -1,11 +1,11 @@
-/* Garden.css - 90s Adventure Game Style */
+/* Garden.css - 90s Adventure Game Style with Fixed Button Layout */
 
 /* Master container for the entire garden view */
 .garden-container {
   display: flex;
   flex-direction: column;
-  background-color: #6b4f37; /* Dark wood color */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%236b4f37"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%235d4037" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%235d4037" opacity="0.2"/></svg>');
+  background-color: #2d2038; /* Dark purple background, matching HUD */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%232d2038"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%233a2f4a" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%233a2f4a" opacity="0.2"/></svg>');
   color: #e4dbee; /* Light text for contrast */
   border-radius: 0px; /* Square corners for 90s look */
   padding: 15px; /* Reduced padding */
@@ -18,7 +18,7 @@
   
   /* Ornate pixelated border - 90s style */
   border: 6px solid transparent;
-  border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%235d4037"/><path d="M3 3h12v12H3z" fill="%238d6e63"/><path d="M6 6h6v6H6z" fill="%23a1887f"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%235d4037"/></svg>');
+  border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%233a2f4a"/><path d="M3 3h12v12H3z" fill="%235d468a"/><path d="M6 6h6v6H6z" fill="%237a6c95"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%233a2f4a"/></svg>');
   border-image-slice: 6;
   border-image-width: 6px;
   border-image-outset: 0;
@@ -32,7 +32,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #8d6e63; /* Brown border */
+  border-bottom: 2px solid #5d468a; /* Purple border matching HUD */
   padding-bottom: 10px;
   margin-bottom: 15px;
   position: relative;
@@ -59,10 +59,10 @@
   align-items: center;
   gap: 6px;
   padding: 5px 8px;
-  background-color: #5d4037; /* Brown background */
+  background-color: #3a2f4a; /* Purple background matching HUD */
   border-radius: 0px; /* Square for 90s look */
   border: 2px solid;
-  border-color: #8d6e63 #3e2723 #3e2723 #8d6e63; /* Classic bevel */
+  border-color: #7a6c95 #2d2038 #2d2038 #7a6c95; /* Classic bevel */
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
 }
 
@@ -95,11 +95,11 @@
   grid-template-rows: repeat(3, 1fr);
   gap: 10px;
   padding: 12px;
-  background-color: #8d6e63; /* Brown soil color */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%238d6e63"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%235d4037" opacity="0.3"/></svg>');
+  background-color: #3a2f4a; /* Background matching HUD */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%233a2f4a"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%235d468a" opacity="0.3"/></svg>');
   border-radius: 0px; /* Square for 90s look */
   border: 3px solid;
-  border-color: #5d4037 #a1887f #a1887f #5d4037; /* 90s bevel border */
+  border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s bevel border (inverted) */
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inset for depth */
   position: relative;
   overflow: hidden;
@@ -391,15 +391,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #795548; /* Brown seed */
+  background-color: #3a2f4a; /* Dark purple seed */
   border-radius: 50%;
   flex-shrink: 0;
-  border: 2px solid #5d4037; /* Brown border */
+  border: 2px solid #2d2038; /* Darker border */
   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
 }
 
 .seed-placeholder {
-  color: #c8e6c9; /* Light green */
+  color: #a5d6a7; /* Light green */
   font-weight: bold;
   font-size: 18px;
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
@@ -423,27 +423,30 @@
   font-weight: bold;
 }
 
-/* Seed Actions section with buttons stacked vertically */
+/* FIXED: Seed Actions section with Plant button ALWAYS above Clear button */
 .seed-actions {
-  display: flex; /* Always display */
+  display: flex; /* Always displayed */
   flex-direction: column; /* Stack buttons vertically */
   gap: 8px;
   margin-top: 10px;
 }
 
+/* Make Plant button always above Clear button */
 .action-button.plant {
   width: 100%;
-  background-color: #795548; /* Brown like clear button */
-  border-color: #a1887f #4e342e #4e342e #a1887f;
+  background-color: #795548; /* Brown button */
+  border-color: #a1887f #4e342e #4e342e #a1887f; /* Brown bevel */
   color: #fff;
   margin-bottom: 0; /* Remove margin between buttons */
+  order: 1; /* Ensure this is first (above) in the flex column */
 }
 
 .action-button.clear {
   width: 100%;
   background-color: #795548; /* Brown for clear */
-  border-color: #a1887f #4e342e #4e342e #a1887f;
+  border-color: #a1887f #4e342e #4e342e #a1887f; /* Brown bevel */
   color: #fff;
+  order: 2; /* Ensure this is second (below) in the flex column */
 }
 
 /* Status area */

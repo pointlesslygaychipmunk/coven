@@ -374,18 +374,19 @@ const Garden: React.FC<GardenProps> = ({
               ))}
             </div>
             
+            {/* Always present static action buttons in the correct order */}
             <div className="seed-actions">
               <button
                 className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
                 disabled={!canPlant || !selectedSeedId}
-                onClick={handlePlant}
+                onClick={canPlant && selectedSeedId ? handlePlant : undefined}
               >
                 Plant Selected Seed
               </button>
               <button
                 className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
                 disabled={!selectedSeedId}
-                onClick={handleClearSelection}
+                onClick={selectedSeedId ? handleClearSelection : undefined}
               >
                 Clear Selection
               </button>
@@ -411,7 +412,7 @@ const Garden: React.FC<GardenProps> = ({
       <div className="garden-content">
         <div className="garden-grid">
           {renderPlots()}
-          {/* Easter Egg Click Spot - Hidden element for secret Hanbang tips */}
+          {/* Easter Egg Click Spot */}
           <div 
             className="garden-secret-spot" 
             onClick={handleSecretSpotClick}
