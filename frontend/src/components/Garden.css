@@ -87,12 +87,12 @@
   min-height: 0; /* Fix for flexbox overflow */
 }
 
-/* Garden grid - 90s game style plot layout */
+/* Garden grid - 90s game style plot layout - FIXED 4x4 GRID */
 .garden-grid {
   flex: 3; /* Take more space */
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* FIXED: 4x4 layout */
+  grid-template-rows: repeat(4, 1fr);    /* FIXED: 4x4 layout */
   gap: 10px;
   padding: 12px;
   background-color: #3a2f4a; /* Background matching HUD */
@@ -532,101 +532,4 @@
   0% { opacity: 0; }
   50% { opacity: 1; }
   100% { opacity: 0; }
-}
-
-/* Fix for flexbox overflow issues */
-.garden-container, .garden-content, .garden-sidebar {
-  display: flex;
-  flex-direction: column;
-}
-
-.garden-content {
-  flex-direction: row;
-  flex: 1;
-  min-height: 0;
-  max-height: 100%;
-}
-
-/* FIXED: Ensure all HUD buttons are visible, no off-screen elements */
-body, html {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
-
-.garden-container {
-  height: 100%;
-  max-height: 100vh;
-  overflow: hidden;
-}
-
-/* Responsive adaptations */
-@media (max-width: 900px) {
-  .garden-content {
-    flex-direction: column;
-  }
-  
-  .garden-grid {
-    min-height: 300px;
-    max-height: 50vh;
-  }
-  
-  .garden-sidebar {
-    flex: none;
-    min-width: 0;
-    max-width: none;
-    width: 100%;
-    overflow-y: auto;
-  }
-  
-  .seed-actions {
-    flex-direction: column; /* Ensure buttons stay vertical */
-  }
-  
-  /* FIXED: Ensure HUD is fully visible on mobile */
-  .coven-hud-sidebar {
-    max-height: 40vh;
-    overflow-y: auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .garden-container {
-    padding: 10px;
-  }
-  
-  .garden-header h2 {
-    font-size: 18px;
-  }
-  
-  .garden-indicators {
-    gap: 5px;
-  }
-  
-  .weather-indicator, .season-indicator {
-    padding: 4px 6px;
-  }
-  
-  .weather-icon, .season-icon {
-    font-size: 14px;
-  }
-  
-  .weather-label, .season-label {
-    font-size: 11px;
-  }
-  
-  .garden-grid {
-    gap: 5px;
-    padding: 5px;
-  }
-  
-  .seed-actions {
-    gap: 4px; /* Tighter spacing */
-  }
-  
-  .action-button {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
 }

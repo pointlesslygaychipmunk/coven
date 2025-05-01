@@ -1,5 +1,4 @@
-/* frontend/src/components/WeatherEffectsOverlay.css */
-/* Redesigned weather effects with a whimsical, retro game feel */
+/* WeatherEffectsOverlay.css - Redesigned weather effects with a whimsical, retro game feel */
 
 .weather-overlay {
   position: absolute; /* Should be absolute within its parent frame */
