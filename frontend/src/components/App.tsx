@@ -1,21 +1,20 @@
 // frontend/src/components/App.tsx
 import React, { useState, useEffect } from 'react';
-// Removed unused imports from react-router-dom
-import './App.css'; // Ensure App.css has the root variables and base styles
+import './App.css'; // Using existing App.css 
 import {
   GameState, Season, InventoryItem, GardenSlot, BasicRecipeInfo
 } from 'coven-shared';
 
-// Import Components using aliases
-import Garden from '@components/Garden';
-import Brewing from '@components/Brewing';
-import Market from '@components/Market';
-import Journal from '@components/Journal';
-import HUD from '@components/HUD';
-import Atelier from '@components/Atelier';
-import WeatherEffectsOverlay from '@components/WeatherEffectsOverlay';
+// Import Components
+import Garden from './Garden';
+import Brewing from './Brewing';
+import Market from './Market';
+import Journal from './Journal';
+import HUD from './HUD';
+import Atelier from './Atelier';
+import WeatherEffectsOverlay from './WeatherEffectsOverlay';
 
-// API Utility
+// API Utility - From your original code
 const API_BASE_URL = '/api'; 
 
 const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Promise<GameState> => {
@@ -37,7 +36,6 @@ const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Pr
   return responseData as GameState;
 };
 
-
 // Main App Component
 const App: React.FC = () => {
     const [gameState, setGameState] = useState<GameState | null>(null);
@@ -45,12 +43,13 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden');
+    
     // Easter egg state - Moonlight Meadow
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
     const [meadowIntensity, setMeadowIntensity] = useState<number>(0);
     const [spiritPositions, setSpiritPositions] = useState<Array<{x: number, y: number, delay: number}>>([]);
 
-    // Moonlight Meadow Easter Egg Detection
+    // Moonlight Meadow Easter Egg Detection - From your original code
     useEffect(() => {
         if (!gameState || !gameState.players[gameState.currentPlayerIndex]) return;
         
@@ -120,7 +119,6 @@ const App: React.FC = () => {
         };
         fetchInitialState();
     }, []);
-
 
     // --- Action Handlers ---
     const handleApiAction = async (
@@ -226,7 +224,7 @@ const App: React.FC = () => {
         );
     };
 
-    // Handle location change with page transition
+    // Handle location change with page transition - From your original code
     const handleChangeLocation = (location: string) => {
         if (location === currentView) return;
         
@@ -292,11 +290,9 @@ const App: React.FC = () => {
         );
     }
 
-    // --- Main Game Content ---
-    // Create a component with all the routes
-    const GameContent: React.FC = () => {
-        return (
-            <>
+    return (
+        <div className="game-container">
+            <div className="game-frame">
                 {error && <ErrorDisplay />}
                 
                 {/* Show Moonlight Meadow when activated */}
@@ -371,7 +367,8 @@ const App: React.FC = () => {
                                 bottom: 10%;
                                 left: 50%;
                                 transform: translateX(-50%);
-                                color: rgba(255, 255, 255, 0.9);
+                                color: rgba(255, 255, 255,
+0.9);
                                 font-family: "Times New Roman", serif;
                                 font-size: 1.6rem;
                                 font-style: italic;
@@ -415,15 +412,16 @@ const App: React.FC = () => {
                     season={gameState.time.season as Season}
                 />
                 
+                {/* Integrate updated HUD component with the proper parameters */}
                 <HUD
                     playerName={currentPlayer.name}
                     gold={currentPlayer.gold}
                     day={gameState.time.dayCount}
                     lunarPhase={gameState.time.phaseName || 'New Moon'}
                     reputation={currentPlayer.reputation}
+                    playerLevel={currentPlayer.atelierLevel}
                     onChangeLocation={handleChangeLocation}
                     onAdvanceDay={advanceDay}
-                    playerLevel={currentPlayer.atelierLevel}
                 />
                 
                 <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
@@ -507,14 +505,6 @@ const App: React.FC = () => {
                         />
                     ))}
                 </div>
-            </>
-        );
-    };
-
-    return (
-        <div className="game-container">
-            <div className="game-frame">
-                <GameContent />
             </div>
         </div>
     );
