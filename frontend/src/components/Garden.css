@@ -504,3 +504,123 @@
   .plot-details h3, .inventory-panel h3 { font-size: 16px; }
   .scroll-content .action-button { font-size: 13px; padding: 6px 12px; }
 }
+
+/* Add these styles to your Garden.css file */
+
+/* Seed Actions section - Always visible */
+.seed-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+/* Disabled button state */
+.action-button.disabled {
+  opacity: 0.6;
+  background-color: #757575;
+  border-color: #9e9e9e #424242 #424242 #9e9e9e;
+  color: #e0e0e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.action-button.disabled:hover {
+  transform: none;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Clear selection button */
+.action-button.clear {
+  background-color: #795548;
+  border-color: #a1887f #4e342e #4e342e #a1887f;
+}
+
+.action-button.clear:hover:not(.disabled) {
+  background-color: #8d6e63;
+}
+
+/* Action status area */
+.action-status {
+  margin-top: 5px;
+}
+
+.action-status .garden-tip {
+  margin: 3px 0;
+  font-size: 12px;
+}
+
+/* Make sure buttons are crisp in mobile view too */
+@media (max-width: 600px) {
+  .seed-actions {
+    gap: 6px;
+    margin-top: 10px;
+  }
+  
+  .action-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* These are the additional styles to add to your Garden.css file */
+
+/* Seed Actions section - Always visible */
+.seed-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+/* Disabled button state */
+.action-button.disabled {
+  opacity: 0.6;
+  background-color: #757575;
+  border-color: #9e9e9e #424242 #424242 #9e9e9e;
+  color: #e0e0e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.action-button.disabled:hover {
+  transform: none;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Clear selection button */
+.action-button.clear {
+  background-color: #795548;
+  border-color: #a1887f #4e342e #4e342e #a1887f;
+}
+
+.action-button.clear:hover:not(.disabled) {
+  background-color: #8d6e63;
+}
+
+/* Action status area */
+.action-status {
+  margin-top: 5px;
+}
+
+.action-status .garden-tip {
+  margin: 3px 0;
+  font-size: 12px;
+}
+
+/* Make sure buttons are crisp in mobile view too */
+@media (max-width: 600px) {
+  .seed-actions {
+    gap: 6px;
+    margin-top: 10px;
+  }
+  
+  .action-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

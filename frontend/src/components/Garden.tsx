@@ -24,7 +24,7 @@ const Garden: React.FC<GardenProps> = ({
   season = 'Spring'
 }) => {
   const [selectedPlotId, setSelectedPlotId] = useState<number | null>(null);
-  const [selectedSeedInventoryItemId, setSelectedSeedInventoryItemId] = useState<string | null>(null);
+  const [selectedSeedId, setSelectedSeedId] = useState<string | null>(null);
   const [attunementAnimation, setAttunementAnimation] = useState<boolean>(false);
   const [showWhisper, setShowWhisper] = useState<string | null>(null);
   const [gardenTip, setGardenTip] = useState<string>('');
@@ -94,19 +94,19 @@ const Garden: React.FC<GardenProps> = ({
   };
 
   // Handle seed selection from inventory
-  const handleSeedSelect = (seedInventoryItemId: string) => {
-    setSelectedSeedInventoryItemId(seedInventoryItemId);
+  const handleSeedSelect = (seedId: string) => {
+    setSelectedSeedId(seedId === selectedSeedId ? null : seedId);
   };
 
   // Handle planting the selected seed
   const handlePlant = () => {
     const selectedPlot = getSelectedPlot();
-    if (!selectedPlot || selectedPlot.plant || selectedPlotId === null || !selectedSeedInventoryItemId) {
+    if (!selectedPlot || selectedPlot.plant || selectedPlotId === null || !selectedSeedId) {
       return;
     }
     
-    onPlant(selectedPlotId, selectedSeedInventoryItemId);
-    setSelectedSeedInventoryItemId(null);
+    onPlant(selectedPlotId, selectedSeedId);
+    setSelectedSeedId(null);
   };
 
   // Handle harvesting from the selected plot
@@ -338,7 +338,7 @@ const Garden: React.FC<GardenProps> = ({
     );
   };
 
-  // Render inventory panel - Always visible
+  // Render inventory panel with consistently visible buttons
   const renderInventoryPanel = () => {
     const seeds = getAvailableSeeds();
     const selectedPlot = getSelectedPlot();
@@ -359,7 +359,7 @@ const Garden: React.FC<GardenProps> = ({
                   {seeds.map(seed => (
                     <div
                       key={seed.id}
-                      className={`seed-item ${selectedSeedInventoryItemId === seed.id ? 'selected' : ''}`}
+                      className={`seed-item ${selectedSeedId === seed.id ? 'selected' : ''}`}
                       onClick={() => handleSeedSelect(seed.id)}
                       title={`${seed.name} (Qty: ${seed.quantity})`}
                     >
@@ -372,21 +372,36 @@ const Garden: React.FC<GardenProps> = ({
                   ))}
                 </div>
                 
-                {/* Planting action - Only enabled when a valid plot is selected */}
-                {canPlant && selectedSeedInventoryItemId && (
-                  <div className="seed-actions">
-                    <button
-                      className="action-button plant"
-                      onClick={handlePlant}
-                    >
-                      Plant {inventory.find(s => s.id === selectedSeedInventoryItemId)?.name || 'Selected Seed'}
-                    </button>
-                  </div>
-                )}
+                {/* FIXED: Always show action buttons section */}
+                <div className="seed-actions">
+                  {/* Plant button - only enabled when conditions are met */}
+                  <button
+                    className={`action-button plant ${(!canPlant || !selectedSeedId) ? 'disabled' : ''}`}
+                    onClick={canPlant && selectedSeedId ? handlePlant : undefined}
+                    disabled={!canPlant || !selectedSeedId}
+                  >
+                    Plant {selectedSeedId ? 
+                      inventory.find(s => s.id === selectedSeedId)?.name || 'Selected Seed' : 
+                      'Selected Seed'}
+                  </button>
+                  
+                  {/* Clear selection button - only enabled when a seed is selected */}
+                  <button
+                    className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
+                    onClick={selectedSeedId ? () => setSelectedSeedId(null) : undefined}
+                    disabled={!selectedSeedId}
+                  >
+                    Clear Selection
+                  </button>
+                </div>
                 
-                {!canPlant && (
-                  <p className="garden-tip">Select an empty plot to plant a seed.</p>
-                )}
+                {/* Status information for context */}
+                <div className="action-status">
+                  {!selectedPlot && <p className="garden-tip">Select a plot to plant in.</p>}
+                  {selectedPlot && selectedPlot.isUnlocked === false && <p className="garden-tip">Selected plot is locked.</p>}
+                  {selectedPlot && selectedPlot.plant && <p className="garden-tip">Selected plot already has a plant.</p>}
+                  {!selectedSeedId && <p className="garden-tip">Select a seed to plant.</p>}
+                </div>
               </>
             )}
           </div>
@@ -412,11 +427,13 @@ const Garden: React.FC<GardenProps> = ({
           <div className="garden-secret-spot" onClick={handleSecretSpotClick} title="Inspect closer..."></div>
         </div>
 
-        {/* Plot Details - Always visible */}
-        {renderPlotDetails()}
+        <div className="garden-sidebar">
+          {/* Plot Details - Always visible */}
+          {renderPlotDetails()}
 
-        {/* Inventory - Always visible */}
-        {renderInventoryPanel()}
+          {/* Inventory - Always visible */}
+          {renderInventoryPanel()}
+        </div>
       </div>
 
       {/* Floating garden whisper */}
