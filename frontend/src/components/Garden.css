@@ -1,4 +1,4 @@
-/* Garden.css - 90s Fantasy Game Aesthetic */
+/* Garden.css - 90s DOS Fantasy Game Aesthetic */
 
 /* Master container with seasonal backgrounds */
 .garden-container {
@@ -6,119 +6,242 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  font-family: 'Times New Roman', serif;
+  font-family: 'VT323', 'Courier New', monospace;
   color: #3a2f1d;
   overflow: hidden;
   position: relative;
-  /* Default background */
-  background: #2b333e url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%232b333e"/><path d="M0 20h80M0 40h80M0 60h80M20 0v80M40 0v80M60 0v80" stroke="%23212a33" stroke-width="1"/></svg>');
+  /* Default background - pixelated grid pattern */
+  background-color: #2b333e;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%232b333e"/><rect x="0" y="0" width="8" height="8" fill="%23212a33"/><rect x="8" y="8" width="8" height="8" fill="%23212a33"/></svg>');
+  
+  /* Add scanlines for CRT effect */
+  position: relative;
 }
 
-/* Seasonal backgrounds */
+/* Scanlines overlay for DOS CRT monitor effect */
+.garden-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.4;
+}
+
+/* Seasonal backgrounds - more pixelated DOS style */
 .garden-container.spring {
-  background: #374d29 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23374d29"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%2333452b" stroke-width="1"/></svg>');
+  background-color: #374d29;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23374d29"/><rect x="0" y="0" width="8" height="8" fill="%2333452b"/><rect x="8" y="8" width="8" height="8" fill="%2333452b"/></svg>');
 }
 
 .garden-container.summer {
-  background: #52432c url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%2352432c"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%234a3d29" stroke-width="1"/></svg>');
+  background-color: #52432c;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%2352432c"/><rect x="0" y="0" width="8" height="8" fill="%234a3d29"/><rect x="8" y="8" width="8" height="8" fill="%234a3d29"/></svg>');
 }
 
 .garden-container.fall {
-  background: #4a2b1d url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234a2b1d"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%23412619" stroke-width="1"/></svg>');
+  background-color: #4a2b1d;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%234a2b1d"/><rect x="0" y="0" width="8" height="8" fill="%23412619"/><rect x="8" y="8" width="8" height="8" fill="%23412619"/></svg>');
 }
 
 .garden-container.winter {
-  background: #2c3e4f url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232c3e4f"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%23243341" stroke-width="1"/></svg>');
+  background-color: #2c3e4f;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%232c3e4f"/><rect x="0" y="0" width="8" height="8" fill="%23243341"/><rect x="8" y="8" width="8" height="8" fill="%23243341"/></svg>');
 }
 
-/* Main garden frame - styled like a medieval/fantasy game UI element */
+/* Main garden frame - styled like a DOS game UI element */
 .garden-frame {
   display: flex;
   flex-direction: column;
-  background-color: #e8dbc2; /* Parchment color */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e8dbc2"/><circle cx="23" cy="32" r="1" fill="%23c8b59e" opacity="0.5"/><circle cx="67" cy="78" r="1" fill="%23c8b59e" opacity="0.5"/><circle cx="83" cy="21" r="1" fill="%23c8b59e" opacity="0.5"/><circle cx="47" cy="57" r="1" fill="%23c8b59e" opacity="0.5"/><circle cx="34" cy="85" r="1" fill="%23c8b59e" opacity="0.5"/></svg>');
+  background-color: #c9b59b; /* More muted DOS-friendly color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%23c9b59b"/><rect x="0" y="0" width="1" height="1" fill="%23b8a48a"/><rect x="2" y="2" width="1" height="1" fill="%23b8a48a"/></svg>');
   color: #3a2f1d;
-  margin: 15px;
-  border: 12px solid transparent;
-  border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><path d="M0 0h50v50H0z" fill="%238b7250"/><path d="M5 5h40v40H5z" fill="%23c8b59e"/><path d="M0 0h15v5H5v10H0zM50 0H35v5h10v10h5zM0 50h15v-5H5V35H0zM50 50H35v-5h10V35h5z" fill="%238b7250"/></svg>') 25;
+  margin: 10px;
+  border: 0;
   border-radius: 0;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  width: calc(100% - 30px);
-  height: calc(100% - 30px);
+  box-shadow: none;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
   overflow: hidden;
   position: relative;
+  
+  /* Pixelated border effect using box-shadow */
+  box-shadow: 
+    0 0 0 2px #8b7250,
+    0 0 0 4px #6d5940,
+    inset 1px 1px 0 #e8dbc2, 
+    inset -1px -1px 0 #a58e6a;
+    
+  /* Add a subtle pixel texture */
+  image-rendering: pixelated;
 }
 
-/* Garden header with ornate elements */
+/* Add corner decorations in true DOS style */
+.garden-frame::before,
+.garden-frame::after,
+.garden-frame > div::before,
+.garden-frame > div::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #8b7250;
+  z-index: 10;
+}
+
+.garden-frame::before { /* Top-left */
+  top: 0;
+  left: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238b7250"/><path d="M0 0h5v1H1v4H0z" fill="%23a58e6a"/><path d="M1 1h4v1H2v3h-1z" fill="%236d5940"/></svg>');
+}
+
+.garden-frame::after { /* Top-right */
+  top: 0;
+  right: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238b7250"/><path d="M10 0H5v1h4v4h1z" fill="%23a58e6a"/><path d="M9 1H5v1h3v3h1z" fill="%236d5940"/></svg>');
+}
+
+.garden-frame > div::before { /* Bottom-left */
+  bottom: 0;
+  left: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238b7250"/><path d="M0 10h5V9H1V5H0z" fill="%23a58e6a"/><path d="M1 9h4V8H2V5h-1z" fill="%236d5940"/></svg>');
+}
+
+.garden-frame > div::after { /* Bottom-right */
+  bottom: 0;
+  right: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238b7250"/><path d="M10 10H5V9h4V5h1z" fill="%23a58e6a"/><path d="M9 9H5V8h3V5h1z" fill="%236d5940"/></svg>');
+}
+
+/* Garden header with DOS aesthetic */
 .garden-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
-  background-color: #8b7250; /* Wood brown */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20" viewBox="0 0 100 20"><rect width="100" height="20" fill="%238b7250"/><path d="M0 0h100v2H0z" fill="%23a58e6a" opacity="0.7"/><path d="M0 18h100v2H0z" fill="%236d5940" opacity="0.7"/><path d="M20 5h3v10h-3zM40 5h3v10h-3zM60 5h3v10h-3zM80 5h3v10h-3z" fill="%23a58e6a" opacity="0.3"/></svg>');
+  padding: 5px 10px;
+  height: 32px; /* Fixed height for more authentic DOS look */
+  background-color: #6d5940; /* Darker and more muted */
+  
+  /* Pixelated gradient for header */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="32" viewBox="0 0 100 32"><rect width="100" height="32" fill="%236d5940"/><rect width="100" height="1" fill="%238b7250" y="0"/><rect width="100" height="1" fill="%238b7250" y="1"/><rect width="100" height="1" fill="%235c4830" y="30"/><rect width="100" height="1" fill="%23483920" y="31"/></svg>');
+  
   color: #f4e9d5;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   position: relative;
-  text-shadow: 2px 2px 2px #000000;
-  height: 50px;
+  text-shadow: 1px 1px 0 #000000; /* Sharper pixel shadow */
+  
+  /* Double-border effect for DOS look */
+  border-bottom: 2px solid #483920;
+  box-shadow: 0 1px 0 #8b7250;
+}
+
+/* Add subtle pixel texture to header */
+.garden-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect x="0" y="0" width="1" height="1" fill="%238b7250" opacity="0.1"/><rect x="2" y="2" width="1" height="1" fill="%238b7250" opacity="0.1"/></svg>');
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .garden-header h2 {
   margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 1px;
+  font-size: 20px;
+  font-weight: normal; /* DOS fonts typically weren't bold */
+  letter-spacing: 2px;
   flex: 1;
   text-align: center;
-  font-variant: small-caps;
+  text-transform: uppercase; /* More DOS-like */
 }
 
-/* Ornate scroll decorations */
+/* Pixelated ornaments for DOS aesthetic */
 .scroll-ornament {
-  width: 30px;
-  height: 30px;
+  width: 16px;
+  height: 16px;
   background-size: contain;
   background-repeat: no-repeat;
   position: relative;
 }
 
 .scroll-ornament.left {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><path d="M30 0v30H0c5 0 10-5 10-15S5 0 30 0z" fill="%23a58e6a"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="none"/><path d="M0 0h4v4h4v4h4v4h4v4H0z" fill="%238b7250"/><path d="M1 1h3v3h3v3h3v3h3v3H1z" fill="%236d5940"/></svg>');
   margin-right: 8px;
 }
 
 .scroll-ornament.right {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><path d="M0 0v30h30c-5 0-10-5-10-15S25 0 0 0z" fill="%23a58e6a"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="none"/><path d="M16 0h-4v4h-4v4h-4v4h-4v4h16z" fill="%238b7250"/><path d="M15 1h-3v3h-3v3h-3v3h-3v3h12z" fill="%236d5940"/></svg>');
   margin-left: 8px;
 }
 
-/* Indicators for weather and season styled as small icons */
+/* Indicators for weather and season - DOS style */
 .garden-indicators {
   display: flex;
-  gap: 8px;
+  gap: 4px; /* Tighter spacing for DOS aesthetic */
 }
 
 .weather-indicator, .season-indicator {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
-  background-color: #6d5940; /* Darker wood */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="20" viewBox="0 0 40 20"><rect width="40" height="20" fill="%236d5940"/><path d="M0 0h40v1H0z" fill="%23a58e6a" opacity="0.7"/><path d="M0 19h40v1H0z" fill="%234d3c28" opacity="0.7"/></svg>');
-  border: 2px solid #a58e6a;
+  height: 20px;
+  padding: 0 6px;
+  background-color: #483920;
+  
+  /* Pixelated DOS-style border instead of traditional border */
+  border: 0;
   border-radius: 0;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    inset 1px 1px 0 #6d5940,
+    inset -1px -1px 0 #2c2418,
+    0 0 0 1px #000000;
+    
+  /* Simpler pixelated background */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2" viewBox="0 0 2 2"><rect width="2" height="2" fill="%23483920"/><rect x="0" y="0" width="1" height="1" fill="%23544430" opacity="0.5"/></svg>');
+  
+  position: relative;
+}
+
+/* Pixelated highlight for top and left edges */
+.weather-indicator::before, .season-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(135deg, 
+              rgba(160, 140, 110, 0.3) 0%, 
+              rgba(160, 140, 110, 0.3) 10%, 
+              transparent 10.1%, 
+              transparent 100%);
 }
 
 .weather-icon, .season-icon {
-  font-size: 16px;
-  margin-right: 5px;
+  font-size: 12px; /* Smaller for DOS aesthetic */
+  margin-right: 3px;
+  transform: translateY(-1px); /* Slight adjustment for alignment */
 }
 
 .weather-label, .season-label {
-  font-size: 12px;
-  color: #f4e9d5;
-  text-shadow: 1px 1px 1px #000000;
+  font-size: 11px; /* Smaller for DOS aesthetic */
+  color: #d0c0a0; /* Slightly muted color */
+  text-shadow: 1px 1px 0 #000000; /* Sharper pixel shadow */
+  letter-spacing: 0px; /* Tighter kerning for DOS font */
+  text-transform: uppercase; /* DOS text was often uppercase */
 }
 
 /* Main content with grid and sidebar */
@@ -130,40 +253,64 @@
   overflow: hidden;
 }
 
-/* Garden grid - styled like an old-school game map */
+/* Garden grid - styled like a DOS game map with pixelated aesthetics */
 .garden-grid {
   flex: 3;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  gap: 10px;
+  gap: 6px; /* Tighter gaps for DOS aesthetic */
   position: relative;
-  padding: 10px;
-  background-color: #6d5940; /* Darker wood border */
-  border: 4px solid #4d3c28;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  background-color: #483920; /* Darker border color */
+  border: 0; /* Remove traditional border */
+  
+  /* Pixelated DOS-style border */
+  box-shadow: 
+    inset 1px 1px 0 #6d5940,
+    inset -1px -1px 0 #2c2418,
+    0 0 0 2px #3a2e1a;
+    
+  image-rendering: pixelated;
+}
+
+/* Add a subtle pixel texture */
+.garden-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="none"/><rect x="0" y="0" width="1" height="1" fill="%23584830" opacity="0.5"/><rect x="2" y="2" width="1" height="1" fill="%23584830" opacity="0.5"/></svg>');
+  pointer-events: none;
+  z-index: 1;
 }
 
 .grid-background {
   position: absolute;
   inset: 0;
-  background-color: #8a7647; /* Soil base */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%238a7647"/><path d="M5 0v20M10 0v20M15 0v20M0 5h20M0 10h20M0 15h20" stroke="%23756635" stroke-width="1"/></svg>');
-  opacity: 0.8;
+  background-color: #705d35; /* More muted soil base for DOS palette */
+  
+  /* Pixelated grid pattern that resembles DOS games */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23705d35"/><rect x="0" y="0" width="8" height="8" fill="%23665432"/><rect x="8" y="8" width="8" height="8" fill="%23665432"/></svg>');
+  
+  opacity: 1.0; /* Full opacity for better visibility */
   z-index: 0;
 }
 
-/* Sidebar for details and inventory */
+/* Sidebar for details and inventory - DOS style */
 .garden-sidebar {
   flex: 2;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 300px;
+  gap: 8px; /* Reduced gap for DOS aesthetic */
+  max-width: 280px; /* Slightly narrower for DOS look */
   position: relative;
+  padding-right: 2px; /* Small padding to prevent overflow */
 }
 
-/* Corner decorations for the sidebar */
+/* Pixelated corner decorations for DOS look */
 .sidebar-decorations {
   position: absolute;
   inset: 0;
@@ -171,10 +318,11 @@
   z-index: 10;
 }
 
+/* Simple pixelated corner decorations */
 .corner-decoration {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 8px;
+  height: 8px;
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -182,74 +330,111 @@
 .corner-decoration.top-left {
   top: 0;
   left: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M0 0v10c0 16.6 13.4 30 30 30h10V0H0z" fill="none" stroke="%238b7250" stroke-width="3"/><path d="M10 10c0 11 9 20 20 20" fill="none" stroke="%238b7250" stroke-width="2"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="1" fill="%236d5940"/><rect width="1" height="8" fill="%236d5940"/><rect x="1" y="1" width="2" height="2" fill="%236d5940"/></svg>');
 }
 
 .corner-decoration.top-right {
   top: 0;
   right: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M40 0v10c0 16.6-13.4 30-30 30H0V0h40z" fill="none" stroke="%238b7250" stroke-width="3"/><path d="M30 10c0 11-9 20-20 20" fill="none" stroke="%238b7250" stroke-width="2"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect x="0" y="0" width="8" height="1" fill="%236d5940"/><rect x="7" y="0" width="1" height="8" fill="%236d5940"/><rect x="5" y="1" width="2" height="2" fill="%236d5940"/></svg>');
 }
 
 .corner-decoration.bottom-left {
   bottom: 0;
   left: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M0 40v-10c0-16.6 13.4-30 30-30h10v40H0z" fill="none" stroke="%238b7250" stroke-width="3"/><path d="M10 30c0-11 9-20 20-20" fill="none" stroke="%238b7250" stroke-width="2"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect x="0" y="7" width="8" height="1" fill="%236d5940"/><rect x="0" y="0" width="1" height="8" fill="%236d5940"/><rect x="1" y="5" width="2" height="2" fill="%236d5940"/></svg>');
 }
 
 .corner-decoration.bottom-right {
   bottom: 0;
   right: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M40 40v-10c0-16.6-13.4-30-30-30H0v40h40z" fill="none" stroke="%238b7250" stroke-width="3"/><path d="M30 30c0-11-9-20-20-20" fill="none" stroke="%238b7250" stroke-width="2"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect x="0" y="7" width="8" height="1" fill="%236d5940"/><rect x="7" y="0" width="1" height="8" fill="%236d5940"/><rect x="5" y="5" width="2" height="2" fill="%236d5940"/></svg>');
 }
 
-/* Panels styled as scrolls/parchment */
+/* Panels styled with DOS aesthetic */
 .plot-details, .inventory-panel {
   display: flex;
   flex-direction: column;
-  background-color: #f4e9d5; /* Lighter parchment */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f4e9d5"/><path d="M20 0v100M40 0v100M60 0v100M80 0v100M0 20h100M0 40h100M0 60h100M0 80h100" stroke="%23e8dbc2" stroke-width="1"/></svg>');
-  border: 4px solid #8b7250;
+  background-color: #c0ae90; /* More muted DOS-friendly color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%23c0ae90"/><rect x="0" y="0" width="1" height="1" fill="%23b5a385" opacity="0.5"/><rect x="2" y="2" width="1" height="1" fill="%23b5a385" opacity="0.5"/></svg>');
+  border: 0; /* Remove traditional border */
   border-radius: 0;
   overflow: hidden;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
   flex: 1;
+  position: relative;
+  
+  /* Pixelated DOS-style border */
+  box-shadow: 
+    inset 1px 1px 0 #d0bea0,
+    inset -1px -1px 0 #a59880,
+    0 0 0 2px #6d5940;
+    
+  image-rendering: pixelated;
 }
 
-/* Panel headers styled as wooden banners */
+/* Panel headers styled as DOS UI bars */
 .scroll-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
-  background-color: #8b7250; /* Wood brown */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20" viewBox="0 0 100 20"><rect width="100" height="20" fill="%238b7250"/><path d="M0 0h100v2H0z" fill="%23a58e6a" opacity="0.7"/><path d="M0 18h100v2H0z" fill="%236d5940" opacity="0.7"/><path d="M20 5h3v10h-3zM40 5h3v10h-3zM60 5h3v10h-3zM80 5h3v10h-3z" fill="%23a58e6a" opacity="0.3"/></svg>');
-  color: #f4e9d5;
-  text-shadow: 1px 1px 2px #000000;
-  border-bottom: 2px solid #6d5940;
+  padding: 0;
+  height: 20px; /* Fixed height for DOS aesthetic */
+  background-color: #6d5940;
+  
+  /* Pixelated gradient for header bar */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20" viewBox="0 0 100 20"><rect width="100" height="20" fill="%236d5940"/><rect width="100" height="1" fill="%238b7250" y="0"/><rect width="100" height="1" fill="%235c4830" y="19"/></svg>');
+  
+  color: #e0d0b0; /* Slightly muted for DOS */
+  text-shadow: 1px 1px 0 #000000; /* Sharper pixel shadow */
+  border-bottom: 2px solid #483920;
   position: relative;
+  z-index: 2;
+}
+
+/* Adding subtle highlights to header */
+.scroll-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, 
+              rgba(255, 255, 255, 0.2) 0%, 
+              rgba(255, 255, 255, 0.2) 10%, 
+              transparent 10.1%, 
+              transparent 100%);
 }
 
 .scroll-header h3 {
   margin: 0;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 14px; /* Smaller for DOS aesthetic */
+  font-weight: normal; /* DOS fonts weren't usually bold */
   letter-spacing: 1px;
   text-align: center;
-  font-variant: small-caps;
+  text-transform: uppercase; /* DOS text was often uppercase */
 }
 
 .parchment-content {
-  padding: 10px;
+  padding: 6px 8px; /* Smaller padding for DOS */
   overflow-y: auto;
   flex: 1;
   display: flex;
   flex-direction: column;
+  color: #483920; /* Better contrast for DOS palette */
+  font-size: 12px; /* Smaller for DOS aesthetic */
+  position: relative;
+  z-index: 1;
 }
 
 .parchment-filler {
   flex: 1;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f4e9d5" opacity="0.01"/><path d="M30 10h40M25 20h50M20 30h60M25 40h50M30 45h40M15 50h70M10 60h80M15 70h70M20 80h60M25 90h50" stroke="%23c8b59e" stroke-width="1" opacity="0.3"/></svg>');
+  
+  /* Subtle checkerboard for DOS aesthetic */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="none"/><rect x="0" y="0" width="1" height="1" fill="%23b5a385" opacity="0.2"/><rect x="2" y="2" width="1" height="1" fill="%23b5a385" opacity="0.2"/></svg>');
+  
+  min-height: 20px;
 }
 
 /* Plot details styling */
@@ -271,33 +456,48 @@
 
 /* Health/progress bars styled like old-school RPG bars */
 .stat-bar, .progress-bar {
-  height: 14px;
-  background-color: #6d5940; /* Darker wood */
-  border: 2px solid #4d3c28;
+  height: 12px; /* Shorter for DOS aesthetic */
+  background-color: #483920; /* Darker background */
+  border: 0; /* No traditional border */
   border-radius: 0;
   overflow: hidden;
   position: relative;
+  
+  /* Pixelated inset border for DOS look */
+  box-shadow: 
+    inset 1px 1px 0 #2c2418,
+    inset -1px -1px 0 #6d5940;
 }
 
+/* Progress bars with pixelated patterns */
 .stat-fill.fertility {
-  background-color: #8e5abc;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%238e5abc"/><path d="M0 0l20 20M0 10l10 10M10 0l10 10M0 20l20-20M10 20l10-10M0 10l10-10" stroke="%239c6dd0" stroke-width="1"/></svg>');
+  background-color: #7a4ea0; /* More muted for DOS palette */
+  
+  /* Pixelated pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%237a4ea0"/><rect x="0" y="0" width="4" height="4" fill="%23694590"/><rect x="4" y="4" width="4" height="4" fill="%23694590"/></svg>');
+  
   height: 100%;
-  transition: width 0.5s ease;
+  transition: none; /* Immediate feedback for DOS aesthetic */
 }
 
 .stat-fill.moisture {
-  background-color: #4a7aac;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%234a7aac"/><path d="M0 5h20M0 15h20M5 0v20M15 0v20" stroke="%235d88b5" stroke-width="1"/></svg>');
+  background-color: #3a6590; /* More muted for DOS palette */
+  
+  /* Pixelated pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%233a6590"/><rect x="0" y="0" width="4" height="4" fill="%23305580"/><rect x="4" y="4" width="4" height="4" fill="%23305580"/></svg>');
+  
   height: 100%;
-  transition: width 0.5s ease;
+  transition: none; /* Immediate feedback for DOS aesthetic */
 }
 
 .progress-fill {
   height: 100%;
-  background-color: #68904a;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%2368904a"/><path d="M5 0v20M15 0v20M0 5h20M0 15h20" stroke="%2376a055" stroke-width="1"/></svg>');
-  transition: width 0.5s ease;
+  background-color: #587840; /* More muted for DOS palette */
+  
+  /* Pixelated pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23587840"/><rect x="0" y="0" width="4" height="4" fill="%234d6838"/><rect x="4" y="4" width="4" height="4" fill="%234d6838"/></svg>');
+  
+  transition: none; /* Immediate feedback for DOS aesthetic */
 }
 
 /* Plant info styling */
@@ -406,46 +606,80 @@
   background-position: center;
 }
 
-/* RPG-styled buttons */
+/* DOS-styled action buttons with pixelated borders */
 .action-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 12px;
-  margin: 5px 0;
-  background-color: #8b7250; /* Wood brown */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%238b7250"/><path d="M0 0h100v2H0z" fill="%23a58e6a" opacity="0.7"/><path d="M0 28h100v2H0z" fill="%236d5940" opacity="0.7"/></svg>');
-  color: #f4e9d5;
-  border: 2px solid #6d5940;
+  height: 28px; /* Fixed height for consistent DOS aesthetic */
+  padding: 0 10px;
+  margin: 4px 0;
+  background-color: #6d5940;
+  
+  /* Pixelated gradient background */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="28" viewBox="0 0 100 28"><rect width="100" height="28" fill="%236d5940"/><rect width="100" height="1" fill="%238b7250" y="0"/><rect width="100" height="1" fill="%235c4830" y="27"/></svg>');
+  
+  color: #e0d0b0;
+  border: 0; /* Remove traditional border */
   border-radius: 0;
-  font-family: inherit;
+  font-family: 'VT323', 'Courier New', monospace;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: normal; /* DOS fonts weren't usually bold */
   cursor: pointer;
-  transition: all 0.2s ease;
   position: relative;
-  text-shadow: 1px 1px 1px #000000;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 #000000; /* Sharper pixel shadow */
+  letter-spacing: 1px;
+  
+  /* Pixelated border effect using box-shadow */
+  box-shadow: 
+    2px 2px 0 0 #483920,
+    inset 1px 1px 0 0 #8b7250, 
+    inset -1px -1px 0 0 #483920;
+    
+  /* No transition for immediate feedback (DOS-like) */
+  transition: none;
+}
+
+/* Add pixelated highlight at top */
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, 
+              rgba(255, 255, 255, 0.2) 0%, 
+              rgba(255, 255, 255, 0.2) 10%, 
+              transparent 10.1%, 
+              transparent 100%);
 }
 
 .action-button:hover:not(.disabled) {
-  background-color: #a58e6a;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
-  transform: translateY(-1px);
+  background-color: #7c6850;
+  color: #f0e0c0;
 }
 
+/* Immediate pressed state - no animation */
 .action-button:active:not(.disabled) {
-  background-color: #6d5940;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  transform: translateY(1px);
+  background-color: #5c4830;
+  transform: translate(2px, 2px);
+  box-shadow: 
+    0 0 0 0 #483920,
+    inset 1px 1px 0 0 #483920, 
+    inset -1px -1px 0 0 #8b7250;
 }
 
 .action-button.disabled {
-  background-color: #a1a1a1;
-  color: #d8d8d8;
-  border-color: #7a7a7a;
+  background-color: #808080;
+  color: #a0a0a0;
   cursor: not-allowed;
   opacity: 0.7;
+  text-shadow: none;
+  box-shadow: 
+    inset 1px 1px 0 0 #909090, 
+    inset -1px -1px 0 0 #606060;
 }
 
 .action-button .button-icon {
@@ -739,54 +973,66 @@
   border-bottom: 1px dashed #c8b59e;
 }
 
-/* Garden whisper dialog */
+/* Garden whisper dialog with DOS aesthetic */
 .garden-whisper {
   position: absolute;
   left: 50%;
   top: 40%;
   transform: translateX(-50%);
-  background-color: rgba(76, 60, 40, 0.9);
-  color: #f4e9d5;
-  padding: 15px 25px;
-  border: 4px solid #8b7250;
+  background-color: #483920;
+  color: #d0c0a0;
+  padding: 6px 12px;
+  border: 0;
   border-radius: 0;
-  font-family: 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 16px;
-  max-width: 400px;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 14px;
+  max-width: 380px;
   text-align: center;
   z-index: 1000;
-  animation: whisperAppear 0.6s ease-out forwards, whisperFade 0.6s ease-in 4.4s forwards;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  
+  /* No animations for immediate appearance (DOS-like) */
+  animation: dosWisperAppear 0.1s step-end forwards, dosWisperFade 0.1s step-end 4.9s forwards;
+  
+  /* Pixelated DOS-style border */
+  box-shadow: 
+    0 0 0 1px #000000,
+    0 0 0 3px #6d5940,
+    inset 1px 1px 0 #6d5940,
+    inset -1px -1px 0 #2c2418;
 }
 
+/* Pixelated corner decorations for DOS whisper */
 .garden-whisper::before, .garden-whisper::after {
   content: '';
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: #8b7250;
-  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
 }
 
 .garden-whisper::before {
-  top: -10px;
-  left: -10px;
+  top: 0;
+  left: 0;
+  border-top: 4px solid #6d5940;
+  border-left: 4px solid #6d5940;
 }
 
 .garden-whisper::after {
-  bottom: -10px;
-  right: -10px;
+  bottom: 0;
+  right: 0;
+  border-bottom: 4px solid #2c2418;
+  border-right: 4px solid #2c2418;
 }
 
-@keyframes whisperAppear {
-  from { opacity: 0; transform: translate(-50%, -20px); }
-  to { opacity: 1; transform: translateX(-50%); }
+/* Simple step animations for DOS aesthetic */
+@keyframes dosWisperAppear {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes whisperFade {
-  from { opacity: 1; transform: translateX(-50%); }
-  to { opacity: 0; transform: translate(-50%, -20px); }
+@keyframes dosWisperFade {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* Attunement overlay effect */
