@@ -573,7 +573,7 @@ export class GameEngine {
         let quantityProduced = 1;
 
         if (recipe) {
-            brewOutcome = performBrewing(recipe, ingredientQualities, player, this.state.time.phaseName, this.state.time.phaseName, puzzleBonus);
+            brewOutcome = performBrewing(recipe, ingredientQualities, player, this.state.time.phase, this.state.time.season, puzzleBonus);
         } else {
             // Attempt discovery
             const discoveredRecipe = discoverRecipeSystem([invItem1, invItem2]); // Pass actual items
@@ -588,7 +588,7 @@ export class GameEngine {
                      const basicInfo: BasicRecipeInfo = { id: discoveredRecipe.id, name: discoveredRecipe.name, category: discoveredRecipe.category, description: discoveredRecipe.description, type: discoveredRecipe.type };
                      this.state.knownRecipes = [...(this.state.knownRecipes || []), basicInfo];
                 }
-                brewOutcome = performBrewing(discoveredRecipe, ingredientQualities, player, this.state.time.phaseName, this.state.time.phaseName, puzzleBonus);
+                brewOutcome = performBrewing(discoveredRecipe, ingredientQualities, player, this.state.time.phase, this.state.time.season, puzzleBonus);
                 // Grant discovery XP
                 addSkillXp(player, 'brewing', 1.0); // Bonus XP for discovery
             } else {
@@ -736,7 +736,7 @@ export class GameEngine {
         marketItem.lastPriceChange = this.state.time.dayCount;
         this.state.marketData.tradingVolume += price; // Track volume
 
-        checkQuestStepCompletion(this.state, player, 'buyItem', { itemId: itemBaseData.id, itemName: itemBaseData.name, price: price, category: itemBaseData.category });
+        checkQuestStepCompletion(this.state, player, 'buyItem', { itemId: itemBaseData.id, itemName: itemBaseData.name, price: Number(price), category: itemBaseData.category });
         return true;
     }
 
