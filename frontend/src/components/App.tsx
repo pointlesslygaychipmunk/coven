@@ -1,6 +1,6 @@
 // frontend/src/components/App.tsx
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+// Removed unused imports from react-router-dom
 import './App.css'; // Ensure App.css has the root variables and base styles
 import {
   GameState, Season, InventoryItem, GardenSlot, BasicRecipeInfo
@@ -45,6 +45,60 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden');
+    // Easter egg state - Moonlight Meadow
+    const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
+    const [meadowIntensity, setMeadowIntensity] = useState<number>(0);
+    const [spiritPositions, setSpiritPositions] = useState<Array<{x: number, y: number, delay: number}>>([]);
+
+    // Moonlight Meadow Easter Egg Detection
+    useEffect(() => {
+        if (!gameState || !gameState.players[gameState.currentPlayerIndex]) return;
+        
+        const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+        
+        // Check garden health and happiness conditions
+        if (currentPlayer.garden && Array.isArray(currentPlayer.garden)) {
+            const totalPlots = currentPlayer.garden.length;
+            const healthyPlots = currentPlayer.garden.filter(plot => 
+                plot.plant && plot.plant.health > 80 && plot.moisture > 60
+            ).length;
+            
+            // Calculate a "magic rating" based on garden health
+            const magicRating = healthyPlots / totalPlots;
+            setMeadowIntensity(magicRating);
+            
+            // Magic threshold for activating the easter egg
+            // Also require full moon or special conditions for higher chance
+            const moonBonus = gameState.time.phaseName === "Full Moon" ? 0.2 : 0;
+            const magicThreshold = Math.random() * (0.85 - moonBonus);
+            
+            // Check if it's night time (based on phase name or other properties)
+            const isNightTime = gameState.time.phaseName === "New Moon" || 
+                               gameState.time.phaseName === "Waning Crescent" || 
+                               gameState.time.phaseName === "Waning Gibbous";
+            
+            if (magicRating > magicThreshold && isNightTime) {
+                if (!moonlightMeadowActive) {
+                    console.log("🌙✨ The Moonlight Meadow appears! ✨🌙");
+                    
+                    // Create spirits that will float around
+                    const newSpirits = Array.from({ length: 12 }, () => ({
+                        x: Math.random() * 100,
+                        y: Math.random() * 100,
+                        delay: Math.random() * 8
+                    }));
+                    setSpiritPositions(newSpirits);
+                    
+                    setMoonlightMeadowActive(true);
+                }
+            } else {
+                setMoonlightMeadowActive(false);
+            }
+        }
+        
+        // Return cleanup function
+        return () => {};
+    }, [gameState]);
 
     // Fetch initial game state on mount
     useEffect(() => {
@@ -244,6 +298,115 @@ const App: React.FC = () => {
         return (
             <>
                 {error && <ErrorDisplay />}
+                
+                {/* Show Moonlight Meadow when activated */}
+                {moonlightMeadowActive && (
+                    <div className="moonlight-meadow" onClick={() => setMoonlightMeadowActive(false)}>
+                        <div className="moonlight-overlay"></div>
+                        <div className="moon-glow"></div>
+                        
+                        {/* Wandering spirits/fireflies */}
+                        {spiritPositions.map((spirit, i) => (
+                            <div 
+                                key={i} 
+                                className="meadow-spirit"
+                                style={{
+                                    left: `${spirit.x}%`,
+                                    top: `${spirit.y}%`,
+                                    animationDelay: `${spirit.delay}s`
+                                }}
+                            />
+                        ))}
+                        
+                        <div className="meadow-message">
+                            Your garden is blessed by moonlight...
+                        </div>
+                        
+                        <style>{`
+                            .moonlight-meadow {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                z-index: 950;
+                                pointer-events: none;
+                            }
+                            
+                            .moonlight-overlay {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: radial-gradient(ellipse at top, rgba(116, 192, 252, ${meadowIntensity * 0.3}), rgba(62, 84, 172, ${meadowIntensity * 0.1}));
+                                animation: pulse 8s infinite alternate ease-in-out;
+                            }
+                            
+                            .moon-glow {
+                                position: absolute;
+                                top: 5%;
+                                right: 10%;
+                                width: 100px;
+                                height: 100px;
+                                border-radius: 50%;
+                                background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.8), rgba(205, 223, 255, 0.3) 70%, transparent);
+                                box-shadow: 0 0 80px 30px rgba(201, 223, 248, 0.6);
+                                animation: moonGlow 10s infinite alternate ease-in-out;
+                            }
+                            
+                            .meadow-spirit {
+                                position: absolute;
+                                width: 10px;
+                                height: 10px;
+                                border-radius: 50%;
+                                background-color: rgba(255, 255, 240, 0.8);
+                                box-shadow: 0 0 10px 2px rgba(255, 255, 200, 0.6);
+                                animation: spiritFloat 15s infinite alternate ease-in-out;
+                                opacity: ${meadowIntensity * 0.8 + 0.2};
+                            }
+                            
+                            .meadow-message {
+                                position: absolute;
+                                bottom: 10%;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                color: rgba(255, 255, 255, 0.9);
+                                font-family: "Times New Roman", serif;
+                                font-size: 1.6rem;
+                                font-style: italic;
+                                text-shadow: 0 0 10px rgba(116, 192, 252, 0.8);
+                                opacity: 0;
+                                animation: messageAppear 4s ease-in forwards;
+                            }
+                            
+                            @keyframes pulse {
+                                0%, 100% { opacity: ${meadowIntensity * 0.5 + 0.3}; }
+                                50% { opacity: ${meadowIntensity * 0.3 + 0.2}; }
+                            }
+                            
+                            @keyframes moonGlow {
+                                0% { opacity: 0.8; transform: scale(1); }
+                                50% { opacity: 1; transform: scale(1.05); }
+                                100% { opacity: 0.9; transform: scale(1); }
+                            }
+                            
+                            @keyframes spiritFloat {
+                                0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+                                25% { transform: translate(30px, -20px) scale(1.2); opacity: 0.9; }
+                                50% { transform: translate(10px, 30px) scale(0.8); opacity: 0.6; }
+                                75% { transform: translate(-20px, 10px) scale(1.1); opacity: 0.8; }
+                                100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+                            }
+                            
+                            @keyframes messageAppear {
+                                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                                70% { opacity: 0.8; transform: translateX(-50%) translateY(0); }
+                                100% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
+                            }
+                        `}</style>
+                    </div>
+                )}
                 
                 <WeatherEffectsOverlay
                     weatherType={gameState.time.weatherFate}

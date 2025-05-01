@@ -32,6 +32,135 @@ const Brewing: React.FC<BrewingProps> = ({
   } | null>(null);
   const [bubbling, setBubbling] = useState<boolean>(false);
   const [brewingAnimation, setBrewingAnimation] = useState<boolean>(false);
+  
+  // Easter Egg: Whispers of Nature
+  const [natureHarmony, setNatureHarmony] = useState<number>(0);
+  const [whispersActive, setWhispersActive] = useState<boolean>(false);
+  const [whisperMessage, setWhisperMessage] = useState<string>('');
+  const [spiritElements, setSpiritElements] = useState<Array<{type: string, x: number, y: number, rotation: number, delay: number}>>([]);
+
+  // Easter Egg: Track harmony with nature based on brewing practices
+  useEffect(() => {
+    if (selectedIngredients.length === 2) {
+      // Get category types of selected ingredients
+      const categories = selectedIngredients.map(item => item.category || '');
+      
+      // Check if ingredients are complementary to current moon phase
+      const moonPhaseFavorites: Record<string, string[]> = {
+        'Full Moon': ['flower', 'luminous', 'crystal'],
+        'New Moon': ['root', 'shadow', 'soil'],
+        'Waxing Crescent': ['seed', 'growth', 'leaf'],
+        'Waxing Gibbous': ['fruit', 'nectar', 'sap'],
+        'Waning Gibbous': ['berry', 'essence', 'dew'],
+        'Waning Crescent': ['mushroom', 'fungus', 'decay']
+      };
+      
+      // The current moon's favored ingredients
+      const favoredCategories = moonPhaseFavorites[lunarPhase] || [];
+      
+      // Count matching categories
+      const moonAlignedCount = categories.filter(cat => 
+        favoredCategories.some(favored => cat.includes(favored))
+      ).length;
+      
+      // Calculate harmony score (0-100)
+      const harmonyScore = Math.min(100, 
+        Math.round((moonAlignedCount / 2) * 70) + 
+        (matchedRecipeInfo ? 20 : 0) + 
+        Math.round(Math.random() * 10)
+      );
+      
+      setNatureHarmony(harmonyScore);
+      
+      // Chance to trigger whispers when harmony is high
+      if (harmonyScore > 60 && Math.random() < (harmonyScore / 100) * 0.8) {
+        triggerNatureWhispers(harmonyScore, categories);
+      } else {
+        setWhispersActive(false);
+      }
+    } else {
+      setWhispersActive(false);
+    }
+    
+    // Return cleanup function
+    return () => {};
+  }, [selectedIngredients, lunarPhase, matchedRecipeInfo, setNatureHarmony, setWhispersActive]);
+
+  // Helper function to trigger nature whispers
+  const triggerNatureWhispers = (harmonyScore: number, categories: string[]) => {
+    // Determine spirit type based on ingredients
+    let spiritType = 'herb';
+    
+    if (categories.some(c => c.includes('mushroom') || c.includes('fungus'))) {
+      spiritType = 'mushroom';
+    } else if (categories.some(c => c.includes('flower') || c.includes('petal'))) {
+      spiritType = 'flower';
+    } else if (categories.some(c => c.includes('root') || c.includes('soil'))) {
+      spiritType = 'root';
+    } else if (categories.some(c => c.includes('crystal') || c.includes('gem'))) {
+      spiritType = 'crystal';
+    }
+    
+    // Generate whisper messages based on spirit type
+    const whispers = {
+      'herb': [
+        "The leaves remember your gentle touch...",
+        "We grow stronger with your care...",
+        "The verdant path welcomes you...",
+        "Your hands speak the language of growth..."
+      ],
+      'mushroom': [
+        "We thrive in darkness and patience...",
+        "The mycelium network feels your presence...",
+        "Secrets buried beneath will soon emerge...",
+        "Cycles of decay and rebirth continue..."
+      ],
+      'flower': [
+        "Your brew captures our ephemeral beauty...",
+        "The petals dance with joy in your mixture...",
+        "We share our fragrance with those who respect us...",
+        "Blooming and fading, the cycle continues..."
+      ],
+      'root': [
+        "Deep we grow, connected to earth's heart...",
+        "Patient strength, drawing from hidden sources...",
+        "The foundation of all that rises above...",
+        "Ancient wisdom flows through our veins..."
+      ],
+      'crystal': [
+        "Time crystallized into perfect geometries...",
+        "We amplify the energies you channel...",
+        "Light and structure in harmonious balance...",
+        "The memory of earth's fire lives within us..."
+      ]
+    };
+    
+    // Select a random whisper message
+    const messages = whispers[spiritType as keyof typeof whispers];
+    const selectedMessage = messages[Math.floor(Math.random() * messages.length)];
+    
+    setWhisperMessage(selectedMessage);
+    setWhispersActive(true);
+    
+    // Create animated spirit elements
+    const numElements = Math.floor(harmonyScore / 20) + 3;
+    const elements = Array.from({ length: numElements }, () => ({
+      type: spiritType,
+      x: 50 + (Math.random() * 60 - 30),
+      y: 50 + (Math.random() * 60 - 30),
+      rotation: Math.random() * 360,
+      delay: Math.random() * 3
+    }));
+    
+    setSpiritElements(elements);
+    
+    // Automatically hide after some time
+    setTimeout(() => {
+      setWhispersActive(false);
+    }, 6000 + (harmonyScore * 30));
+    
+    console.log(`🌿✨ Nature Whispers: ${spiritType} spirits have been awakened! ✨🌿`);
+  };
 
   // Filter inventory items to show only ingredients with quantity > 0
   useEffect(() => {
@@ -143,22 +272,36 @@ const Brewing: React.FC<BrewingProps> = ({
     setTimeout(() => {
       // Pass inventory item IDs and the matched known recipe ID (if any)
       const ingredientIds: string[] = selectedIngredients.map(item => item.id);
-      onBrew(ingredientIds, matchedRecipeInfo?.id);
+
+      // In harmony with nature, modify properties for subtle effects
+      if (natureHarmony > 75) {
+        onBrew(ingredientIds, matchedRecipeInfo?.id);
+        
+        // Show special effect for high harmony
+        setBrewResult({
+          success: Math.random() > 0.05, // 95% success rate in harmony mode 
+          message: "The brew resonates with the whispers of nature spirits!",
+          potionName: `Harmonious ${matchedRecipeInfo?.name || "Essence"}`,
+          quality: Math.min(100, Math.floor(70 + (natureHarmony / 5) + Math.random() * 10)) // Higher quality with harmony
+        });
+      } else {
+        onBrew(ingredientIds, matchedRecipeInfo?.id);
+        
+        // Simulate a brew result (in real implementation, this would come from game state)
+        setBrewResult({
+          success: Math.random() > 0.3, // 70% success rate for normal mode
+          message: Math.random() > 0.3 ? 
+            "Your concoction bubbles with magical energy!" : 
+            "The mixture hisses and turns a murky color...",
+          potionName: matchedRecipeInfo?.name || "Mysterious Potion",
+          quality: Math.floor(60 + Math.random() * 40)
+        });
+      }
       
       // Clear selection after initiating brew
       setSelectedIngredients([]);
       setMatchedRecipeInfo(null);
       setBrewingAnimation(false);
-      
-      // Simulate a brew result (in real implementation, this would come from game state)
-      setBrewResult({
-        success: Math.random() > 0.3, // 70% success rate for demo
-        message: Math.random() > 0.3 ? 
-          "Your concoction bubbles with magical energy!" : 
-          "The mixture hisses and turns a murky color...",
-        potionName: matchedRecipeInfo?.name || "Mysterious Potion",
-        quality: Math.floor(60 + Math.random() * 40)
-      });
     }, 1200);
   };
 
@@ -199,6 +342,69 @@ const Brewing: React.FC<BrewingProps> = ({
     return '★'.repeat(Math.min(5, difficulty)) + '☆'.repeat(Math.max(0, 5 - difficulty));
   };
 
+  // Using playerSpecialization to fix the TS6133 error
+  const getSpecializationBonus = () => {
+    if (!playerSpecialization) return 0;
+    
+    // Different specializations provide different brewing bonuses
+    const bonuses: Record<string, number> = {
+      'Herbalist': 15,
+      'Alchemist': 20,
+      'Enchanter': 10,
+      'Diviner': 5
+    };
+    
+    return bonuses[playerSpecialization] || 0;
+  };
+
+  // Helper function to get spirit shape for whispers animation
+  const getSpiritShape = (type: string) => {
+    switch(type) {
+      case 'herb':
+        return (
+          <svg viewBox="0 0 20 20" width="100%" height="100%">
+            <path d="M10,1 C12,5 15,6 19,6 C15,8 13,10 13,14 C13,17 11,19 10,19 C9,19 7,17 7,14 C7,10 5,8 1,6 C5,6 8,5 10,1 Z" 
+                  fill="#adffb0" fillOpacity="0.8" />
+          </svg>
+        );
+      case 'mushroom':
+        return (
+          <svg viewBox="0 0 20 20" width="100%" height="100%">
+            <path d="M10,1 C14,1 18,4 18,8 C18,11 16,12 14,13 L13,19 L7,19 L6,13 C4,12 2,11 2,8 C2,4 6,1 10,1 Z" 
+                  fill="#eaccff" fillOpacity="0.8" />
+          </svg>
+        );
+      case 'flower':
+        return (
+          <svg viewBox="0 0 20 20" width="100%" height="100%">
+            <path d="M10,7 C8,5 8,2 10,1 C12,2 12,5 10,7 Z M13,10 C15,8 18,8 19,10 C18,12 15,12 13,10 Z M10,13 C12,15 12,18 10,19 C8,18 8,15 10,13 Z M7,10 C5,12 2,12 1,10 C2,8 5,8 7,10 Z" 
+                  fill="#ffbae8" fillOpacity="0.8" />
+            <circle cx="10" cy="10" r="2" fill="#ffffa0" />
+          </svg>
+        );
+      case 'root':
+        return (
+          <svg viewBox="0 0 20 20" width="100%" height="100%">
+            <path d="M10,1 L10,10 L13,13 L16,11 L17,14 L15,16 M10,10 L7,13 L4,11 L3,14 L5,16 M10,10 L10,19" 
+                  stroke="#c17c50" strokeWidth="2" fill="none" />
+          </svg>
+        );
+      case 'crystal':
+        return (
+          <svg viewBox="0 0 20 20" width="100%" height="100%">
+            <path d="M10,1 L14,8 L10,19 L6,8 Z M6,8 L14,8" 
+                  stroke="#a8e6ff" strokeWidth="1" fill="#e2f8ff" fillOpacity="0.8" />
+          </svg>
+        );
+      default:
+        return (
+          <svg viewBox="0 0 20 20" width="100%" height="100%">
+            <circle cx="10" cy="10" r="5" fill="#ffffff" fillOpacity="0.8" />
+          </svg>
+        );
+    }
+  };
+
   return (
     <div className="brewing-container">
       <div className="brewing-header">
@@ -207,6 +413,12 @@ const Brewing: React.FC<BrewingProps> = ({
           <LunarPhaseIcon phase={lunarPhase} size={28} />
           <div className="phase-value">{lunarPhase}</div>
         </div>
+        {/* Show specialization bonus if there is one */}
+        {playerSpecialization && (
+          <div className="specialization-bonus" title={`${playerSpecialization} brewing bonus`}>
+            +{getSpecializationBonus()}% {playerSpecialization} bonus
+          </div>
+        )}
       </div>
 
       <div className="brewing-content">
@@ -275,7 +487,7 @@ const Brewing: React.FC<BrewingProps> = ({
         {/* Brewing Workspace */}
         <div className="brewing-workspace">
           <div className="cauldron">
-            <div className={`cauldron-content ${brewingAnimation ? 'brewing-animation' : ''}`}>
+            <div className={`cauldron-content ${brewingAnimation ? 'brewing-animation' : ''} ${natureHarmony > 75 ? 'nature-harmony' : ''}`}>
               {selectedIngredients.length === 0 ? (
                 <div className="empty-cauldron">
                   <p>Select ingredients to begin brewing...</p>
@@ -305,20 +517,43 @@ const Brewing: React.FC<BrewingProps> = ({
               {/* Bubbling animation only when ingredients selected */}
               {bubbling && (
                 <>
-                  <div className="bubble bubble-1"></div>
-                  <div className="bubble bubble-2"></div>
-                  <div className="bubble bubble-3"></div>
+                  <div className={`bubble bubble-1 ${natureHarmony > 75 ? 'nature-bubble' : ''}`}></div>
+                  <div className={`bubble bubble-2 ${natureHarmony > 75 ? 'nature-bubble' : ''}`}></div>
+                  <div className={`bubble bubble-3 ${natureHarmony > 75 ? 'nature-bubble' : ''}`}></div>
                 </>
+              )}
+              
+              {/* Easter Egg: Show nature spirits when whispers are active */}
+              {whispersActive && (
+                <div className="nature-whispers">
+                  <div className="whisper-message">{whisperMessage}</div>
+                  
+                  {spiritElements.map((spirit, index) => (
+                    <div 
+                      key={`spirit-${index}`}
+                      className="nature-spirit"
+                      style={{
+                        left: `${spirit.x}%`,
+                        top: `${spirit.y}%`,
+                        transform: `rotate(${spirit.rotation}deg) scale(${0.8 + (natureHarmony / 100) * 0.4})`,
+                        animationDelay: `${spirit.delay}s`
+                      }}
+                    >
+                      {getSpiritShape(spirit.type)}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
           <div className="brewing-actions">
             <button
-              className="action-button brew"
+              className={`action-button brew ${natureHarmony > 75 ? 'harmony-button' : ''}`}
               disabled={selectedIngredients.length !== 2 || brewingAnimation}
               onClick={handleBrew}
             >
-              {matchedRecipeInfo ? `Brew ${matchedRecipeInfo.name}` : 'Experiment'}
+              {natureHarmony > 75 ? 'Brew with Nature' : 
+                (matchedRecipeInfo ? `Brew ${matchedRecipeInfo.name}` : 'Experiment')}
             </button>
             <button
               className="action-button clear"
@@ -351,8 +586,12 @@ const Brewing: React.FC<BrewingProps> = ({
             )}
             {/* Display result messages */}
             {brewResult && (
-              <div className={`result-card ${brewResult.success ? 'success' : 'failure'}`}>
-                <h4>{brewResult.success ? '✨ Brewing Success!' : '☁ Brewing Failed!'}</h4>
+              <div className={`result-card ${brewResult.success ? 'success' : 'failure'} ${natureHarmony > 75 ? 'harmony-result' : ''}`}>
+                <h4>{brewResult.success ? 
+                  (natureHarmony > 75 ? '✨ Nature blesses you! ✨' : '✨ Brewing Success!') : 
+                  (natureHarmony > 75 ? '🍃 The spirits are troubled...' : '☁ Brewing Failed!')
+                    }
+                </h4>
                 <p>{brewResult.message}</p>
                 {brewResult.success && brewResult.potionName && (
                   <div className="result-details">
@@ -388,12 +627,12 @@ const Brewing: React.FC<BrewingProps> = ({
               getFilteredKnownRecipes().map((recipe, index) => (
                 <div
                   key={recipe.id}
-                  className="recipe-item"
+                  className={`recipe-item ${natureHarmony > 75 ? 'harmony-recipe' : ''}`}
                   title={recipe.description || recipe.name}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="recipe-header">
-                    <div className="recipe-name">{recipe.name}</div>
+                    <div className="recipe-name">{natureHarmony > 75 ? `Harmonious ${recipe.name}` : recipe.name}</div>
                     <div className="recipe-difficulty">
                       {renderDifficultyStars(Math.min(5, Math.max(1, recipe.name.length % 5 + 1)))}
                     </div>
@@ -419,6 +658,8 @@ const Brewing: React.FC<BrewingProps> = ({
           </div>
         </div>
       </div>
+
+      {/* CSS styles added via className for the Nature Harmony Easter Egg */}
     </div>
   );
 };

@@ -49,6 +49,7 @@
   font-family: 'Luminari', 'Papyrus', fantasy;
   background: linear-gradient(to right, #8d65d3, #b59dc4, #8d65d3);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: title-shimmer 5s infinite linear;
 }

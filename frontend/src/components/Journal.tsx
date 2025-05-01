@@ -35,6 +35,11 @@ const Journal: React.FC<JournalProps> = ({
   const [focusedRitual, setFocusedRitual] = useState<RitualQuest | null>(null);
   const [pageTransition, setPageTransition] = useState<'none' | 'turning'>('none');
   const [lastDirection, setLastDirection] = useState<'next' | 'prev'>('next');
+  
+  // 90s Easter Egg: Secret journal entry
+  const [secretCodeActive, setSecretCodeActive] = useState<boolean>(false);
+  const [secretCodeProgress, setSecretCodeProgress] = useState<string>('');
+  const secretCode = "witch";
 
   // Refs
   const bookRef = useRef<HTMLDivElement>(null);
@@ -46,6 +51,39 @@ const Journal: React.FC<JournalProps> = ({
 
   // Calculate unread count
   const unreadCount = journal.filter(entry => !entry.readByPlayer).length;
+
+  // 90s Easter Egg: Secret code detection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      
+      // Add the key to our progress if it matches the next letter in the secret code
+      if (secretCode[secretCodeProgress.length] === key) {
+        const newProgress = secretCodeProgress + key;
+        setSecretCodeProgress(newProgress);
+        
+        // Check if we've completed the code
+        if (newProgress === secretCode) {
+          setSecretCodeActive(true);
+          setSecretCodeProgress(''); // Reset for next time
+          console.log("🔮 SECRET JOURNAL ENTRY UNLOCKED! 🔮");
+          
+          // Reset after 30 seconds
+          setTimeout(() => {
+            setSecretCodeActive(false);
+          }, 30000);
+        }
+      } else {
+        // Reset progress if wrong key is pressed
+        setSecretCodeProgress('');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [secretCodeProgress]);
 
   // Mark entries as read when they become visible
   useEffect(() => {
@@ -66,6 +104,9 @@ const Journal: React.FC<JournalProps> = ({
         onMarkRead(unreadIdsToMark);
       }
     }
+    
+    // Added return function to fix TypeScript error
+    return () => {};
   }, [journal, currentTab, currentPage, turnMode, onMarkRead]);
 
   // Handle page transition animation
@@ -77,11 +118,17 @@ const Journal: React.FC<JournalProps> = ({
 
       return () => clearTimeout(timer);
     }
+    
+    // Added return function to fix TypeScript error when no timer is set
+    return () => {};
   }, [pageTransition]);
 
   // Reset pages when not in turn mode or tab changes
   useEffect(() => {
     resetPages();
+    
+    // Return function needed
+    return () => {};
   }, [turnMode, currentTab]);
 
   const resetPages = () => {
@@ -118,6 +165,21 @@ const Journal: React.FC<JournalProps> = ({
       );
     }
 
+    // Add in the secret easter egg entry when code is active
+    if (secretCodeActive && !isSearching && filter === 'all' && !bookmarkView) {
+      const secretEntry: JournalEntry = {
+        id: "secret-90s-entry",
+        turn: 90,
+        date: "HIDDEN DATE",
+        text: "🎮 You have discovered the secret journal page! This special entry was written by the ancient witches of the 90s. They speak of legends like 'pogs', 'tamagotchis', and strange rituals involving 'dial-up internet'. Their wisdom suggests speaking the magic word 'RadicalWitch' to the market vendor may yield unexpected results... 🎮",
+        category: "easter egg",
+        importance: 5,
+        readByPlayer: true,
+        title: "TOTALLY RADICAL SECRET ENTRY"
+      };
+      entries = [secretEntry, ...entries];
+    }
+
     // Sort newest first
     return entries.sort((a, b) => b.turn - a.turn);
   };
@@ -142,16 +204,16 @@ const Journal: React.FC<JournalProps> = ({
   // Format date
   const formatDate = (dateStr: string) => dateStr;
 
-// Fix for the getSeasonIcon function in Journal.tsx
-const getSeasonIcon = (season: Season): string => {
-  const icons: Record<Season, string> = {
-    'Spring': '🌱', 
-    'Summer': '☀️', 
-    'Fall': '🍂', 
-    'Winter': '❄️'
+  // Fixed getSeasonIcon function in Journal.tsx with fallback
+  const getSeasonIcon = (season: Season): string => {
+    const icons: Record<Season, string> = {
+      'Spring': '🌱', 
+      'Summer': '☀️', 
+      'Fall': '🍂', 
+      'Winter': '❄️'
+    };
+    return icons[season] || '?'; // Add fallback return value
   };
-  return icons[season] || '?'; // Add fallback return value
-};
 
   const getCategoryIcon = (category: string): string => {
     const icons: Record<string, string> = {
@@ -168,7 +230,8 @@ const getSeasonIcon = (season: Season): string => {
       'error': '❌',
       'skill': '⭐',
       'weather': '🌤️',
-      'reward': '🎁'
+      'reward': '🎁',
+      'easter egg': '🎮' // For our secret entry
     };
     return icons[category] || '•';
   };
@@ -380,7 +443,7 @@ const getSeasonIcon = (season: Season): string => {
               {entries.map(entry => (
                 <div
                   key={entry.id}
-                  className={`journal-entry ${getEntryClass(entry.importance)} ${!entry.readByPlayer ? 'unread' : ''} ${expandedEntryId === entry.id ? 'expanded' : ''}`}
+                  className={`journal-entry ${getEntryClass(entry.importance)} ${!entry.readByPlayer ? 'unread' : ''} ${expandedEntryId === entry.id ? 'expanded' : ''} ${entry.id === 'secret-90s-entry' ? 'secret-entry' : ''}`}
                 >
                   <div
                     className="entry-header"
@@ -724,6 +787,67 @@ const getSeasonIcon = (season: Season): string => {
               <p className="unlockable">Master your brewing skills to unlock advanced techniques.</p>
             </div>
           </div>
+          
+          {/* Easter Egg: Secret 90s page in the codex */}
+          {secretCodeActive && (
+            <div className="codex-category secret-category">
+              <h4><span className="category-icon">🎮</span>Totally Radical 90s Magic</h4>
+              <div className="codex-entries">
+                <div className="codex-entry secret-entry">
+                  <h5 className="blink-text">AWESOME SPELLS FROM THE 90s</h5>
+                  <div className="secret-content">
+                    <p>The Dial-Up Summoning: A long forgotten ritual requiring patience as mystical energies connect through the sounds of screeching and beeping.</p>
+                    <p>The Rewind Spell: A powerful incantation used to return magical cassette tapes to their starting position.</p>
+                    <p>The Pog Collection Expansion: Ancient witches would trade circular talismans for power and prestige in the schoolyard realm.</p>
+                  </div>
+                </div>
+                <style>{`
+                  .secret-category {
+                    border: 2px dashed #ff00ff;
+                    background: radial-gradient(circle, rgba(0,250,255,0.2) 0%, rgba(255,0,255,0.1) 100%);
+                    animation: glow 2s infinite alternate;
+                    transform: rotate(-1deg);
+                  }
+                  
+                  .secret-entry {
+                    font-family: "Comic Sans MS", cursive;
+                  }
+                  
+                  .blink-text {
+                    animation: blink 1s infinite;
+                    color: #ff00ff;
+                    text-shadow: 2px 2px 0 yellow;
+                    text-transform: uppercase;
+                  }
+                  
+                  .secret-content {
+                    background: repeating-linear-gradient(
+                      45deg,
+                      #000000,
+                      #000000 10px,
+                      #222222 10px,
+                      #222222 20px
+                    );
+                    color: #00ff00;
+                    padding: 10px;
+                    border-radius: 5px;
+                    text-shadow: 1px 1px 0 black;
+                    box-shadow: 0 0 10px lime;
+                  }
+                  
+                  @keyframes blink {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0; }
+                  }
+                  
+                  @keyframes glow {
+                    from { box-shadow: 0 0 10px #ff00ff; }
+                    to { box-shadow: 0 0 20px #00ffff; }
+                  }
+                `}</style>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -752,8 +876,26 @@ const getSeasonIcon = (season: Season): string => {
                 <p>No entries to display.</p>
               ) : (
                 bookPageEntries.map(entry => (
-                  <div key={entry.id} className="book-entry-short">
+                  <div 
+                    key={entry.id} 
+                    className={`book-entry-short ${entry.id === 'secret-90s-entry' ? 'secret-book-entry' : ''}`}
+                  >
                     <strong>T{entry.turn}:</strong> {entry.text.substring(0, 80)}...
+                    {entry.id === 'secret-90s-entry' && (
+                      <style>{`
+                        .secret-book-entry {
+                          font-family: "Comic Sans MS", cursive;
+                          background: linear-gradient(45deg, rgba(255,0,255,0.1), rgba(0,255,255,0.1));
+                          border: 1px dashed #ff00ff;
+                          animation: rainbow-bg 3s infinite;
+                        }
+                        @keyframes rainbow-bg {
+                          0% { background-position: 0% 50%; }
+                          50% { background-position: 100% 50%; }
+                          100% { background-position: 0% 50%; }
+                        }
+                      `}</style>
+                    )}
                   </div>
                 ))
               )}
@@ -885,6 +1027,42 @@ const getSeasonIcon = (season: Season): string => {
           </div>
         )}
       </div>
+      
+      {/* Easter Egg: 90s styling for secret entry */}
+      {secretCodeActive && (
+        <style>{`
+          .secret-entry {
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAOklEQVQYlWNkYGD4z0AEYGQwZGBgCGZAB4xoAiA5w4dCFBvRNcG8DTMJZhDMUHS/YFOIzY3ozmRAVwgA6gYPwm5CV5AAAAAASUVORK5CYII=') !important;
+            border: 2px ridge #ff00ff !important;
+            font-family: "Comic Sans MS", cursive !important;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .secret-entry:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+              to right,
+              rgba(255, 255, 255, 0) 0%,
+              rgba(255, 255, 255, 0.3) 50%,
+              rgba(255, 255, 255, 0) 100%
+            );
+            transform: skewX(-25deg);
+            animation: shimmer 3s infinite;
+            z-index: 1;
+          }
+          
+          @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+          }
+        `}</style>
+      )}
     </div>
   );
 };

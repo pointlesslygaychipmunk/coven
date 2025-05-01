@@ -420,6 +420,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2; /* Add standard property for compatibility */
   -webkit-box-orient: vertical;
   position: relative;
 }
