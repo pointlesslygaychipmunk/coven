@@ -32,6 +32,7 @@ const Garden: React.FC<GardenProps> = ({
   const [showWhisper, setShowWhisper] = useState<string | null>(null);
   const [gardenTip, setGardenTip] = useState<string>('');
   const [showAttunementPuzzle, setShowAttunementPuzzle] = useState<boolean>(false);
+  const [showEastEgg, setShowEastEgg] = useState<boolean>(false);
 
   // Garden whispers (tips that appear randomly)
   const gardenWhispers = [
@@ -157,14 +158,16 @@ const Garden: React.FC<GardenProps> = ({
   // Easter Egg: Handle secret spot click
   const handleSecretSpotClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowEastEgg(true);
     const randomHanbangTip = hanbangTips[Math.floor(Math.random() * hanbangTips.length)];
     setShowWhisper(`Hanbang Secret: ${randomHanbangTip}`);
     setTimeout(() => {
       setShowWhisper(prev => prev === `Hanbang Secret: ${randomHanbangTip}` ? null : prev);
+      setShowEastEgg(false);
     }, 9000);
   };
 
-  // Render garden plots in a grid (3x3)
+  // Render garden plots in a grid
   const renderPlots = () => {
     return Array.from({ length: 9 }).map((_, i) => {
       const plot = plots.find(p => p.id === i);
@@ -202,7 +205,7 @@ const Garden: React.FC<GardenProps> = ({
       case 'normal': default: icon = '🌤️'; label = 'Clear'; break;
     }
     return (
-      <div className="weather-indicator" title={`Weather: ${label}`}>
+      <div className="weather-indicator">
         <div className="weather-icon">{icon}</div>
         <div className="weather-label">{label}</div>
       </div>
@@ -220,7 +223,7 @@ const Garden: React.FC<GardenProps> = ({
       default: icon = '❔';
     }
     return (
-      <div className="season-indicator" title={`Season: ${season}`}>
+      <div className="season-indicator">
         <div className="season-icon">{icon}</div>
         <div className="season-label">{season}</div>
       </div>
@@ -235,9 +238,16 @@ const Garden: React.FC<GardenProps> = ({
     if (!selectedPlot) {
       return (
         <div className="plot-details">
-          <h3>Plot Details</h3>
-          <p>Select a garden plot to view details.</p>
-          <p className="garden-tip">{gardenTip}</p>
+          <div className="scroll-header">
+            <div className="scroll-ornament left"></div>
+            <h3>Plot Details</h3>
+            <div className="scroll-ornament right"></div>
+          </div>
+          <div className="parchment-content">
+            <p>Select a garden plot to view details.</p>
+            <p className="garden-tip">{gardenTip}</p>
+            <div className="parchment-filler"></div>
+          </div>
         </div>
       );
     }
@@ -246,9 +256,16 @@ const Garden: React.FC<GardenProps> = ({
     if (selectedPlot.isUnlocked === false) {
       return (
         <div className="plot-details">
-          <h3>Plot {selectedPlot.id + 1}</h3>
-          <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
-          <div className="lock-icon" style={{fontSize: '40px', margin: '20px auto', textAlign: 'center'}}>🔒</div>
+          <div className="scroll-header">
+            <div className="scroll-ornament left"></div>
+            <h3>Plot {selectedPlot.id + 1}</h3>
+            <div className="scroll-ornament right"></div>
+          </div>
+          <div className="parchment-content">
+            <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
+            <div className="lock-icon locked-plot-icon"></div>
+            <div className="parchment-filler"></div>
+          </div>
         </div>
       );
     }
@@ -261,84 +278,90 @@ const Garden: React.FC<GardenProps> = ({
 
     return (
       <div className="plot-details">
-        <h3>Plot {selectedPlot.id + 1} Details</h3>
-        <div className="plot-stats">
-          <div className="plot-stat">
-            <div className="stat-label">
-              <span>Fertility</span>
-              <span>{selectedPlot.fertility || 0}%</span>
-            </div>
-            <div className="stat-bar">
-              <div className="stat-fill fertility" style={{ width: `${selectedPlot.fertility || 0}%` }} />
-            </div>
-          </div>
-          <div className="plot-stat">
-            <div className="stat-label">
-              <span>Moisture</span>
-              <span>{selectedPlot.moisture || 0}%</span>
-            </div>
-            <div className="stat-bar">
-              <div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }} />
-            </div>
-          </div>
+        <div className="scroll-header">
+          <div className="scroll-ornament left"></div>
+          <h3>Plot {selectedPlot.id + 1}</h3>
+          <div className="scroll-ornament right"></div>
         </div>
+        <div className="parchment-content">
+          <div className="plot-stats">
+            <div className="plot-stat">
+              <div className="stat-label">
+                <span>Fertility</span>
+                <span>{selectedPlot.fertility || 0}%</span>
+              </div>
+              <div className="stat-bar">
+                <div className="stat-fill fertility" style={{ width: `${selectedPlot.fertility || 0}%` }} />
+              </div>
+            </div>
+            <div className="plot-stat">
+              <div className="stat-label">
+                <span>Moisture</span>
+                <span>{selectedPlot.moisture || 0}%</span>
+              </div>
+              <div className="stat-bar">
+                <div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }} />
+              </div>
+            </div>
+          </div>
 
-        {plant ? (
-          <div className="plant-info">
-            <h4>{plant.name}</h4>
-            <div className="plant-progress">
-              <div className="progress-label">
-                <span>Growth</span>
-                <span>{growthPercent.toFixed(0)}%</span>
+          {plant ? (
+            <div className="plant-info">
+              <h4>{plant.name}</h4>
+              <div className="plant-progress">
+                <div className="progress-label">
+                  <span>Growth</span>
+                  <span>{growthPercent.toFixed(0)}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: `${growthPercent}%` }} />
+                </div>
               </div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${growthPercent}%` }} />
+              <div className="plant-stats">
+                <div className="plant-stat">
+                  <div className="stat-label">Health</div>
+                  <div className="stat-value">{plant.health?.toFixed(0) ?? '?'}%</div>
+                </div>
+                <div className="plant-stat">
+                  <div className="stat-label">Age</div>
+                  <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
+                </div>
               </div>
+              {plant.moonBlessed && <div className="plant-blessing">✧ Moon Blessed ✧</div>}
+              {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
+                <div className="plant-season">
+                  {plant.seasonalModifier > 1 ? 
+                    <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : 
+                    <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>
+                  }
+                </div>
+              )}
+              {plant.mature ? (
+                <button className="action-button harvest" onClick={handleHarvest}>
+                  <div className="button-icon"></div>
+                  <span>Harvest</span>
+                </button>
+              ) : (
+                <div className="plant-status">Growing...</div>
+              )}
             </div>
-            <div className="plant-stats">
-              <div className="plant-stat">
-                <div className="stat-label">Health</div>
-                <div className="stat-value">{plant.health?.toFixed(0) ?? '?'}%</div>
-              </div>
-              <div className="plant-stat">
-                <div className="stat-label">Age</div>
-                <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
-              </div>
-              <div className="plant-stat">
-                <div className="stat-label">Watered</div>
-                <div className="stat-value">{selectedPlot.moisture > 40 ? 'Yes' : 'No'}</div>
-              </div>
+          ) : (
+            <div className="empty-plot-status">
+              <p>This plot is empty.</p>
             </div>
-            {plant.moonBlessed && <div className="plant-blessing"><span className="moon-icon">🌙</span> Moon Blessed</div>}
-            {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
-              <div className="plant-season">
-                {plant.seasonalModifier > 1 ? 
-                  <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : 
-                  <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>
-                }
-              </div>
-            )}
-            {plant.mature ? (
-              <button className="action-button harvest" onClick={handleHarvest}>Harvest {plant.name}</button>
-            ) : (
-              <div className="plant-status">Growing...</div>
-            )}
+          )}
+          
+          <div className="garden-actions">
+            <button
+              className="action-button attunement"
+              onClick={handleStartAttunement}
+              disabled={showAttunementPuzzle}
+            >
+              <div className="button-icon"></div>
+              <span>Attune Garden</span>
+            </button>
           </div>
-        ) : (
-          <div className="empty-plot-status">
-            <p>This plot is empty.</p>
-          </div>
-        )}
-        
-        {/* Garden Attune Button */}
-        <div className="garden-actions">
-          <button
-            className="garden-action-button"
-            onClick={handleStartAttunement}
-            disabled={showAttunementPuzzle}
-          >
-            <span className="button-icon">🌿</span> Attune Garden Energies
-          </button>
+          <div className="parchment-filler"></div>
         </div>
       </div>
     );
@@ -352,86 +375,94 @@ const Garden: React.FC<GardenProps> = ({
 
     return (
       <div className="inventory-panel">
-        <h3>Seed Pouch</h3>
-        
-        {seeds.length === 0 ? (
-          <p>Your seed pouch is empty!</p>
-        ) : (
-          <>
-            <div className="seed-list">
-              {seeds.map(seed => (
-                <div
-                  key={seed.id}
-                  className={`seed-item ${selectedSeedId === seed.id ? 'selected' : ''}`}
-                  onClick={() => handleSeedSelect(seed.id)}
-                  title={`${seed.name} (Qty: ${seed.quantity})`}
-                >
-                  <div className="seed-image">
-                    <div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div>
+        <div className="scroll-header">
+          <div className="scroll-ornament left"></div>
+          <h3>Seed Pouch</h3>
+          <div className="scroll-ornament right"></div>
+        </div>
+        <div className="parchment-content">
+          {seeds.length === 0 ? (
+            <p>Your seed pouch is empty!</p>
+          ) : (
+            <>
+              <div className="seed-list">
+                {seeds.map(seed => (
+                  <div
+                    key={seed.id}
+                    className={`seed-item ${selectedSeedId === seed.id ? 'selected' : ''}`}
+                    onClick={() => handleSeedSelect(seed.id)}
+                  >
+                    <div className="seed-image">
+                      <div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div>
+                    </div>
+                    <div className="seed-quantity">{seed.quantity}</div>
+                    <div className="seed-name">{seed.name}</div>
                   </div>
-                  <div className="seed-quantity-badge">{seed.quantity}</div>
-                </div>
-              ))}
-            </div>
-            
-            {/* FIXED: Always present static Plant and Clear buttons in correct order */}
-            <div className="seed-actions">
-              <button
-                className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
-                disabled={!canPlant || !selectedSeedId}
-                onClick={handlePlant}
-              >
-                Plant Selected Seed
-              </button>
-              <button
-                className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
-                disabled={!selectedSeedId}
-                onClick={handleClearSelection}
-              >
-                Clear Selection
-              </button>
-            </div>
-            
-            <p className="garden-tip">{gardenTip}</p>
-          </>
-        )}
+                ))}
+              </div>
+              
+              <div className="seed-actions">
+                <button
+                  className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
+                  disabled={!canPlant || !selectedSeedId}
+                  onClick={handlePlant}
+                >
+                  <div className="button-icon"></div>
+                  <span>Plant Seed</span>
+                </button>
+                <button
+                  className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
+                  disabled={!selectedSeedId}
+                  onClick={handleClearSelection}
+                >
+                  <div className="button-icon"></div>
+                  <span>Clear</span>
+                </button>
+              </div>
+              
+              <p className="garden-tip">{gardenTip}</p>
+              <div className="parchment-filler"></div>
+            </>
+          )}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="garden-container">
-      <div className="garden-header">
-        <h2>Witch's Garden</h2>
-        <div className="garden-indicators">
-          {renderWeatherIndicator()}
-          {renderSeasonIndicator()}
-        </div>
-      </div>
-
-      <div className="garden-content">
-        <div className="garden-grid">
-          {renderPlots()}
-          {/* Easter Egg Click Spot */}
-          <div 
-            className="garden-secret-spot" 
-            onClick={handleSecretSpotClick}
-            style={{
-              position: 'absolute',
-              bottom: '10px',
-              right: '10px',
-              width: '30px',
-              height: '30px',
-              cursor: 'pointer',
-              zIndex: 5,
-              opacity: 0.01, // Nearly invisible
-            }}
-          />
+    <div className={`garden-container ${season.toLowerCase()}`}>
+      <div className="garden-frame">
+        <div className="garden-header">
+          <div className="scroll-ornament left"></div>
+          <h2>Witch's Garden</h2>
+          <div className="scroll-ornament right"></div>
+          <div className="garden-indicators">
+            {renderWeatherIndicator()}
+            {renderSeasonIndicator()}
+          </div>
         </div>
 
-        <div className="garden-sidebar">
-          {renderPlotDetails()}
-          {renderSeedPouch()}
+        <div className="garden-content">
+          <div className="garden-grid">
+            <div className="grid-background"></div>
+            {renderPlots()}
+            {/* Easter Egg Click Spot */}
+            <div 
+              className="garden-secret-spot" 
+              onClick={handleSecretSpotClick}
+            />
+          </div>
+
+          <div className="garden-sidebar">
+            {renderPlotDetails()}
+            {renderSeedPouch()}
+            <div className="sidebar-decorations">
+              <div className="corner-decoration top-left"></div>
+              <div className="corner-decoration top-right"></div>
+              <div className="corner-decoration bottom-left"></div>
+              <div className="corner-decoration bottom-right"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -440,6 +471,9 @@ const Garden: React.FC<GardenProps> = ({
 
       {/* Attunement animation overlay */}
       {attunementAnimation && <div className="attunement-overlay" />}
+
+      {/* East egg animation */}
+      {showEastEgg && <div className="east-egg-overlay" />}
 
       {/* Seasonal Attunement Puzzle */}
       {showAttunementPuzzle && (

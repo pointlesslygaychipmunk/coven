@@ -11,7 +11,7 @@ import HUD from './HUD';
 import Atelier from './Atelier';
 import WeatherEffectsOverlay from './WeatherEffectsOverlay';
 
-// API Utility - unchanged
+// API Utility
 const API_BASE_URL = '/api';
 const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Promise<GameState> => {
   const options: RequestInit = {
@@ -91,19 +91,9 @@ const App: React.FC = () => {
 
                 // Example: Briefly show a message
                 setError("Konami Code! +10 Gold (Debug)."); // Using error display for quick feedback
-                // Check if gameState and player exist before attempting direct modification (though it's commented out)
-                 if(gameState && gameState.players[gameState.currentPlayerIndex]){
-                    // REMOVED: Unused player variable declaration
-                    // const player = gameState.players[gameState.currentPlayerIndex];
-                    // Direct state mutation example (discouraged)
-                    // setGameState(prev => {
-                    //     if (!prev) return null;
-                    //     const players = [...prev.players];
-                    //     players[prev.currentPlayerIndex] = { ...players[prev.currentPlayerIndex], gold: players[prev.currentPlayerIndex].gold + 10 };
-                    //     return { ...prev, players };
-                    // });
-                 }
-
+                
+                // Could add a gold increase here in future (commented out)
+                
                 setTimeout(() => setKonamiActivated(false), 3000); // Hide effect after 3s
                 setTimeout(() => setError(null), 3500); // Clear message slightly later
             }
@@ -113,25 +103,22 @@ const App: React.FC = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    // Added missing dependencies based on usage within the effect
-    }, [gameState, konamiCode, setError, setKonamiActivated]); // Added dependencies
+    }, [gameState, konamiCode]);
 
     // Moonlight Meadow Easter Egg Detection
     useEffect(() => {
       // Check if gameState and the current player's data exist
       if (!gameState?.players?.[gameState.currentPlayerIndex]?.garden) {
-          // If not active, ensure meadow state is false
           if (moonlightMeadowActive) setMoonlightMeadowActive(false);
           return;
       }
 
       const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-      // Added explicit check for array type
+      // Check for array type
       if (!Array.isArray(currentPlayer.garden)) {
           if (moonlightMeadowActive) setMoonlightMeadowActive(false);
           return;
       }
-
 
       const totalPlots = currentPlayer.garden.length;
       const healthyPlots = currentPlayer.garden.filter(plot => plot.plant && plot.plant.health > 80 && plot.moisture > 60).length;
@@ -153,7 +140,6 @@ const App: React.FC = () => {
       } else if (moonlightMeadowActive) {
         setMoonlightMeadowActive(false); // Deactivate if conditions no longer met
       }
-      // Ensure effect runs when relevant state changes
     }, [gameState, moonlightMeadowActive]);
 
     // Fetch initial game state
@@ -172,7 +158,7 @@ const App: React.FC = () => {
             }
         };
         fetchInitialState();
-    }, []); // Empty dependency array - fetch only on mount
+    }, []);
 
     // --- Action Handlers ---
     const handleApiAction = useCallback(async (
@@ -190,7 +176,7 @@ const App: React.FC = () => {
             console.error(errorMessagePrefix || 'Action failed:', err);
             setError(`${errorMessagePrefix || 'Error'}: ${message}`);
         }
-    }, []); // No external dependencies needed here
+    }, []);
 
     // Get current player and ID safely
     const currentPlayer = gameState?.players[gameState?.currentPlayerIndex || 0];
@@ -214,21 +200,18 @@ const App: React.FC = () => {
         );
     }, [playerId, handleApiAction]);
 
-    // MODIFIED: waterPlants now accepts puzzleBonus
     const waterPlants = useCallback((puzzleBonus: number = 0) => {
         if (!playerId) return;
         handleApiAction(
-            apiCall('/water', 'POST', { playerId, puzzleBonus }), // Send bonus to backend
+            apiCall('/water', 'POST', { playerId, puzzleBonus }),
             `Attuned garden energies (Bonus: ${puzzleBonus}%)`, `Attunement failed`
         );
     }, [playerId, handleApiAction]);
 
-
-    // MODIFIED: brewPotion now accepts puzzleBonus
     const brewPotion = useCallback((ingredientInvItemIds: string[], puzzleBonus: number = 0, recipeId?: string) => {
         if (!playerId) return;
         handleApiAction(
-            apiCall('/brew', 'POST', { playerId, ingredientInvItemIds, puzzleBonus }), // Send bonus
+            apiCall('/brew', 'POST', { playerId, ingredientInvItemIds, puzzleBonus }),
             `Brew attempt (Bonus: ${puzzleBonus}%)${recipeId ? ` using recipe ${recipeId}` : ''}`, `Brewing failed`
         );
     }, [playerId, handleApiAction]);
@@ -244,7 +227,7 @@ const App: React.FC = () => {
     const sellItem = useCallback((inventoryItemId: string) => {
         if (!playerId) return;
         handleApiAction(
-            apiCall('/market/sell', 'POST', { playerId, itemId: inventoryItemId }), // API uses 'itemId'
+            apiCall('/market/sell', 'POST', { playerId, itemId: inventoryItemId }),
             `Sold item ${inventoryItemId}`, `Sell failed`
         );
     }, [playerId, handleApiAction]);
@@ -284,45 +267,67 @@ const App: React.FC = () => {
         }, 300); // Wait for fade-out
     }, [currentView, pageTransition]);
 
-
-    // --- Loading/Error States ---
+    // --- Loading Screen ---
     if (loading) {
         return (
-            <div className="loading-screen">
-                <div className="loading-content">
-                    <h1>Brewing up your match...</h1>
-                    <div className="cauldron-container">
-                        <div className="cauldron-body">
-                           <div className="cauldron-liquid"></div>
-                           <div className="bubble bubble-1"></div>
-                           <div className="bubble bubble-2"></div>
-                           <div className="bubble bubble-3"></div>
+            <div className="game-container">
+                <div className="loading-screen">
+                    <div className="parchment-scroll">
+                        <div className="scroll-top"></div>
+                        <div className="scroll-content">
+                            <h1>Summoning Magical Energies</h1>
+                            <div className="cauldron-container">
+                                <div className="cauldron-body">
+                                    <div className="cauldron-liquid"></div>
+                                    <div className="bubble bubble-1"></div>
+                                    <div className="bubble bubble-2"></div>
+                                    <div className="bubble bubble-3"></div>
+                                </div>
+                                <div className="cauldron-legs">
+                                    <div className="leg"></div>
+                                    <div className="leg"></div>
+                                    <div className="leg"></div>
+                                </div>
+                            </div>
+                            <p className="loading-flavor-text">Brewing the perfect potion takes time...</p>
                         </div>
-                        <div className="cauldron-legs"><div className="leg"></div><div className="leg"></div><div className="leg"></div></div>
+                        <div className="scroll-bottom"></div>
                     </div>
-                    <p className="loading-flavor-text">Gathering mystical energies...</p>
                 </div>
             </div>
         );
     }
 
-    const ErrorDisplay = () => error && ( // Conditionally render based on error state
+    // --- Error Display ---
+    const ErrorDisplay = () => error && (
         <div className="error-overlay">
             <div className="error-scroll">
-                <p>{error}</p>
-                <button onClick={() => setError(null)}>X</button> {/* Simple dismiss */}
+                <div className="error-message">{error}</div>
+                <button onClick={() => setError(null)} className="error-dismiss">×</button>
             </div>
         </div>
     );
 
+    // --- Error Screen ---
     if (!gameState || !currentPlayer) {
         return (
-            <div className="error-screen">
-                <div className="torn-page">
-                    <h1>The Grimoire Remains Closed</h1>
-                    <p>{error || 'Failed to load essential game data. The coven remains hidden.'}</p>
-                    <div className="cute-familiar">🐾</div> {/* Simple emoji */}
-                    <button onClick={() => window.location.reload()}>Retry Connection</button>
+            <div className="game-container">
+                <div className="error-screen">
+                    <div className="parchment-scroll">
+                        <div className="scroll-top"></div>
+                        <div className="scroll-content">
+                            <h1>The Grimoire Remains Closed</h1>
+                            <p>{error || 'Failed to load essential game data. The coven remains hidden.'}</p>
+                            <div className="retry-button-container">
+                                <button 
+                                    className="retry-button" 
+                                    onClick={() => window.location.reload()}>
+                                    <span>Retry</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="scroll-bottom"></div>
+                    </div>
                 </div>
             </div>
         );
@@ -331,8 +336,17 @@ const App: React.FC = () => {
     // --- Main Render ---
     return (
         <div className="game-container">
+            <div className="game-backdrop"></div>
             <div className="game-frame">
-                 {/* HUD is now a fixed sidebar */}
+                {/* Weather Effects Overlay */}
+                <WeatherEffectsOverlay
+                    weatherType={gameState.time.weatherFate}
+                    intensity="medium"
+                    timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(gameState.time.phaseName) ? 'night' : 'day'}
+                    season={gameState.time.season as Season}
+                />
+                
+                {/* Navigation HUD */}
                 <HUD
                     playerName={currentPlayer.name}
                     gold={currentPlayer.gold}
@@ -344,22 +358,8 @@ const App: React.FC = () => {
                     onAdvanceDay={advanceDay}
                 />
 
-                 {/* Weather Effects Overlay - Covers entire frame */}
-                <WeatherEffectsOverlay
-                    weatherType={gameState.time.weatherFate}
-                    intensity="medium" // Could be dynamic later
-                    timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(gameState.time.phaseName) ? 'night' : 'day'} // Include Full Moon as night visual
-                    season={gameState.time.season as Season}
-                />
-
-                {/* Main game content area */}
+                {/* Main content area */}
                 <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
-                    {/* Scroll decorations are now part of game-content CSS */}
-                    <div className="scroll-decoration top-left"></div>
-                    <div className="scroll-decoration top-right"></div>
-                    <div className="scroll-decoration bottom-left"></div>
-                    <div className="scroll-decoration bottom-right"></div>
-
                     <div className="view-container">
                         {/* Render current view */}
                         {currentView === 'garden' && (
@@ -368,7 +368,7 @@ const App: React.FC = () => {
                                 inventory={currentPlayer.inventory as InventoryItem[]}
                                 onPlant={plantSeed}
                                 onHarvest={harvestPlant}
-                                onWater={waterPlants} // Pass the modified handler
+                                onWater={waterPlants}
                                 weatherFate={gameState.time.weatherFate}
                                 season={gameState.time.season as Season}
                             />
@@ -376,21 +376,20 @@ const App: React.FC = () => {
                         {currentView === 'brewing' && (
                             <Brewing
                                 playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                knownRecipes={gameState.knownRecipes || []} // Use gameState's knownRecipes
+                                knownRecipes={gameState.knownRecipes || []}
                                 lunarPhase={gameState.time.phaseName}
                                 playerSpecialization={currentPlayer.atelierSpecialization}
-                                onBrew={brewPotion} // Pass the modified handler
+                                onBrew={brewPotion}
                             />
                         )}
-                         {currentView === 'atelier' && (
+                        {currentView === 'atelier' && (
                             <Atelier
                                 playerItems={currentPlayer.inventory as InventoryItem[]}
-                                // TODO: Implement actual crafting logic/API call
                                 onCraftItem={(ingredientIds, resultItemId) => console.log('Craft action TBD', ingredientIds, resultItemId)}
                                 lunarPhase={gameState.time.phaseName}
                                 playerLevel={currentPlayer.atelierLevel}
                                 playerSpecialization={currentPlayer.atelierSpecialization}
-                                knownRecipes={gameState.knownRecipes || []} // Pass known recipes
+                                knownRecipes={gameState.knownRecipes || []}
                             />
                         )}
                         {currentView === 'market' && (
@@ -414,52 +413,66 @@ const App: React.FC = () => {
                                 time={gameState.time}
                                 player={currentPlayer}
                                 onClaimRitual={claimRitualReward}
-                                // onMarkRead could be added here if needed
                             />
                         )}
                     </div>
+                    
+                    {/* Decorative corners */}
+                    <div className="corner-decoration top-left"></div>
+                    <div className="corner-decoration top-right"></div>
+                    <div className="corner-decoration bottom-left"></div>
+                    <div className="corner-decoration bottom-right"></div>
                 </main>
 
-                {/* Persistent Error Display */}
+                {/* Error Display */}
                 <ErrorDisplay />
 
-                 {/* Moonlight Meadow Easter Egg Overlay */}
+                {/* Moonlight Meadow Easter Egg */}
                 {moonlightMeadowActive && (
                     <div className="moonlight-meadow" onClick={() => setMoonlightMeadowActive(false)}>
                         <div className="moonlight-overlay"></div>
                         <div className="moon-glow"></div>
                         {spiritPositions.map((spirit, i) => (
-                            <div key={i} className="meadow-spirit" style={{ left: `${spirit.x}%`, top: `${spirit.y}%`, animationDelay: `${spirit.delay}s` }}/>
+                            <div key={i} className="meadow-spirit" style={{ 
+                                left: `${spirit.x}%`, 
+                                top: `${spirit.y}%`, 
+                                animationDelay: `${spirit.delay}s` 
+                            }}/>
                         ))}
-                        <div className="meadow-message">Your garden is blessed by moonlight...</div>
+                        <div className="moonlight-message">Your garden is blessed by moonlight...</div>
                     </div>
                 )}
 
-                {/* Ambient Particle Effects Container */}
-                <div className="ambient-particles-container">
-                    {Array.from({ length: 12 }).map((_, i) => { // Reduced particle count
-                        const duration = 15 + Math.random() * 25;
-                        const delay = Math.random() * duration; // Ensure varied start times
-                        const particleX = -50 + Math.random() * 100;
-                        const particleY = -50 + Math.random() * 100;
+                {/* Ambient particles */}
+                <div className="ambient-particles">
+                    {Array.from({ length: 15 }).map((_, i) => {
+                        const size = 2 + Math.random() * 3;
+                        const duration = 15 + Math.random() * 20;
+                        const delay = Math.random() * 15;
                         return (
-                            <div key={i} className="ambient-particle"
+                            <div 
+                                key={i} 
+                                className="particle"
                                 style={{
-                                    left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
-                                    animationDelay: `${delay}s`,
+                                    width: `${size}px`,
+                                    height: `${size}px`,
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
                                     animationDuration: `${duration}s`,
-                                    '--particle-x': `${particleX}px`, // CSS variable for random movement X
-                                    '--particle-y': `${particleY}px`, // CSS variable for random movement Y
-                                } as React.CSSProperties}/>
+                                    animationDelay: `${delay}s`
+                                }}
+                            />
                         );
                     })}
                 </div>
 
-                 {/* Konami Code Activation Indicator */}
-                 {konamiActivated && (
-                    <div className="konami-active-indicator">COVEN CODE ACCEPTED</div>
-                 )}
-
+                {/* Konami Code Activation */}
+                {konamiActivated && (
+                    <div className="konami-activation">
+                        <div className="activation-glow"></div>
+                        <div className="activation-text">Ancient Coven Code Activated!</div>
+                    </div>
+                )}
             </div>
         </div>
     );

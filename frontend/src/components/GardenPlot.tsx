@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './GardenPlot.css'; // We'll redefine this CSS
+import './GardenPlot.css';
 
 interface Plant {
   name: string;
@@ -39,6 +39,7 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
   const [showPlantHint, setShowPlantHint] = useState<boolean>(false);
   const [whisperActive, setWhisperActive] = useState<boolean>(false);
   const [whisperMessage, setWhisperMessage] = useState<string>('');
+  const [pulsing, setPulsing] = useState<boolean>(false);
   
   // Easter egg click counter
   const [secretClickCount, setSecretClickCount] = useState<number>(0);
@@ -73,6 +74,15 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
       if (glowInterval) clearInterval(glowInterval);
     };
   }, [plot.plant?.mature]);
+
+  // Start ambient animation
+  useEffect(() => {
+    const pulseInterval = setInterval(() => {
+      setPulsing(prev => !prev);
+    }, 3000);
+    
+    return () => clearInterval(pulseInterval);
+  }, []);
 
   // Handle secret clicks for Easter egg
   const handleSecretClick = (e: React.MouseEvent) => {
@@ -158,58 +168,43 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
     return (plot.moisture ?? 50) < 40;
   };
 
+  // Get category-specific class
+  const getPlantCategoryClass = (plant: Plant | null): string => {
+    if (!plant) return '';
+    return plant.category ? plant.category.toLowerCase() : 'herb';
+  };
+  
   // Render plant visualization based on growth stage and category
   const renderPlant = () => {
     if (!plot.plant) return null;
     
     const growthStage = getGrowthStage(plot.plant);
     const healthClass = getHealthClass(plot.plant);
-    const plantCategory = plot.plant.category || 'herb'; // Default if category missing
-    
-    // Determine visual class based on plant type and growth stage
-    const visualClass = growthStage === 'mature' ? `mature-${plantCategory}` : '';
+    const categoryClass = getPlantCategoryClass(plot.plant);
     
     return (
       <div 
-        className={`plant ${healthClass}`} 
+        className={`plant ${healthClass} ${categoryClass} ${pulsing ? 'pulse' : ''}`} 
         onDoubleClick={handleSecretClick}
       >
-        {/* Growth stage visual */}
-        <div className={`${growthStage}-visual ${visualClass}`}>
-          {/* Add divs for complex plant visuals as needed */}
-          {growthStage === 'growing' && (
-            <>
-              <div></div>
-              <div></div>
-            </>
-          )}
-          {growthStage === 'maturing' && (
-            <>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </>
-          )}
-          {visualClass === 'mature-flower' && (
-            <>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </>
-          )}
+        <div className={`plant-visual ${growthStage}`}>
+          {/* Base sprite */}
+          <div className="plant-sprite"></div>
+          
+          {/* Plant animations and effects */}
+          {plot.plant.moonBlessed && <div className="moon-blessing"></div>}
+          
+          {/* Status indicators */}
+          {plot.plant.seasonalModifier && plot.plant.seasonalModifier > 1.2 && 
+            <div className="season-boost"></div>}
+          {plot.plant.seasonalModifier && plot.plant.seasonalModifier < 0.8 && 
+            <div className="season-penalty"></div>}
         </div>
-        
-        {/* Moon blessing visual effect */}
-        {plot.plant.moonBlessed && (
-          <div className="moon-blessing-effect" title="Moon Blessed"></div>
-        )}
         
         {/* Plant whisper - Easter egg */}
         {whisperActive && (
           <div className="plant-whisper">
-            {whisperMessage}
+            <div className="whisper-text">{whisperMessage}</div>
           </div>
         )}
       </div>
@@ -222,24 +217,17 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
       <div className="plot-status">
         {plot.plant?.mature && (
           <div 
-            className="status-icon ready-to-harvest" 
+            className={`status-indicator harvest-ready ${showHarvestGlow ? 'glow' : ''}`} 
             title="Ready to Harvest"
-            style={{ animation: showHarvestGlow ? 'harvestPulseIcon 1.5s infinite' : 'none' }}
-          >
-            ✓
-          </div>
+          />
         )}
         
         {needsWater(plot.plant) && (
-          <div className="status-icon needs-water" title="Needs Water">
-            💧
-          </div>
+          <div className="status-indicator needs-water" title="Needs Water" />
         )}
         
         {!plot.plant && !isLocked && (
-          <div className="status-icon empty-plot" title="Empty Plot">
-            +
-          </div>
+          <div className="status-indicator empty-plot" title="Empty Plot" />
         )}
       </div>
     );
@@ -252,6 +240,7 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
     selected ? 'selected' : '',
     getMoistureClass(),
     season.toLowerCase(), // Add season class
+    plot.plant?.mature ? 'mature' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -260,11 +249,10 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
       onClick={isLocked ? undefined : onClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      title={isLocked ? "Locked Plot" : `Plot ${plot.id + 1} (Click to select)`}
     >
       {isLocked ? (
         <div className="locked-overlay">
-          <div className="lock-icon">🔒</div>
+          <div className="lock-icon"></div>
         </div>
       ) : (
         <>
@@ -272,11 +260,18 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
           {renderPlant()}
           {renderPlotStatus()}
           
+          {/* Selection frame */}
+          <div className="selection-frame">
+            <div className="corner top-left"></div>
+            <div className="corner top-right"></div>
+            <div className="corner bottom-left"></div>
+            <div className="corner bottom-right"></div>
+          </div>
+          
           {/* Show plant hint for empty plots on hover */}
           {showPlantHint && !plot.plant && (
             <div className="plant-hint">
-              <div className="hint-icon">🌱</div>
-              <div className="hint-text">Plant here!</div>
+              <div className="hint-text">Plant Here</div>
             </div>
           )}
         </>
