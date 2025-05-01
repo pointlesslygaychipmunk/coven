@@ -439,3 +439,15 @@
   background-color: transparent; /* Hide the blue highlight */
   color: inherit; /* Keep text color the same */
 }
+
+/* --- Add this to frontend/src/components/Garden.css --- */
+
+/* Remove default browser focus outline from seed items */
+.seed-item:focus,
+.seed-item:focus-visible {
+  outline: none; /* Removes the default blue outline */
+  box-shadow: 0 0 0 2px var(--color-accent-primary); /* OPTIONAL: Add a custom focus style for accessibility */
+  /* You could also use border: 1px solid var(--color-accent-primary); */
+}
+
+/* --- End of addition --- */
