@@ -2,7 +2,7 @@
 // Manages the GameEngine instance and provides methods for the server to call
 
 // FIXED: Import GameEngine class correctly
-import GameEngine from "./gameEngine.js";
+import { GameEngine } from "./gameEngine.js";
 import { GameState, MoonPhase, Season, Skills } from "coven-shared";
 
 // GameHandler: Connects the server's API endpoints to the game engine
