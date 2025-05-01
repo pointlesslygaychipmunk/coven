@@ -1,4 +1,4 @@
-/* GardenPlot.css - Enhanced 90s Point-and-Click Adventure Game Style */
+/* GardenPlot.css - 90s Adventure Game Style */
 
 /* Base plot styling with pixelated textures */
 .garden-plot {
@@ -317,22 +317,6 @@
   transform: rotate(15deg); 
 }
 
-/* Other plant types */
-.mature-leaf { 
-  width: 20px; 
-  height: 30px; 
-  background-color: #81c784; 
-  border: 2px solid #388e3c; 
-  border-radius: 50% 0; 
-}
-.mature-succulent { 
-  width: 26px; 
-  height: 26px; 
-  background-color: #aed581; 
-  border: 2px solid #689f38; 
-  border-radius: 6px; 
-}
-
 /* Moon blessing effect - pixelated glow */
 .moon-blessing-effect {
   position: absolute;
@@ -390,21 +374,7 @@
   50% { transform: scale(1.2); box-shadow: 0 0 5px #a5d6a7, 1px 1px 2px rgba(0, 0, 0, 0.5); }
 }
 
-/* Placeholder for empty grid slots */
-.garden-plot.placeholder {
-  background-color: rgba(0, 0, 0, 0.1);
-  background-image: none;
-  border-color: rgba(93, 64, 55, 0.5);
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
-  cursor: default;
-  opacity: 0.6;
-}
-.garden-plot.placeholder:hover { 
-  transform: none; 
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2); 
-}
-
-/* Plant hint for empty plots - More pixelated style */
+/* Plant hint for empty plots */
 .plant-hint {
   position: absolute;
   top: calc(50% - 10px);
@@ -437,6 +407,49 @@
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 
+/* Plant whisper - Easter egg */
+.plant-whisper {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(93, 64, 55, 0.8);
+  border: 2px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f; /* 90s bevel */
+  color: #e4dbee; /* Light text */
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: 'Times New Roman', serif; /* Different font for whispers */
+  font-style: italic;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  animation: whisperAppear 0.3s ease-out;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  max-width: 120px;
+  text-align: center;
+}
+
+/* Speech bubble pointer */
+.plant-whisper::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid rgba(93, 64, 55, 0.8);
+}
+
+@keyframes whisperAppear {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+
 /* Seasonal variations - Change soil color by season */
 .garden-plot.spring .plot-soil { background-color: #795548; }
 .garden-plot.summer .plot-soil { background-color: #8d6e63; }
@@ -447,142 +460,22 @@
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23616161"/><circle cx="5" cy="5" r="0.5" fill="%23eeeeee" opacity="0.7"/><circle cx="2" cy="8" r="0.5" fill="%23eeeeee" opacity="0.7"/><circle cx="8" cy="2" r="0.5" fill="%23eeeeee" opacity="0.7"/></svg>');
 }
 
-/* Whispering Garden Easter Egg - 90s Style */
-.dancing-plant > div {
-  animation: gentleDance 3s infinite alternate ease-in-out;
-  transform-origin: bottom center;
-}
-
-.dancing-plant-effects {
-  position: absolute; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
-  pointer-events: none; 
-  overflow: visible; 
-  z-index: 10;
-}
-
-.spirit-element {
-  position: absolute; 
-  width: 15px; 
-  height: 15px; 
-  border-radius: 50%; 
-  opacity: 0;
-  filter: blur(1px); 
-  animation: spiritFloat 7s infinite ease-in-out;
-  box-shadow: 0 0 8px;
-}
-
-.spirit-flower { 
-  background: radial-gradient(circle, rgba(255,182,233,0.8) 0%, transparent 70%); 
-  box-shadow: 0 0 8px rgba(255,182,233,0.6); 
-}
-
-.spirit-herb { 
-  background: radial-gradient(circle, rgba(172,255,189,0.8) 0%, transparent 70%); 
-  box-shadow: 0 0 8px rgba(172,255,189,0.6); 
-}
-
-.spirit-root { 
-  background: radial-gradient(circle, rgba(210,180,140,0.8) 0%, transparent 70%); 
-  box-shadow: 0 0 8px rgba(210,180,140,0.6); 
-}
-
-.spirit-mushroom { 
-  background: radial-gradient(circle, rgba(230,190,255,0.8) 0%, transparent 70%); 
-  box-shadow: 0 0 8px rgba(230,190,255,0.6); 
-}
-
-.spirit-fruit { 
-  background: radial-gradient(circle, rgba(255,200,120,0.8) 0%, transparent 70%); 
-  box-shadow: 0 0 8px rgba(255,200,120,0.6); 
-}
-
-.spirit-general { 
-  background: radial-gradient(circle, rgba(220,240,255,0.8) 0%, transparent 70%); 
-  box-shadow: 0 0 8px rgba(220,240,255,0.6); 
-}
-
-.delay-1 { animation-delay: 1.5s !important; }
-.delay-2 { animation-delay: 3s !important; }
-
-.garden-particle {
-  position: absolute; 
-  width: 4px; 
-  height: 4px; 
-  border-radius: 50%;
-  background-color: rgba(255, 255, 240, 0.8); 
-  box-shadow: 0 0 3px rgba(255, 255, 200, 0.6);
-  opacity: 0; 
-  animation: particleRise 4s infinite ease-out;
-}
-
-.particle-1 { left: 30%; bottom: 10%; animation-delay: 0s; }
-.particle-2 { left: 60%; bottom: 15%; animation-delay: 0.7s; }
-.particle-3 { left: 45%; bottom: 5%; animation-delay: 1.4s; }
-
-.plant-whisper-bubble {
-  position: absolute; 
-  top: -35px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  background-color: rgba(244, 233, 217, 0.95); /* Parchment-like */
-  border-radius: 8px; 
-  padding: 4px 8px;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: bubbleAppear 0.5s ease-out forwards;
-  max-width: 150px; 
-  z-index: 20; 
-  border: 1px solid #a1887f;
-}
-
-.plant-whisper-bubble:after {
-  content: ''; 
-  position: absolute; 
-  bottom: -6px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  width: 0; 
-  height: 0; 
-  border-left: 6px solid transparent; 
-  border-right: 6px solid transparent;
-  border-top: 6px solid rgba(244, 233, 217, 0.95);
-}
-
-.whisper-text {
-  font-family: 'Times New Roman', serif; 
-  font-size: 11px; 
-  font-style: italic;
-  color: #5d4037; 
-  text-align: center;
-}
-
-@keyframes gentleDance {
-  0% { transform: rotate(-1.5deg) scale(1); } 
-  25% { transform: rotate(0deg) scale(1.02); }
-  50% { transform: rotate(1.5deg) scale(1); } 
-  75% { transform: rotate(0deg) scale(1.01); }
-  100% { transform: rotate(-1.5deg) scale(1); }
-}
-
-@keyframes spiritFloat {
-  0% { opacity: 0; transform: translateY(0) scale(0.8) rotate(0deg); }
-  20% { opacity: 0.7; }
-  50% { opacity: 0.5; transform: translateY(-25px) scale(1.1) rotate(15deg); }
-  80% { opacity: 0.7; }
-  100% { opacity: 0; transform: translateY(-40px) scale(0.6) rotate(-15deg); }
-}
-
-@keyframes particleRise {
-  0% { opacity: 0; transform: translateY(0) scale(1); }
-  10% { opacity: 0.8; } 
-  80% { opacity: 0.6; }
-  100% { opacity: 0; transform: translateY(-30px) scale(0.2); }
-}
-
-@keyframes bubbleAppear {
-  0% { opacity: 0; transform: translateX(-50%) translateY(5px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* Responsive styles */
+@media (max-width: 600px) {
+  .garden-plot {
+    min-width: 60px;
+    border-width: 2px;
+  }
+  
+  .plant-whisper {
+    font-size: 10px;
+    padding: 3px 6px;
+    top: -30px;
+  }
+  
+  .status-icon {
+    width: 15px;
+    height: 15px;
+    font-size: 10px;
+  }
 }

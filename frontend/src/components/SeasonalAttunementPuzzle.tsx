@@ -1,265 +1,553 @@
-import React, { useState, useEffect, useCallback } from 'react';
-// Assuming existing styling from the CSS artifacts
+import React, { useState, useEffect } from 'react';
+import './SeasonalAttunementPuzzle.css';
+import { Season } from 'coven-shared';
+
+// Element types that match the seasonal elements
+type ElementType = 'water' | 'fire' | 'earth' | 'air' | 'spirit';
+
+// Define seasonal resources that players can gather
+interface Resource {
+  type: string;
+  name: string;
+  icon: string;
+  value: number;
+  bonusEffect: string;
+}
+
+// Define element properties
+interface Element {
+  id: ElementType;
+  name: string;
+  icon: string;
+  counter: ElementType;
+  boostedBy: ElementType;
+  seasonalBonus: Season;
+}
 
 interface SeasonalAttunementPuzzleProps {
   onComplete: (result: { success: boolean; bonus: number; message: string }) => void;
   onSkip: () => void;
-  season: 'Spring' | 'Summer' | 'Fall' | 'Winter';
-  difficulty?: 'easy' | 'medium' | 'hard';
+  season: Season;
 }
 
 const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
   onComplete,
   onSkip,
-  season,
-  difficulty = 'medium'
+  season = 'Spring'
 }) => {
-  // States for puzzle mechanics
-  const [elements, setElements] = useState<string[]>([]);
-  const [selectedElements, setSelectedElements] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds
-  const [isPaused] = useState<boolean>(false); // No setter needed as we're not changing this state
-  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  // Game state
+  const [gameActive, setGameActive] = useState<boolean>(false);
+  const [gameComplete, setGameComplete] = useState<boolean>(false);
+  const [turnCount, setTurnCount] = useState<number>(0);
+  const [maxTurns, setMaxTurns] = useState<number>(8);
+  const [message, setMessage] = useState<string>('Balance the elements to attune your garden...');
   
-  // Generate elements based on season
+  // Resource and element tracking
+  const [playerResources, setPlayerResources] = useState<Resource[]>([]);
+  const [boardElements, setBoardElements] = useState<ElementType[][]>([]);
+  const boardSize = 3; // 3x3 grid
+  const [elementBalance, setElementBalance] = useState<Record<ElementType, number>>({
+    water: 0,
+    fire: 0,
+    earth: 0,
+    air: 0,
+    spirit: 0
+  });
+  
+  // Define the elements and their relationships
+  const elements: Element[] = [
+    { 
+      id: 'water', 
+      name: 'Water', 
+      icon: '💧', 
+      counter: 'fire',  // Water puts out fire
+      boostedBy: 'air', // Air boosts water
+      seasonalBonus: 'Winter' 
+    },
+    { 
+      id: 'fire', 
+      name: 'Fire', 
+      icon: '🔥', 
+      counter: 'air',   // Fire consumes air
+      boostedBy: 'earth', // Earth boosts fire
+      seasonalBonus: 'Summer' 
+    },
+    { 
+      id: 'earth', 
+      name: 'Earth', 
+      icon: '🌱', 
+      counter: 'water', // Earth absorbs water
+      boostedBy: 'spirit', // Spirit boosts earth
+      seasonalBonus: 'Spring' 
+    },
+    { 
+      id: 'air', 
+      name: 'Air', 
+      icon: '💨', 
+      counter: 'earth', // Air erodes earth
+      boostedBy: 'water', // Water boosts air
+      seasonalBonus: 'Fall' 
+    },
+    { 
+      id: 'spirit', 
+      name: 'Spirit', 
+      icon: '✨', 
+      counter: 'spirit', // Spirit is self-balancing
+      boostedBy: 'fire', // Fire boosts spirit
+      seasonalBonus: 'Spring' // Spirit has affinity with spring
+    }
+  ];
+  
+  // Define possible resources
+  const possibleResources: Resource[] = [
+    { type: 'moonlight', name: 'Moonlight', icon: '🌙', value: 1, bonusEffect: 'Plant quality +5%' },
+    { type: 'dewdrops', name: 'Dewdrops', icon: '💦', value: 1, bonusEffect: 'Moisture retention +5%' },
+    { type: 'vitality', name: 'Vitality', icon: '💖', value: 1, bonusEffect: 'Growth speed +5%' },
+    { type: 'fertility', name: 'Fertility', icon: '🌿', value: 1, bonusEffect: 'Soil quality +5%' },
+    { type: 'harmony', name: 'Harmony', icon: '☯️', value: 2, bonusEffect: 'All plant stats +2%' },
+  ];
+  
+  // Initialize the board
   useEffect(() => {
-    const generateElements = () => {
-      // Each season has specific elements that are more valuable for attunement
-      const seasonalElements: Record<string, string[]> = {
-        Spring: ['🌱', '🌷', '🌿', '🦋', '🐣', '🌧️', '🌈', '🌤️'],
-        Summer: ['☀️', '🌻', '🍉', '🌊', '🏄', '🔥', '🌴', '🦗'],
-        Fall: ['🍂', '🍁', '🍄', '🦊', '🎃', '🌰', '🍇', '🦉'],
-        Winter: ['❄️', '☃️', '🧣', '🦌', '🌲', '🏔️', '🧊', '🦢']
-      };
-      
-      // Common elements that appear regardless of season (less valuable)
-      const commonElements = ['💧', '🪨', '🌙', '⭐', '🔮'];
-      
-      // Get the current season's elements
-      const currentSeasonElements = seasonalElements[season] || seasonalElements.Spring;
-      
-      // Create a pool of elements based on difficulty
-      let pool: string[] = [];
-      
-      // Add seasonal elements (valuable)
-      pool = [...currentSeasonElements];
-      
-      // Add some off-season elements (less valuable)
-      const otherSeasons = Object.keys(seasonalElements).filter(s => s !== season);
-      otherSeasons.forEach(otherSeason => {
-        const otherElements = seasonalElements[otherSeason];
-        // Add fewer elements from other seasons
-        pool = [...pool, ...otherElements.slice(0, 2)];
-      });
-      
-      // Add common elements
-      pool = [...pool, ...commonElements];
-      
-      // Shuffle the pool
-      const shuffled = [...pool].sort(() => 0.5 - Math.random());
-      
-      // Determine number of elements based on difficulty
-      const numElements = difficulty === 'easy' ? 12 : difficulty === 'medium' ? 16 : 20;
-      
-      // Ensure we have enough elements
-      while (shuffled.length < numElements) {
-        shuffled.push(...pool.slice(0, numElements - shuffled.length));
+    initializeGame();
+  }, [season]);
+  
+  // Initialize the game
+  const initializeGame = () => {
+    // Reset game state
+    setGameActive(false);
+    setGameComplete(false);
+    setTurnCount(0);
+    setMaxTurns(8); // Default to 8 turns
+    setPlayerResources([]);
+    
+    // Reset element balance
+    setElementBalance({
+      water: 0,
+      fire: 0,
+      earth: 0,
+      air: 0,
+      spirit: 0
+    });
+    
+    // Create a board with randomly placed elements
+    // We'll create a 3x3 grid for simplicity
+    const newBoard: ElementType[][] = [];
+    for (let i = 0; i < boardSize; i++) {
+      const row: ElementType[] = [];
+      for (let j = 0; j < boardSize; j++) {
+        // Place random elements, but ensure some bias toward the current season
+        const randomChance = Math.random();
+        let elementType: ElementType;
+        
+        if (randomChance < 0.4) {
+          // 40% chance to place a seasonal element
+          elementType = getSeasonalElement(season);
+        } else {
+          // 60% chance for any random element
+          const randomIndex = Math.floor(Math.random() * elements.length);
+          elementType = elements[randomIndex].id;
+        }
+        
+        row.push(elementType);
+      }
+      newBoard.push(row);
+    }
+    
+    setBoardElements(newBoard);
+    
+    // Set message based on season
+    switch (season) {
+      case 'Spring':
+        setMessage('Spring calls for growth and renewal. Balance the elements...');
+        break;
+      case 'Summer':
+        setMessage('Summer sun strengthens your garden. Harness the elements...');
+        break;
+      case 'Fall':
+        setMessage('Fall brings transformation. Redirect the elements...');
+        break;
+      case 'Winter':
+        setMessage('Winter requires conservation. Preserve the elements...');
+        break;
+      default:
+        setMessage('Balance the elements to attune your garden...');
+    }
+  };
+  
+  // Get the element type most associated with the current season
+  const getSeasonalElement = (currentSeason: Season): ElementType => {
+    const seasonalElement = elements.find(elem => elem.seasonalBonus === currentSeason);
+    return seasonalElement ? seasonalElement.id : 'spirit'; // Default to spirit if no match
+  };
+  
+  // Start the game
+  const startGame = () => {
+    setGameActive(true);
+    
+    // Give player starting resources based on season
+    const startingResources: Resource[] = [];
+    
+    // Different seasons provide different starting resources
+    switch (season) {
+      case 'Spring':
+        startingResources.push({...possibleResources[2]}); // Vitality
+        break;
+      case 'Summer':
+        startingResources.push({...possibleResources[3]}); // Fertility
+        break;
+      case 'Fall':
+        startingResources.push({...possibleResources[0]}); // Moonlight
+        break;
+      case 'Winter':
+        startingResources.push({...possibleResources[1]}); // Dewdrops
+        break;
+    }
+    
+    setPlayerResources(startingResources);
+    setMessage('Select elements to balance them. Each selection uses one turn.');
+  };
+  
+  // Handle element selection on the board
+  const handleElementSelect = (row: number, col: number) => {
+    if (!gameActive || gameComplete) return;
+    
+    const selectedElementType = boardElements[row][col];
+    
+    // Update element balance based on selection
+    const newBalance = {...elementBalance};
+    newBalance[selectedElementType] += 1;
+    
+    // Find what this element counters and reduces
+    const elementData = elements.find(e => e.id === selectedElementType);
+    if (elementData) {
+      // Reduce the countered element
+      if (newBalance[elementData.counter] > 0) {
+        newBalance[elementData.counter] -= 1;
       }
       
-      // Slice to get desired number of elements
-      return shuffled.slice(0, numElements);
-    };
-    
-    setElements(generateElements());
-  }, [season, difficulty]);
-  
-  // Timer effect
-  useEffect(() => {
-    if (isCompleted || isPaused || timeLeft <= 0) return;
-    
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        const newTime = prev - 1;
-        if (newTime <= 0) {
-          clearInterval(timer);
-          // Time's up - complete puzzle with current selections
-          handleSubmitPuzzle();
-        }
-        return newTime;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [timeLeft, isPaused, isCompleted]);
-  
-  // Handle element selection
-  const handleElementClick = (element: string) => {
-    if (isCompleted) return;
-    
-    setSelectedElements(prev => {
-      if (prev.includes(element)) {
-        return prev.filter(e => e !== element);
+      // Check if there are seasonal bonuses
+      if (elementData.seasonalBonus === season) {
+        // Get a random resource as bonus
+        const randomResourceIndex = Math.floor(Math.random() * possibleResources.length);
+        const resourceGained = {...possibleResources[randomResourceIndex]};
+        
+        // Add resource to player's collection
+        setPlayerResources(prev => [...prev, resourceGained]);
+        
+        setMessage(`You gained ${resourceGained.name} (${resourceGained.icon}) from the ${elementData.name} element!`);
       } else {
-        return [...prev, element];
+        setMessage(`${elementData.name} element selected. Balance shifting...`);
       }
-    });
-  };
-  
-  // Calculate puzzle score
-  const calculateScore = useCallback(() => {
-    // Each season has specific elements that are valuable
-    const seasonalElementValues: Record<string, Record<string, number>> = {
-      Spring: { '🌱': 3, '🌷': 3, '🌿': 2, '🦋': 2, '🐣': 2, '🌧️': 2, '🌈': 3, '🌤️': 2 },
-      Summer: { '☀️': 3, '🌻': 3, '🍉': 2, '🌊': 2, '🏄': 2, '🔥': 3, '🌴': 2, '🦗': 2 },
-      Fall: { '🍂': 3, '🍁': 3, '🍄': 2, '🦊': 2, '🎃': 2, '🌰': 2, '🍇': 3, '🦉': 2 },
-      Winter: { '❄️': 3, '☃️': 3, '🧣': 2, '🦌': 2, '🌲': 2, '🏔️': 2, '🧊': 3, '🦢': 2 }
-    };
-    
-    // Common elements worth less, but still positive
-    const commonElementValues: Record<string, number> = {
-      '💧': 1, '🪨': 1, '🌙': 2, '⭐': 2, '🔮': 1
-    };
-    
-    // Get the current season's element values
-    const currentSeasonValues = seasonalElementValues[season] || seasonalElementValues.Spring;
-    
-    // Calculate total score
-    let score = 0;
-    let totalElements = 0;
-    
-    selectedElements.forEach(element => {
-      totalElements++;
-      
-      // Check if it's a seasonal element for the current season
-      if (element in currentSeasonValues) {
-        score += currentSeasonValues[element];
-      } 
-      // Check if it's a common element
-      else if (element in commonElementValues) {
-        score += commonElementValues[element];
-      } 
-      // Check if it's from another season (negative points)
-      else {
-        for (const otherSeason in seasonalElementValues) {
-          if (otherSeason !== season && element in seasonalElementValues[otherSeason]) {
-            score -= 1; // Penalty for using wrong season's elements
-            break;
-          }
-        }
-      }
-    });
-    
-    // Bonus for selecting balanced number of elements (not too few, not too many)
-    const optimalCount = Math.floor(elements.length / 3);
-    if (totalElements >= optimalCount - 1 && totalElements <= optimalCount + 1) {
-      score += 2; // Bonus for balance
     }
     
-    // Bonus for time left
-    const timeBonus = Math.floor(timeLeft / 5);
-    score += timeBonus;
+    setElementBalance(newBalance);
     
-    return score;
-  }, [selectedElements, season, elements.length, timeLeft]);
+    // Replace the selected cell with a new random element
+    const newBoard = [...boardElements];
+    const randomIndex = Math.floor(Math.random() * elements.length);
+    newBoard[row][col] = elements[randomIndex].id;
+    setBoardElements(newBoard);
+    
+    // Increment turn counter
+    const newTurnCount = turnCount + 1;
+    setTurnCount(newTurnCount);
+    
+    // Check if game should end
+    if (newTurnCount >= maxTurns) {
+      endGame();
+    }
+  };
   
-  // Handle submit button
-  const handleSubmitPuzzle = () => {
-    if (isCompleted) return;
+  // End the game and calculate results
+  const endGame = () => {
+    setGameComplete(true);
     
-    setIsCompleted(true);
-    const score = calculateScore();
+    // Calculate total bonus based on element balance and resources
+    let bonus = 0;
     
-    // Determine success and bonus
-    const maxPossibleScore = 20; // Estimate of max score
-    const scorePercent = Math.min(100, Math.round((score / maxPossibleScore) * 100));
-    const success = score > 0;
-    const bonus = Math.max(0, Math.min(100, scorePercent));
+    // Check element balance - we want elements to be as equal as possible
+    // Perfect balance would be all elements at the same level
+    let totalBalance = 0;
+    let elementVariance = 0;
     
-    // Customize message based on score
-    let message = '';
-    if (scorePercent >= 90) {
-      message = `Perfect attunement! The garden thrums with energy. (${bonus}% bonus)`;
-    } else if (scorePercent >= 70) {
-      message = `Strong attunement achieved! Plants seem to sway in appreciation. (${bonus}% bonus)`;
-    } else if (scorePercent >= 50) {
-      message = `Decent attunement. The garden accepts your offering. (${bonus}% bonus)`;
-    } else if (scorePercent >= 30) {
-      message = `Weak attunement, but still effective. (${bonus}% bonus)`;
-    } else if (scorePercent > 0) {
-      message = `Minimal attunement achieved. (${bonus}% bonus)`;
+    Object.values(elementBalance).forEach(value => {
+      totalBalance += value;
+    });
+    
+    // Calculate average balance
+    const averageBalance = totalBalance / Object.keys(elementBalance).length;
+    
+    // Calculate variance (how far from perfect balance)
+    Object.values(elementBalance).forEach(value => {
+      elementVariance += Math.abs(value - averageBalance);
+    });
+    
+    // Bonus is higher for better balance (lower variance)
+    const balanceBonus = Math.max(0, 30 - (elementVariance * 5));
+    
+    // Add resource bonuses
+    const resourceBonus = playerResources.reduce((total, resource) => total + resource.value, 0) * 5;
+    
+    // Total bonus
+    bonus = balanceBonus + resourceBonus;
+    
+    // Seasonal multiplier
+    const seasonalMultiplier = getSeasonalMultiplier();
+    const finalBonus = Math.round(bonus * seasonalMultiplier);
+    
+    // Show results
+    if (finalBonus > 20) {
+      setMessage(`Perfect attunement! The garden resonates with the ${season}! +${finalBonus}% bonus.`);
+    } else if (finalBonus > 10) {
+      setMessage(`Good attunement. The garden accepts your work. +${finalBonus}% bonus.`);
     } else {
-      message = "The energies seem confused by your choices.";
+      setMessage(`Minimal attunement achieved. The garden is stable. +${finalBonus}% bonus.`);
     }
     
-    // Return result to parent component
+    // Pass results back
     setTimeout(() => {
-      onComplete({ success, bonus, message });
-    }, 1500);
+      onComplete({
+        success: true,
+        bonus: finalBonus,
+        message: `Garden attuned to ${season} energies. Bonus: +${finalBonus}%`
+      });
+    }, 3000);
   };
   
-  // Render the puzzle
+  // Get seasonal multiplier for bonus calculations
+  const getSeasonalMultiplier = (): number => {
+    // Check how well the dominant element matches the season
+    const dominantElement = Object.entries(elementBalance).sort((a, b) => b[1] - a[1])[0][0] as ElementType;
+    const matchingElement = elements.find(e => e.id === dominantElement);
+    
+    if (matchingElement && matchingElement.seasonalBonus === season) {
+      return 1.5; // 50% bonus for perfect seasonal match
+    }
+    
+    return 1.0; // No multiplier otherwise
+  };
+  
+  // Skip puzzle
+  const handleSkip = () => {
+    onSkip();
+  };
+  
+  // Use a resource
+  const useResource = (resourceIndex: number) => {
+    if (!gameActive || gameComplete) return;
+    
+    const resource = playerResources[resourceIndex];
+    let newResources = [...playerResources];
+    newResources.splice(resourceIndex, 1);
+    setPlayerResources(newResources);
+    
+    // Apply resource effect
+    switch (resource.type) {
+      case 'moonlight':
+        // Grant an extra turn
+        setMaxTurns(maxTurns + 1);
+        setMessage(`Used ${resource.name}! Gained an extra turn.`);
+        break;
+      case 'dewdrops':
+        // Balance water element
+        const newWaterBalance = {...elementBalance, water: elementBalance.water + 2};
+        setElementBalance(newWaterBalance);
+        setMessage(`Used ${resource.name}! Water element strengthened.`);
+        break;
+      case 'vitality':
+        // Balance all elements slightly
+        const vitalityBalance = {...elementBalance};
+        Object.keys(vitalityBalance).forEach(key => {
+          vitalityBalance[key as ElementType] += 1;
+        });
+        setElementBalance(vitalityBalance);
+        setMessage(`Used ${resource.name}! All elements strengthened.`);
+        break;
+      case 'fertility':
+        // Get another random resource
+        const randomIndex = Math.floor(Math.random() * possibleResources.length);
+        const newResource = {...possibleResources[randomIndex]};
+        setPlayerResources([...newResources, newResource]);
+        setMessage(`Used ${resource.name}! Gained ${newResource.name}.`);
+        break;
+      case 'harmony':
+        // Perfect balance on a random element
+        const elemKeys = Object.keys(elementBalance) as ElementType[];
+        const randomElem = elemKeys[Math.floor(Math.random() * elemKeys.length)];
+        const highestValue = Math.max(...Object.values(elementBalance));
+        const harmonyBalance = {...elementBalance};
+        harmonyBalance[randomElem] = highestValue;
+        setElementBalance(harmonyBalance);
+        setMessage(`Used ${resource.name}! ${elements.find(e => e.id === randomElem)?.name} element harmonized.`);
+        break;
+    }
+  };
+  
+  // Render the game board
+  const renderGameBoard = () => {
+    return (
+      <div className="game-board">
+        {boardElements.map((row, rowIndex) => (
+          <div key={`row-${rowIndex}`} className="board-row">
+            {row.map((elementType, colIndex) => {
+              const elementData = elements.find(e => e.id === elementType);
+              return (
+                <button
+                  key={`cell-${rowIndex}-${colIndex}`}
+                  className={`board-cell ${elementType} ${elementData?.seasonalBonus === season ? 'seasonal-bonus' : ''}`}
+                  onClick={() => handleElementSelect(rowIndex, colIndex)}
+                  disabled={!gameActive || gameComplete}
+                >
+                  <span className="element-icon">{elementData?.icon}</span>
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
+  // Render element balance meters
+  const renderElementBalance = () => {
+    return (
+      <div className="element-balance">
+        <h3>Element Balance</h3>
+        <div className="balance-meters">
+          {elements.map(element => (
+            <div key={element.id} className={`balance-meter ${element.id}`}>
+              <div className="meter-label">
+                <span className="element-icon">{element.icon}</span>
+                <span className="element-value">{elementBalance[element.id]}</span>
+              </div>
+              <div className="meter-bar">
+                <div 
+                  className="meter-fill"
+                  style={{width: `${Math.min(100, elementBalance[element.id] * 20)}%`}}
+                ></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+  
+  // Render player resources
+  const renderResources = () => {
+    return (
+      <div className="player-resources">
+        <h3>Resources</h3>
+        <div className="resource-list">
+          {playerResources.length > 0 ? (
+            playerResources.map((resource, index) => (
+              <button
+                key={`resource-${index}`}
+                className="resource-item"
+                onClick={() => useResource(index)}
+                disabled={!gameActive || gameComplete}
+                title={`${resource.name}: ${resource.bonusEffect}`}
+              >
+                <span className="resource-icon">{resource.icon}</span>
+                <span className="resource-name">{resource.name}</span>
+              </button>
+            ))
+          ) : (
+            <div className="no-resources">No resources yet</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+  
+  // Render game information
+  const renderGameInfo = () => {
+    return (
+      <div className="game-info">
+        <div className="turn-counter">
+          <span>Turn</span>
+          <span className="turn-value">{turnCount} / {maxTurns}</span>
+        </div>
+        
+        <div className="season-effect">
+          <span className="season-icon">
+            {season === 'Spring' ? '🌱' : 
+             season === 'Summer' ? '☀️' : 
+             season === 'Fall' ? '🍂' : '❄️'}
+          </span>
+          <span className="season-name">{season}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="seasonal-attunement-puzzle">
       <div className="puzzle-container">
         <div className="puzzle-header">
-          <h2>Seasonal Attunement Ritual</h2>
-          <div className="season-badge">{season} Energies</div>
+          <h2>Seasonal Attunement</h2>
+          <div className="season-badge">{season}</div>
         </div>
         
-        <div className="puzzle-description">
-          <p>Select elements that harmonize with the current season's energy to attune your garden. Choose wisely - elements from other seasons may disrupt the flow!</p>
-        </div>
+        <div className="puzzle-message">{message}</div>
         
-        <div className="puzzle-timer">
-          <div 
-            className="timer-fill" 
-            style={{ 
-              width: `${(timeLeft / 30) * 100}%`,
-              transition: `width ${timeLeft > 0 ? '1s' : '0s'} linear`
-            }} 
-          />
-          <div className="timer-text">{timeLeft}s</div>
-        </div>
+        {/* Game Info Area */}
+        {gameActive && renderGameInfo()}
         
-        <div className="puzzle-board">
-          <div className="puzzle-elements">
-            {elements.map((element, index) => (
-              <div
-                key={`${element}-${index}`}
-                className={`puzzle-element ${selectedElements.includes(element) ? 'selected' : ''}`}
-                onClick={() => handleElementClick(element)}
-              >
-                {element}
-              </div>
-            ))}
-          </div>
+        {/* Main Game Area */}
+        <div className={`ritual-circle ${season.toLowerCase()}`}>
+          {gameActive && renderGameBoard()}
           
-          <div className="selected-display">
-            <div className="selected-label">Selected: {selectedElements.length}</div>
-            <div className="selected-elements">
-              {selectedElements.map((element, index) => (
-                <span key={`selected-${index}`} className="selected-pill">
-                  {element}
-                </span>
-              ))}
+          {gameActive && (
+            <div className="game-controls">
+              {renderElementBalance()}
+              {renderResources()}
             </div>
+          )}
+          
+          {/* Seasonal themed decorations */}
+          <div className="seasonal-decorations">
+            {season === 'Spring' && (
+              <>
+                <div className="decoration flower" style={{top: '10%', left: '75%'}}>🌷</div>
+                <div className="decoration butterfly" style={{top: '25%', left: '15%'}}>🦋</div>
+              </>
+            )}
+            {season === 'Summer' && (
+              <>
+                <div className="decoration sun" style={{top: '5%', left: '50%'}}>☀️</div>
+                <div className="decoration beach" style={{bottom: '10%', right: '10%'}}>⛱️</div>
+              </>
+            )}
+            {season === 'Fall' && (
+              <>
+                <div className="decoration leaf1" style={{top: '10%', right: '20%'}}>🍂</div>
+                <div className="decoration leaf2" style={{bottom: '20%', left: '15%'}}>🍁</div>
+                <div className="decoration mushroom" style={{bottom: '10%', right: '30%'}}>🍄</div>
+              </>
+            )}
+            {season === 'Winter' && (
+              <>
+                <div className="decoration snow1" style={{top: '10%', left: '20%'}}>❄️</div>
+                <div className="decoration snow2" style={{bottom: '20%', right: '25%'}}>❄️</div>
+                <div className="decoration sparkle" style={{top: '30%', right: '10%'}}>✨</div>
+              </>
+            )}
           </div>
         </div>
         
-        <div className="puzzle-actions">
-          <button 
-            className="puzzle-button submit" 
-            onClick={handleSubmitPuzzle} 
-            disabled={isCompleted}
-          >
-            Complete Ritual
-          </button>
-          <button 
-            className="puzzle-button skip" 
-            onClick={onSkip} 
-            disabled={isCompleted}
-          >
-            Skip
+        <div className="puzzle-controls">
+          {!gameActive && !gameComplete && (
+            <button className="begin-button" onClick={startGame}>Begin Attunement</button>
+          )}
+          
+          {gameActive && !gameComplete && (
+            <button className="end-button" onClick={endGame}>Complete Ritual</button>
+          )}
+          
+          <button className="skip-button" onClick={handleSkip}>
+            Skip Ritual
           </button>
         </div>
       </div>
