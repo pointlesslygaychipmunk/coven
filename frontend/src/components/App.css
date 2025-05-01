@@ -40,7 +40,9 @@
 
 /* Game Content Main Panel (Right side) */
 .game-content {
+  /* MODIFIED: Changed to match width of viewport minus sidebar */
   flex-grow: 1; /* Takes remaining width */
+  margin-left: 220px; /* Added to match the width of the sidebar */
   height: 100%; /* Full height within frame */
   overflow-y: auto; /* Allow content scrolling */
   overflow-x: hidden;
@@ -300,9 +302,58 @@
     .game-frame { max-height: none; border-width: 8px; } /* Allow full height */
 }
 @media (max-width: 768px) {
-  .game-frame { flex-direction: column; border-width: 6px; } /* Stack HUD/content on mobile? - Needs HUD adjustment */
-  /* OR keep sidebar, just make content area take full width */
-  .game-content { padding: 10px; }
+  /* Updated mobile view to handle sidebar layout */
+  .game-frame { flex-direction: column; border-width: 6px; } 
+  
+  /* Make sidebar responsive for mobile */
+  .coven-hud-sidebar {
+    float: none;
+    width: 100%;
+    height: auto;
+    min-height: 80px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  /* Panels in mobile view */
+  .player-panel, .lunar-panel, .resources-panel {
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  /* Navigation in mobile view */
+  .navigation-panel {
+    width: 100%;
+    margin-top: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .location-tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .location-tab {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  
+  .end-day-button {
+    max-width: 120px;
+  }
+  
+  /* Content area in mobile view */
+  .game-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+  
   .scroll-decoration { width: 40px; height: 40px; }
   .loading-content h1 { font-size: 22px; }
   .torn-page h1 { font-size: 20px; }

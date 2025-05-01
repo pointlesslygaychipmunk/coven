@@ -2,11 +2,11 @@
 /* Redesigned HUD with a 90s Point-and-Click/RPG Left Sidebar Aesthetic */
 
 .coven-hud-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
+  /* FIXED: Changed from position: fixed to position: relative and float: left */
+  position: relative;
+  float: left;
   width: 220px; /* Width of the sidebar */
-  height: 100vh;
+  height: 100%; /* Changed from 100vh to 100% */
   background-color: #4a3b5c; /* Dark purple-ish stone base */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%234a3b5c"/><path d="M0 0h10v10H0zm10 10h10v10H10zm10 10h10v10H20zm10 10h10v10H30zm10 10h10v10H40zm10 10h10v10H50z M50 0h10v10H50zM40 10h10v10H40zM30 20h10v10H30zM20 30h10v10H20zM10 40h10v10H10zM0 50h10v10H0z" fill="%233a2f4a" fill-opacity="0.4"/></svg>'); /* Subtle stone texture */
   border-right: 4px solid;
@@ -16,7 +16,7 @@
   flex-direction: column;
   gap: 15px; /* Spacing between sections */
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
-  z-index: 100; /* Ensure HUD is on top */
+  z-index: 10; /* Reduced from 100 to ensure proper stacking */
   font-family: var(--font-secondary); /* Use secondary for readability */
   color: var(--color-text-light);
   image-rendering: pixelated;
@@ -279,9 +279,6 @@
   from { box-shadow: 2px 2px 3px rgba(0,0,0,0.3), 0 0 5px var(--color-danger); }
   to   { box-shadow: 2px 2px 3px rgba(0,0,0,0.3), 0 0 15px var(--color-danger); }
 }
-
-/* Main Content Area (where views are rendered) - Needs adjustment in App.css */
-/* Ensure App.css or index.css adds appropriate margin-left to the main content */
 
 /* Easter Egg Status Message Area (Positioned at bottom of HUD) */
 .hud-status-message {

@@ -1,23 +1,25 @@
-/* Garden.css - Redesigned with 90s point-and-click adventure aesthetic */
+/* 90s Adventure Game Garden UI - Complete Redesign */
 
-/*
- * Garden area styling - the main gameplay component
- * Inspired by Howl's Moving Castle gardens and 90s adventure games
+/* 
+ * This stylesheet transforms the garden interface into a nostalgic
+ * 90s point-and-click adventure game aesthetic with pixelated 
+ * borders, chunky buttons, and that classic game feel
  */
 
- .garden-container {
+/* Main Container - The game "window" */
+.garden-container {
   display: flex;
   flex-direction: column;
-  /* 90s style textured background - like stone or wood */
-  background-color: #6b4f37; /* Dark wood color */
+  /* Dark wood texture background */
+  background-color: #6b4f37;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%236b4f37"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%235d4037" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%235d4037" opacity="0.2"/></svg>');
-  color: var(--color-text-light); /* Light text for contrast */
-  border-radius: var(--border-radius-sm); /* Slightly sharper corners */
-  padding: 20px; /* Reduced padding */
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3); /* 90s style shadow */
+  color: #f4e9d9;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
   height: 100%;
   overflow: hidden;
-  font-family: 'Courier New', monospace; /* Use game font */
+  font-family: 'Courier New', monospace;
   position: relative;
   /* Ornate pixelated border */
   border: 6px solid transparent;
@@ -27,145 +29,144 @@
   border-image-outset: 0;
   border-image-repeat: round;
   border-style: solid;
-  image-rendering: pixelated; /* Ensure pixelated border */
+  image-rendering: pixelated;
 }
 
-/* Garden header styling */
+/* Garden Header - Game title bar */
 .garden-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid var(--color-border); /* Simple border */
+  border-bottom: 2px solid #a1887f;
   padding-bottom: 12px;
   margin-bottom: 15px;
   position: relative;
-  flex-shrink: 0; /* Prevent header from shrinking */
+  flex-shrink: 0;
 }
 
 .garden-header h2 {
   margin: 0;
-  color: var(--color-text-heading); /* Use heading color */
-  font-weight: bold; /* Bold header */
-  font-size: 24px; /* Slightly smaller */
+  color: #f4e9d9;
+  font-weight: bold;
+  font-size: 24px;
   letter-spacing: 1px;
-  font-family: var(--font-primary); /* Use primary font */
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+  font-family: 'Courier New', monospace;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
 }
 
-/* Weather and season indicators */
+/* Weather and Season - Status indicators */
 .garden-indicators {
   display: flex;
-  gap: 10px; /* Reduced gap */
+  gap: 10px;
 }
 
 .weather-indicator, .season-indicator {
   display: flex;
   align-items: center;
-  gap: 6px; /* Reduced gap */
-  padding: 6px 10px; /* Reduced padding */
-  background-color: var(--color-bg-light); /* Slightly lighter bg */
-  border-radius: var(--border-radius-sm);
+  gap: 6px;
+  padding: 6px 10px;
+  background-color: #8d6e63;
+  border-radius: 4px;
   border: 2px solid;
-  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light); /* Bevel */
+  /* Classic bevel effect */
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .weather-icon, .season-icon {
-  font-size: 16px; /* Smaller icons */
+  font-size: 16px;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
 }
 
 .weather-label, .season-label {
-  font-size: 12px; /* Smaller labels */
-  color: var(--color-text-heading); /* Use heading color */
-  font-family: var(--font-secondary); /* Use secondary font */
+  font-size: 12px;
+  color: #f4e9d9;
+  font-family: 'Courier New', monospace;
   font-weight: bold;
 }
 
-/* Main garden content area */
+/* Main content area */
 .garden-content {
   display: flex;
-  flex: 1; /* Take remaining space */
-  gap: 15px; /* Reduced gap */
-  overflow: hidden; /* Prevent content overflow */
-  min-height: 0; /* Fix flexbox overflow issue */
+  flex: 1;
+  gap: 15px;
+  overflow: hidden;
+  min-height: 0;
 }
 
-/* Garden grid styling */
+/* Garden Grid - The play area */
 .garden-grid {
-  flex: 3; /* Take more space */
-  display: grid; /* Use grid for fixed layout */
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
-  grid-template-rows: repeat(3, 1fr); /* 3 rows */
-  gap: 10px; /* Reduced gap */
-  padding: 10px; /* Reduced padding */
-  background-color: #a1887f; /* Lighter dirt/wood color */
+  flex: 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
+  background-color: #a1887f;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%23a1887f"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%238d6e63" opacity="0.2"/></svg>');
-  border-radius: var(--border-radius-sm);
+  border-radius: 4px;
   box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.4);
   position: relative;
   border: 2px solid;
-  border-color: #5d4037 #c19a70 #c19a70 #5d4037; /* Wood bevel */
-  overflow: auto; /* Allow scrolling if plots overflow */
+  border-color: #5d4037 #c19a70 #c19a70 #5d4037;
+  overflow: auto;
 }
 
-/* Garden rows not needed with grid */
-/* .garden-row { ... } */
-
-/* Garden sidebar */
+/* Garden Sidebar - Inventory and details */
 .garden-sidebar {
-  flex: 1.2; /* Slightly wider sidebar */
+  flex: 1.2;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Consistent gap */
-  min-width: 280px; /* Minimum width */
+  gap: 15px;
+  min-width: 280px;
 }
 
-/* Plot details and inventory panel styling */
+/* Plot details and inventory panels - Looks like scrolls/parchment */
 .plot-details, .inventory-panel {
-  background-color: var(--color-bg-panel); /* Use panel color */
-  border-radius: var(--border-radius-md);
+  background-color: #795548;
+  border-radius: 4px;
   padding: 15px;
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   border: 2px solid;
-  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light); /* Bevel */
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2); /* 90s shadow */
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
-/* Use parchment scroll background for panel content */
+/* Parchment scroll background */
 .parchment-scroll {
-    flex: 1;
-    overflow-y: auto;
-    background-color: #f4e9d9; /* Parchment color */
-    border-radius: var(--border-radius-sm);
-    border: 1px solid #d3c6a6; /* Parchment border */
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
-    padding: 15px;
-    scrollbar-width: thin;
-    scrollbar-color: #a1887f #e0d6c9; /* Scrollbar colors */
+  flex: 1;
+  overflow-y: auto;
+  background-color: #f4e9d9;
+  border-radius: 4px;
+  border: 1px solid #d3c6a6;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: #a1887f #e0d6c9;
 }
+
 .parchment-scroll::-webkit-scrollbar { width: 8px; }
 .parchment-scroll::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 4px; }
 .parchment-scroll::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 4px; border: 1px solid #e0d6c9; }
 
 .scroll-content {
-    color: #5d4037; /* Dark text on parchment */
-    font-family: 'Times New Roman', serif; /* Classic book font */
+  color: #5d4037;
+  font-family: 'Times New Roman', serif;
 }
 
 .plot-details h3, .inventory-panel h3 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #6a1b9a; /* Dark purple for headers on parchment */
+  color: #6a1b9a;
   font-size: 18px;
   font-weight: bold;
-  font-family: var(--font-primary); /* Use primary font */
+  font-family: 'Courier New', monospace;
   text-align: center;
-  border-bottom: 1px solid #a1887f; /* Parchment separator */
+  border-bottom: 1px solid #a1887f;
   padding-bottom: 8px;
   position: relative;
 }
@@ -173,86 +174,189 @@
 .plot-details.empty .scroll-content p,
 .inventory-panel.empty .scroll-content p {
   text-align: center;
-  color: #7a6c95; /* Muted color for empty text */
+  color: #7a6c95;
   font-style: italic;
   font-size: 14px;
   margin-top: 20px;
 }
+
 .garden-tip {
-    font-size: 13px;
-    color: #8a6d3b; /* Earthy tip color */
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px dotted #a1887f;
+  font-size: 13px;
+  color: #8a6d3b;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dotted #a1887f;
 }
 
-/* Plot stats on parchment */
+/* Plot statistics bars */
 .plot-stats {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Reduced gap */
+  gap: 8px;
   margin-bottom: 15px;
 }
-.plot-stat { display: flex; align-items: center; gap: 8px; }
-.stat-label { width: 60px; font-size: 13px; color: #6a1b9a; } /* Purple label */
-.stat-bar {
-  flex: 1; height: 8px; background-color: #e0d6c9; border-radius: 4px;
-  overflow: hidden; border: 1px solid #a1887f; box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
-}
-.stat-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-.stat-fill.fertility { background-color: #8d6e63; box-shadow: inset 0 0 3px rgba(93, 64, 55, 0.6); } /* Brown */
-.stat-fill.moisture { background-color: #64b5f6; box-shadow: inset 0 0 3px rgba(30, 136, 229, 0.6); } /* Blue */
-.stat-fill.sunlight { background-color: #fff176; box-shadow: inset 0 0 3px rgba(251, 192, 45, 0.6); } /* Yellow */
-.stat-value { width: 35px; font-size: 13px; text-align: right; color: #5d4037; font-weight: bold; font-family: 'Courier New', monospace; }
 
-/* Plant info card on parchment */
+.plot-stat { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+
+.stat-label { 
+  width: 60px; 
+  font-size: 13px; 
+  color: #6a1b9a; 
+}
+
+.stat-bar {
+  flex: 1; 
+  height: 8px; 
+  background-color: #e0d6c9; 
+  border-radius: 4px;
+  overflow: hidden; 
+  border: 1px solid #a1887f; 
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.stat-fill { 
+  height: 100%; 
+  border-radius: 3px; 
+  transition: width 0.5s ease; 
+}
+
+.stat-fill.fertility { background-color: #8d6e63; box-shadow: inset 0 0 3px rgba(93, 64, 55, 0.6); }
+.stat-fill.moisture { background-color: #64b5f6; box-shadow: inset 0 0 3px rgba(30, 136, 229, 0.6); }
+.stat-fill.sunlight { background-color: #fff176; box-shadow: inset 0 0 3px rgba(251, 192, 45, 0.6); }
+
+.stat-value { 
+  width: 35px; 
+  font-size: 13px; 
+  text-align: right; 
+  color: #5d4037; 
+  font-weight: bold; 
+  font-family: 'Courier New', monospace; 
+}
+
+/* Plant information card */
 .plant-info {
-  background-color: rgba(255, 255, 255, 0.3); /* Slightly transparent bg */
-  border-radius: var(--border-radius-sm);
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #a1887f;
 }
+
 .plant-info h4 {
-  margin-top: 0; margin-bottom: 8px; color: #4e342e; font-size: 15px;
-  font-weight: bold; text-align: center; font-family: var(--font-primary);
+  margin-top: 0; 
+  margin-bottom: 8px; 
+  color: #4e342e; 
+  font-size: 15px;
+  font-weight: bold; 
+  text-align: center; 
+  font-family: 'Courier New', monospace;
 }
-.plant-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.progress-label { width: 50px; font-size: 12px; color: #5d4037; }
-.progress-bar { flex: 1; height: 10px; background-color: #e0d6c9; border-radius: 5px; overflow: hidden; border: 1px solid #a1887f; box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2); }
-.progress-fill { height: 100%; background-color: #8cc152; border-radius: 4px; box-shadow: inset 0 0 3px rgba(86, 151, 80, 0.6); transition: width 0.5s ease; } /* Green progress */
-.progress-value { width: 35px; font-size: 12px; text-align: right; color: #5d4037; font-weight: bold; font-family: 'Courier New', monospace; }
 
-.plant-stats { display: flex; gap: 10px; margin-bottom: 10px; }
-.plant-stat { flex: 1; text-align: center; background-color: rgba(255, 255, 255, 0.4); border-radius: var(--border-radius-sm); padding: 6px; border: 1px solid #a1887f; }
-.plant-stat .stat-label { width: auto; display: block; margin-bottom: 3px; font-size: 11px; color: #6a1b9a; }
-.plant-stat .stat-value { width: auto; display: block; text-align: center; font-size: 13px; color: #5d4037; }
+.plant-progress { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  margin-bottom: 10px; 
+}
 
-/* Special status indicators on parchment */
+.progress-label { 
+  width: 50px; 
+  font-size: 12px; 
+  color: #5d4037; 
+}
+
+.progress-bar { 
+  flex: 1; 
+  height: 10px; 
+  background-color: #e0d6c9; 
+  border-radius: 5px; 
+  overflow: hidden; 
+  border: 1px solid #a1887f; 
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2); 
+}
+
+.progress-fill { 
+  height: 100%; 
+  background-color: #8cc152; 
+  border-radius: 4px; 
+  box-shadow: inset 0 0 3px rgba(86, 151, 80, 0.6); 
+  transition: width 0.5s ease; 
+}
+
+.progress-value { 
+  width: 35px; 
+  font-size: 12px; 
+  text-align: right; 
+  color: #5d4037; 
+  font-weight: bold; 
+  font-family: 'Courier New', monospace; 
+}
+
+.plant-stats { 
+  display: flex; 
+  gap: 10px; 
+  margin-bottom: 10px; 
+}
+
+.plant-stat { 
+  flex: 1; 
+  text-align: center; 
+  background-color: rgba(255, 255, 255, 0.4); 
+  border-radius: 4px; 
+  padding: 6px; 
+  border: 1px solid #a1887f; 
+}
+
+.plant-stat .stat-label { 
+  width: auto; 
+  display: block; 
+  margin-bottom: 3px; 
+  font-size: 11px; 
+  color: #6a1b9a; 
+}
+
+.plant-stat .stat-value { 
+  width: auto; 
+  display: block; 
+  text-align: center; 
+  font-size: 13px; 
+  color: #5d4037; 
+}
+
+/* Special status indicators */
 .plant-blessing, .plant-season, .plant-status {
   background-color: rgba(255, 255, 255, 0.3);
-  border-radius: var(--border-radius-sm);
+  border-radius: 4px;
   padding: 6px 10px;
   margin-bottom: 8px;
-  font-size: 12px; /* Smaller font */
+  font-size: 12px;
   font-family: 'Courier New', monospace;
   text-align: center;
-  border: 1px dashed #a1887f; /* Dashed border */
+  border: 1px dashed #a1887f;
   color: #5d4037;
 }
-.plant-blessing { color: #6a1b9a; border-color: #6a1b9a; } /* Purple */
-.plant-season .boost { color: #388e3c; } /* Darker green */
-.plant-season .penalty { color: #d32f2f; } /* Darker red */
 
-/* Action Buttons (general style for parchment) */
+.plant-blessing { 
+  color: #6a1b9a; 
+  border-color: #6a1b9a; 
+}
+
+.plant-season .boost { color: #388e3c; }
+.plant-season .penalty { color: #d32f2f; }
+
+/* Action Buttons - Chunky 90s style */
 .scroll-content .action-button {
   padding: 8px 15px;
-  background-color: #d3c6a6; /* Parchment button color */
+  background-color: #d3c6a6;
   color: #5d4037;
   border: 2px solid;
-  border-color: #e0d6c9 #a1887f #a1887f #e0d6c9; /* Parchment bevel */
-  border-radius: var(--border-radius-sm);
-  font-family: var(--font-primary); /* Primary font for actions */
+  border-color: #e0d6c9 #a1887f #a1887f #e0d6c9;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -260,81 +364,166 @@
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
   margin-top: 10px;
+  image-rendering: pixelated;
 }
+
 .scroll-content .action-button:hover:not(:disabled) {
   background-color: #c1b29f;
   transform: translateY(-2px);
   box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
 }
+
 .scroll-content .action-button:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  border-color: #a1887f #e0d6c9 #e0d6c9 #a1887f; /* Invert bevel */
+  border-color: #a1887f #e0d6c9 #e0d6c9 #a1887f;
 }
-.scroll-content .action-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); }
 
-.scroll-content .action-button.harvest { background-color: #a5d6a7; border-color: #c8e6c9 #66bb6a #66bb6a #c8e6c9; color: #1b5e20; } /* Green */
-.scroll-content .action-button.harvest:hover:not(:disabled) { background-color: #90a959; }
-.scroll-content .action-button.plant { background-color: #90caf9; border-color: #bbdefb #42a5f5 #42a5f5 #bbdefb; color: #0d47a1; } /* Blue */
-.scroll-content .action-button.plant:hover:not(:disabled) { background-color: #7a9dce; }
+.scroll-content .action-button:disabled { 
+  opacity: 0.6; 
+  cursor: not-allowed; 
+  transform: none; 
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+}
+
+.scroll-content .action-button.harvest { 
+  background-color: #a5d6a7; 
+  border-color: #c8e6c9 #66bb6a #66bb6a #c8e6c9; 
+  color: #1b5e20; 
+}
+
+.scroll-content .action-button.harvest:hover:not(:disabled) { 
+  background-color: #90a959; 
+}
+
+.scroll-content .action-button.plant { 
+  background-color: #90caf9; 
+  border-color: #bbdefb #42a5f5 #42a5f5 #bbdefb; 
+  color: #0d47a1; 
+}
+
+.scroll-content .action-button.plant:hover:not(:disabled) { 
+  background-color: #7a9dce; 
+}
 
 .scroll-content .close-button {
-    padding: 6px 12px; font-size: 13px; margin-top: 10px;
-    background-color: #e0d6c9; color: #8a6d3b;
-    border-color: #f4e9d9 #a1887f #a1887f #f4e9d9;
+  padding: 6px 12px; 
+  font-size: 13px; 
+  margin-top: 10px;
+  background-color: #e0d6c9; 
+  color: #8a6d3b;
+  border-color: #f4e9d9 #a1887f #a1887f #f4e9d9;
 }
-.scroll-content .close-button:hover { background-color: #d3c6a6; color: #5d4037; }
 
-/* Seed list styling on parchment */
+.scroll-content .close-button:hover { 
+  background-color: #d3c6a6; 
+  color: #5d4037; 
+}
+
+/* Seed list styling */
 .seed-list {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 15px;
-  padding-right: 8px; /* Space for scrollbar */
+  padding-right: 8px;
   scrollbar-width: thin;
   scrollbar-color: #a1887f #e0d6c9;
 }
+
 .seed-list::-webkit-scrollbar { width: 8px; }
 .seed-list::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 4px; }
 .seed-list::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 4px; border: 1px solid #e0d6c9; }
 
 .seed-item {
-  display: flex; align-items: center; gap: 10px; padding: 8px;
-  border-radius: var(--border-radius-sm); cursor: pointer; transition: all 0.15s ease;
-  margin-bottom: 6px; background-color: rgba(255, 255, 255, 0.4);
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 8px;
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: all 0.15s ease;
+  margin-bottom: 6px; 
+  background-color: rgba(255, 255, 255, 0.4);
   border: 1px solid #a1887f;
 }
-.seed-item:hover { background-color: rgba(255, 255, 255, 0.6); transform: translateX(3px); }
-.seed-item.selected { background-color: rgba(181, 157, 196, 0.2); border-color: #6a1b9a; font-weight: bold; }
+
+.seed-item:hover { 
+  background-color: rgba(255, 255, 255, 0.6); 
+  transform: translateX(3px); 
+}
+
+.seed-item.selected { 
+  background-color: rgba(181, 157, 196, 0.2); 
+  border-color: #6a1b9a; 
+  font-weight: bold; 
+}
 
 .seed-image {
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; background-color: #e0d6c9; overflow: hidden; flex-shrink: 0;
-  border: 1px solid #a1887f; box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+  width: 32px; 
+  height: 32px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  border-radius: 50%; 
+  background-color: #e0d6c9; 
+  overflow: hidden; 
+  flex-shrink: 0;
+  border: 1px solid #a1887f; 
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
   image-rendering: pixelated;
 }
-.seed-placeholder { font-size: 16px; color: #6a1b9a; font-weight: bold; }
-.seed-info { flex: 1; overflow: hidden; }
-.seed-name { font-size: 14px; color: #5d4037; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Times New Roman', serif; }
-.seed-quantity { font-size: 12px; color: #8a6d3b; font-family: 'Courier New', monospace; }
-.seed-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 10px; }
 
-/* General Garden Actions (Bottom of sidebar) */
+.seed-placeholder { 
+  font-size: 16px; 
+  color: #6a1b9a; 
+  font-weight: bold; 
+}
+
+.seed-info { 
+  flex: 1; 
+  overflow: hidden; 
+}
+
+.seed-name { 
+  font-size: 14px; 
+  color: #5d4037; 
+  margin-bottom: 2px; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  font-family: 'Times New Roman', serif; 
+}
+
+.seed-quantity { 
+  font-size: 12px; 
+  color: #8a6d3b; 
+  font-family: 'Courier New', monospace; 
+}
+
+.seed-actions { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  margin-top: auto; 
+  padding-top: 10px; 
+}
+
+/* Bottom Garden Actions */
 .garden-actions {
-  margin-top: auto; /* Pushes to bottom */
+  margin-top: auto;
   padding-top: 15px;
-  border-top: 1px dotted var(--color-border);
-  flex-shrink: 0; /* Prevent shrinking */
+  border-top: 1px dotted #a1887f;
+  flex-shrink: 0;
 }
 
 .garden-action-button {
   padding: 10px 15px;
-  background-color: var(--color-bg-light);
-  color: var(--color-text-heading);
+  background-color: #8d6e63;
+  color: #f4e9d9;
   border: 2px solid;
-  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
-  border-radius: var(--border-radius-sm);
-  font-family: var(--font-primary);
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -344,29 +533,43 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  image-rendering: pixelated;
 }
 
 .garden-action-button:hover:not(:disabled) {
-  background-color: var(--color-border);
+  background-color: #a1887f;
   transform: translateY(-2px);
   box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
 }
+
 .garden-action-button:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  border-color: var(--color-bg-dark) var(--color-border-light) var(--color-border-light) var(--color-bg-dark);
+  border-color: #5d4037 #a1887f #a1887f #5d4037;
 }
-.garden-action-button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.garden-action-button.attune { /* Renamed from water */
-  background-color: var(--color-accent-secondary); /* Gold */
-  color: var(--color-bg-dark);
+.garden-action-button:disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed; 
+}
+
+.garden-action-button.attune {
+  background-color: #ffd54f;
+  color: #4e342e;
   border-color: #ffe08a #a07c2c #a07c2c #ffe08a;
 }
-.garden-action-button.attune:hover:not(:disabled) { background-color: #e6c46c; }
-.garden-action-button.attune:active:not(:disabled) { border-color: #a07c2c #ffe08a #ffe08a #a07c2c; }
 
-.button-icon { font-size: 16px; }
+.garden-action-button.attune:hover:not(:disabled) { 
+  background-color: #e6c46c; 
+}
+
+.garden-action-button.attune:active:not(:disabled) { 
+  border-color: #a07c2c #ffe08a #ffe08a #a07c2c; 
+}
+
+.button-icon { 
+  font-size: 16px; 
+}
 
 /* Garden whisper animation */
 .garden-whisper {
@@ -375,14 +578,14 @@
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(30, 20, 40, 0.85);
-  color: var(--color-accent-primary);
+  color: #b59dc4;
   padding: 8px 15px;
   border-radius: 20px;
   font-size: 14px;
   font-style: italic;
-  font-family: var(--font-secondary);
+  font-family: 'Times New Roman', serif;
   z-index: 100;
-  border: 1px solid var(--color-accent-primary);
+  border: 1px solid #9c71ad;
   box-shadow: 0 0 15px rgba(181, 157, 196, 0.4);
   animation: whisper-fade 8s ease-in-out forwards;
   white-space: nowrap;
@@ -395,8 +598,8 @@
   100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
 }
 
-/* Watering/Attunement animation overlay (simple placeholder) */
-.attunement-overlay { /* Renamed from watering-overlay */
+/* Attunement animation overlay */
+.attunement-overlay {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle, rgba(181, 157, 196, 0.3) 0%, transparent 70%);
@@ -404,28 +607,28 @@
   z-index: 50;
   animation: attunement-pulse 2s ease-out forwards;
 }
+
 @keyframes attunement-pulse {
   0% { opacity: 0; transform: scale(0.5); }
   50% { opacity: 0.5; }
   100% { opacity: 0; transform: scale(1.5); }
 }
 
-/* Secret Easter Egg: Tiny clickable element */
+/* Secret Easter Egg spot */
 .garden-secret-spot {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    width: 15px;
-    height: 15px;
-    /* background: red; */ /* Uncomment for debugging */
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%237eba76" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>') 8 8, pointer; /* Magnifying glass cursor */
-    z-index: 10;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 15px;
+  height: 15px;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%237eba76" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>') 8 8, pointer;
+  z-index: 10;
 }
 
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .garden-content { flex-direction: column; height: auto; }
-  .garden-grid { min-height: 40vh; /* Ensure grid has decent height */ }
+  .garden-grid { min-height: 40vh; }
   .garden-sidebar { flex: none; min-width: 0; }
 }
 
@@ -435,7 +638,321 @@
   .weather-indicator, .season-indicator { padding: 4px 6px; }
   .weather-icon, .season-icon { font-size: 14px; }
   .weather-label, .season-label { font-size: 11px; }
-  .garden-grid { gap: 5px; padding: 5px; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(auto-fill, minmax(90px, 1fr)); } /* Dynamic rows */
+  .garden-grid { 
+    gap: 5px; 
+    padding: 5px; 
+    grid-template-columns: repeat(2, 1fr); 
+    grid-template-rows: repeat(auto-fill, minmax(90px, 1fr)); 
+  }
   .plot-details h3, .inventory-panel h3 { font-size: 16px; }
   .scroll-content .action-button { font-size: 13px; padding: 6px 12px; }
+}
+
+/* Garden Plot Specific Styling */
+.garden-plot {
+  position: relative;
+  flex: 1;
+  aspect-ratio: 1 / 1;
+  min-width: 80px;
+  background-color: #8d6e63;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238d6e63"/><circle cx="2" cy="3" r="1" fill="%235d4037" opacity="0.3"/><circle cx="7" cy="6" r="1" fill="%235d4037" opacity="0.3"/><circle cx="5" cy="9" r="1" fill="%235d4037" opacity="0.3"/><circle cx="8" cy="1" r="1" fill="%235d4037" opacity="0.3"/></svg>');
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* 90s Bevel Border */
+  border: 3px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+  image-rendering: pixelated;
+}
+
+.garden-plot:hover:not(.locked) {
+  transform: translateY(-3px) translateX(-1px);
+  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
+  border-color: #b59dc4;
+}
+
+.garden-plot.selected:not(.locked) {
+  border-color: #ffd54f;
+  box-shadow: 0 0 0 3px #ffd54f, 5px 5px 0px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px) translateX(-1px) scale(1.02);
+}
+
+.garden-plot.locked {
+  background-color: #555;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%23555"/><path d="M0 0h20v20H0z" stroke-width="1" stroke="%23333" fill="none"/><path d="M0 0L20 20M0 20L20 0" stroke-width="2" stroke="%23444" fill="none"/></svg>');
+  cursor: not-allowed;
+  opacity: 0.8;
+  border-color: #777 #333 #333 #777;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 2px;
+}
+
+.lock-icon {
+  font-size: 32px;
+  color: #aaa;
+  text-shadow: 1px 1px 0px #333;
+}
+
+/* Represents the soil mound inside the plot */
+.plot-soil {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  height: 45%;
+  background-color: #795548;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23795548"/><circle cx="3" cy="2" r="1" fill="%234e342e" opacity="0.4"/><circle cx="8" cy="7" r="1" fill="%234e342e" opacity="0.4"/><circle cx="1" cy="8" r="1" fill="%234e342e" opacity="0.4"/></svg>');
+  border-radius: 4px 4px 0 0;
+  transition: all 0.4s ease;
+  border-top: 2px solid #a1887f;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Moisture levels affect soil appearance */
+.garden-plot.dry .plot-soil {
+  background-color: #a1887f;
+  filter: brightness(1.1);
+}
+
+.garden-plot.wet .plot-soil {
+  background-color: #4e342e;
+  filter: brightness(0.8);
+}
+
+/* Plot status indicators */
+.plot-status {
+  position: absolute;
+  top: 5px; 
+  right: 5px;
+  z-index: 5;
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px;
+}
+
+.status-icon {
+  width: 18px; 
+  height: 18px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.status-icon.ready-to-harvest { 
+  background-color: #689f38;
+  animation: harvestPulseIcon 1.5s infinite;
+}
+
+.status-icon.needs-water { 
+  background-color: #1e88e5;
+}
+
+.status-icon.empty-plot { 
+  background-color: #757575;
+  color: #e0e0e0;
+}
+
+@keyframes harvestPulseIcon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); box-shadow: 0 0 5px #a5d6a7, 1px 1px 2px rgba(0, 0, 0, 0.5); }
+}
+
+/* Seasonal Attunement Puzzle Styles */
+.seasonal-attunement-puzzle {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+}
+
+.puzzle-container {
+  background-color: #795548;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  border: 6px solid transparent;
+  border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%235d4037"/><path d="M3 3h12v12H3z" fill="%238d6e63"/><path d="M6 6h6v6H6z" fill="%23a1887f"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%235d4037"/></svg>');
+  border-image-slice: 6;
+  border-image-width: 6px;
+  border-image-outset: 0;
+  border-image-repeat: round;
+  border-style: solid;
+  image-rendering: pixelated;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.puzzle-header {
+  text-align: center;
+  color: #f4e9d9;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
+  border-bottom: 2px solid #a1887f;
+  padding-bottom: 10px;
+}
+
+.puzzle-header h2 {
+  margin: 0 0 5px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 20px;
+}
+
+.puzzle-description {
+  color: #f4e9d9;
+  font-family: 'Times New Roman', serif;
+  font-size: 14px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid #5d4037;
+}
+
+.puzzle-board {
+  background-color: #f4e9d9;
+  border-radius: 4px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 2px solid;
+  border-color: #5d4037 #a1887f #a1887f #5d4037;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.puzzle-elements {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+.puzzle-element {
+  aspect-ratio: 1;
+  background-color: #e0d6c9;
+  border: 3px solid;
+  border-color: #f4e9d9 #a1887f #a1887f #f4e9d9;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  transition: all 0.2s ease;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.puzzle-element:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.puzzle-element:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  border-color: #a1887f #f4e9d9 #f4e9d9 #a1887f;
+}
+
+.puzzle-element.selected {
+  background-color: #b59dc4;
+  border-color: #9c71ad;
+  transform: scale(0.95);
+  box-shadow: 0 0 8px rgba(181, 157, 196, 0.6), inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.puzzle-timer {
+  width: 100%;
+  height: 10px;
+  background-color: #e0d6c9;
+  border: 1px solid #a1887f;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.timer-fill {
+  height: 100%;
+  background-color: #ffd54f;
+  width: 100%;
+  transition: width linear;
+}
+
+.puzzle-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.puzzle-button {
+  flex: 1;
+  padding: 8px 15px;
+  background-color: #8d6e63;
+  color: #f4e9d9;
+  border: 2px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.puzzle-button:hover {
+  background-color: #a1887f;
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.4);
+}
+
+.puzzle-button:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-color: #5d4037 #a1887f #a1887f #5d4037;
+}
+
+.puzzle-button.submit {
+  background-color: #ffd54f;
+  color: #4e342e;
+  border-color: #ffe08a #a07c2c #a07c2c #ffe08a;
+}
+
+.puzzle-button.submit:hover {
+  background-color: #e6c46c;
+}
+
+.puzzle-button.skip {
+  background-color: #bdbdbd;
+  color: #424242;
+  border-color: #e0e0e0 #757575 #757575 #e0e0e0;
+}
+
+.puzzle-button.skip:hover {
+  background-color: #9e9e9e;
 }

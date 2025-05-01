@@ -1,203 +1,267 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import './SeasonalAttunementPuzzle.css';
-import { Season } from 'coven-shared';
-
-type ElementType = 'sun' | 'water' | 'earth' | 'air';
-const ELEMENTS: ElementType[] = ['sun', 'water', 'earth', 'air'];
-
-// Define target balance ranges per season
-const SEASONAL_TARGETS: Record<Season, Record<ElementType, { min: number; max: number }>> = {
-  Spring: { sun: { min: 55, max: 75 }, water: { min: 60, max: 80 }, earth: { min: 40, max: 60 }, air: { min: 50, max: 70 } },
-  Summer: { sun: { min: 75, max: 95 }, water: { min: 50, max: 70 }, earth: { min: 20, max: 40 }, air: { min: 40, max: 60 } },
-  Fall: { sun: { min: 40, max: 60 }, water: { min: 55, max: 75 }, earth: { min: 50, max: 70 }, air: { min: 60, max: 80 } },
-  Winter: { sun: { min: 20, max: 40 }, water: { min: 30, max: 50 }, earth: { min: 60, max: 80 }, air: { min: 70, max: 90 } },
-};
-
-// Define max moves per difficulty (example)
-const MAX_MOVES = { easy: 15, medium: 12, hard: 10 };
+import React, { useState, useEffect, useCallback } from 'react';
+// Assuming existing styling from the CSS artifacts
 
 interface SeasonalAttunementPuzzleProps {
   onComplete: (result: { success: boolean; bonus: number; message: string }) => void;
   onSkip: () => void;
-  season: Season;
-  difficulty?: 'easy' | 'medium' | 'hard'; // Optional difficulty
+  season: 'Spring' | 'Summer' | 'Fall' | 'Winter';
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
   onComplete,
   onSkip,
   season,
-  difficulty = 'medium', // Default difficulty
+  difficulty = 'medium'
 }) => {
-  // State for element levels
-  const [elementLevels, setElementLevels] = useState<Record<ElementType, number>>({
-    sun: 50, water: 50, earth: 50, air: 50,
-  });
-  const [movesLeft, setMovesLeft] = useState<number>(MAX_MOVES[difficulty]);
-  const [isComplete, setIsComplete] = useState<boolean>(false);
-  const [result, setResult] = useState<{ success: boolean; bonus: number; message: string } | null>(null);
-
-  // Memoize target ranges for the current season
-  const targets = useMemo(() => SEASONAL_TARGETS[season], [season]);
-
-  // Handle slider change - this represents one "move"
-  const handleSliderChange = (element: ElementType, value: number) => {
-    if (isComplete || movesLeft <= 0) return;
-
-    setElementLevels(prevLevels => {
-      const newLevels = { ...prevLevels, [element]: value };
-      // Optional: Add interaction logic (e.g., increasing water slightly decreases sun)
-      // Example: if (element === 'water') newLevels.sun = Math.max(0, newLevels.sun - Math.abs(value - prevLevels.water) / 4);
-      return newLevels;
-    });
-
-    setMovesLeft(prev => prev - 1);
-  };
-
-  // Check for completion when moves run out or manually triggered
-  const checkCompletion = () => {
-    if (isComplete) return;
-
-    let withinTargetCount = 0;
-    let totalDistance = 0;
-
-    ELEMENTS.forEach(el => {
-      const level = elementLevels[el];
-      const target = targets[el];
-      if (level >= target.min && level <= target.max) {
-        withinTargetCount++;
-        // Smaller distance within target is better
-        totalDistance += Math.min(Math.abs(level - target.min), Math.abs(level - target.max));
-      } else {
-        // Calculate distance outside target
-        totalDistance += (level < target.min ? target.min - level : level - target.max) * 1.5; // Penalize being outside
-      }
-    });
-
-    const success = withinTargetCount === ELEMENTS.length;
-    let bonus = 0;
-    let message = '';
-
-    if (success) {
-      // Calculate bonus based on how close to the center of targets (lower distance is better)
-      // Max possible distance within targets (sum of half ranges)
-      const maxInnerDistance = ELEMENTS.reduce((sum, el) => sum + (targets[el].max - targets[el].min) / 2, 0);
-      const closenessFactor = Math.max(0, 1 - (totalDistance / maxInnerDistance)); // 0 to 1
-      bonus = Math.round(10 + closenessFactor * 10); // Bonus range 10-20
-      message = `Garden energies harmonized! (+${bonus}% Attunement Bonus)`;
-    } else {
-      bonus = 0;
-      message = `Energy balance unstable (${withinTargetCount}/${ELEMENTS.length} elements aligned). No bonus gained.`;
-    }
-
-    setIsComplete(true);
-    setResult({ success, bonus, message });
-  };
-
-   // Effect to check completion automatically when moves run out
-   useEffect(() => {
-       if (movesLeft <= 0 && !isComplete) {
-           checkCompletion();
-       }
-   }, [movesLeft, isComplete]);
-
-  // Effect to call onComplete when result is set
+  // States for puzzle mechanics
+  const [elements, setElements] = useState<string[]>([]);
+  const [selectedElements, setSelectedElements] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds
+  const [isPaused] = useState<boolean>(false); // No setter needed as we're not changing this state
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  
+  // Generate elements based on season
   useEffect(() => {
-      if (result) {
-          // Use a timeout to allow the player to see the result briefly
-          const timer = setTimeout(() => {
-              onComplete(result);
-          }, 1500); // Show result for 1.5 seconds
-          return () => clearTimeout(timer);
+    const generateElements = () => {
+      // Each season has specific elements that are more valuable for attunement
+      const seasonalElements: Record<string, string[]> = {
+        Spring: ['🌱', '🌷', '🌿', '🦋', '🐣', '🌧️', '🌈', '🌤️'],
+        Summer: ['☀️', '🌻', '🍉', '🌊', '🏄', '🔥', '🌴', '🦗'],
+        Fall: ['🍂', '🍁', '🍄', '🦊', '🎃', '🌰', '🍇', '🦉'],
+        Winter: ['❄️', '☃️', '🧣', '🦌', '🌲', '🏔️', '🧊', '🦢']
+      };
+      
+      // Common elements that appear regardless of season (less valuable)
+      const commonElements = ['💧', '🪨', '🌙', '⭐', '🔮'];
+      
+      // Get the current season's elements
+      const currentSeasonElements = seasonalElements[season] || seasonalElements.Spring;
+      
+      // Create a pool of elements based on difficulty
+      let pool: string[] = [];
+      
+      // Add seasonal elements (valuable)
+      pool = [...currentSeasonElements];
+      
+      // Add some off-season elements (less valuable)
+      const otherSeasons = Object.keys(seasonalElements).filter(s => s !== season);
+      otherSeasons.forEach(otherSeason => {
+        const otherElements = seasonalElements[otherSeason];
+        // Add fewer elements from other seasons
+        pool = [...pool, ...otherElements.slice(0, 2)];
+      });
+      
+      // Add common elements
+      pool = [...pool, ...commonElements];
+      
+      // Shuffle the pool
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      
+      // Determine number of elements based on difficulty
+      const numElements = difficulty === 'easy' ? 12 : difficulty === 'medium' ? 16 : 20;
+      
+      // Ensure we have enough elements
+      while (shuffled.length < numElements) {
+        shuffled.push(...pool.slice(0, numElements - shuffled.length));
       }
-      return undefined; // Explicitly return undefined for other cases
-  }, [result, onComplete]);
-
-
-  const getElementIcon = (element: ElementType): string => {
-    switch (element) {
-      case 'sun': return '☀️';
-      case 'water': return '💧';
-      case 'earth': return '🌰';
-      case 'air': return '💨';
-      default: return '?';
-    }
+      
+      // Slice to get desired number of elements
+      return shuffled.slice(0, numElements);
+    };
+    
+    setElements(generateElements());
+  }, [season, difficulty]);
+  
+  // Timer effect
+  useEffect(() => {
+    if (isCompleted || isPaused || timeLeft <= 0) return;
+    
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        const newTime = prev - 1;
+        if (newTime <= 0) {
+          clearInterval(timer);
+          // Time's up - complete puzzle with current selections
+          handleSubmitPuzzle();
+        }
+        return newTime;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [timeLeft, isPaused, isCompleted]);
+  
+  // Handle element selection
+  const handleElementClick = (element: string) => {
+    if (isCompleted) return;
+    
+    setSelectedElements(prev => {
+      if (prev.includes(element)) {
+        return prev.filter(e => e !== element);
+      } else {
+        return [...prev, element];
+      }
+    });
   };
-
+  
+  // Calculate puzzle score
+  const calculateScore = useCallback(() => {
+    // Each season has specific elements that are valuable
+    const seasonalElementValues: Record<string, Record<string, number>> = {
+      Spring: { '🌱': 3, '🌷': 3, '🌿': 2, '🦋': 2, '🐣': 2, '🌧️': 2, '🌈': 3, '🌤️': 2 },
+      Summer: { '☀️': 3, '🌻': 3, '🍉': 2, '🌊': 2, '🏄': 2, '🔥': 3, '🌴': 2, '🦗': 2 },
+      Fall: { '🍂': 3, '🍁': 3, '🍄': 2, '🦊': 2, '🎃': 2, '🌰': 2, '🍇': 3, '🦉': 2 },
+      Winter: { '❄️': 3, '☃️': 3, '🧣': 2, '🦌': 2, '🌲': 2, '🏔️': 2, '🧊': 3, '🦢': 2 }
+    };
+    
+    // Common elements worth less, but still positive
+    const commonElementValues: Record<string, number> = {
+      '💧': 1, '🪨': 1, '🌙': 2, '⭐': 2, '🔮': 1
+    };
+    
+    // Get the current season's element values
+    const currentSeasonValues = seasonalElementValues[season] || seasonalElementValues.Spring;
+    
+    // Calculate total score
+    let score = 0;
+    let totalElements = 0;
+    
+    selectedElements.forEach(element => {
+      totalElements++;
+      
+      // Check if it's a seasonal element for the current season
+      if (element in currentSeasonValues) {
+        score += currentSeasonValues[element];
+      } 
+      // Check if it's a common element
+      else if (element in commonElementValues) {
+        score += commonElementValues[element];
+      } 
+      // Check if it's from another season (negative points)
+      else {
+        for (const otherSeason in seasonalElementValues) {
+          if (otherSeason !== season && element in seasonalElementValues[otherSeason]) {
+            score -= 1; // Penalty for using wrong season's elements
+            break;
+          }
+        }
+      }
+    });
+    
+    // Bonus for selecting balanced number of elements (not too few, not too many)
+    const optimalCount = Math.floor(elements.length / 3);
+    if (totalElements >= optimalCount - 1 && totalElements <= optimalCount + 1) {
+      score += 2; // Bonus for balance
+    }
+    
+    // Bonus for time left
+    const timeBonus = Math.floor(timeLeft / 5);
+    score += timeBonus;
+    
+    return score;
+  }, [selectedElements, season, elements.length, timeLeft]);
+  
+  // Handle submit button
+  const handleSubmitPuzzle = () => {
+    if (isCompleted) return;
+    
+    setIsCompleted(true);
+    const score = calculateScore();
+    
+    // Determine success and bonus
+    const maxPossibleScore = 20; // Estimate of max score
+    const scorePercent = Math.min(100, Math.round((score / maxPossibleScore) * 100));
+    const success = score > 0;
+    const bonus = Math.max(0, Math.min(100, scorePercent));
+    
+    // Customize message based on score
+    let message = '';
+    if (scorePercent >= 90) {
+      message = `Perfect attunement! The garden thrums with energy. (${bonus}% bonus)`;
+    } else if (scorePercent >= 70) {
+      message = `Strong attunement achieved! Plants seem to sway in appreciation. (${bonus}% bonus)`;
+    } else if (scorePercent >= 50) {
+      message = `Decent attunement. The garden accepts your offering. (${bonus}% bonus)`;
+    } else if (scorePercent >= 30) {
+      message = `Weak attunement, but still effective. (${bonus}% bonus)`;
+    } else if (scorePercent > 0) {
+      message = `Minimal attunement achieved. (${bonus}% bonus)`;
+    } else {
+      message = "The energies seem confused by your choices.";
+    }
+    
+    // Return result to parent component
+    setTimeout(() => {
+      onComplete({ success, bonus, message });
+    }, 1500);
+  };
+  
+  // Render the puzzle
   return (
-    <div className="attunement-puzzle-overlay">
-      <div className="attunement-puzzle-container">
-        {!result ? (
-          <>
-            <div className="puzzle-header">
-              <h2>Seasonal Attunement ({season})</h2>
-            </div>
-            <p className="puzzle-instructions">
-              Balance the elemental energies to match the current season's needs within {MAX_MOVES[difficulty]} adjustments. Aim for the yellow target areas.
-            </p>
-            <div className="puzzle-hud">
-              <div className="hud-item">
-                <span className="hud-label">Moves Left:</span>
-                <span className={`hud-value ${movesLeft <= 3 ? 'danger' : movesLeft <= 6 ? 'warning' : ''}`}>{movesLeft}</span>
+    <div className="seasonal-attunement-puzzle">
+      <div className="puzzle-container">
+        <div className="puzzle-header">
+          <h2>Seasonal Attunement Ritual</h2>
+          <div className="season-badge">{season} Energies</div>
+        </div>
+        
+        <div className="puzzle-description">
+          <p>Select elements that harmonize with the current season's energy to attune your garden. Choose wisely - elements from other seasons may disrupt the flow!</p>
+        </div>
+        
+        <div className="puzzle-timer">
+          <div 
+            className="timer-fill" 
+            style={{ 
+              width: `${(timeLeft / 30) * 100}%`,
+              transition: `width ${timeLeft > 0 ? '1s' : '0s'} linear`
+            }} 
+          />
+          <div className="timer-text">{timeLeft}s</div>
+        </div>
+        
+        <div className="puzzle-board">
+          <div className="puzzle-elements">
+            {elements.map((element, index) => (
+              <div
+                key={`${element}-${index}`}
+                className={`puzzle-element ${selectedElements.includes(element) ? 'selected' : ''}`}
+                onClick={() => handleElementClick(element)}
+              >
+                {element}
               </div>
-              <div className="hud-item">
-                  <span className="hud-label">Current Season:</span>
-                  <span className="hud-value">{season}</span>
-              </div>
-            </div>
-
-            <div className="attunement-board">
-              {ELEMENTS.map(el => (
-                <div key={el} className="element-control">
-                  <span className={`element-icon ${el}`}>{getElementIcon(el)}</span>
-                  <span className="element-label">{el.charAt(0).toUpperCase() + el.slice(1)}</span>
-                  <div className="element-slider-container" style={{position: 'relative'}}>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={elementLevels[el]}
-                      onChange={(e) => handleSliderChange(el, parseInt(e.target.value, 10))}
-                      className="element-slider"
-                      disabled={isComplete || movesLeft <= 0}
-                    />
-                    {/* Target Range Visualization */}
-                     <div
-                        className="target-indicator"
-                        title={`Target: ${targets[el].min}-${targets[el].max}`}
-                        style={{ '--target-percent': `${(targets[el].min + targets[el].max) / 2}%` } as React.CSSProperties}
-                     ></div>
-                  </div>
-                  <span className="element-value">{elementLevels[el]}</span>
-                </div>
+            ))}
+          </div>
+          
+          <div className="selected-display">
+            <div className="selected-label">Selected: {selectedElements.length}</div>
+            <div className="selected-elements">
+              {selectedElements.map((element, index) => (
+                <span key={`selected-${index}`} className="selected-pill">
+                  {element}
+                </span>
               ))}
             </div>
-
-            <div className="puzzle-controls">
-               {/* Disable button if no moves left or already completed */}
-              <button
-                className="attune-btn"
-                onClick={checkCompletion}
-                disabled={isComplete || movesLeft <= 0}
-              >
-                Check Attunement
-              </button>
-              <button className="skip-btn" onClick={onSkip} disabled={isComplete}>
-                Skip Puzzle
-              </button>
-            </div>
-          </>
-        ) : (
-          /* Result Screen */
-          <div className={`puzzle-result-overlay`}>
-            <div className={`puzzle-result-content ${result.success ? 'success' : 'failure'}`}>
-                <h3>{result.success ? '✨ Attunement Successful! ✨' : '☁️ Balance Lost ☁️'}</h3>
-                <p>{result.message}</p>
-                {result.success && <div className="puzzle-result-bonus">Bonus: +{result.bonus}%</div>}
-                {/* The onComplete callback is triggered by useEffect after a delay */}
-            </div>
           </div>
-        )}
+        </div>
+        
+        <div className="puzzle-actions">
+          <button 
+            className="puzzle-button submit" 
+            onClick={handleSubmitPuzzle} 
+            disabled={isCompleted}
+          >
+            Complete Ritual
+          </button>
+          <button 
+            className="puzzle-button skip" 
+            onClick={onSkip} 
+            disabled={isCompleted}
+          >
+            Skip
+          </button>
+        </div>
       </div>
     </div>
   );
