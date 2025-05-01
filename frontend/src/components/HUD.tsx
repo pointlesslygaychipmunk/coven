@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'; // Added useRef to the import
-import './HUD.css'; // Styles for the sidebar HUD
-import LunarPhaseIcon from './LunarPhaseIcon'; // Import the icon component
+import React, { useState, useEffect, useRef } from 'react';
+import './HUD.css';
+import LunarPhaseIcon from './LunarPhaseIcon';
 import { MoonPhase } from 'coven-shared';
 
 interface HUDProps {
@@ -34,7 +34,6 @@ const HUD: React.FC<HUDProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const portraitClickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-
   // Handle location change
   const handleLocationClick = (location: string) => {
     setActiveLocation(location);
@@ -53,8 +52,8 @@ const HUD: React.FC<HUDProps> = ({
       setConfirmEndDay(true);
       // Set timeout to auto-cancel confirmation
       const timeoutId = setTimeout(() => {
-         setConfirmEndDay(false);
-         setConfirmTimeoutId(null);
+        setConfirmEndDay(false);
+        setConfirmTimeoutId(null);
       }, 5000); // 5 seconds
       setConfirmTimeoutId(timeoutId);
     }
@@ -69,39 +68,38 @@ const HUD: React.FC<HUDProps> = ({
     setConfirmEndDay(false);
   };
 
-   // Easter Egg: Player Portrait Click
-   const handlePortraitClick = () => {
-       // Clear existing timeout
-       if (portraitClickTimeoutRef.current) {
-           clearTimeout(portraitClickTimeoutRef.current);
-       }
+  // Easter Egg: Player Portrait Click
+  const handlePortraitClick = () => {
+    // Clear existing timeout
+    if (portraitClickTimeoutRef.current) {
+      clearTimeout(portraitClickTimeoutRef.current);
+    }
 
-       const newClicks = portraitClicks + 1;
-       setPortraitClicks(newClicks);
+    const newClicks = portraitClicks + 1;
+    setPortraitClicks(newClicks);
 
-       if (newClicks >= 5) {
-           setShowSparkle(true);
-           setStatusMessage(`${playerName} feels particularly determined! ✨`);
-           setTimeout(() => setShowSparkle(false), 1000); // Sparkle duration
-           setTimeout(() => setStatusMessage(null), 3000); // Message duration
-           setPortraitClicks(0); // Reset clicks after activation
-       } else {
-           // Set a timeout to reset clicks if not clicked again quickly
-           portraitClickTimeoutRef.current = setTimeout(() => {
-               setPortraitClicks(0);
-           }, 800); // Reset after 0.8 seconds of inactivity
-       }
-   };
+    if (newClicks >= 5) {
+      setShowSparkle(true);
+      setStatusMessage(`${playerName} feels particularly determined! ✨`);
+      setTimeout(() => setShowSparkle(false), 1000); // Sparkle duration
+      setTimeout(() => setStatusMessage(null), 3000); // Message duration
+      setPortraitClicks(0); // Reset clicks after activation
+    } else {
+      // Set a timeout to reset clicks if not clicked again quickly
+      portraitClickTimeoutRef.current = setTimeout(() => {
+        setPortraitClicks(0);
+      }, 800); // Reset after 0.8 seconds of inactivity
+    }
+  };
 
-   // Cleanup portrait click timeout on unmount
-   useEffect(() => {
-       return () => {
-           if (portraitClickTimeoutRef.current) {
-               clearTimeout(portraitClickTimeoutRef.current);
-           }
-       };
-   }, []);
-
+  // Cleanup portrait click timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (portraitClickTimeoutRef.current) {
+        clearTimeout(portraitClickTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Get player initial for avatar
   const getPlayerInitial = (): string => {
@@ -119,17 +117,16 @@ const HUD: React.FC<HUDProps> = ({
 
   return (
     <aside className="coven-hud-sidebar">
-
       {/* Player Info */}
       <div className="player-panel">
         <div
-            className={`player-portrait ${showSparkle ? 'sparkling' : ''}`}
-            onClick={handlePortraitClick}
-            title="Click portrait rapidly..."
+          className={`player-portrait ${showSparkle ? 'sparkling' : ''}`}
+          onClick={handlePortraitClick}
+          title="Click portrait rapidly..."
         >
           <div className="player-avatar">{getPlayerInitial()}</div>
         </div>
-        <div className="player-name">{playerName}</div>
+        <div className="player-name" title={playerName}>{playerName}</div>
         <div className="player-level">
           <span>Atelier Lv </span>
           <span className="level-number">{playerLevel}</span>
@@ -139,11 +136,10 @@ const HUD: React.FC<HUDProps> = ({
       {/* Lunar Display */}
       <div className="lunar-panel">
         <div className="lunar-icon">
-          {/* Use the dedicated LunarPhaseIcon component */}
           <LunarPhaseIcon phase={lunarPhase} size={40} />
         </div>
         <div className="lunar-info">
-          <div className="lunar-phase">{lunarPhase}</div>
+          <div className="lunar-phase" title={lunarPhase}>{lunarPhase}</div>
           <div className="day-count">Day {day}</div>
         </div>
       </div>
@@ -187,10 +183,9 @@ const HUD: React.FC<HUDProps> = ({
       </div>
 
       {/* Easter Egg Status Message */}
-       <div className={`hud-status-message ${statusMessage ? 'visible' : ''}`}>
-           {statusMessage}
-       </div>
-
+      <div className={`hud-status-message ${statusMessage ? 'visible' : ''}`}>
+        {statusMessage}
+      </div>
     </aside>
   );
 };
