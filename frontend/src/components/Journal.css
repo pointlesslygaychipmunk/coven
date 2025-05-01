@@ -1,2352 +1,588 @@
-/* Journal.css - Magical Journal Redesign */
-/* Base styling for the enchanted journal */
+/* frontend/src/components/Journal.css */
+/* Redesigned Journal with a 90s Book/Scroll Aesthetic */
 
 .journal-container {
-    display: flex;
-    flex-direction: column;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><defs><radialGradient id="rgrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%"><stop offset="0%" style="stop-color:%23342f48;stop-opacity:0.8" /><stop offset="100%" style="stop-color:%23201c28;stop-opacity:1" /></radialGradient></defs><rect width="400" height="400" fill="url(%23rgrad)" /><path d="M0 0h400v400H0z" stroke-width="12" stroke="%23483d66" fill="none" stroke-opacity="0.2" /></svg>');
-    color: #e2d9f3;
-    border-radius: 24px;
-    padding: 20px;
-    box-shadow: 0 0 20px rgba(71, 61, 139, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.4);
-    height: 100%;
-    overflow: hidden;
-    font-family: 'Gentium Book Basic', 'Times New Roman', serif;
-    border: 6px solid #483d66;
-    position: relative;
-  }
-  
-  .journal-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="25" cy="25" r="1" fill="%23b59dc4" opacity="0.4"/><circle cx="75" cy="75" r="1" fill="%23b59dc4" opacity="0.4"/><circle cx="25" cy="75" r="1" fill="%23b59dc4" opacity="0.4"/><circle cx="75" cy="25" r="1" fill="%23b59dc4" opacity="0.4"/><circle cx="50" cy="50" r="1" fill="%23b59dc4" opacity="0.4"/></svg>');
-    opacity: 0.1;
-    pointer-events: none;
-    z-index: 0;
-  }
-  
-  /* Header styling */
-  .journal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #5d468a;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .journal-header h2 {
-    margin: 0;
-    color: #e2d9f3;
-    font-weight: normal;
-    font-size: 32px;
-    letter-spacing: 2px;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    text-shadow: 0 0 10px rgba(181, 157, 196, 0.5);
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .section-icon {
-    font-size: 28px;
-    color: #b59dc4;
-    filter: drop-shadow(0 0 5px rgba(181, 157, 196, 0.5));
-  }
-  
-  /* Tab navigation styling - magical tabs */
-  .journal-tabs {
-    display: flex;
-    gap: 6px;
-    background-color: rgba(42, 35, 60, 0.8);
-    border-radius: 24px;
-    padding: 6px;
-    position: relative;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.4);
-    border: 1px solid #5d468a;
-    overflow: hidden;
-  }
-  
-  .journal-tabs::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(ellipse at center, rgba(93, 70, 138, 0.3) 0%, rgba(93, 70, 138, 0) 70%);
-    pointer-events: none;
-  }
-  
-  .journal-tab {
-    position: relative;
-    padding: 8px 16px;
-    border: none;
-    background: none;
-    color: #a294b8;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-size: 16px;
-    font-weight: normal;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 18px;
-    overflow: hidden;
-    z-index: 1;
-    flex-grow: 1;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
-  }
-  
-  .journal-tab::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, rgba(93, 70, 138, 0.2), rgba(93, 70, 138, 0));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-  }
-  
-  .journal-tab:hover::before {
-    opacity: 1;
-  }
-  
-  .journal-tab.active {
-    background: linear-gradient(to bottom, #8a65c9, #5d468a);
-    color: #fff;
-    box-shadow: 0 0 15px rgba(93, 70, 138, 0.5);
-    transform: translateY(-1px);
-  }
-  
-  .journal-tab .badge, .journal-tab .unread-count {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: radial-gradient(circle, #e94e4e 0%, #c62828 100%);
-    color: white;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Arial', sans-serif;
-    font-weight: bold;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    border: 1px solid #f5f5f5;
-    animation: pulse 2s infinite;
-    z-index: 2;
-  }
-  
-  .journal-tab .unread-count {
-    background: radial-gradient(circle, #ffd54f 0%, #ff9800 100%);
-    color: #4e342e;
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-  
-  /* Toggle switch styling - vintage UI feel */
-  .journal-view-toggle {
-    margin-left: 15px;
-    display: flex;
-    background-color: #342f48;
-    border-radius: 24px;
-    padding: 3px;
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5), 0 0 5px rgba(93, 70, 138, 0.3);
-    border: 1px solid #5d468a;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .view-toggle-btn {
-    background: none;
-    border: none;
-    padding: 8px 10px;
-    font-size: 18px;
-    cursor: pointer;
-    color: #a294b8;
-    border-radius: 18px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
-    position: relative;
-    z-index: 1;
-  }
-  
-  .view-toggle-btn:hover {
-    color: #e2d9f3;
-  }
-  
-  .view-toggle-btn.active {
-    background: linear-gradient(to bottom, #8a65c9, #5d468a);
-    color: #fff;
-    box-shadow: 0 0 10px rgba(93, 70, 138, 0.4);
-  }
-  
-  /* Main content area */
-  .journal-main {
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-    margin-top: 10px;
-  }
-  
-  .journal-content {
-    display: flex;
-    height: 100%;
-    gap: 20px;
-    background-color: rgba(26, 22, 36, 0.6);
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
-    border: 1px solid #483d66;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .journal-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path d="M20,20 L180,20 L180,180 L20,180 Z" stroke="%235d468a" stroke-width="1" fill="none" opacity="0.1"/></svg>');
-    pointer-events: none;
-    opacity: 0.2;
-  }
-  
-  /* Categories Sidebar */
-  .journal-categories {
-    width: 220px;
-    flex-shrink: 0;
-    border-right: 1px solid #5d468a;
-    padding-right: 15px;
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(42, 35, 60, 0.4);
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-    padding: 15px;
-    position: relative;
-    margin-right: 10px;
-  }
-  
-  .categories-header h3 {
-    font-size: 20px;
-    color: #e2d9f3;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #5d468a;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 5px rgba(93, 70, 138, 0.5);
-    position: relative;
-  }
-  
-  .categories-header h3::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 50%;
-    height: 3px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 3px;
-  }
-  
-  .category-list {
-    flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Simulate an old book cover */
+  background-color: #5d4037; /* Dark leather/wood color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" fill="%235d4037"/><path d="M0 0h5v50H0zm10 0h5v50H10zm10 0h5v50H20zm10 0h5v50H30zm10 0h5v50H40z" fill="%234e342e" opacity="0.2"/></svg>');
+  color: var(--color-text-on-parchment); /* Default text for parchment */
+  border-radius: var(--border-radius-sm); /* Slightly rounded book corners */
+  padding: 15px; /* Padding inside the 'cover' */
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.5); /* 90s shadow + inner shadow */
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Times New Roman', serif; /* Default book font */
+  border: 4px solid;
+  border-color: #8d6e63 #4e342e #4e342e #8d6e63; /* Wood/Leather bevel */
+  position: relative;
+}
+
+/* Ornate corners for the book */
+.journal-container::before, .journal-container::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #a07c2c; /* Gold accent */
+  border: 1px solid #4e342e;
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+  z-index: 5;
+}
+.journal-container::before { top: 5px; left: 5px; border-radius: 3px 0 0 0;}
+.journal-container::after { top: 5px; right: 5px; border-radius: 0 3px 0 0;}
+/* Add bottom corners */
+.journal-main::before, .journal-main::after { /* Apply to inner container */
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #a07c2c;
+  border: 1px solid #4e342e;
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+  z-index: 5;
+}
+.journal-main::before { bottom: 5px; left: 5px; border-radius: 0 0 0 3px; }
+.journal-main::after { bottom: 5px; right: 5px; border-radius: 0 0 3px 0; }
+
+
+/* Header styling */
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #8d6e63; /* Header separator */
+  flex-shrink: 0; /* Prevent shrinking */
+  position: relative;
+  z-index: 3; /* Above book texture */
+}
+
+.journal-header h2 {
+  margin: 0;
+  color: var(--color-accent-secondary); /* Gold title */
+  font-weight: bold;
+  font-size: 26px;
+  letter-spacing: 1px;
+  font-family: var(--font-primary);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-icon {
+  font-size: 24px;
+  color: var(--color-accent-secondary);
+  filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.5));
+}
+
+/* Tab navigation styling - like page markers */
+.journal-tabs {
+  display: flex;
+  gap: 4px; /* Small gap between tabs */
+  background-color: rgba(93, 64, 55, 0.5); /* Darker tab bar */
+  border-radius: var(--border-radius-sm);
+  padding: 4px;
+  border: 1px solid;
+  border-color: #a1887f #4e342e #4e342e #a1887f; /* Bevel */
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
+
+.journal-tab {
+  position: relative;
+  padding: 6px 12px; /* Smaller tabs */
+  border: 2px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  background-color: #8d6e63; /* Tab color */
+  color: var(--color-text-on-parchment);
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: var(--border-radius-sm);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.1);
+}
+
+.journal-tab:hover {
+  background-color: #a1887f;
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.25);
+}
+
+.journal-tab.active {
+  background-color: var(--color-accent-secondary); /* Gold active tab */
+  color: #5d4037; /* Dark text on gold */
+  border-color: #ffe08a #a07c2c #a07c2c #ffe08a; /* Gold bevel */
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+  transform: translateY(1px); /* Pressed effect */
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
+}
+.journal-tab.active:hover { transform: translateY(1px); box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3); }
+
+
+.journal-tab .badge, .journal-tab .unread-count {
+  display: inline-block;
+  margin-left: 6px;
+  background-color: var(--color-danger); /* Red badge */
+  color: white;
+  border-radius: 8px;
+  padding: 0px 5px;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  vertical-align: middle;
+  line-height: 1.4;
+  box-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+}
+.journal-tab .unread-count { background-color: var(--color-info); } /* Blue for unread */
+
+
+/* View Toggle Buttons */
+.journal-view-toggle {
+  display: flex;
+  background-color: rgba(93, 64, 55, 0.5);
+  border-radius: var(--border-radius-sm);
+  padding: 3px;
+  border: 1px solid;
+  border-color: #a1887f #4e342e #4e342e #a1887f;
+  margin-left: 10px;
+}
+
+.view-toggle-btn {
+  background: none;
+  border: 1px solid transparent; /* Placeholder */
+  padding: 5px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #d3c6a6; /* Parchment color */
+  border-radius: var(--border-radius-sm);
+  transition: all 0.15s ease;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4);
+}
+
+.view-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.view-toggle-btn.active {
+  background-color: #a1887f; /* Highlight color */
+  color: #5d4037;
+  border-color: #e0d6c9 #8d6e63 #8d6e63 #e0d6c9; /* Bevel */
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+}
+
+
+/* Main content area */
+.journal-main {
+  flex: 1;
+  overflow: hidden; /* Key for containing children */
+  position: relative; /* For absolute positioning of corners */
+  z-index: 1;
+  margin-top: 5px;
+  background-color: #d3c6a6; /* Inner parchment color */
+  border: 1px solid #a1887f;
+  border-radius: var(--border-radius-sm);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+}
+
+.journal-content {
+  display: flex;
+  height: 100%;
+  gap: 15px; /* Gap between sidebar and content */
+  padding: 15px; /* Padding inside the parchment area */
+}
+
+
+/* Categories Sidebar */
+.journal-categories {
+  width: 200px; /* Slightly narrower sidebar */
+  flex-shrink: 0;
+  border-right: 1px solid #a1887f; /* Separator */
+  padding-right: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* For header */
+}
+
+.categories-header h3 {
+  font-size: 18px; /* Smaller header */
+  color: #6a1b9a; /* Dark Purple */
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #a1887f;
+  font-family: var(--font-primary);
+  font-weight: bold;
+}
+
+.category-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  margin-right: -5px;
+  scrollbar-width: thin;
+  scrollbar-color: #a1887f #e0d6c9;
+}
+.category-list::-webkit-scrollbar { width: 6px; }
+.category-list::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 3px; }
+.category-list::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 3px; }
+
+.category-item {
+  display: flex; align-items: center; padding: 8px 10px; /* Smaller padding */
+  border-radius: var(--border-radius-sm); cursor: pointer; transition: all 0.15s ease;
+  margin-bottom: 4px; color: #6d4c41; /* Darker brown */
+  border: 1px solid transparent; /* For active state */
+}
+.category-item:hover { background-color: rgba(165, 145, 125, 0.2); color: #4e342e; }
+.category-item.active {
+  background-color: rgba(165, 145, 125, 0.4); color: #4e342e; font-weight: bold;
+  border-color: #a1887f;
+}
+.category-icon { margin-right: 8px; font-size: 16px; width: 20px; text-align: center; color: #8d6e63; }
+.category-item.active .category-icon { color: #6a1b9a; } /* Purple active icon */
+.category-name { flex-grow: 1; font-size: 14px; }
+.category-count {
+  font-size: 11px; background-color: rgba(165, 145, 125, 0.2); padding: 1px 6px;
+  border-radius: 8px; color: #8a6d3b; font-family: 'Courier New', monospace;
+  border: 1px solid rgba(165, 145, 125, 0.4);
+}
+.category-item.active .category-count { background-color: rgba(78, 52, 46, 0.2); color: #4e342e; border-color: #4e342e; }
+
+
+/* Main Content Area */
+.journal-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent its children from overflowing */
+}
+
+/* Entries List */
+.journal-entries { display: flex; flex-direction: column; height: 100%; }
+
+.entries-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 0 10px 0; border-bottom: 1px solid #a1887f; flex-shrink: 0;
+  margin-bottom: 10px;
+}
+.header-title { display: flex; align-items: center; gap: 10px; }
+.header-title h3 { margin: 0; font-size: 20px; color: #5d4037; font-family: var(--font-primary); }
+.unread-badge {
+    background-color: var(--color-info); color: white; font-size: 10px; font-weight: bold;
+    padding: 2px 6px; border-radius: 8px; font-family: 'Courier New', monospace;
+    box-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+}
+
+.search-container { position: relative; }
+.search-input {
+  background-color: #f4e9d9; border: 1px solid #a1887f; padding: 6px 10px 6px 28px;
+  border-radius: 12px; color: #5d4037; font-size: 13px; width: 180px;
+  transition: all 0.2s ease; font-family: 'Times New Roman', serif;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
+}
+.search-input:focus { outline: none; border-color: #8d6e63; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2), 0 0 5px rgba(141, 110, 99, 0.5); width: 200px; }
+.search-container::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #a1887f; font-size: 14px; pointer-events: none; }
+
+.search-results-header { padding: 5px 0; font-size: 13px; color: #7a6c95; font-style: italic; flex-shrink: 0; }
+
+.entries-list {
+  flex: 1; overflow-y: auto; padding-right: 8px; margin-right: -8px;
+  scrollbar-width: thin; scrollbar-color: #a1887f #e0d6c9;
+}
+.entries-list::-webkit-scrollbar { width: 6px; }
+.entries-list::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 3px; }
+.entries-list::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 3px; }
+
+.empty-entries { text-align: center; color: #8a6d3b; padding: 30px 15px; font-style: italic; font-size: 15px; }
+
+.journal-entry {
+  background-color: rgba(255, 255, 255, 0.3); border-radius: var(--border-radius-sm); margin-bottom: 10px;
+  border: 1px solid #c19a70; border-left-width: 4px; transition: all 0.2s ease; overflow: hidden;
+}
+.journal-entry:hover { background-color: rgba(255, 255, 255, 0.5); box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+
+.journal-entry.trivial { border-left-color: #bcaaa4; } /* Brown-grey */
+.journal-entry.minor { border-left-color: #90caf9; } /* Light Blue */
+.journal-entry.standard { border-left-color: #a5d6a7; } /* Light Green */
+.journal-entry.important { border-left-color: #ffe082; } /* Light Gold */
+.journal-entry.very-important { border-left-color: #ef9a9a; animation: importantEntryGlow 2s infinite alternate; } /* Light Red */
+@keyframes importantEntryGlow { from { box-shadow: 0 0 3px rgba(239, 154, 154, 0.3); } to { box-shadow: 0 0 8px rgba(239, 154, 154, 0.5); } }
+
+.journal-entry.unread { background-color: rgba(255, 248, 225, 0.6); } /* Slightly yellower for unread */
+.journal-entry.unread .entry-title { font-weight: bold; color: #5d4037; }
+
+.entry-header { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; gap: 10px; }
+.entry-category { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #8a6d3b; width: 25px; flex-shrink: 0; justify-content: center; }
+.entry-icon { font-size: 16px; color: #8d6e63; }
+.entry-title { flex-grow: 1; font-size: 15px; color: #6d4c41; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.entry-meta { font-size: 11px; color: #a1887f; text-align: right; white-space: nowrap; display: flex; gap: 8px; flex-shrink: 0; font-family: 'Courier New', monospace; }
+.entry-date, .entry-turn { position: relative; }
+.entry-turn::before { content: '|'; position: absolute; left: -5px; top: 0; color: #c19a70; }
+
+.entry-actions { display: flex; gap: 4px; margin-left: 8px; }
+.bookmark-btn, .expand-btn {
+  background: none; border: none; color: #a1887f; font-size: 14px; cursor: pointer;
+  padding: 0; transition: all 0.2s ease; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 3px;
+}
+.bookmark-btn:hover, .expand-btn:hover { color: #5d4037; background-color: rgba(165, 145, 125, 0.2); }
+.bookmark-btn.bookmarked { color: #d6a44c; } /* Gold for bookmarked */
+
+.entry-content { padding: 10px 12px 12px 35px; border-top: 1px solid #d3c6a6; background-color: rgba(255, 255, 255, 0.2); animation: slideDown 0.3s ease-out; }
+@keyframes slideDown { from { max-height: 0; opacity: 0; } to { max-height: 500px; opacity: 1; } }
+.entry-text { line-height: 1.7; color: #5d4037; font-size: 14px; margin: 0; }
+
+/* Secret Entry Styling */
+.journal-entry.secret-entry {
+   border-left-color: #ff00ff; /* Magenta */
+   background-color: rgba(0,0,0,0.1);
+   animation: secretGlow 1s infinite alternate;
+}
+.secret-entry .entry-header {
+   background: repeating-linear-gradient(45deg, #222, #222 5px, #333 5px, #333 10px);
+}
+.secret-entry .entry-title {
+   font-family: "Comic Sans MS", cursive, sans-serif !important; /* Yeah, I went there */
+   color: lime !important;
+   text-shadow: 1px 1px 0 #ff00ff !important;
+}
+.secret-entry .entry-content {
+   background-color: #111;
+   color: lime;
+   font-family: "Comic Sans MS", cursive, sans-serif !important;
+   border-top-color: #ff00ff;
+}
+@keyframes secretGlow {
+    from { box-shadow: 0 0 5px #ff00ff; }
+    to { box-shadow: 0 0 15px #00ffff; }
+}
+
+
+/* Pagination */
+.pagination { display: flex; justify-content: center; align-items: center; padding: 10px 0 0 0; border-top: 1px solid #a1887f; flex-shrink: 0; margin-top: 10px; }
+.pagination-btn {
+  background-color: #e0d6c9; color: #8a6d3b; padding: 5px 10px; border: 1px solid;
+  border-color: #f4e9d9 #a1887f #a1887f #f4e9d9; border-radius: var(--border-radius-sm);
+  font-size: 13px; margin: 0 3px; cursor: pointer; transition: all 0.15s ease; min-width: 30px; text-align: center;
+}
+.pagination-btn:hover:not(:disabled) { background-color: #d3c6a6; color: #5d4037; }
+.pagination-btn:disabled { opacity: 0.5; cursor: default; }
+.page-info { margin: 0 10px; font-size: 13px; color: #8a6d3b; font-style: italic; }
+
+
+/* Rituals, Rumors, Codex Sections (Use parchment background) */
+.journal-rituals, .journal-rumors, .journal-codex {
+    flex: 1; /* Take available space */
     overflow-y: auto;
-    padding-right: 8px;
-    margin-right: -8px;
+    padding: 15px; /* Padding inside parchment */
     scrollbar-width: thin;
-  }
-  
-  .category-list::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .category-list::-webkit-scrollbar-track {
-    background: rgba(42, 35, 60, 0.2);
-    border-radius: 3px;
-  }
-  
-  .category-list::-webkit-scrollbar-thumb {
-    background: rgba(93, 70, 138, 0.5);
-    border-radius: 3px;
-  }
-  
-  .category-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 5px;
-    color: #a294b8;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .category-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(93, 70, 138, 0.1), rgba(93, 70, 138, 0));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .category-item:hover::before {
-    opacity: 1;
-  }
-  
-  .category-item:hover {
-    background-color: rgba(93, 70, 138, 0.2);
-    color: #e2d9f3;
-    transform: translateX(3px);
-  }
-  
-  .category-item.active {
-    background: linear-gradient(to right, rgba(93, 70, 138, 0.6), rgba(93, 70, 138, 0.2));
-    color: #fff;
-    font-weight: bold;
-    box-shadow: 0 0 10px rgba(93, 70, 138, 0.3);
-  }
-  
-  .category-icon {
-    margin-right: 12px;
-    font-size: 18px;
-    width: 24px;
-    text-align: center;
-    color: #b59dc4;
-    transition: all 0.3s ease;
-  }
-  
-  .category-item:hover .category-icon,
-  .category-item.active .category-icon {
-    color: #e2d9f3;
-    transform: scale(1.1);
-  }
-  
-  .category-name {
-    flex-grow: 1;
-    font-size: 16px;
-    font-family: 'Gentium Book Basic', serif;
-    transition: all 0.3s ease;
-  }
-  
-  .category-count {
-    font-size: 12px;
-    background-color: rgba(93, 70, 138, 0.2);
-    padding: 2px 8px;
-    border-radius: 10px;
-    color: #a294b8;
-    min-width: 22px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(93, 70, 138, 0.3);
-  }
-  
-  .category-item.active .category-count {
-    background-color: rgba(226, 217, 243, 0.2);
-    color: #fff;
-    border-color: rgba(226, 217, 243, 0.3);
-  }
-  
-  /* Main Content Area */
-  .journal-main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  /* Entries List */
-  .journal-entries {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-  }
-  
-  .entries-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px 15px 10px;
-    border-bottom: 1px solid #5d468a;
-    flex-shrink: 0;
-    margin-bottom: 12px;
-    position: relative;
-  }
-  
-  .entries-header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 50%;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 2px;
-  }
-  
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .header-title h3 {
-    margin: 0;
-    font-size: 22px;
-    color: #e2d9f3;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 8px rgba(93, 70, 138, 0.6);
-  }
-  
-  .unread-badge {
-    background: linear-gradient(to bottom, #ffd54f, #ff9800);
-    color: #4e342e;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-family: 'Arial', sans-serif;
-    box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
-    border: 1px solid #ffe082;
-    animation: pulse 2s infinite;
-  }
-  
-  .search-container {
-    position: relative;
-  }
-  
-  .search-input {
-    background-color: rgba(42, 35, 60, 0.8);
-    border: 1px solid #5d468a;
-    padding: 8px 12px;
-    padding-left: 32px;
-    border-radius: 16px;
-    color: #e2d9f3;
-    font-size: 14px;
-    width: 220px;
-    transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .search-input:focus {
-    outline: none;
-    border-color: #8a65c9;
-    box-shadow: 0 0 8px rgba(138, 101, 201, 0.4), inset 0 0 8px rgba(0, 0, 0, 0.4);
-    width: 250px;
-  }
-  
-  .search-container::before {
-    content: '🔍';
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #a294b8;
-    font-size: 14px;
-    pointer-events: none;
-  }
-  
-  .search-results-header {
-    padding: 10px;
-    font-size: 14px;
-    color: #a294b8;
-    font-style: italic;
-    flex-shrink: 0;
-    border-bottom: 1px dashed #5d468a;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  
-  .entries-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 10px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(93, 70, 138, 0.5) rgba(42, 35, 60, 0.2);
-  }
-  
-  .entries-list::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .entries-list::-webkit-scrollbar-track {
-    background: rgba(42, 35, 60, 0.2);
-    border-radius: 3px;
-  }
-  
-  .entries-list::-webkit-scrollbar-thumb {
-    background: rgba(93, 70, 138, 0.5);
-    border-radius: 3px;
-  }
-  
-  .empty-entries {
-    text-align: center;
-    color: #a294b8;
-    padding: 40px 20px;
-    font-style: italic;
-    font-size: 18px;
-    background-color: rgba(42, 35, 60, 0.3);
-    border-radius: 12px;
-    margin: 20px 0;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
-    border: 1px dashed #5d468a;
-  }
-  
-  .journal-entry {
-    background-color: rgba(42, 35, 60, 0.5);
-    border-radius: 8px;
-    margin-bottom: 12px;
-    border: 1px solid #483d66;
-    border-left-width: 5px;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .journal-entry::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(93, 70, 138, 0.1), rgba(93, 70, 138, 0));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-  
-  .journal-entry:hover::before {
-    opacity: 1;
-  }
-  
-  .journal-entry:hover {
-    transform: translateY(-2px) translateX(2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Importance Styling with enchanted colors */
-  .journal-entry.trivial { border-left-color: #6c7a89; }
-  .journal-entry.minor { border-left-color: #5d9cec; }
-  .journal-entry.standard { border-left-color: #8cc152; }
-  .journal-entry.important { border-left-color: #f6bb42; }
-  .journal-entry.very-important { 
-    border-left-color: #da4453;
-    animation: very-important-glow 2s infinite alternate;
-  }
-  
-  @keyframes very-important-glow {
-    from { box-shadow: 0 0 5px rgba(218, 68, 83, 0.3); }
-    to { box-shadow: 0 0 15px rgba(218, 68, 83, 0.5); }
-  }
-  
-  .journal-entry.unread {
-    background-color: rgba(138, 101, 201, 0.1);
-  }
-  
-  .journal-entry.unread .entry-title {
-    font-weight: 600;
-    color: #e2d9f3;
-  }
-  
-  .entry-header {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    cursor: pointer;
-    gap: 12px;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .entry-category {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: #a294b8;
-    width: 30px;
-    flex-shrink: 0;
-    justify-content: center;
-  }
-  
-  .entry-icon {
-    font-size: 18px;
-    color: #b59dc4;
-    transition: all 0.3s ease;
-  }
-  
-  .journal-entry:hover .entry-icon {
-    transform: scale(1.15);
-    color: #e2d9f3;
-  }
-  
-  .entry-title {
-    flex-grow: 1;
-    font-size: 16px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-    transition: all 0.3s ease;
-  }
-  
-  .journal-entry:hover .entry-title {
-    color: #e2d9f3;
-  }
-  
-  .entry-meta {
-    font-size: 12px;
-    color: #7a6c95;
-    text-align: right;
-    white-space: nowrap;
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0;
-    font-family: 'Gentium Book Basic', serif;
-    font-style: italic;
-  }
-  
-  .entry-date, .entry-turn {
-    position: relative;
-  }
-  
-  .entry-turn::before {
-    content: '•';
-    position: absolute;
-    left: -7px;
-    top: 0;
-    color: #5d468a;
-  }
-  
-  .entry-actions {
-    display: flex;
-    gap: 6px;
-    margin-left: 12px;
-  }
-  
-  .bookmark-btn, .expand-btn {
-    background: none;
-    border: none;
-    color: #7a6c95;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.3s ease;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  
-  .bookmark-btn:hover, .expand-btn:hover {
-    color: #e2d9f3;
-    background-color: rgba(93, 70, 138, 0.3);
-  }
-  
-  .bookmark-btn.bookmarked {
-    color: #ffd54f;
-    text-shadow: 0 0 5px rgba(255, 213, 79, 0.5);
-  }
-  
-  .entry-content {
-    padding: 15px 15px 20px 35px;
-    border-top: 1px solid #483d66;
-    background-color: rgba(52, 47, 72, 0.6);
-    animation: slideDown 0.4s ease-out;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .entry-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(to bottom, rgba(93, 70, 138, 0.2), transparent);
-  }
-  
-  .entry-content::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 5px;
-    background: linear-gradient(to right, rgba(93, 70, 138, 0.2), transparent);
-  }
-  
-  @keyframes slideDown {
-    from {
-      max-height: 0;
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      max-height: 500px;
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .entry-text {
-    font-family: 'Gentium Book Basic', serif;
-    line-height: 1.6;
-    color: #c8bfe3;
-    font-size: 16px;
-    margin-bottom: 15px;
-    position: relative;
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-  }
-  
-  .entry-linked-items {
-    margin-top: 15px;
-    position: relative;
-  }
-  
-  .linked-items-header {
-    font-size: 14px;
-    color: #a294b8;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    letter-spacing: 0.5px;
-  }
-  
-  .linked-items-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .linked-item {
-    font-size: 13px;
-    background-color: rgba(93, 70, 138, 0.2);
-    padding: 4px 10px;
-    border-radius: 8px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    border: 1px solid rgba(93, 70, 138, 0.3);
-    transition: all 0.3s ease;
-  }
-  
-  .linked-item:hover {
-    background-color: rgba(93, 70, 138, 0.3);
-    transform: translateY(-2px);
-    color: #e2d9f3;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px 0 5px 0;
-    border-top: 1px solid #483d66;
-    flex-shrink: 0;
-    margin-top: 10px;
-  }
-  
-  .pagination-btn {
-    background-color: rgba(52, 47, 72, 0.6);
-    color: #a294b8;
-    padding: 6px 14px;
-    border: 1px solid #483d66;
-    border-radius: 8px;
-    font-size: 14px;
-    margin: 0 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 35px;
-    text-align: center;
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .pagination-btn:hover:not(:disabled) {
-    background-color: rgba(93, 70, 138, 0.3);
-    color: #e2d9f3;
-    transform: translateY(-2px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .pagination-btn:disabled {
-    opacity: 0.4;
-    cursor: default;
-    box-shadow: none;
-  }
-  
-  .page-info {
-    margin: 0 12px;
-    font-size: 14px;
-    color: #a294b8;
-    font-family: 'Gentium Book Basic', serif;
-    font-style: italic;
-  }
-  
-  /* Rituals Section */
-  .journal-rituals {
-    padding: 15px;
-    overflow-y: auto;
-    height: 100%;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(93, 70, 138, 0.5) rgba(42, 35, 60, 0.2);
-  }
-  
-  .journal-rituals::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .journal-rituals::-webkit-scrollbar-track {
-    background: rgba(42, 35, 60, 0.2);
-    border-radius: 3px;
-  }
-  
-  .journal-rituals::-webkit-scrollbar-thumb {
-    background: rgba(93, 70, 138, 0.5);
-    border-radius: 3px;
-  }
-  
-  .rituals-header h3 {
-    margin: 0;
-    padding: 10px 0 15px 0;
-    color: #e2d9f3;
-    font-size: 22px;
-    border-bottom: 1px solid #5d468a;
-    margin-bottom: 20px;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 8px rgba(93, 70, 138, 0.5);
-    position: relative;
-  }
-  
-  .rituals-header h3::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 50%;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 2px;
-  }
-  
-  .empty-rituals {
-    text-align: center;
-    color: #a294b8;
-    padding: 40px 20px;
-    font-style: italic;
-    font-size: 18px;
-    background-color: rgba(42, 35, 60, 0.3);
-    border-radius: 12px;
-    margin: 20px 0;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
-    border: 1px dashed #5d468a;
-  }
-  
-  .rituals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    animation: fadeIn 0.5s ease-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .ritual-card {
-    background-color: rgba(48, 43, 68, 0.6);
-    border: 1px solid #483d66;
-    border-radius: 12px;
-    padding: 18px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .ritual-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 30% 20%, rgba(181, 157, 196, 0.05) 0%, rgba(181, 157, 196, 0) 50%),
-      radial-gradient(circle at 70% 80%, rgba(181, 157, 196, 0.05) 0%, rgba(181, 157, 196, 0) 50%);
-    pointer-events: none;
-  }
-  
-  .ritual-card:hover {
-    border-color: #8a65c9;
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  }
-  
-  .ritual-card.completed {
-    border-left: 5px solid #8cc152;
-  }
-  
-  .ritual-card.completed::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(to right, #8cc152, transparent);
-    opacity: 0.7;
-  }
-  
-  .ritual-card.claimed {
-    border-left: 5px solid #7a6c95;
-    opacity: 0.75;
-  }
-  
-  .ritual-card.advanced {
-    border-left: 5px solid #ffd54f;
-  }
-  
-  .ritual-card.in-progress {
-    border-left: 5px solid #5d9cec;
-  }
-  
-  .ritual-card.not-started {
-    border-left: 5px solid #7a6c95;
-  }
-  
-  .ritual-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    position: relative;
-  }
-  
-  .ritual-name {
-    font-size: 18px;
-    color: #e2d9f3;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    line-height: 1.3;
-    margin-right: 10px;
-    position: relative;
-    text-shadow: 0 0 8px rgba(93, 70, 138, 0.5);
-    max-width: 75%;
-  }
-  
-  .ritual-name::before {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    transition: width 0.3s ease;
-  }
-  
-  .ritual-card:hover .ritual-name::before {
-    width: 50%;
-  }
-  
-  .ritual-completion {
-    font-size: 14px;
-    color: #a294b8;
-    font-weight: bold;
-    flex-shrink: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: rgba(42, 35, 60, 0.5);
-    padding: 3px 8px;
-    border-radius: 10px;
-    border: 1px solid #483d66;
-  }
-  
-  .claim-reward-button {
-    background: linear-gradient(to bottom, #8cc152, #5aaf3d);
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .claim-reward-button:hover {
-    background: linear-gradient(to bottom, #9dd966, #6cbb4e);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-  
-  .claimed-badge {
-    color: #8cc152;
-    font-weight: bold;
-    font-size: 18px;
-    text-shadow: 0 0 5px rgba(140, 193, 82, 0.5);
-  }
-  
-  .ritual-progress-bar {
-    height: 8px;
-    background-color: rgba(42, 35, 60, 0.6);
+    scrollbar-color: #a1887f #e0d6c9;
+}
+.journal-rituals::-webkit-scrollbar, .journal-rumors::-webkit-scrollbar, .journal-codex::-webkit-scrollbar { width: 6px; }
+.journal-rituals::-webkit-scrollbar-track, .journal-rumors::-webkit-scrollbar-track, .journal-codex::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 3px; }
+.journal-rituals::-webkit-scrollbar-thumb, .journal-rumors::-webkit-scrollbar-thumb, .journal-codex::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 3px; }
+
+.rituals-header h3, .rumors-header h3, .codex-header h3 {
+    margin: 0; padding: 0 0 10px 0; color: #6a1b9a; font-size: 20px;
+    border-bottom: 1px solid #a1887f; margin-bottom: 15px; font-family: var(--font-primary);
+}
+.empty-rituals, .empty-rumors, .empty-codex { text-align: center; color: #8a6d3b; padding: 30px 15px; font-style: italic; font-size: 15px; }
+
+/* Ritual Cards on Parchment */
+.rituals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+.ritual-card {
+    background-color: rgba(255, 255, 255, 0.4); border: 1px solid #a1887f; border-radius: var(--border-radius-sm);
+    padding: 12px; cursor: pointer; transition: all 0.2s ease; position: relative;
+    display: flex; flex-direction: column; box-shadow: 2px 2px 3px rgba(0,0,0,0.1);
+}
+.ritual-card:hover { background-color: rgba(255, 255, 255, 0.6); border-color: #8d6e63; transform: translateY(-2px); box-shadow: 3px 3px 5px rgba(0,0,0,0.2); }
+.ritual-card.completed { border-left: 4px solid #8cc152; }
+.ritual-card.claimed { border-left: 4px solid #7a6c95; opacity: 0.7; }
+.ritual-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.ritual-name { font-size: 16px; color: #4e342e; font-family: var(--font-primary); line-height: 1.2; margin-right: 8px; font-weight: bold;}
+.ritual-completion { font-size: 12px; color: #8a6d3b; font-weight: bold; font-family: 'Courier New', monospace; flex-shrink: 0; }
+.claim-reward-button { /* Styles for button on card */
+    background-color: #8cc152; color: white; border: 1px solid #5a9758; padding: 3px 8px; font-size: 11px;
+    border-radius: 4px; cursor: pointer; transition: background-color 0.2s; font-weight: bold;
+}
+.claim-reward-button:hover { background-color: #689f38; }
+.claimed-badge { color: #8cc152; font-weight: bold; font-size: 14px; }
+.ritual-progress-bar { height: 6px; background-color: #e0d6c9; border-radius: 3px; overflow: hidden; margin-bottom: 8px; border: 1px solid #a1887f; }
+.ritual-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(to right, #bcaaa4, #8d6e63); transition: width 0.5s ease; } /* Earthy progress */
+.ritual-card.completed .ritual-progress-fill { background: linear-gradient(to right, #a5d6a7, #66bb6a); }
+.ritual-description { font-size: 13px; color: #6d4c41; line-height: 1.4; margin-bottom: 8px; flex-grow: 1; max-height: 3.9em; overflow: hidden; }
+.ritual-requirements { display: flex; gap: 8px; font-size: 11px; color: #8a6d3b; margin-top: auto; }
+.ritual-requirement { display: flex; align-items: center; gap: 4px; background-color: rgba(255, 255, 255, 0.5); padding: 2px 6px; border-radius: 4px; border: 1px solid #a1887f; }
+.requirement-icon { font-size: 12px; }
+
+/* Rumor Cards on Parchment */
+.rumors-list { display: flex; flex-direction: column; gap: 10px; }
+.rumor-card {
+    background-color: rgba(255, 255, 255, 0.4); border: 1px solid #a1887f; border-radius: var(--border-radius-sm);
+    padding: 12px; position: relative; opacity: calc(0.7 + (var(--rumor-spread, 50) / 150)); /* Scale opacity */
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.1);
+}
+.rumor-content { font-size: 14px; color: #6d4c41; margin-bottom: 10px; font-style: italic; line-height: 1.5; }
+.rumor-meta { display: flex; justify-content: space-between; font-size: 11px; color: #8a6d3b; margin-bottom: 8px; font-family: 'Courier New', monospace; }
+.rumor-spread { font-size: 12px; margin-bottom: 5px; }
+.spread-label { color: #8a6d3b; font-size: 10px; text-transform: uppercase; font-weight: bold; }
+.spread-bar { height: 5px; background-color: #e0d6c9; border-radius: 2px; overflow: hidden; border: 1px solid #a1887f; }
+.spread-fill { height: 100%; background: linear-gradient(to right, #d3c6a6, #a1887f); border-radius: 1px; }
+.rumor-card.widespread .spread-fill { background: linear-gradient(to right, #ffe082, #ffc107); } /* Gold */
+.rumor-card.common .spread-fill { background: linear-gradient(to right, #a5d6a7, #66bb6a); } /* Green */
+.rumor-card.rare .spread-fill { background: linear-gradient(to right, #bcaaa4, #8d6e63); } /* Brown */
+.rumor-verified { position: absolute; top: 8px; right: 8px; color: #388e3c; font-size: 12px; font-weight: bold; background-color: rgba(165, 214, 167, 0.3); padding: 2px 6px; border-radius: 4px; border: 1px solid #66bb6a; }
+.rumor-effect { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #8a6d3b; margin-top: 5px; background-color: rgba(255, 255, 255, 0.5); padding: 3px 8px; border-radius: 4px; border: 1px solid #a1887f; }
+.effect-value { color: #5d4037; font-weight: bold; }
+.effect-direction { font-size: 14px; }
+.rumor-effect .effect-direction.up { color: #388e3c; }
+.rumor-effect .effect-direction.down { color: #d32f2f; }
+
+/* Codex on Parchment */
+/* Removed empty ruleset as it was unnecessary */
+.codex-intro { font-size: 14px; color: #6d4c41; margin-bottom: 20px; line-height: 1.6; font-style: italic; }
+.codex-categories { display: flex; flex-direction: column; gap: 20px; }
+.codex-category h4 { font-size: 16px; color: #6a1b9a; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-family: var(--font-primary); border-bottom: 1px solid #a1887f; padding-bottom: 5px; }
+.codex-category h4 .category-icon { font-size: 18px; color: #8d6e63; }
+.codex-entries { display: flex; flex-direction: column; gap: 12px; padding-left: 10px; border-left: 1px solid #c19a70; }
+.codex-entry { background-color: rgba(255, 255, 255, 0.4); padding: 10px; border-radius: var(--border-radius-sm); border: 1px solid #c19a70; }
+.codex-entry h5 { font-size: 15px; color: #5d4037; margin: 0 0 5px 0; font-family: var(--font-primary); }
+.codex-entry p { font-size: 13px; color: #6d4c41; margin: 0; line-height: 1.5; }
+.unlockable { color: #8a6d3b; font-style: italic; text-align: center; padding: 15px; background-color: rgba(255, 255, 255, 0.2); border-radius: var(--border-radius-sm); border: 1px dashed #a1887f; font-size: 14px; }
+
+/* Book Mode */
+.journal-book {
+    perspective: 1800px; /* Increased perspective */
+    width: 100%; height: 100%; position: relative;
+    background-color: #4e342e; /* Darker spine color */
     border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 15px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-    position: relative;
-  }
-  
-  .ritual-progress-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.8s cubic-bezier(0.075, 0.82, 0.165, 1);
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(to right, #8a65c9, #b59dc4);
-  }
-  
-  .ritual-progress-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
-    animation: shimmer 2s infinite;
-  }
-  
-  @keyframes shimmer {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(200%); }
-  }
-  
-  .ritual-card.completed .ritual-progress-fill {
-    background: linear-gradient(to right, #8cc152, #a0ce6e);
-  }
-  
-  .ritual-card.claimed .ritual-progress-fill {
-    background: linear-gradient(to right, #7a6c95, #a294b8);
-  }
-  
-  .ritual-description {
-    font-size: 14px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    line-height: 1.5;
-    margin-bottom: 15px;
-    flex-grow: 1;
-    position: relative;
-    overflow: hidden;
-    max-height: 4.5em;
-    padding: 0 2px;
-  }
-  
-  .ritual-description::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 30%;
-    height: 1.5em;
-    background: linear-gradient(to right, rgba(48, 43, 68, 0), rgba(48, 43, 68, 0.8));
-    pointer-events: none;
-  }
-  
-  .ritual-requirements {
-    display: flex;
-    gap: 12px;
-    font-size: 12px;
-    color: #a294b8;
-    margin-top: auto;
-  }
-  
-  .ritual-requirement {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background-color: rgba(42, 35, 60, 0.4);
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid #483d66;
-    transition: all 0.3s ease;
-  }
-  
-  .ritual-requirement:hover {
-    background-color: rgba(42, 35, 60, 0.6);
-    border-color: #5d468a;
-    transform: translateY(-2px);
-  }
-  
-  .requirement-icon {
-    font-size: 14px;
-    color: #b59dc4;
-  }
-  
-  /* Rumors Section */
-  .journal-rumors {
-    padding: 15px;
-    overflow-y: auto;
-    height: 100%;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(93, 70, 138, 0.5) rgba(42, 35, 60, 0.2);
-  }
-  
-  .journal-rumors::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .journal-rumors::-webkit-scrollbar-track {
-    background: rgba(42, 35, 60, 0.2);
-    border-radius: 3px;
-  }
-  
-  .journal-rumors::-webkit-scrollbar-thumb {
-    background: rgba(93, 70, 138, 0.5);
-    border-radius: 3px;
-  }
-  
-  .rumors-header h3 {
-    margin: 0;
-    padding: 10px 0 15px 0;
-    color: #e2d9f3;
-    font-size: 22px;
-    border-bottom: 1px solid #5d468a;
-    margin-bottom: 20px;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 8px rgba(93, 70, 138, 0.5);
-    position: relative;
-  }
-  
-  .rumors-header h3::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 50%;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 2px;
-  }
-  
-  .empty-rumors {
-    text-align: center;
-    color: #a294b8;
-    padding: 40px 20px;
-    font-style: italic;
-    font-size: 18px;
-    background-color: rgba(42, 35, 60, 0.3);
-    border-radius: 12px;
-    margin: 20px 0;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
-    border: 1px dashed #5d468a;
-  }
-  
-  .rumors-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    animation: fadeIn 0.5s ease-out;
-  }
-  
-  .rumor-card {
-    background-color: rgba(48, 43, 68, 0.6);
-    border: 1px solid #483d66;
-    border-radius: 12px;
-    padding: 18px;
-    position: relative;
-    opacity: calc(0.6 + (var(--rumor-spread, 50) / 100));
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-  }
-  
-  .rumor-card:hover {
-    transform: translateY(-2px) translateX(1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  }
-  
-  .rumor-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 30% 20%, rgba(181, 157, 196, 0.05) 0%, rgba(181, 157, 196, 0) 50%),
-      radial-gradient(circle at 70% 80%, rgba(181, 157, 196, 0.05) 0%, rgba(181, 157, 196, 0) 50%);
-    pointer-events: none;
-  }
-  
-  .rumor-content {
-    font-size: 16px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    margin-bottom: 15px;
-    font-style: italic;
-    line-height: 1.6;
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-    position: relative;
-    padding: 0 25px;
-  }
-  
-  .rumor-content::before {
-    content: '"';
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 40px;
-    color: #5d468a;
-    font-family: 'Georgia', serif;
-    line-height: 1;
-  }
-  
-  .rumor-content::after {
-    content: '"';
-    position: absolute;
-    right: 0;
-    bottom: -10px;
-    font-size: 40px;
-    color: #5d468a;
-    font-family: 'Georgia', serif;
-    line-height: 1;
-  }
-  
-  .rumor-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    color: #a294b8;
-    margin-bottom: 12px;
-    font-style: italic;
-  }
-  
-  .rumor-age, .rumor-source {
-    position: relative;
-    padding-left: 18px;
-  }
-  
-  .rumor-source::before {
-    content: '👥';
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 14px;
-  }
-  
-  .rumor-age::before {
-    content: '🕑';
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 14px;
-  }
-  
-  .rumor-spread {
-    font-size: 14px;
-    margin-bottom: 8px;
-  }
-  
-  .spread-label {
-    color: #a294b8;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 1px;
-    font-family: 'Arial', sans-serif;
-    font-weight: bold;
-  }
-  
-  .spread-bar {
-    height: 6px;
-    background-color: rgba(42, 35, 60, 0.6);
-    border-radius: 3px;
-    overflow: hidden;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-  }
-  
-  .spread-fill {
-    height: 100%;
-    transition: width 0.8s cubic-bezier(0.075, 0.82, 0.165, 1);
-    border-radius: 3px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .spread-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
-    animation: shimmer 2s infinite;
-  }
-  
-  .rumor-card.widespread .spread-fill {
-    background: linear-gradient(to right, #f6bb42, #ffce54);
-  }
-  
-  .rumor-card.common .spread-fill {
-    background: linear-gradient(to right, #5d9cec, #4a89dc);
-  }
-  
-  .rumor-card.rare .spread-fill {
-    background: linear-gradient(to right, #7a6c95, #a294b8);
-  }
-  
-  .rumor-verified {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #8cc152;
-    font-size: 13px;
-    font-weight: bold;
-    background-color: rgba(140, 193, 82, 0.1);
-    padding: 4px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(140, 193, 82, 0.3);
-    box-shadow: 0 0 10px rgba(140, 193, 82, 0.2);
-  }
-  
-  .verified-icon {
-    font-size: 14px;
-  }
-  
-  .rumor-effect {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #a294b8;
-    margin-top: 8px;
-    background-color: rgba(42, 35, 60, 0.4);
-    padding: 5px 10px;
-    border-radius: 8px;
-    border: 1px solid #483d66;
-    transition: all 0.3s ease;
-  }
-  
-  .rumor-effect:hover {
-    background-color: rgba(42, 35, 60, 0.6);
-    transform: translateY(-2px);
-    border-color: #5d468a;
-  }
-  
-  .effect-value {
-    color: #e2d9f3;
-    font-weight: 500;
-  }
-  
-  .effect-direction {
-    font-size: 16px;
-  }
-  
-  .rumor-effect .effect-direction.up {
-    color: #8cc152;
-  }
-  
-  .rumor-effect .effect-direction.down {
-    color: #da4453;
-  }
-  
-  /* Codex Section */
-  .journal-codex {
-    padding: 15px;
-    overflow-y: auto;
-    height: 100%;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(93, 70, 138, 0.5) rgba(42, 35, 60, 0.2);
-  }
-  
-  .journal-codex::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .journal-codex::-webkit-scrollbar-track {
-    background: rgba(42, 35, 60, 0.2);
-    border-radius: 3px;
-  }
-  
-  .journal-codex::-webkit-scrollbar-thumb {
-    background: rgba(93, 70, 138, 0.5);
-    border-radius: 3px;
-  }
-  
-  .codex-header h3 {
-    margin: 0;
-    padding: 10px 0 15px 0;
-    color: #e2d9f3;
-    font-size: 22px;
-    border-bottom: 1px solid #5d468a;
-    margin-bottom: 20px;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 8px rgba(93, 70, 138, 0.5);
-    position: relative;
-  }
-  
-  .codex-header h3::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 50%;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 2px;
-  }
-  
-  .codex-intro {
-    font-size: 16px;
-    color: #c8bfe3;
-    margin-bottom: 25px;
-    padding: 0 5px;
-    line-height: 1.6;
-    font-family: 'Gentium Book Basic', serif;
-    position: relative;
-    font-style: italic;
-  }
-  
-  .codex-categories {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    animation: fadeIn 0.5s ease-out;
-  }
-  
-  .codex-category h4 {
-    font-size: 18px;
-    color: #b59dc4;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 5px rgba(181, 157, 196, 0.5);
-    position: relative;
-  }
-  
-  .codex-category h4 .category-icon {
-    font-size: 20px;
-    color: #8a65c9;
-  }
-  
-  .codex-category h4::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 30px;
-    width: 100px;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 2px;
-  }
-  
-  .codex-entries {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding-left: 15px;
-    border-left: 2px solid rgba(93, 70, 138, 0.3);
-    position: relative;
-  }
-  
-  .codex-entries::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -2px;
-    width: 2px;
-    height: 30px;
-    background: linear-gradient(to bottom, #8a65c9, transparent);
-  }
-  
-  .codex-entries::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: -2px;
-    width: 2px;
-    height: 30px;
-    background: linear-gradient(to top, #8a65c9, transparent);
-  }
-  
-  .codex-entry {
-    background-color: rgba(48, 43, 68, 0.6);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid #483d66;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .codex-entry:hover {
-    border-color: #5d468a;
-    transform: translateX(3px) translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .codex-entry::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 5px;
-    height: 100%;
-    background: linear-gradient(to bottom, #8a65c9, transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .codex-entry:hover::before {
-    opacity: 1;
-  }
-  
-  .codex-entry h5 {
-    font-size: 16px;
-    color: #e2d9f3;
-    margin: 0 0 10px 0;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    text-shadow: 0 0 5px rgba(93, 70, 138, 0.3);
-  }
-  
-  .codex-entry p {
-    font-size: 14px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    margin: 0;
-    line-height: 1.5;
-  }
-  
-  .unlockable {
-    color: #a294b8;
-    font-style: italic;
-    text-align: center;
-    padding: 20px;
-    background-color: rgba(42, 35, 60, 0.3);
-    border-radius: 12px;
-    border: 1px dashed #5d468a;
-    font-size: 16px;
-    font-family: 'Gentium Book Basic', serif;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Book Mode */
-  .journal-book {
-    perspective: 1500px;
-    width: 100%;
-    height: 100%;
-    position: relative;
-    background: #342f48;
-    border-radius: 8px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.4);
-    animation: book-appear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    overflow: hidden;
-  }
-  
-  @keyframes book-appear {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  
-  .book-pages {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  }
-  
-  .book-page {
-    position: absolute;
-    width: 50%;
-    height: calc(100% - 40px);
-    top: 20px;
-    background-color: #f0e6d9;
-    background-image: 
-      linear-gradient(to right, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 10%),
-      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0e6d9" /><g fill="%23e0d6c9" opacity="0.5"><rect x="0" y="0" width="1" height="100" /><rect x="7" y="0" width="1" height="100" /><rect x="14" y="0" width="1" height="100" /><rect x="21" y="0" width="1" height="100" /><rect x="28" y="0" width="1" height="100" /><rect x="35" y="0" width="1" height="100" /><rect x="42" y="0" width="1" height="100" /><rect x="49" y="0" width="1" height="100" /><rect x="56" y="0" width="1" height="100" /><rect x="63" y="0" width="1" height="100" /><rect x="70" y="0" width="1" height="100" /><rect x="77" y="0" width="1" height="100" /><rect x="84" y="0" width="1" height="100" /><rect x="91" y="0" width="1" height="100" /><rect x="98" y="0" width="1" height="100" /></g><g fill="%23e0d6c9" opacity="0.5"><rect y="0" x="0" height="1" width="100" /><rect y="14" x="0" height="1" width="100" /><rect y="28" x="0" height="1" width="100" /><rect y="42" x="0" height="1" width="100" /><rect y="56" x="0" height="1" width="100" /><rect y="70" x="0" height="1" width="100" /><rect y="84" x="0" height="1" width="100" /><rect y="98" x="0" height="1" width="100" /></g></svg>');
-    transform-origin: left center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.3);
+    animation: book-appear 0.5s ease-out;
+    border: 1px solid #3e2723;
+    display: flex; /* Use flex for page alignment */
+    justify-content: center; /* Center pages */
+}
+.book-pages {
+    width: 100%; height: 100%;
+    position: relative; transform-style: preserve-3d;
+    /* box-shadow: 0 0 15px rgba(0,0,0,0.2); */
+}
+.book-page {
+    position: absolute; width: 50%; height: 100%;
+    background-color: #f4e9d9; /* Parchment */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f4e9d9" /><g fill="%23e0d6c9" opacity="0.5"><rect x="0" y="0" width="1" height="100" /><rect x="7" y="0" width="1" height="100" /><rect x="14" y="0" width="1" height="100" /><rect x="21" y="0" width="1" height="100" /><rect x="28" y="0" width="1" height="100" /><rect x="35" y="0" width="1" height="100" /><rect x="42" y="0" width="1" height="100" /><rect x="49" y="0" width="1" height="100" /><rect x="56" y="0" width="1" height="100" /><rect x="63" y="0" width="1" height="100" /><rect x="70" y="0" width="1" height="100" /><rect x="77" y="0" width="1" height="100" /><rect x="84" y="0" width="1" height="100" /><rect x="91" y="0" width="1" height="100" /><rect x="98" y="0" width="1" height="100" /></g><g fill="%23e0d6c9" opacity="0.5"><rect y="0" x="0" height="1" width="100" /><rect y="14" x="0" height="1" width="100" /><rect y="28" x="0" height="1" width="100" /><rect y="42" x="0" height="1" width="100" /><rect y="56" x="0" height="1" width="100" /><rect y="70" x="0" height="1" width="100" /><rect y="84" x="0" height="1" width="100" /><rect y="98" x="0" height="1" width="100" /></g></svg>');
     transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
-    overflow: hidden;
-    backface-visibility: hidden;
-    box-shadow: inset 10px 0 20px -10px rgba(0, 0, 0, 0.2);
-    border: 1px solid #a5917d;
-    border-left: none;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
-  
-  .book-page.page-left {
-    transform-origin: right center;
-    box-shadow: inset -10px 0 20px -10px rgba(0, 0, 0, 0.2);
-    left: 0;
-    border-right: none;
-    border-left: 1px solid #a5917d;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  
-  .book-page.page-right {
-    left: 50%;
-  }
-  
-  .book-page.turning {
-    animation: turnPage 1.2s forwards;
-    z-index: 10;
-  }
-  
-  @keyframes turnPage {
-    0% { transform: rotateY(0); }
-    100% { transform: rotateY(-180deg); }
-  }
-  
-  .page-content {
-    padding: 30px 35px;
-    color: #5d4037;
-    font-family: 'Gentium Book Basic', 'Times New Roman', serif;
-    position: relative;
-    height: 100%;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(165, 145, 125, 0.5) rgba(240, 230, 217, 0.2);
-  }
-  
-  .page-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .page-content::-webkit-scrollbar-track {
-    background: rgba(240, 230, 217, 0.2);
-    border-radius: 3px;
-  }
-  
-  .page-content::-webkit-scrollbar-thumb {
-    background: rgba(165, 145, 125, 0.5);
-    border-radius: 3px;
-  }
-  
-  .page-content.back {
-    transform: rotateY(180deg);
-  }
-  
-  .page-content h2 {
-    color: #5d4037;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-size: 24px;
-    margin-top: 0;
-    margin-bottom: 20px;
-    text-align: center;
-    position: relative;
-    text-shadow: 1px 1px 2px rgba(165, 145, 125, 0.5);
-    letter-spacing: 1px;
-  }
-  
-  .page-content h2::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -10px;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #a5917d, transparent);
-  }
-  
-  .book-entry-short {
-    margin-bottom: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    border-bottom: 1px dotted #d7ccc8;
-    padding-bottom: 6px;
-    position: relative;
-    padding-left: 15px;
-    color: #5d4037;
-  }
-  
-  .book-entry-short::before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: #8a65c9;
-    font-size: 18px;
-  }
-  
-  .book-entry-short strong {
-    color: #4e342e;
-    font-weight: 600;
-  }
-  
-  .book-ritual-short {
-    margin-bottom: 10px;
-    font-size: 15px;
-    color: #5d4037;
-    position: relative;
-    padding-left: 20px;
-  }
-  
-  .book-ritual-short::before {
-    content: '✧';
-    position: absolute;
-    left: 0;
-    top: 2px;
-    color: #6a1b9a;
-    font-size: 16px;
-  }
-  
-  .book-ritual-short strong {
-    color: #6a1b9a;
-    position: relative;
-  }
-  
-  .book-ritual-short strong::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(to right, #6a1b9a, transparent);
-  }
-  
-  .book-rumor-short {
-    margin-bottom: 10px;
-    font-size: 14px;
-    font-style: italic;
-    color: #795548;
-    position: relative;
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-  
-  .book-rumor-short::before {
-    content: '"';
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: #a1887f;
-    font-size: 20px;
-    line-height: 1;
-  }
-  
-  .book-rumor-short::after {
-    content: '"';
-    position: absolute;
-    right: 0;
-    bottom: -8px;
-    color: #a1887f;
-    font-size: 20px;
-    line-height: 1;
-  }
-  
-  .book-rumor-short .source {
-    color: #a1887f;
-    font-size: 12px;
-    text-align: right;
-    display: block;
-    margin-top: 4px;
-  }
-  
-  .book-controls {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    background: rgba(48, 43, 68, 0.9);
-    padding: 10px 20px;
-    border-radius: 25px;
-    backdrop-filter: blur(3px);
-    z-index: 100;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border: 1px solid #5d468a;
-  }
-  
-  .page-turn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    color: #c8bfe3;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    background-color: rgba(93, 70, 138, 0.3);
-    border: 1px solid rgba(93, 70, 138, 0.5);
-  }
-  
-  .page-turn:hover:not(:disabled) {
-    color: #e2d9f3;
-    background-color: rgba(93, 70, 138, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .page-turn:disabled {
-    opacity: 0.3;
-    cursor: default;
-    background-color: rgba(93, 70, 138, 0.1);
-    box-shadow: none;
-    transform: none;
-  }
-  
-  .page-indicator {
-    font-size: 16px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    background-color: rgba(42, 35, 60, 0.6);
-    padding: 5px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(93, 70, 138, 0.3);
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Ritual Modal Styles */
-  .ritual-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeInOverlay 0.4s ease-out;
-  }
-  
-  .ritual-modal {
-    background: #342f48;
-    background-image: 
-      radial-gradient(circle at 30% 30%, rgba(93, 70, 138, 0.1) 0%, rgba(93, 70, 138, 0) 70%),
-      radial-gradient(circle at 70% 70%, rgba(93, 70, 138, 0.1) 0%, rgba(93, 70, 138, 0) 70%);
-    color: #e2d9f3;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 650px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.4);
-    border: 2px solid #5d468a;
-    animation: scaleInModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .ritual-modal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="25" cy="25" r="1" fill="%23b59dc4" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23b59dc4" opacity="0.3"/><circle cx="25" cy="75" r="1" fill="%23b59dc4" opacity="0.3"/><circle cx="75" cy="25" r="1" fill="%23b59dc4" opacity="0.3"/><circle cx="50" cy="50" r="1" fill="%23b59dc4" opacity="0.3"/></svg>');
-    pointer-events: none;
-    opacity: 0.2;
-    z-index: 0;
-  }
-  
-  .ritual-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 2px solid #5d468a;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .ritual-modal-header::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 50%;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-  }
-  
-  .ritual-modal-header h3 {
-    margin: 0;
-    font-size: 24px;
-    color: #e2d9f3;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(93, 70, 138, 0.6);
-  }
-  
-  .close-modal {
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: #a294b8;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    transition: all 0.3s ease;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  
-  .close-modal:hover {
-    color: #e2d9f3;
-    background-color: rgba(93, 70, 138, 0.3);
-    transform: rotate(90deg);
-  }
-  
-  .ritual-modal-content {
-    padding: 20px;
-    overflow-y: auto;
-    flex-grow: 1;
-    font-family: 'Gentium Book Basic', serif;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(93, 70, 138, 0.5) rgba(42, 35, 60, 0.2);
-    position: relative;
-    z-index: 1;
-  }
-  
-  .ritual-modal-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .ritual-modal-content::-webkit-scrollbar-track {
-    background: rgba(42, 35, 60, 0.2);
-    border-radius: 3px;
-  }
-  
-  .ritual-modal-content::-webkit-scrollbar-thumb {
-    background: rgba(93, 70, 138, 0.5);
-    border-radius: 3px;
-  }
-  
-  .ritual-progress-section {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    margin-bottom: 25px;
-    background-color: rgba(48, 43, 68, 0.7);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
-    border: 1px solid #483d66;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .ritual-progress-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 30% 30%, rgba(138, 101, 201, 0.1) 0%, rgba(138, 101, 201, 0) 70%),
-      radial-gradient(circle at 70% 70%, rgba(138, 101, 201, 0.1) 0%, rgba(138, 101, 201, 0) 70%);
-    pointer-events: none;
-  }
-  
-  .ritual-progress-circle {
-    position: relative;
-    width: 90px;
-    height: 90px;
-    flex-shrink: 0;
-  }
-  
-  .progress-ring {
-    transform: rotate(-90deg);
-  }
-  
-  .progress-ring-bg {
-    stroke: rgba(93, 70, 138, 0.3);
-    stroke-width: 8;
-    fill: transparent;
-  }
-  
-  .progress-ring-circle {
-    stroke: #8a65c9;
-    stroke-width: 8;
-    fill: transparent;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 0 5px rgba(138, 101, 201, 0.5));
-  }
-  
-  .progress-text {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #e2d9f3;
-    font-family: 'Arial', sans-serif;
-    text-shadow: 0 0 10px rgba(138, 101, 201, 0.6);
-  }
-  
-  .ritual-completion-text {
-    font-size: 16px;
-    color: #c8bfe3;
-    background-color: rgba(42, 35, 60, 0.5);
-    padding: 8px 15px;
-    border-radius: 10px;
-    border: 1px solid rgba(93, 70, 138, 0.4);
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .ritual-description-full {
-    font-size: 16px;
-    line-height: 1.7;
-    margin-bottom: 25px;
-    color: #c8bfe3;
-    padding: 0 5px;
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .ritual-steps h4, .ritual-requirements-full h4, .ritual-rewards h4 {
-    font-size: 18px;
-    color: #b59dc4;
-    margin: 0 0 15px 0;
-    border-bottom: 1px solid rgba(93, 70, 138, 0.4);
-    padding-bottom: 8px;
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    font-weight: normal;
-    letter-spacing: 0.5px;
-    position: relative;
-    text-shadow: 0 0 5px rgba(181, 157, 196, 0.4);
-  }
-  
-  .ritual-steps h4::after, .ritual-requirements-full h4::after, .ritual-rewards h4::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100px;
-    height: 2px;
-    background: linear-gradient(to right, #8a65c9, transparent);
-    border-radius: 2px;
-  }
-  
-  .steps-list, .rewards-list {
-    list-style: none;
-    padding-left: 10px;
-    margin: 0 0 25px 0;
-  }
-  
-  .ritual-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
-    border: 1px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .ritual-step.completed {
-    background-color: rgba(140, 193, 82, 0.08);
-    border-color: rgba(140, 193, 82, 0.2);
-  }
-  
-  .ritual-step.completed::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(to right, rgba(140, 193, 82, 0.5), transparent);
-  }
-  
-  .step-check {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-    font-size: 18px;
-    color: #a294b8;
-    line-height: 24px;
-    text-align: center;
-    font-weight: bold;
-    font-family: 'Arial', sans-serif;
-    border-radius: 50%;
-    border: 2px solid rgba(93, 70, 138, 0.3);
-    transition: all 0.3s ease;
-  }
-  
-  .ritual-step.completed .step-check {
-    color: #8cc152;
-    background-color: rgba(140, 193, 82, 0.1);
-    border-color: rgba(140, 193, 82, 0.4);
-    transform: scale(1.1);
-  }
-  
-  .step-details {
-    flex-grow: 1;
-  }
-  
-  .step-description {
-    font-size: 15px;
-    color: #c8bfe3;
-    font-family: 'Gentium Book Basic', serif;
-    line-height: 1.5;
-  }
-  
-  .ritual-step.completed .step-description {
-    text-decoration: line-through;
-    color: #a294b8;
-  }
-  
-  .step-completed-date {
-    font-size: 13px;
-    color: #a294b8;
-    font-style: italic;
-    margin-top: 6px;
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .requirements-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 25px;
-  }
-  
-  .ritual-requirement {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    color: #c8bfe3;
-    padding: 10px 12px;
-    background-color: rgba(48, 43, 68, 0.5);
-    border-radius: 10px;
-    border: 1px solid #483d66;
-    transition: all 0.3s ease;
-  }
-  
-  .ritual-requirement:hover {
-    background-color: rgba(48, 43, 68, 0.7);
-    transform: translateX(3px);
-    border-color: #5d468a;
-  }
-  
-  .requirement-icon {
-    font-size: 18px;
-    width: 24px;
-    text-align: center;
-    color: #b59dc4;
-  }
-  
-  .requirement-label {
-    font-weight: 500;
-    color: #e2d9f3;
-    width: 110px;
-    flex-shrink: 0;
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .requirement-text {
-    flex-grow: 1;
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .req-met {
-    margin-left: 10px;
-    font-size: 13px;
-    color: #8cc152;
-    font-style: italic;
-    background-color: rgba(140, 193, 82, 0.1);
-    padding: 2px 6px;
-    border-radius: 6px;
-    border: 1px solid rgba(140, 193, 82, 0.2);
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .required-items-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-left: 12px;
-  }
-  
-  .required-item {
-    background-color: rgba(42, 35, 60, 0.5);
-    padding: 3px 8px;
-    border-radius: 8px;
-    font-size: 14px;
-    border: 1px solid rgba(93, 70, 138, 0.3);
-    font-family: 'Gentium Book Basic', serif;
-    color: #c8bfe3;
-    transition: all 0.3s ease;
-  }
-  
-  .required-item:hover {
-    background-color: rgba(42, 35, 60, 0.7);
-    transform: translateY(-2px);
-    border-color: rgba(93, 70, 138, 0.5);
-  }
-  
-  .reward-item {
-    font-size: 15px;
-    color: #e2d9f3;
-    margin-bottom: 10px;
-    padding-left: 30px;
-    position: relative;
-    line-height: 1.5;
-    font-family: 'Gentium Book Basic', serif;
-  }
-  
-  .reward-item::before {
-    content: '✧';
-    position: absolute;
-    left: 5px;
-    top: 0;
-    color: #ffd54f;
-    font-size: 18px;
-    text-shadow: 0 0 5px rgba(255, 213, 79, 0.3);
-  }
-  
-  .claim-reward-button.modal-claim {
-    display: block;
-    margin: 25px auto 0 auto;
-    padding: 12px 25px;
-    font-size: 16px;
-    background: linear-gradient(to bottom, #8cc152, #5aaf3d);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    font-family: 'Arial', sans-serif;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .claim-reward-button.modal-claim::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: all 0.6s ease;
-  }
-  
-  .claim-reward-button.modal-claim:hover::before {
-    left: 100%;
-  }
-  
-  .claim-reward-button.modal-claim:hover {
-    background: linear-gradient(to bottom, #9dd966, #6cbb4e);
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-  
-  .claimed-badge.modal-claimed {
-    display: block;
-    text-align: center;
-    margin-top: 25px;
-    color: #8cc152;
-    font-weight: bold;
-    font-size: 16px;
-    padding: 15px;
-    background-color: rgba(140, 193, 82, 0.1);
-    border: 1px solid rgba(140, 193, 82, 0.3);
-    border-radius: 10px;
-    text-shadow: 0 0 5px rgba(140, 193, 82, 0.3);
-    box-shadow: inset 0 0 15px rgba(140, 193, 82, 0.05);
-    font-family: 'Luminari', 'Palatino Linotype', serif;
-    letter-spacing: 0.5px;
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes fadeInOverlay {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes scaleInModal {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-  }
+    overflow: hidden; backface-visibility: hidden;
+    border: 1px solid #a1887f;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.book-page.page-left { transform-origin: right center; left: 0; border-right: none; border-radius: 4px 0 0 4px; box-shadow: inset -5px 0 10px -5px rgba(0,0,0,0.15); }
+.book-page.page-right { transform-origin: left center; left: 50%; border-left: none; border-radius: 0 4px 4px 0; box-shadow: inset 5px 0 10px -5px rgba(0,0,0,0.15); }
+
+/* Page Turning Animation */
+.book-page.page-left.turning { animation: turnPageLeft 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards; }
+.book-page.page-right.turning { animation: turnPageRight 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards; }
+@keyframes turnPageLeft { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
+@keyframes turnPageRight { from { transform: rotateY(0deg); } to { transform: rotateY(-180deg); } }
+
+.page-content { padding: 25px 30px; color: #5d4037; height: 100%; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #a1887f #e0d6c9; }
+.page-content::-webkit-scrollbar { width: 6px; }
+.page-content::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 3px; }
+.page-content::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 3px; }
+.page-content h2 { color: #5d4037; font-size: 20px; margin-bottom: 15px; text-align: center; font-family: var(--font-primary); text-shadow: none; }
+.book-entry-short, .book-ritual-short, .book-rumor-short { margin-bottom: 8px; font-size: 13px; line-height: 1.5; border-bottom: 1px dotted #c19a70; padding-bottom: 4px; }
+.book-entry-short strong, .book-ritual-short strong { color: #4e342e; }
+.book-rumor-short { font-style: italic; color: #795548; }
+.book-rumor-short .source { color: #a1887f; font-size: 11px; display: block; text-align: right; margin-top: 2px; }
+
+/* Book Controls */
+.book-controls {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 15px;
+    background: rgba(78, 52, 46, 0.8); padding: 8px 15px; border-radius: 15px;
+    z-index: 20; border: 1px solid #a1887f; box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+.page-turn {
+    background: none; border: none; font-size: 20px; color: #d3c6a6; cursor: pointer;
+    transition: all 0.2s ease; width: 30px; height: 30px; display: flex; align-items: center;
+    justify-content: center; border-radius: 50%; background-color: rgba(165, 145, 125, 0.2);
+}
+.page-turn:hover:not(:disabled) { color: #f4e9d9; background-color: rgba(165, 145, 125, 0.4); }
+.page-turn:disabled { opacity: 0.4; cursor: default; background-color: transparent; }
+.page-indicator { font-size: 14px; color: #d3c6a6; font-family: 'Courier New', monospace; background-color: rgba(0,0,0,0.2); padding: 3px 8px; border-radius: 4px; }
+
+/* Ritual Modal Styles (Parchment Theme) */
+.ritual-modal {
+    background-color: #f4e9d9; /* Parchment base */
+    color: #5d4037; /* Dark text */
+    border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh;
+    display: flex; flex-direction: column;
+    box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.3);
+    border: 3px solid #a1887f; /* Parchment border */
+    animation: scaleInModal 0.4s ease-out;
+    overflow: hidden; position: relative;
+}
+.ritual-modal-header {
+    padding: 12px 18px; border-bottom: 2px solid #a1887f; flex-shrink: 0;
+    background-color: #e0d6c9; /* Slightly darker header */
+    display: flex; justify-content: space-between; align-items: center;
+}
+.ritual-modal-header h3 { margin: 0; font-size: 20px; color: #6a1b9a; font-family: var(--font-primary); text-shadow: none; }
+.close-modal { background: none; border: none; font-size: 24px; color: #a1887f; cursor: pointer; padding: 0; line-height: 1; transition: all 0.2s ease; }
+.close-modal:hover { color: #5d4037; transform: rotate(90deg); }
+.ritual-modal-content {
+    padding: 18px; overflow-y: auto; flex-grow: 1; font-family: 'Times New Roman', serif;
+    scrollbar-width: thin; scrollbar-color: #a1887f #e0d6c9;
+}
+.ritual-modal-content::-webkit-scrollbar { width: 6px; }
+.ritual-modal-content::-webkit-scrollbar-track { background: #e0d6c9; border-radius: 3px; }
+.ritual-modal-content::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 3px; }
+
+.ritual-progress-section { /* Styles for parchment */
+    display: flex; align-items: center; gap: 20px; margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.4); padding: 15px; border-radius: 8px;
+    border: 1px solid #c19a70;
+}
+.ritual-progress-circle { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+.progress-ring-bg { stroke: #e0d6c9; stroke-width: 6; fill: transparent; }
+.progress-ring-circle { stroke: #8d6e63; stroke-width: 6; fill: transparent; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+.progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #5d4037; font-family: 'Courier New', monospace; }
+.ritual-completion-text { font-size: 14px; color: #6d4c41; font-style: italic; }
+
+.ritual-description-full { font-size: 15px; line-height: 1.6; margin-bottom: 20px; color: #5d4037; }
+.ritual-steps h4, .ritual-requirements-full h4, .ritual-rewards h4 { font-size: 16px; color: #6a1b9a; margin: 0 0 12px 0; border-bottom: 1px solid #c19a70; padding-bottom: 6px; font-family: var(--font-primary); }
+.steps-list, .rewards-list { list-style: none; padding-left: 0; margin: 0 0 20px 0; }
+.ritual-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; padding: 8px; border-radius: 4px; border: 1px solid transparent; }
+.ritual-step.completed { background-color: rgba(165, 214, 167, 0.2); border-color: rgba(102, 187, 106, 0.4); }
+.step-check { width: 20px; height: 20px; flex-shrink: 0; font-size: 16px; color: #a1887f; line-height: 20px; text-align: center; font-weight: bold; border-radius: 50%; border: 1px solid #c19a70; }
+.ritual-step.completed .step-check { color: #388e3c; background-color: rgba(165, 214, 167, 0.3); border-color: #66bb6a; }
+.step-details { flex-grow: 1; }
+.step-description { font-size: 14px; color: #6d4c41; line-height: 1.4; }
+.ritual-step.completed .step-description { text-decoration: line-through; color: #a1887f; }
+.step-completed-date { font-size: 12px; color: #a1887f; font-style: italic; margin-top: 4px; }
+
+.requirements-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.ritual-requirement { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #6d4c41; padding: 6px 10px; background-color: rgba(255, 255, 255, 0.5); border-radius: 4px; border: 1px solid #c19a70; }
+.requirement-icon { font-size: 16px; width: 20px; text-align: center; color: #8d6e63; }
+.requirement-label { font-weight: 500; color: #5d4037; width: 100px; flex-shrink: 0; }
+.req-met { margin-left: 8px; font-size: 12px; color: #388e3c; font-style: italic; background-color: rgba(165, 214, 167, 0.2); padding: 1px 5px; border-radius: 4px; border: 1px solid #66bb6a; }
+
+.reward-item { font-size: 14px; color: #5d4037; margin-bottom: 8px; padding-left: 25px; position: relative; line-height: 1.4; }
+.reward-item::before { content: '★'; position: absolute; left: 0; top: 0; color: #d6a44c; font-size: 16px; text-shadow: 1px 1px 0px rgba(0,0,0,0.2); }
+
+.claim-reward-button.modal-claim { /* Styles for claim button inside modal */
+    display: block; margin: 20px auto 0 auto; padding: 10px 20px; font-size: 15px;
+    background-color: #a5d6a7; color: #1b5e20; border: 2px solid;
+    border-color: #c8e6c9 #66bb6a #66bb6a #c8e6c9; border-radius: var(--border-radius-sm);
+    font-weight: bold; cursor: pointer; transition: all 0.2s ease;
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.2); font-family: var(--font-primary);
+}
+.claim-reward-button.modal-claim:hover { background-color: #90a959; transform: translateY(-2px); box-shadow: 3px 3px 5px rgba(0,0,0,0.3); }
+.claimed-badge.modal-claimed { /* Styles for claimed badge inside modal */
+    display: block; text-align: center; margin-top: 20px; color: #388e3c; font-weight: bold; font-size: 15px;
+    padding: 12px; background-color: rgba(165, 214, 167, 0.2); border: 1px solid #66bb6a; border-radius: 8px;
+    font-family: var(--font-primary);
+}

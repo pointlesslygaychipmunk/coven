@@ -1,44 +1,48 @@
 /* frontend/src/index.css */
-/* Global styles and Hanbang-inspired theme */
+/* Global styles - Redesigned for 90s Adventure Game Aesthetic */
 
-/* Font Imports (already in index.html) */
+/* Font Imports (Assume already in index.html or managed via build tool) */
+/* Example: @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Courier+New&display=swap'); */
 
 /* CSS Variables for Theme */
 :root {
-  --font-primary: 'Cinzel', serif;
-  --font-secondary: 'Lato', sans-serif;
+  /* Core Fonts */
+  --font-primary: 'Times New Roman', serif; /* Classic, slightly formal */
+  --font-secondary: 'Courier New', monospace; /* Retro tech/scroll font */
 
-  --color-bg-dark: #1a1a24;      /* Deep night sky */
-  --color-bg-medium: #2a2a3a;    /* Dark slate */
-  --color-bg-light: #342f48;     /* Muted violet */
-  --color-bg-panel: #242133;     /* Slightly darker panel bg */
+  /* 90s Inspired Color Palette (Refined Hanbang) */
+  --color-bg-dark: #2d2038;      /* Deep Purple/Brown */
+  --color-bg-medium: #4a3b5c;    /* Muted Purple Stone */
+  --color-bg-light: #6a577a;     /* Lighter Purple Stone */
+  --color-bg-panel: #3a2f4a;     /* Darker Panel Background */
 
-  --color-border: #483d66;       /* Deep amethyst border */
-  --color-border-light: #64526f;  /* Lighter border */
+  --color-border-light: #7a6c95; /* Highlight border */
+  --color-border-dark: #241c2c; /* Shadow border */
+  --color-border-accent: #a07c2c; /* Gold Accent Border */
 
-  --color-text-light: #d8c9a7;   /* Parchment / pale gold */
-  --color-text-medium: #a294b8;  /* Muted lavender */
-  --color-text-dark: #7a6c95;    /* Dusky lavender */
-  --color-text-heading: #c7b89c; /* Lighter, softer parchment gold */
+  --color-text-light: #f3e9d2;   /* Parchment / Pale Gold */
+  --color-text-medium: #c8bfe3;  /* Muted Lavender */
+  --color-text-dark: #9286a7;    /* Dusky Lavender */
+  --color-text-heading: #e4dbee; /* Lighter, Softer Parchment */
+  --color-text-on-parchment: #5d4037; /* Dark brown for text on light backgrounds */
 
-  --color-accent-primary: #b59dc4;  /* Lilac / light amethyst */
-  --color-accent-secondary: #d6a44c; /* Gold accent (money, importance) */
-  --color-accent-tertiary: #7eba76; /* Soft green (nature, success) */
+  --color-accent-primary: #b59dc4;  /* Lilac / Light Amethyst */
+  --color-accent-secondary: #d6a44c; /* Gold Accent (like HOMM3 resources) */
+  --color-accent-tertiary: #7eba76; /* Soft Green */
 
   --color-success: #7eba76;
   --color-warning: #d6a44c;
-  --color-danger: #c75e54;     /* Muted terracotta */
-  --color-info: #6fa6cc;      /* Soft blue */
+  --color-danger: #c75e54;
+  --color-info: #6fa6cc;
 
-  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-medium: 0 6px 15px rgba(0, 0, 0, 0.4);
-  --shadow-inset: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  /* 90s UI Elements */
+  --shadow-90s: 3px 3px 0px rgba(0, 0, 0, 0.3); /* Hard shadow */
+  --shadow-inset-90s: inset 2px 2px 3px rgba(0, 0, 0, 0.4);
+  --border-radius-sm: 4px; /* Less rounding */
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
 
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-
-  --transition-speed: 0.2s;
+  --transition-speed: 0.15s; /* Slightly faster transitions */
 }
 
 /* Global Resets and Base Styles */
@@ -48,6 +52,9 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  image-rendering: pixelated; /* Emphasize pixel look */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 html {
@@ -57,112 +64,157 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-secondary);
+  font-family: var(--font-secondary); /* Use monospace as default */
   background-color: var(--color-bg-dark);
   color: var(--color-text-light);
   height: 100vh;
   width: 100vw;
   overflow: hidden; /* Prevent body scroll */
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: none; /* Sharper text rendering */
+  -moz-osx-font-smoothing: none;
+  /* Easter Egg: Very subtle background pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path d="M0 0h1v1H0z" fill="%23ffffff" fill-opacity="0.01"/></svg>');
 }
 
 #root {
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  display: flex; /* Base layout for sidebar + content */
+  flex-direction: row; /* Default to row, App.css might override if needed */
 }
 
+/* Headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use Serif for headings */
   color: var(--color-text-heading);
-  font-weight: normal;
+  font-weight: bold; /* Bolder headings */
   letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4); /* Subtle shadow */
 }
 
 p {
   margin-bottom: 1rem;
+  font-size: 14px; /* Slightly smaller default paragraph */
 }
 
 a {
   color: var(--color-accent-primary);
-  text-decoration: none;
+  text-decoration: underline; /* Classic underline */
   transition: color var(--transition-speed) ease;
 }
 
 a:hover {
   color: var(--color-text-light);
+  text-decoration: none; /* Remove underline on hover */
 }
 
+/* 90s Button Style */
 button {
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use serif for buttons */
   cursor: pointer;
-  border: none;
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light); /* Bevel effect */
   border-radius: var(--border-radius-sm);
   padding: 0.5em 1em;
   transition: all var(--transition-speed) ease;
+  background-color: var(--color-bg-light); /* Base button color */
+  color: var(--color-text-heading);
+  box-shadow: var(--shadow-90s);
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+  transform: translateY(0);
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.35);
+}
+
+button:active:not(:disabled) {
+  border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark); /* Invert bevel */
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.9);
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+  background-color: var(--color-bg-medium);
+  border-color: var(--color-border-dark);
 }
 
-/* Basic Button Styles (can be overridden by components) */
+/* Basic Button Variants (can be overridden) */
 button.primary {
-    background-color: var(--color-accent-primary);
+    background-color: var(--color-accent-secondary); /* Gold */
     color: var(--color-bg-dark);
+    border-color: #ffe08a #a07c2c #a07c2c #ffe08a;
 }
-button.primary:hover:not(:disabled) {
-    background-color: var(--color-text-light);
-}
+button.primary:hover:not(:disabled) { filter: brightness(1.1); }
+button.primary:active:not(:disabled) { border-color: #a07c2c #ffe08a #ffe08a #a07c2c; }
 
 button.secondary {
     background-color: var(--color-bg-light);
     color: var(--color-text-light);
-    border: 1px solid var(--color-border);
+    border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
 }
-button.secondary:hover:not(:disabled) {
-    background-color: var(--color-border);
-}
+button.secondary:hover:not(:disabled) { background-color: var(--color-border); }
+button.secondary:active:not(:disabled) { border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark); }
 
-
+/* Input Fields */
 input, select, textarea {
-  font-family: var(--font-secondary);
+  font-family: var(--font-secondary); /* Monospace for inputs */
   background-color: var(--color-bg-panel);
-  border: 1px solid var(--color-border);
+  border: 2px solid;
+  border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark); /* Inset bevel */
   color: var(--color-text-light);
-  padding: 0.5em 0.8em;
+  padding: 0.4em 0.7em;
   border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-inset-90s);
+  font-size: 14px;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--color-accent-primary);
-  box-shadow: 0 0 5px rgba(181, 157, 196, 0.3);
+  border-color: var(--color-accent-primary); /* Highlight focus */
+  box-shadow: inset 0 0 5px rgba(181, 157, 196, 0.3), var(--shadow-inset-90s);
 }
 
-/* Scrollbar Styling */
+select {
+   appearance: none;
+   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="6" fill="%23a294b8"%3E%3Cpath d="M4 6L0 0h8z"/%3E%3C/svg%3E');
+   background-repeat: no-repeat;
+   background-position: right 8px center;
+   padding-right: 25px;
+}
+
+/* Scrollbar Styling - Chunky 90s style */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-panel);
-  border-radius: 5px;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 5px;
-  border: 2px solid var(--color-bg-panel); /* Creates padding */
+  background: var(--color-bg-light);
+  border-radius: 0; /* Square thumb */
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light); /* Bevel */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-light);
+  background: var(--color-border);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-bg-dark);
 }
 
 /* Utility Classes */
@@ -170,7 +222,7 @@ input:focus, select:focus, textarea:focus {
 .text-warning { color: var(--color-warning); }
 .text-danger { color: var(--color-danger); }
 .text-info { color: var(--color-info); }
-.text-muted { color: var(--color-text-medium); }
+.text-muted { color: var(--color-text-dark); }
 
 .italic { font-style: italic; }
 .bold { font-weight: bold; }

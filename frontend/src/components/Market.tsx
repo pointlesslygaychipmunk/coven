@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './Market.css';
-import { InventoryItem, MarketItem, Rumor, TownRequest } from 'coven-shared';
+import { InventoryItem, MarketItem, Rumor, TownRequest } from 'coven-shared'; // Added missing types
 
 // Define custom type for price trend animation
 type TrendType = 'up' | 'down' | 'stable';
@@ -30,154 +30,133 @@ const Market: React.FC<MarketProps> = ({
 }) => {
   // State
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'requests'>('buy');
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null); // For Buy Tab (MarketItem ID)
+  const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null); // For Sell Tab (InventoryItem ID)
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null); // For Requests Tab
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showBlackMarket, setShowBlackMarket] = useState<boolean>(false);
   const [blackMarketTransition, setBlackMarketTransition] = useState<boolean>(false);
-  
+
   // Easter Egg - Festival Market
   const [secretTriggerCount, setSecretTriggerCount] = useState<number>(0);
   const [festivalMarketActive, setFestivalMarketActive] = useState<boolean>(false);
   const [lanternPositions, setLanternPositions] = useState<Array<{x: number, y: number, delay: number, size: number}>>([]);
   const [festivalTheme, setFestivalTheme] = useState<'spring' | 'moon' | 'harvest'>('moon');
-  const [specialMerchant, setSpecialMerchant] = useState<{
-    active: boolean;
-    name: string;
-    greeting: string;
-    discount: number;
-  }>({
-    active: false,
-    name: '',
-    greeting: '',
-    discount: 0,
-  });
+  const [specialMerchant, setSpecialMerchant] = useState<{ active: boolean; name: string; greeting: string; discount: number; }>({ active: false, name: '', greeting: '', discount: 0 });
+  const secretTriggerTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref for easter egg timeout
 
   // Check for festival activation
   useEffect(() => {
     if (secretTriggerCount >= 5) {
       activateFestivalMarket();
-      setSecretTriggerCount(0);
+      setSecretTriggerCount(0); // Reset after activation
+      if (secretTriggerTimeoutRef.current) clearTimeout(secretTriggerTimeoutRef.current); // Clear timeout
     }
-    
-    // Return cleanup function
-    return () => {};
   }, [secretTriggerCount]);
 
-  // Reset selection when changing tabs
+  // Reset selection when changing tabs or market type
   useEffect(() => {
     setSelectedItemId(null);
     setSelectedInventoryItemId(null);
     setSelectedRequestId(null);
-    
-    // Return cleanup function
-    return () => {};
-  }, [activeTab]);
+  }, [activeTab, showBlackMarket]);
 
   // Handle Black Market transition effect
   useEffect(() => {
-    if (showBlackMarket) {
+    let timer: NodeJS.Timeout | null = null;
+    if (showBlackMarket && blackMarketAccess) { // Only trigger if access is granted
       setBlackMarketTransition(true);
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setBlackMarketTransition(false);
-      }, 2000);
-      return () => clearTimeout(timer);
+      }, 1000); // Short transition effect
+    } else {
+        setShowBlackMarket(false); // Ensure it's off if access is lost or toggled off
     }
-    
-    // Return cleanup function when not showing black market
-    return () => {};
-  }, [showBlackMarket]);
+    return () => { if (timer) clearTimeout(timer); };
+  }, [showBlackMarket, blackMarketAccess]);
 
   // Easter Egg Festival Market activation
   const activateFestivalMarket = () => {
-    // Choose a random festival theme
+    if (festivalMarketActive) return; // Don't reactivate if already active
+
     const themes: Array<'spring' | 'moon' | 'harvest'> = ['spring', 'moon', 'harvest'];
     const selectedTheme = themes[Math.floor(Math.random() * themes.length)];
     setFestivalTheme(selectedTheme);
-    
-    // Generate lantern positions
-    const numLanterns = 7 + Math.floor(Math.random() * 8); // 7-14 lanterns
+
+    const numLanterns = 10 + Math.floor(Math.random() * 10); // 10-19 lanterns
     const newLanterns = Array.from({ length: numLanterns }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      delay: Math.random() * 5,
-      size: 0.7 + Math.random() * 0.6, // Size variation
+      x: Math.random() * 100, y: Math.random() * 70, // Position lanterns higher up
+      delay: Math.random() * 5, size: 0.6 + Math.random() * 0.5,
     }));
     setLanternPositions(newLanterns);
-    
-    // Generate a special merchant
-    const merchantNames = {
-      'spring': ['Blossom', 'Petal', 'Flora', 'Willow', 'Iris'],
-      'moon': ['Luna', 'Selene', 'Celeste', 'Aria', 'Lyra'],
-      'harvest': ['Amber', 'Auburn', 'Maple', 'Hazel', 'Sage']
+
+    const merchantNames: Record<typeof selectedTheme, string[]> = {
+      'spring': ['Blossom', 'Flora', 'Willow', 'Iris', 'Fern'],
+      'moon': ['Luna', 'Selene', 'Celeste', 'Nyx', 'Astrid'],
+      'harvest': ['Amber', 'Rowan', 'Maple', 'Hazel', 'Saffron']
     };
-    
-    const greetings = {
-      'spring': [
-        "May your potions bloom like spring flowers!",
-        "Welcome to our spring festival! Fresh ingredients for all!",
-        "The spirits of renewal bless your visit today!"
-      ],
-      'moon': [
-        "The moon's light guides you to the finest wares!",
-        "Under the celestial glow, I offer special treasures!",
-        "The night market welcomes a fellow practitioner of magic!"
-      ],
-      'harvest': [
-        "Autumn's bounty brings the richest ingredients!",
-        "The harvest spirits have blessed us with abundance!",
-        "As leaves fall, our prices do too! What will you gather today?"
-      ]
+    const greetings: Record<typeof selectedTheme, string[]> = {
+       'spring': ["Bloom and grow! Fresh wares abound!", "Feel the renewal? Special prices bloom today!", "Spring's blessings upon your purchases!"],
+       'moon': ["Guided by moonlight, find rare treasures!", "The night market favors the bold. Special deals within!", "Celestial bargains await! What magic will you find?"],
+       'harvest': ["Autumn's gifts are plentiful!", "Gather your supplies! A bountiful discount awaits!", "The harvest moon smiles upon these prices!"]
     };
-    
     const names = merchantNames[selectedTheme];
     const selectedName = names[Math.floor(Math.random() * names.length)];
     const selectedGreeting = greetings[selectedTheme][Math.floor(Math.random() * greetings[selectedTheme].length)];
-    const discountPercent = 10 + Math.floor(Math.random() * 20); // 10-30% discount
-    
-    setSpecialMerchant({
-      active: true,
-      name: selectedName,
-      greeting: selectedGreeting,
-      discount: discountPercent
-    });
-    
-    // Activate festival market
+    const discountPercent = 10 + Math.floor(Math.random() * 16); // 10-25% discount
+
+    setSpecialMerchant({ active: true, name: selectedName, greeting: selectedGreeting, discount: discountPercent });
     setFestivalMarketActive(true);
-    
-    console.log(`✨ The ${selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1)} Festival Market appears! ✨`);
-    
-    // Festival lasts for 60 seconds
+    console.log(`✨ The ${selectedTheme} Festival Market appears! Merchant: ${selectedName} (-${discountPercent}%) ✨`);
+
+    // Festival lasts for ~1 game turn (adjust duration as needed)
     setTimeout(() => {
       setFestivalMarketActive(false);
-      setSpecialMerchant(prev => ({ ...prev, active: false }));
-    }, 60000);
+      setSpecialMerchant({ active: false, name: '', greeting: '', discount: 0 });
+       console.log(`✨ The Festival Market fades... ✨`);
+    }, 60000); // 60 seconds duration
   };
 
-  // Increment secret trigger counter
-  const incrementSecretTrigger = () => {
-    const newCount = secretTriggerCount + 1;
-    setSecretTriggerCount(newCount);
-    
-    // Reset after 3 seconds of inactivity
-    setTimeout(() => {
-      setSecretTriggerCount(0);
-    }, 3000);
-  };
+   // Increment secret trigger counter for Easter Egg
+   const handleTitleClick = () => {
+       // Clear previous timeout if exists
+       if (secretTriggerTimeoutRef.current) {
+           clearTimeout(secretTriggerTimeoutRef.current);
+       }
 
-  // Fix for the getFilteredItems function in Market.tsx
-  const getFilteredItems = () => {
+       const newCount = secretTriggerCount + 1;
+       setSecretTriggerCount(newCount);
+       console.log("Title click count:", newCount); // Debug log
+
+       // Set a timeout to reset clicks if not clicked again quickly
+       secretTriggerTimeoutRef.current = setTimeout(() => {
+           setSecretTriggerCount(0);
+           console.log("Title click count reset."); // Debug log
+       }, 1500); // Reset after 1.5 seconds of inactivity
+   };
+
+   // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (secretTriggerTimeoutRef.current) {
+                clearTimeout(secretTriggerTimeoutRef.current);
+            }
+        };
+    }, []);
+
+  // Filter items based on tab, filters, and black market status
+  const getFilteredItems = useMemo(() => {
     let itemsToFilter: (MarketItem | InventoryItem)[] = [];
+    const baseMarket = marketItems.filter(item => !item.blackMarketOnly || (item.blackMarketOnly && showBlackMarket));
 
     if (activeTab === 'buy') {
-      itemsToFilter = marketItems.filter(item => !item.blackMarketOnly || (item.blackMarketOnly && showBlackMarket));
+      itemsToFilter = baseMarket;
     } else if (activeTab === 'sell') {
-      // Filter inventory items that are sellable and have quantity > 0
-      const sellableMarketIds = new Set(marketItems.map(mi => mi.id));
+      const sellableMarketIds = new Set(baseMarket.map(mi => mi.id)); // Use filtered market IDs
        itemsToFilter = playerInventory.filter(invItem =>
+           // Ensure the base item exists in the *currently visible* market and player has quantity
            sellableMarketIds.has(invItem.baseId) && invItem.quantity > 0
        );
     } else {
@@ -185,182 +164,133 @@ const Market: React.FC<MarketProps> = ({
     }
 
     // Apply common filters
-    if (categoryFilter !== 'all') {
-      itemsToFilter = itemsToFilter.filter(item => item.category === categoryFilter);
-    }
-    if (typeFilter !== 'all') {
-      itemsToFilter = itemsToFilter.filter(item => item.type === typeFilter);
-    }
+    let filtered = itemsToFilter;
+    if (categoryFilter !== 'all') filtered = filtered.filter(item => item.category === categoryFilter);
+    if (typeFilter !== 'all') filtered = filtered.filter(item => item.type === typeFilter);
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      itemsToFilter = itemsToFilter.filter(item =>
+      filtered = filtered.filter(item =>
         item.name.toLowerCase().includes(term) ||
         (item.description && item.description.toLowerCase().includes(term))
       );
     }
 
-    // Sort by name with rarer items first
-    itemsToFilter.sort((a, b) => {
-      // First by rarity
-      const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
-      const rarityA = a.rarity as keyof typeof rarityOrder;
-      const rarityB = b.rarity as keyof typeof rarityOrder;
-      
-      const rarityDiff = (rarityOrder[rarityA] || 999) - (rarityOrder[rarityB] || 999);
-      if (rarityDiff !== 0) return rarityDiff;
-      
-      // Then by name
-      return a.name.localeCompare(b.name);
-    });
-
-    return itemsToFilter;
-  };
+    // Sort by name
+    return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+  }, [activeTab, marketItems, playerInventory, showBlackMarket, categoryFilter, typeFilter, searchTerm]);
 
   // Get selected item/request details
-  const getSelectedItemDetails = () => {
-    if (activeTab === 'buy' && selectedItemId) return marketItems.find(item => item.id === selectedItemId);
-    if (activeTab === 'sell' && selectedInventoryItemId) return playerInventory.find(item => item.id === selectedInventoryItemId);
-    if (activeTab === 'requests' && selectedRequestId) return townRequests.find(req => req.id === selectedRequestId);
+  const getSelectedItemDetails = (): MarketItem | InventoryItem | TownRequest | null => { // Added TownRequest
+    if (activeTab === 'buy' && selectedItemId) return marketItems.find(item => item.id === selectedItemId) || null; // Added null fallback
+    if (activeTab === 'sell' && selectedInventoryItemId) return playerInventory.find(item => item.id === selectedInventoryItemId) || null; // Added null fallback
+    if (activeTab === 'requests' && selectedRequestId) return townRequests.find(req => req.id === selectedRequestId) || null; // Added null fallback
     return null;
   };
 
   const selectedDetails = getSelectedItemDetails();
 
-  // Format price with gold symbol
-  const formatPrice = (price: number): string => `${price} G`;
+  // Format price
+  const formatPrice = (price: number): string => `${price}G`; // Simpler format
 
   // Calculate discounted price if festival is active
   const getAdjustedPrice = (basePrice: number): number => {
     if (festivalMarketActive && specialMerchant.active) {
-      // Apply festival discount
       return Math.max(1, Math.floor(basePrice * (1 - specialMerchant.discount / 100)));
     }
     return basePrice;
   };
 
-  // Determine price trend icon and animation class
+  // Determine price trend icon
   const getPriceTrendIcon = (item: MarketItem): string => {
-    if (!item.priceHistory || item.priceHistory.length < 2) return '→';
+    if (!item.priceHistory || item.priceHistory.length < 2) return '—'; // Neutral dash
     const current = item.price;
     const previous = item.priceHistory[item.priceHistory.length - 2] ?? item.basePrice;
-    if (current > previous) return '▲';
-    if (current < previous) return '▼';
-    return '→';
+    if (current > previous * 1.01) return '▲'; // Use threshold
+    if (current < previous * 0.99) return '▼'; // Use threshold
+    return '—';
   };
 
-  // Get trend class for styling
+  // Get trend class
   const getTrendClass = (item: MarketItem): TrendType => {
      if (!item.priceHistory || item.priceHistory.length < 2) return 'stable';
      const current = item.price;
      const previous = item.priceHistory[item.priceHistory.length - 2] ?? item.basePrice;
-     if (current > previous * 1.02) return 'up';
+     if (current > previous * 1.02) return 'up'; // Trend needs slightly bigger change
      if (current < previous * 0.98) return 'down';
      return 'stable';
   };
 
   // Handle item selection
-  const handleItemClick = (id: string) => {
-    if (activeTab === 'buy') {
+  const handleItemClick = (id: string, isMarketItem: boolean) => {
+    if (isMarketItem) { // Clicked item in Buy tab
+      setActiveTab('buy'); // Ensure buy tab is active
       setSelectedItemId(id);
       setSelectedInventoryItemId(null);
       setSelectedRequestId(null);
-    } else if (activeTab === 'sell') {
-      setSelectedInventoryItemId(id);
-      setSelectedItemId(null);
-      setSelectedRequestId(null);
+    } else { // Clicked item in Sell tab (InventoryItem)
+        setActiveTab('sell'); // Ensure sell tab is active
+        setSelectedInventoryItemId(id);
+        setSelectedItemId(null);
+        setSelectedRequestId(null);
     }
   };
 
   // Handle request selection
   const handleRequestClick = (requestId: string) => {
+    setActiveTab('requests'); // Switch to requests tab
     setSelectedRequestId(requestId);
     setSelectedItemId(null);
     setSelectedInventoryItemId(null);
   };
 
-  // Check if player can afford the selected market item
+  // Check affordability
   const canAffordItem = (): boolean => {
-     if (!selectedDetails || !('price' in selectedDetails)) return false;
-     const item = selectedDetails as MarketItem; // Type assertion
+     if (activeTab !== 'buy' || !selectedDetails || !('price' in selectedDetails)) return false;
+     const item = selectedDetails as MarketItem;
      const adjustedPrice = getAdjustedPrice(item.price);
      return playerGold >= adjustedPrice;
   };
 
   // Check if player can fulfill selected request
-  const canFulfillRequest = (): boolean => {
-    const request = selectedDetails as TownRequest;
-    if (!request || !('item' in request)) return false;
-    
-    // Sum quantity across all stacks for the check
-    const totalQuantity = playerInventory
-        .filter(item => item.name === request.item)
-        .reduce((sum, item) => sum + item.quantity, 0);
-        
-    return totalQuantity >= request.quantity;
-  };
+   const canFulfillRequest = (): boolean => {
+       if (activeTab !== 'requests' || !selectedDetails || !('item' in selectedDetails)) return false;
+       const request = selectedDetails as TownRequest;
+       const totalQuantity = playerInventory
+           .filter(item => item.name === request.item) // Match by name as request uses name
+           .reduce((sum, item) => sum + item.quantity, 0);
+       return totalQuantity >= request.quantity;
+   };
 
-  // Handle buy button click with Easter egg support
-  const handleBuyClick = (itemId: string) => {
-    // Increment secret counter when buying
-    incrementSecretTrigger();
-    onBuyItem(itemId);
-  };
+   // Helper function to check request fulfillment by ID (for list rendering)
+   const canFulfillRequestById = (requestId: string): boolean => {
+       const request = townRequests.find(req => req.id === requestId);
+       if (!request) return false;
+       const totalQuantity = playerInventory
+           .filter(item => item.name === request.item)
+           .reduce((sum, item) => sum + item.quantity, 0);
+       return totalQuantity >= request.quantity;
+   };
 
   // Get unique types and categories for filters
-  const uniqueTypes = [...new Set(marketItems.map(item => item.type))].sort();
-  const uniqueCategories = [...new Set(marketItems.map(item => item.category))].sort();
+  const uniqueTypes = useMemo(() => [...new Set(marketItems.map(item => item.type))].sort(), [marketItems]);
+  const uniqueCategories = useMemo(() => [...new Set(marketItems.map(item => item.category || 'misc'))].sort(), [marketItems]); // Added fallback
 
   // Get festival theme colors
   const getFestivalThemeColors = () => {
-    switch (festivalTheme) {
-      case 'spring':
-        return {
-          primary: 'rgba(210, 250, 220, 0.85)',
-          secondary: 'rgba(255, 200, 230, 0.7)',
-          accent: 'rgba(130, 215, 150, 0.9)',
-          text: '#2c5738',
-          glow: 'rgba(190, 255, 200, 0.7)'
-        };
-      case 'moon':
-        return {
-          primary: 'rgba(200, 220, 255, 0.85)',
-          secondary: 'rgba(230, 230, 255, 0.7)',
-          accent: 'rgba(150, 170, 230, 0.9)',
-          text: '#2e3a67',
-          glow: 'rgba(190, 210, 255, 0.7)'
-        };
-      case 'harvest':
-        return {
-          primary: 'rgba(255, 230, 200, 0.85)',
-          secondary: 'rgba(255, 210, 180, 0.7)',
-          accent: 'rgba(230, 170, 120, 0.9)',
-          text: '#6e4525',
-          glow: 'rgba(255, 220, 180, 0.7)'
-        };
-      default:
-        return {
-          primary: 'rgba(230, 230, 255, 0.85)',
-          secondary: 'rgba(255, 255, 230, 0.7)',
-          accent: 'rgba(180, 180, 230, 0.9)',
-          text: '#333366',
-          glow: 'rgba(200, 200, 255, 0.7)'
-        };
-    }
+     switch (festivalTheme) {
+       case 'spring': return { primary: '#d2fadc', secondary: '#ffc8e0', accent: '#82d796', text: '#2c5738', glow: 'rgba(190, 255, 200, 0.7)' };
+       case 'moon': return { primary: '#c8dcfc', secondary: '#e6e6ff', accent: '#96aae6', text: '#2e3a67', glow: 'rgba(190, 210, 255, 0.7)' };
+       case 'harvest': return { primary: '#ffe6c8', secondary: '#ffd2b4', accent: '#e6aa78', text: '#6e4525', glow: 'rgba(255, 220, 180, 0.7)' };
+       default: return { primary: '#e6e6ff', secondary: '#ffffea', accent: '#b4b4e6', text: '#333366', glow: 'rgba(200, 200, 255, 0.7)' };
+     }
   };
+
+  // ---- Render Functions ----
 
   // Render Market Items Grid or Inventory Grid
   const renderItemsGrid = () => {
-    const items = getFilteredItems();
-
-    if (items.length === 0) {
-      return (
-        <div className="market-items empty">
-          <p>{activeTab === 'buy' 
-            ? "No merchandise matches your search..." 
-            : "Your satchel is empty, or no items match your criteria..."}</p>
-        </div>
-      );
-    }
+    const items = getFilteredItems;
+    if (items.length === 0) return <div className="market-items empty"><p>{activeTab === 'buy' ? "Nothing matching..." : "Satchel empty..."}</p></div>;
 
     const isSellTab = activeTab === 'sell';
     const currentSelectionId = isSellTab ? selectedInventoryItemId : selectedItemId;
@@ -369,70 +299,45 @@ const Market: React.FC<MarketProps> = ({
       <div className="market-items-grid">
         {items.map(item => {
           const invItem = isSellTab ? item as InventoryItem : undefined;
-          const marketData = isSellTab 
-            ? marketItems.find(mi => mi.id === invItem?.baseId) 
-            : item as MarketItem;
-            
-          // Use market price for buy tab, derive from market data for sell tab preview
-          const displayPrice = marketData?.price ?? 0;
+          const marketData = isSellTab ? marketItems.find(mi => mi.id === invItem?.baseId) : item as MarketItem;
+          const displayPrice = marketData?.price ?? (invItem?.value || 1); // Use value as fallback price base
           const adjustedPrice = isSellTab ? displayPrice : getAdjustedPrice(displayPrice);
           const quality = invItem?.quality;
           const quantity = invItem?.quantity;
 
-          // Calculate potential sell price for sell tab
           let sellPreviewPrice = 0;
-           if (isSellTab && quality !== undefined && marketData) {
+           if (isSellTab) {
                const qualityMultiplier = 0.5 + ((quality ?? 70) / 100) * 0.7;
-               sellPreviewPrice = Math.max(1, Math.round(marketData.price * qualityMultiplier));
-           } else if (isSellTab && !marketData) {
-               sellPreviewPrice = Math.max(1, Math.round(((item as InventoryItem).value || 1) * 0.5));
+               sellPreviewPrice = Math.max(1, Math.round(adjustedPrice * qualityMultiplier)); // Use adjusted market price as base for selling too
            }
 
-          // Apply festival market styling if active
           const festivalClass = festivalMarketActive ? 'festival-item' : '';
           const festivalItemStyle = festivalMarketActive ? {
-            borderColor: getFestivalThemeColors().accent,
-            boxShadow: `0 0 10px ${getFestivalThemeColors().glow}`
+              borderColor: getFestivalThemeColors().accent,
+              boxShadow: `0 0 5px ${getFestivalThemeColors().glow}, 3px 3px 0px rgba(0,0,0,0.2)` // Combine glow and shadow
           } : {};
 
           return (
             <div
-              key={item.id}
+              key={item.id} // Use unique ID (market or inventory)
               className={`market-item ${item.type} ${currentSelectionId === item.id ? 'selected' : ''} ${festivalClass}`}
               style={festivalItemStyle}
-              onClick={() => handleItemClick(item.id)}
-              title={`${item.name}${quality !== undefined ? ` (Quality: ${quality}%)` : ''}${quantity ? ` (Quantity: ${quantity})` : ''}\n${item.description || ''}`}
+              onClick={() => handleItemClick(item.id, !isSellTab)} // Pass if it's a market item click
+              title={`${item.name}${quality !== undefined ? ` (Q: ${quality}%)` : ''}${quantity ? ` (Qty: ${quantity})` : ''}\n${item.description || ''}`}
             >
-              <div className="market-item-category">{item.category}</div>
+              {item.category && <div className="market-item-category">{item.category}</div>}
               <div className="market-item-image">
                 <div title={item.name}>{item.name.charAt(0).toUpperCase()}</div>
-                {festivalMarketActive && (
-                  <div className="festival-item-glow"></div>
-                )}
+                {/* Placeholder for image */}
               </div>
               <div className="market-item-name">{item.name}</div>
-              
-              {/* Show quantity and quality for sell tab */}
-              {isSellTab && (
-                 <div className="item-sub-details">
-                    {quantity !== undefined && <span>Qty: {quantity}</span>}
-                    {quality !== undefined && <span>Q: {quality}%</span>}
-                 </div>
+              {isSellTab && quantity !== undefined && quality !== undefined && (
+                 <div className="item-sub-details"><span>Qty: {quantity}</span><span>Q: {quality}%</span></div>
               )}
-              
               <div className="market-item-price">
-                  {/* Display market price for Buy, calculated sell preview for Sell */}
                   {formatPrice(isSellTab ? sellPreviewPrice : adjustedPrice)}
-                  
-                  {/* Show trend based on marketData, regardless of tab */}
-                  {marketData && (
-                    <span className={`trend-indicator ${getTrendClass(marketData)}`}>
-                      {getPriceTrendIcon(marketData)}
-                    </span>
-                  )}
-                  
-                  {/* Show discount if festival is active */}
-                  {!isSellTab && festivalMarketActive && specialMerchant.active && (
+                  {marketData && <span className={`trend-indicator ${getTrendClass(marketData)}`}>{getPriceTrendIcon(marketData)}</span>}
+                  {!isSellTab && festivalMarketActive && specialMerchant.active && adjustedPrice < (marketData?.price ?? adjustedPrice +1) &&(
                     <span className="discount-tag">-{specialMerchant.discount}%</span>
                   )}
               </div>
@@ -445,340 +350,179 @@ const Market: React.FC<MarketProps> = ({
 
   // Render Town Requests List
   const renderTownRequestsList = () => {
-    if (townRequests.length === 0) {
-      return (
-        <div className="request-list empty">
-          <p>The town notice board is empty today...</p>
-        </div>
-      );
-    }
+     if (townRequests.length === 0) return <div className="request-list empty"><p>Notice board is empty...</p></div>;
 
-    return (
-      <div className="request-list">
-        {townRequests.map(request => {
-          const playerCanFulfill = canFulfillRequestById(request.id);
-          const totalQuantity = playerInventory
-              .filter(item => item.name === request.item)
-              .reduce((sum, item) => sum + item.quantity, 0);
+     return (
+       <div className="request-list">
+         {townRequests.map(request => {
+           const playerCanFulfill = canFulfillRequestById(request.id);
+           const totalQuantity = playerInventory.filter(item => item.name === request.item).reduce((sum, item) => sum + item.quantity, 0);
+           const festivalReqStyle = festivalMarketActive ? { borderColor: getFestivalThemeColors().accent, background: `rgba(255,255,255,0.1)` } : {};
 
-          // Apply festival styling
-          const festivalRequestStyle = festivalMarketActive ? {
-            borderColor: getFestivalThemeColors().accent,
-            background: `linear-gradient(45deg, ${getFestivalThemeColors().primary}, ${getFestivalThemeColors().secondary})`,
-            boxShadow: `0 0 8px ${getFestivalThemeColors().glow}`
-          } : {};
-
-          return (
-            <div
-              key={request.id}
-              className={`request-item ${selectedRequestId === request.id ? 'selected' : ''} ${festivalMarketActive ? 'festival-request' : ''}`}
-              style={festivalRequestStyle}
-              onClick={() => handleRequestClick(request.id)}
-            >
-              <div className="request-icon" title={request.requester}>
-                {request.requester.charAt(0).toUpperCase()}
-                {festivalMarketActive && (
-                  <div className="request-icon-glow"></div>
-                )}
-              </div>
-              <div className="request-details">
-                <div className="request-requester">{request.requester}</div>
-                <div className="request-item-info">
-                  <strong>{request.quantity} × {request.item}</strong>
-                  <div className="inventory-check">
-                    (You have: {totalQuantity})
-                  </div>
-                </div>
-                <div className="request-rewards">
-                  <div className="request-reward request-reward-gold" title={`${request.rewardGold} Gold Reward`}>
-                    {request.rewardGold}
-                  </div>
-                  <div className="request-reward request-reward-influence" title={`${request.rewardInfluence} Reputation`}>
-                    +{request.rewardInfluence}
-                  </div>
-                </div>
-                <div className="request-info">
-                  <div className="request-difficulty" title={`Difficulty: ${request.difficulty}/5`}>
-                    {Array(request.difficulty).fill('★').join('')}
-                    {Array(5 - request.difficulty).fill('☆').join('')}
-                  </div>
-                  <button
-                    className={`fulfill-button ${playerCanFulfill ? 'can-fulfill' : 'cant-fulfill'} ${festivalMarketActive ? 'festival-button' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (playerCanFulfill) {
-                        onFulfillRequest(request.id);
-                        setSelectedRequestId(null);
-                      }
-                    }}
-                    disabled={!playerCanFulfill}
-                  >
-                    {playerCanFulfill ? 'Fulfill' : 'Need Items'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  // Helper function to check if request can be fulfilled by ID
-  const canFulfillRequestById = (requestId: string): boolean => {
-    const request = townRequests.find(req => req.id === requestId);
-    if (!request) return false;
-    
-    const totalQuantity = playerInventory
-        .filter(item => item.name === request.item)
-        .reduce((sum, item) => sum + item.quantity, 0);
-        
-    return totalQuantity >= request.quantity;
-  };
+           return (
+             <div key={request.id} className={`request-item ${selectedRequestId === request.id ? 'selected' : ''} ${festivalMarketActive ? 'festival-request' : ''}`} style={festivalReqStyle} onClick={() => handleRequestClick(request.id)}>
+               <div className="request-icon" title={request.requester}>{request.requester.charAt(0).toUpperCase()}</div>
+               <div className="request-details">
+                 <div className="request-requester">{request.requester} requests:</div>
+                 <div className="request-item-info"><strong>{request.quantity} × {request.item}</strong><div className="inventory-check">(Have: {totalQuantity})</div></div>
+                 <div className="request-rewards">
+                   <div className="request-reward request-reward-gold" title={`${request.rewardGold} Gold`}>{request.rewardGold}</div>
+                   <div className="request-reward request-reward-influence" title={`${request.rewardInfluence} Rep`}>+{request.rewardInfluence}</div>
+                 </div>
+                 <div className="request-info">
+                   <div className="request-difficulty" title={`Difficulty: ${request.difficulty}/5`}>{Array(request.difficulty).fill('★').join('')}{Array(5 - request.difficulty).fill('☆').join('')}</div>
+                   <button className={`fulfill-button ${playerCanFulfill ? 'can-fulfill' : 'cant-fulfill'} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={(e) => { e.stopPropagation(); if (playerCanFulfill) { onFulfillRequest(request.id); setSelectedRequestId(null); } }} disabled={!playerCanFulfill}>
+                     {playerCanFulfill ? 'Fulfill' : 'Need Items'}
+                   </button>
+                 </div>
+               </div>
+             </div>
+           );
+         })}
+       </div>
+     );
+   };
 
   // Render Details Panel
   const renderDetailsPanel = () => {
-    const festivalColors = getFestivalThemeColors();
-    
-    if (!selectedDetails) {
-      return (
-        <div className="market-item-details empty">
-          <p>Select an item or request for details...</p>
-        </div>
-      );
-    }
+     const festivalColors = getFestivalThemeColors();
+     const detailStyle = festivalMarketActive ? { background: `rgba(255,255,255,0.1)`, borderTopColor: festivalColors.accent } : {};
 
-    // Buy Tab Details
-    if (activeTab === 'buy' && selectedDetails && 'basePrice' in selectedDetails) {
-      const item = selectedDetails as MarketItem;
-      const trendClass = getTrendClass(item);
-      const adjustedPrice = getAdjustedPrice(item.price);
-      
-      const festivalDetailStyle = festivalMarketActive ? {
-        borderColor: festivalColors.accent,
-        background: `linear-gradient(to bottom, ${festivalColors.primary}, ${festivalColors.secondary})`,
-        color: festivalColors.text
-      } : {};
-      
-      return (
-        <div 
-          className={`market-item-details ${festivalMarketActive ? 'festival-details' : ''}`}
-          style={festivalDetailStyle}
-        >
-          <h3>{item.name}</h3>
-          <div className="selected-item-header">
-             <div className="selected-item-image">
-               <div>{item.name.charAt(0).toUpperCase()}</div>
+     if (!selectedDetails) {
+       return (
+         <div className={`market-item-details empty ${festivalMarketActive ? 'festival-details' : ''}`}>
+             <div className="scroll-content"><p>Select item or request...</p></div>
+         </div>
+       );
+     }
+
+     // --- Buy Tab Details ---
+     if (activeTab === 'buy' && 'basePrice' in selectedDetails) {
+       const item = selectedDetails as MarketItem;
+       const trendClass = getTrendClass(item);
+       const adjustedPrice = getAdjustedPrice(item.price);
+       return (
+         <div className={`market-item-details ${festivalMarketActive ? 'festival-details' : ''}`}>
+            <div className="parchment-scroll">
+                 <div className="scroll-content">
+                     <h3>{item.name}</h3>
+                     <div className="selected-item-header">
+                         <div className="selected-item-image"><div>{item.name.charAt(0).toUpperCase()}</div></div>
+                         <div className="selected-item-info">
+                             <div className="selected-item-price">
+                                 {formatPrice(adjustedPrice)}
+                                 {adjustedPrice < item.price && <span className="original-price">{formatPrice(item.price)}</span>}
+                             </div>
+                             <div className={`price-trend ${trendClass}`}><span className="price-trend-arrow">{getPriceTrendIcon(item)}</span><span>{trendClass}</span></div>
+                         </div>
+                     </div>
+                     <div className="selected-item-description">{item.description || "..."}</div>
+                     {item.rarity && <div className="selected-item-rarity">Rarity: <span>{item.rarity}</span></div>}
+                     {item.seasonalBonus && <div className="selected-item-seasonal">Season: {item.seasonalBonus}</div>}
+                 </div>
              </div>
-             <div className="selected-item-info">
-                <div className="selected-item-price">
-                  {formatPrice(adjustedPrice)}
-                  {adjustedPrice < item.price && (
-                    <span className="original-price">{formatPrice(item.price)}</span>
-                  )}
-                </div>
-                <div className={`price-trend ${trendClass}`}>
-                   <span className="price-trend-arrow">{getPriceTrendIcon(item)}</span>
-                   <span>{trendClass === 'up' ? 'Rising' : trendClass === 'down' ? 'Falling' : 'Stable'}</span>
-                </div>
+             <div className="market-actions-panel" style={detailStyle}>
+                 <button className={`primary ${!canAffordItem() ? 'disabled' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => onBuyItem(item.id)} disabled={!canAffordItem()}>Buy {formatPrice(adjustedPrice)}</button>
              </div>
-          </div>
-          <div className="selected-item-description">{item.description || "A mysterious item indeed..."}</div>
-          {item.rarity && (
-            <div className="selected-item-rarity">Rarity: <span>{item.rarity}</span></div>
-          )}
-          {item.seasonalBonus && (
-            <div className="selected-item-seasonal">Seasonal Bonus: {item.seasonalBonus}</div>
-          )}
-          <div className="market-actions-panel">
-            <button 
-              className={`primary ${!canAffordItem() ? 'disabled' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} 
-              onClick={() => handleBuyClick(item.id)} 
-              disabled={!canAffordItem()}
-            >
-              Purchase {formatPrice(adjustedPrice)}
-            </button>
-          </div>
-        </div>
-      );
-    }
+         </div>
+       );
+     }
 
-    // Sell Tab Details
-    if (activeTab === 'sell' && selectedDetails && 'quantity' in selectedDetails) {
-      const item = selectedDetails as InventoryItem;
-      const marketData = marketItems.find(mi => mi.id === item.baseId);
-      const baseSellPrice = marketData?.price ?? 0;
-      const qualityMultiplier = 0.5 + ((item.quality ?? 70) / 100) * 0.7;
-      const actualSellPrice = Math.max(1, Math.round(baseSellPrice * qualityMultiplier));
-      const trendClass = marketData ? getTrendClass(marketData) : 'stable';
-      
-      const festivalDetailStyle = festivalMarketActive ? {
-        borderColor: festivalColors.accent,
-        background: `linear-gradient(to bottom, ${festivalColors.primary}, ${festivalColors.secondary})`,
-        color: festivalColors.text
-      } : {};
+     // --- Sell Tab Details ---
+     if (activeTab === 'sell' && 'quantity' in selectedDetails) {
+       const item = selectedDetails as InventoryItem;
+       const marketData = marketItems.find(mi => mi.id === item.baseId);
+       const baseSellPrice = marketData?.price ?? item.value ?? 1; // Use market price if available, else item value
+       const qualityMultiplier = 0.5 + ((item.quality ?? 70) / 100) * 0.7;
+       const actualSellPrice = Math.max(1, Math.round(baseSellPrice * qualityMultiplier));
+       const trendClass = marketData ? getTrendClass(marketData) : 'stable';
 
-      return (
-        <div 
-          className={`market-item-details ${festivalMarketActive ? 'festival-details' : ''}`}
-          style={festivalDetailStyle}
-        >
-          <h3>Sell: {item.name}</h3>
-          <div className="selected-item-header">
-            <div className="selected-item-image">
-              <div>{item.name.charAt(0).toUpperCase()}</div>
+       return (
+         <div className={`market-item-details ${festivalMarketActive ? 'festival-details' : ''}`}>
+            <div className="parchment-scroll">
+                 <div className="scroll-content">
+                     <h3>Sell: {item.name}</h3>
+                     <div className="selected-item-header">
+                         <div className="selected-item-image"><div>{item.name.charAt(0).toUpperCase()}</div></div>
+                         <div className="selected-item-info">
+                             <div className="selected-item-price">Have: {item.quantity}</div>
+                             {item.quality !== undefined && <div className="selected-item-quality">Quality: {item.quality}%</div>}
+                         </div>
+                     </div>
+                     <div className="selected-item-description">{item.description || "..."}</div>
+                     <div className="expected-sell-price">Est. Sell Value: {formatPrice(actualSellPrice)} each</div>
+                     {marketData && <div className={`price-trend ${trendClass}`}><span className="price-trend-arrow">{getPriceTrendIcon(marketData)}</span><span>Market Price is {trendClass}</span></div>}
+                 </div>
             </div>
-            <div className="selected-item-info">
-              <div className="selected-item-price">You Have: {item.quantity}</div>
-              {item.quality !== undefined && (
-                <div className="selected-item-quality">Quality: {item.quality}%</div>
-              )}
+            <div className="market-actions-panel" style={detailStyle}>
+                <button className={`primary ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => onSellItem(item.id)} disabled={item.quantity <= 0}>Sell 1 for {formatPrice(actualSellPrice)}</button>
+                {/* Sell All button would need backend logic to handle selling multiple items at once */}
+                {/* {item.quantity > 1 && <button className={`secondary ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => console.log("Sell All TBD")} >Sell All ({item.quantity})</button>} */}
             </div>
-          </div>
-          <div className="selected-item-description">
-            {item.description || "A curious item from your collection..."}
-          </div>
-          
-          {/* Show expected sell price */}
-          <div className="expected-sell-price">
-            Est. Sell Value: {formatPrice(actualSellPrice)} per item
-          </div>
-          
-          {marketData && (
-            <div className={`price-trend ${trendClass}`}>
-              <span className="price-trend-arrow">{getPriceTrendIcon(marketData)}</span>
-              <span>Market Price is {trendClass}</span>
-            </div>
-          )}
-          
-          <div className="market-actions-panel">
-            <button 
-              className={`primary ${festivalMarketActive ? 'festival-button' : ''}`} 
-              onClick={() => {
-                incrementSecretTrigger();
-                onSellItem(item.id);
-              }} 
-              disabled={item.quantity <= 0 || !marketData}
-            >
-              Sell 1 for {formatPrice(actualSellPrice)}
-            </button>
-            {item.quantity > 1 && (
-              <button 
-                className={`secondary ${festivalMarketActive ? 'festival-button' : ''}`} 
-                onClick={() => {
-                  // Increment secret trigger on sell all
-                  incrementSecretTrigger();
-                  // Call onSellItem repeatedly for each item
-                  // This is a placeholder - ideally the backend would handle batch selling
-                  onSellItem(item.id);
-                }} 
-                disabled={!marketData}
-              >
-                Sell All ({item.quantity}) for {formatPrice(actualSellPrice * item.quantity)}
-              </button>
-            )}
-          </div>
-        </div>
-      );
-    }
+         </div>
+       );
+     }
 
-    // Requests Tab Details
-    if (activeTab === 'requests' && selectedDetails && 'requester' in selectedDetails) {
-      const request = selectedDetails as TownRequest;
-      const canFulfill = canFulfillRequest();
-      const totalQuantity = playerInventory
-          .filter(item => item.name === request.item)
-          .reduce((sum, item) => sum + item.quantity, 0);
-          
-      const avgQuality = totalQuantity > 0
-         ? Math.round(playerInventory
-             .filter(i => i.name === request.item)
-             .reduce((s, i) => (s + (i.quality ?? 70) * i.quantity), 0) / totalQuantity)
-         : 70;
-      
-      const festivalDetailStyle = festivalMarketActive ? {
-        borderColor: festivalColors.accent,
-        background: `linear-gradient(to bottom, ${festivalColors.primary}, ${festivalColors.secondary})`,
-        color: festivalColors.text
-      } : {};
+     // --- Requests Tab Details ---
+      if (activeTab === 'requests' && 'requester' in selectedDetails) {
+        const request = selectedDetails as TownRequest;
+        const canFulfill = canFulfillRequest();
+        const totalQuantity = playerInventory.filter(i => i.name === request.item).reduce((sum, i) => sum + i.quantity, 0);
+        const avgQuality = totalQuantity > 0 ? Math.round(playerInventory.filter(i => i.name === request.item).reduce((s, i) => s + (i.quality ?? 70) * i.quantity, 0) / totalQuantity) : 0;
 
-      return (
-        <div 
-          className={`market-item-details ${festivalMarketActive ? 'festival-details' : ''}`}
-          style={festivalDetailStyle}
-        >
-          <h3>{request.requester}'s Request</h3>
-          <div className="selected-item-description">{request.description}</div>
-          <div className="request-requirements">
-            <div><strong>Needs:</strong> {request.quantity} × {request.item}</div>
-            <div><strong>You Have:</strong> {totalQuantity} {totalQuantity > 0 ? `(Avg Quality: ~${avgQuality}%)` : ''}</div>
-            <hr style={{borderColor: 'rgba(72, 61, 102, 0.5)', margin: '15px 0'}}/>
-            <div><strong>Rewards:</strong></div>
-            <div className="request-rewards">
-              <div className="request-reward request-reward-gold">
-                {request.rewardGold}
-              </div>
-              <div className="request-reward request-reward-influence">
-                +{request.rewardInfluence}
-              </div>
+        return (
+          <div className={`market-item-details ${festivalMarketActive ? 'festival-details' : ''}`}>
+            <div className="parchment-scroll">
+                <div className="scroll-content">
+                    <h3>{request.requester}'s Request</h3>
+                    <div className="selected-item-description">{request.description}</div>
+                    <hr style={{borderColor: '#a1887f', margin: '10px 0'}}/>
+                    <div><strong>Needs:</strong> {request.quantity} × {request.item}</div>
+                    <div><strong>Have:</strong> {totalQuantity} {totalQuantity > 0 ? `(Avg Q: ~${avgQuality}%)` : ''}</div>
+                    <hr style={{borderColor: '#a1887f', margin: '10px 0'}}/>
+                    <div><strong>Rewards:</strong></div>
+                    <div className="request-rewards">
+                         <div className="request-reward request-reward-gold">{request.rewardGold}</div>
+                         <div className="request-reward request-reward-influence">+{request.rewardInfluence}</div>
+                    </div>
+                    <div className="request-difficulty" style={{justifyContent:'flex-start', marginLeft:0, marginTop:'10px'}}>
+                         Difficulty: {Array(request.difficulty).fill('★').join('')}{Array(5 - request.difficulty).fill('☆').join('')}
+                    </div>
+                </div>
             </div>
-            <div className="request-difficulty" style={{justifyContent:'flex-start', marginLeft:0, marginTop:'12px'}}>
-              Difficulty: {Array(request.difficulty).fill('★').join('')}
-              {Array(5 - request.difficulty).fill('☆').join('')}
+            <div className="market-actions-panel" style={detailStyle}>
+                <button className={`primary ${!canFulfill ? 'disabled' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => onFulfillRequest(request.id)} disabled={!canFulfill}>Fulfill Request</button>
             </div>
           </div>
-          <div className="market-actions-panel">
-            <button 
-              className={`primary ${!canFulfill ? 'disabled' : ''} ${festivalMarketActive ? 'festival-button' : ''}`}
-              onClick={() => {
-                incrementSecretTrigger();
-                onFulfillRequest(request.id);
-              }}
-              disabled={!canFulfill}
-            >
-              {canFulfill ? 'Fulfill Request' : 'Not Enough Items'}
-            </button>
-          </div>
-        </div>
-      );
-    }
+        );
+      }
 
-    // Fallback
-    return <div className="market-item-details empty">Select an item or request</div>;
-  };
+     // Fallback
+     return <div className="market-item-details empty"><div className="scroll-content"><p>Select...</p></div></div>;
+   };
 
   // Render Rumors Section
   const renderRumorsSection = () => {
-    const recentRumors = rumors.slice(0, 4);
+    const recentRumors = rumors.slice(-3).reverse(); // Show 3 most recent
     const festivalColors = getFestivalThemeColors();
+    const rumorStyle = festivalMarketActive ? {
+      borderColor: festivalColors.accent,
+      background: `linear-gradient(135deg, ${festivalColors.primary}, ${festivalColors.secondary})`,
+      color: festivalColors.text
+    } : {};
+     const rumorItemStyle = festivalMarketActive ? { background: `rgba(255,255,255,0.2)`, borderLeftColor: festivalColors.accent, color: festivalColors.text } : {};
 
     return (
-      <div 
-        className={`market-rumors ${festivalMarketActive ? 'festival-rumors' : ''}`}
-        style={festivalMarketActive ? {
-          borderColor: festivalColors.accent,
-          background: `linear-gradient(45deg, ${festivalColors.primary}, ${festivalColors.secondary})`,
-          color: festivalColors.text
-        } : {}}
-      >
+      <div className={`market-rumors ${festivalMarketActive ? 'festival-rumors' : ''}`} style={rumorStyle}>
         <h3>Market Whispers</h3>
         {recentRumors.length === 0 ? (
-          <div className="rumor-list empty">The marketplace is quiet today...</div>
+          <div className="rumor-list empty">The marketplace is quiet...</div>
         ) : (
           <div className="rumor-list">
             {recentRumors.map(rumor => (
-              <div 
-                key={rumor.id} 
-                className={`rumor-item ${festivalMarketActive ? 'festival-rumor' : ''}`}
-                style={festivalMarketActive ? {
-                  borderColor: festivalColors.accent,
-                  background: `rgba(255, 255, 255, 0.15)`,
-                  boxShadow: `0 0 8px ${festivalColors.glow}`
-                } : {}}
-                title={`${rumor.origin} said this ~${rumor.turnsActive || 0}d ago`}
-              >
+              <div key={rumor.id} className={`rumor-item ${festivalMarketActive ? 'festival-rumor' : ''}`} style={rumorItemStyle} title={`${rumor.origin} ~${rumor.turnsActive || 0}d ago`}>
                 {rumor.content}
-                {rumor.origin && <span className="rumor-source">— {rumor.origin}</span>}
+                {/* <span className="rumor-source">— {rumor.origin}</span> */}
               </div>
             ))}
           </div>
@@ -787,28 +531,17 @@ const Market: React.FC<MarketProps> = ({
     );
   };
 
-  // Render Special Merchant
+  // Render Special Merchant Banner
   const renderSpecialMerchant = () => {
     if (!festivalMarketActive || !specialMerchant.active) return null;
-    
     const festivalColors = getFestivalThemeColors();
-    
     return (
-      <div className="special-merchant-banner" style={{
-        background: `linear-gradient(45deg, ${festivalColors.primary}, ${festivalColors.secondary})`,
-        borderColor: festivalColors.accent,
-        color: festivalColors.text
-      }}>
-        <div className="merchant-portrait">
-          <div className="merchant-initial">{specialMerchant.name.charAt(0)}</div>
-          <div className="merchant-glow"></div>
-        </div>
+      <div className="special-merchant-banner" style={{ background: `linear-gradient(45deg, ${festivalColors.primary}, ${festivalColors.secondary})`, borderColor: festivalColors.accent, color: festivalColors.text }}>
+        <div className="merchant-portrait"><div className="merchant-initial">{specialMerchant.name.charAt(0)}</div></div>
         <div className="merchant-info">
           <h3 className="merchant-name">{specialMerchant.name}</h3>
-          <p className="merchant-greeting">{specialMerchant.greeting}</p>
-          <div className="merchant-offer">
-            <span className="special-discount">Special Festival Discount: {specialMerchant.discount}% OFF!</span>
-          </div>
+          <p className="merchant-greeting">"{specialMerchant.greeting}"</p>
+          <div className="merchant-offer"><span className="special-discount">{specialMerchant.discount}% Festival Discount!</span></div>
         </div>
       </div>
     );
@@ -818,330 +551,55 @@ const Market: React.FC<MarketProps> = ({
     <div className={`market-container ${showBlackMarket ? 'black-market-active' : ''} ${festivalMarketActive ? `festival-market ${festivalTheme}-theme` : ''}`}>
       {/* Black Market transition effect */}
       {blackMarketTransition && <div className="black-market-transition" />}
-      
-      {/* Easter Egg: Festival Market elements */}
+
+      {/* Festival Market Overlay */}
       {festivalMarketActive && (
         <div className="festival-overlay">
-          {/* Floating lanterns */}
           {lanternPositions.map((lantern, index) => (
-            <div 
-              key={`lantern-${index}`}
-              className={`festival-lantern ${festivalTheme}-lantern`}
-              style={{
-                left: `${lantern.x}%`,
-                top: `${lantern.y}%`,
-                animationDelay: `${lantern.delay}s`,
-                transform: `scale(${lantern.size})`
-              }}
-            >
-              <div className="lantern-glow"></div>
-            </div>
+            <div key={`lantern-${index}`} className={`festival-lantern ${festivalTheme}-lantern`}
+                 style={{ left: `${lantern.x}%`, top: `${lantern.y}%`, animationDelay: `${lantern.delay}s`, '--lantern-size': lantern.size } as React.CSSProperties}
+            />
           ))}
-          
-          {/* Festival banners */}
-          <div className="festival-banner banner-left"></div>
-          <div className="festival-banner banner-right"></div>
-          
-          <style>
-            {`
-              .festival-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                pointer-events: none;
-                z-index: 5;
-                overflow: hidden;
-              }
-              
-              .festival-market {
-                background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z0AEZEAGADdjCA8GUKD8AAAAAElFTkSuQmCC') repeat;
-                transition: background-color 0.5s ease;
-              }
-              
-              .spring-theme {
-                background-color: rgba(240, 255, 240, 0.2);
-              }
-              
-              .moon-theme {
-                background-color: rgba(230, 240, 255, 0.2);
-              }
-              
-              .harvest-theme {
-                background-color: rgba(255, 240, 230, 0.2);
-              }
-              
-              .festival-lantern {
-                position: absolute;
-                width: 30px;
-                height: 40px;
-                border-radius: 50%;
-                animation: floatLantern 8s infinite ease-in-out;
-                opacity: 0.85;
-                z-index: 10;
-              }
-              
-              .spring-lantern {
-                background: radial-gradient(ellipse at center, rgba(255, 200, 230, 0.8), rgba(255, 200, 230, 0.4));
-                box-shadow: 0 0 15px rgba(255, 200, 230, 0.7);
-              }
-              
-              .moon-lantern {
-                background: radial-gradient(ellipse at center, rgba(200, 220, 255, 0.8), rgba(200, 220, 255, 0.4));
-                box-shadow: 0 0 15px rgba(200, 220, 255, 0.7);
-              }
-              
-              .harvest-lantern {
-                background: radial-gradient(ellipse at center, rgba(255, 210, 170, 0.8), rgba(255, 210, 170, 0.4));
-                box-shadow: 0 0 15px rgba(255, 210, 170, 0.7);
-              }
-              
-              .lantern-glow {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 15px;
-                height: 15px;
-                border-radius: 50%;
-                animation: lanternGlow 3s infinite alternate ease-in-out;
-              }
-              
-              .spring-lantern .lantern-glow {
-                background: rgba(255, 255, 255, 0.9);
-                box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
-              }
-              
-              .moon-lantern .lantern-glow {
-                background: rgba(240, 240, 255, 0.9);
-                box-shadow: 0 0 10px rgba(240, 240, 255, 0.9);
-              }
-              
-              .harvest-lantern .lantern-glow {
-                background: rgba(255, 240, 220, 0.9);
-                box-shadow: 0 0 10px rgba(255, 240, 220, 0.9);
-              }
-              
-              .festival-banner {
-                position: absolute;
-                width: 40px;
-                height: 100%;
-                top: 0;
-                background-size: contain;
-                background-repeat: repeat-y;
-                opacity: 0.7;
-                z-index: 6;
-              }
-              
-              .banner-left {
-                left: 0;
-                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==');
-              }
-              
-              .banner-right {
-                right: 0;
-                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==');
-              }
-              
-              /* Festival Item Styling */
-              .festival-item {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-              }
-              
-              .festival-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-              }
-              
-              .festival-item .festival-item-glow {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 5px;
-                height: 5px;
-                border-radius: 50%;
-                opacity: 0.7;
-                animation: itemGlow 2s infinite alternate;
-              }
-              
-              .festival-button {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-              }
-              
-              .festival-button:hover:not(:disabled) {
-                transform: translateY(-1px);
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-              }
-              
-              /* Special Merchant Styling */
-              .special-merchant-banner {
-                display: flex;
-                align-items: center;
-                padding: 15px;
-                margin-bottom: 15px;
-                border-radius: 8px;
-                border: 1px solid;
-                animation: merchantAppear 0.5s ease-out;
-              }
-              
-              .merchant-portrait {
-                position: relative;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                margin-right: 15px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(255, 255, 255, 0.3);
-              }
-              
-              .merchant-initial {
-                font-size: 24px;
-                font-weight: bold;
-                z-index: 2;
-              }
-              
-              .merchant-glow {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                animation: merchantGlow 3s infinite alternate;
-              }
-              
-              .merchant-info {
-                flex: 1;
-              }
-              
-              .merchant-name {
-                margin: 0 0 5px 0;
-              }
-              
-              .merchant-greeting {
-                margin: 0 0 10px 0;
-                font-style: italic;
-              }
-              
-              .special-discount {
-                font-weight: bold;
-                animation: discountPulse 2s infinite alternate;
-              }
-              
-              /* Animations */
-              @keyframes floatLantern {
-                0%, 100% { transform: translateY(0) rotate(0deg); }
-                50% { transform: translateY(-20px) rotate(5deg); }
-              }
-              
-              @keyframes lanternGlow {
-                0% { opacity: 0.5; }
-                100% { opacity: 1; }
-              }
-              
-              @keyframes itemGlow {
-                0% { opacity: 0.5; box-shadow: 0 0 5px rgba(255, 255, 255, 0.7); }
-                100% { opacity: 0.9; box-shadow: 0 0 10px rgba(255, 255, 255, 0.9); }
-              }
-              
-              @keyframes merchantAppear {
-                0% { opacity: 0; transform: translateY(20px); }
-                100% { opacity: 1; transform: translateY(0); }
-              }
-              
-              @keyframes merchantGlow {
-                0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
-                100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
-              }
-              
-              @keyframes discountPulse {
-                0% { color: inherit; }
-                100% { color: #ff5555; }
-              }
-            `}
-          </style>
         </div>
       )}
-      
+
       {/* Header */}
       <div className="market-header">
-        <h2>{showBlackMarket ? "Black Market" : (festivalMarketActive ? `${festivalTheme.charAt(0).toUpperCase() + festivalTheme.slice(1)} Festival Market` : "Town Market")}</h2>
+        {/* Added onClick for Easter Egg */}
+        <h2 onClick={handleTitleClick} title="Click rapidly...">
+          {showBlackMarket ? "Black Market" : (festivalMarketActive ? `${festivalTheme.charAt(0).toUpperCase() + festivalTheme.slice(1)} Festival` : "Town Market")}
+        </h2>
         <div className="market-actions">
           {blackMarketAccess && (
-            <button 
-              className={`bm-toggle ${showBlackMarket ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} 
-              onClick={() => setShowBlackMarket(!showBlackMarket)}
-            >
-              {showBlackMarket ? 'Return to Town Market' : 'Enter Black Market'}
+            <button className={`bm-toggle ${showBlackMarket ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => setShowBlackMarket(!showBlackMarket)}>
+              {showBlackMarket ? 'Leave Shadows' : 'Enter Shadows'}
             </button>
           )}
         </div>
       </div>
 
-      {/* Special Festival Merchant */}
       {renderSpecialMerchant()}
 
       {/* Tabs */}
       <div className="market-toggle">
-        <button 
-          className={`${activeTab === 'buy' ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} 
-          onClick={() => setActiveTab('buy')}
-        >
-          Buy
-        </button>
-        <button 
-          className={`${activeTab === 'sell' ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} 
-          onClick={() => setActiveTab('sell')}
-        >
-          Sell
-        </button>
-        <button 
-          className={`${activeTab === 'requests' ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} 
-          onClick={() => setActiveTab('requests')}
-        >
-          Requests ({townRequests.length})
-        </button>
+        <button className={`${activeTab === 'buy' ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => setActiveTab('buy')}>Buy</button>
+        <button className={`${activeTab === 'sell' ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => setActiveTab('sell')}>Sell</button>
+        <button className={`${activeTab === 'requests' ? 'active' : ''} ${festivalMarketActive ? 'festival-button' : ''}`} onClick={() => setActiveTab('requests')}>Requests ({townRequests.length})</button>
       </div>
 
        {/* Filters (Only for Buy/Sell) */}
        {activeTab !== 'requests' && (
          <div className="market-filters">
-           <select 
-             value={typeFilter} 
-             onChange={(e) => setTypeFilter(e.target.value)}
-             className={festivalMarketActive ? 'festival-select' : ''}
-           >
+           <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={festivalMarketActive ? 'festival-select' : ''}>
              <option value="all">All Types</option>
-             {uniqueTypes.map(type => (
-               <option key={type} value={type}>
-                 {type.charAt(0).toUpperCase() + type.slice(1)}
-               </option>
-             ))}
+             {uniqueTypes.map(type => (<option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>))}
            </select>
-           <select 
-             value={categoryFilter} 
-             onChange={(e) => setCategoryFilter(e.target.value)}
-             className={festivalMarketActive ? 'festival-select' : ''}
-           >
+           <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={festivalMarketActive ? 'festival-select' : ''}>
              <option value="all">All Categories</option>
-             {uniqueCategories.map(cat => (
-               <option key={cat} value={cat}>
-                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
-               </option>
-             ))}
+             {uniqueCategories.map(cat => (<option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>))}
            </select>
            <div className="market-search">
-             <input 
-               type="text" 
-               placeholder="Search items..." 
-               value={searchTerm} 
-               onChange={(e) => setSearchTerm(e.target.value)} 
-               className={festivalMarketActive ? 'festival-input' : ''}
-             />
+             <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={festivalMarketActive ? 'festival-input' : ''} />
            </div>
          </div>
        )}
@@ -1155,30 +613,33 @@ const Market: React.FC<MarketProps> = ({
 
         {/* Right Sidebar: Wallet, Details, Rumors */}
         <div className="market-sidebar">
-          <div 
-            className={`market-wallet ${festivalMarketActive ? 'festival-wallet' : ''}`}
-            style={festivalMarketActive ? {
-              borderColor: getFestivalThemeColors().accent,
-              background: `linear-gradient(45deg, ${getFestivalThemeColors().primary}, ${getFestivalThemeColors().secondary})`,
-              color: getFestivalThemeColors().text
-            } : {}}
-          >
+          <div className={`market-wallet ${festivalMarketActive ? 'festival-wallet' : ''}`} style={festivalMarketActive ? { borderColor: getFestivalThemeColors().accent, background: `linear-gradient(135deg, ${getFestivalThemeColors().primary}, ${getFestivalThemeColors().secondary})`, color: getFestivalThemeColors().text } : {}}>
             <h3>My Purse</h3>
             <div className="wallet-amount">{formatPrice(playerGold)}</div>
           </div>
-          
           {renderDetailsPanel()}
           {renderRumorsSection()}
-          
-          {blackMarketAccess && showBlackMarket && (
-            <div className="black-market-notice">
-              Keep your wits about you in these shadowed stalls...
-            </div>
-          )}
+          {blackMarketAccess && showBlackMarket && <div className="black-market-notice">Shady deals happen here...</div>}
         </div>
       </div>
+
+      {/* Festival CSS overrides */}
+      {festivalMarketActive && <style>{`
+          .festival-wallet h3, .festival-details h3, .festival-rumors h3 { color: var(--festival-accent); text-shadow: 1px 1px 0px rgba(0,0,0,0.3); border-bottom-color: var(--festival-accent); }
+          .festival-wallet .wallet-amount { color: var(--festival-text); text-shadow: 1px 1px 0px rgba(255,255,255,0.2); }
+          .festival-details .scroll-content { color: var(--festival-text); }
+          .festival-details .selected-item-name { color: var(--festival-text); }
+          .festival-details .selected-item-price { color: var(--festival-accent); }
+          .festival-details .selected-item-description, .festival-details .selected-item-rarity, .festival-details .selected-item-quality, .festival-details .selected-item-seasonal, .festival-details .expected-sell-price, .festival-details .price-trend { color: var(--festival-text); opacity: 0.9; }
+          .festival-rumors .rumor-item { color: var(--festival-text); }
+          .festival-button { border-color: var(--festival-accent) !important; }
+          .festival-button.primary { background-color: var(--festival-accent) !important; color: var(--festival-primary) !important; }
+          .festival-button.primary:hover { filter: brightness(1.1); }
+          .festival-select, .festival-input { background-color: var(--festival-primary); color: var(--festival-text); border-color: var(--festival-accent); }
+       `}</style>}
+
     </div>
   );
-  };
+};
 
-  export default Market;
+export default Market;

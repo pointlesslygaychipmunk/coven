@@ -1,548 +1,260 @@
+/* frontend/src/components/GardenPlot.css */
+/* 90s adventure game style for individual garden plots */
+
 .garden-plot {
   position: relative;
   flex: 1;
-  height: 100%;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%231f1d2c" /><rect x="0" y="0" width="40" height="40" fill="%23262238" opacity="0.4"/><rect x="40" y="40" width="40" height="40" fill="%23262238" opacity="0.4"/></svg>');
-  border-radius: 12px;
+  aspect-ratio: 1 / 1; /* Keep plots square */
+  min-width: 80px; /* Minimum size */
+  background-color: #8d6e63; /* Base dirt color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238d6e63"/><circle cx="2" cy="3" r="1" fill="%235d4037" opacity="0.3"/><circle cx="7" cy="6" r="1" fill="%235d4037" opacity="0.3"/><circle cx="5" cy="9" r="1" fill="%235d4037" opacity="0.3"/><circle cx="8" cy="1" r="1" fill="%235d4037" opacity="0.3"/></svg>');
+  border-radius: 4px; /* Subtle rounding */
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.3);
-  border: 2px solid #3e2723;
+  transition: all 0.2s ease;
+  /* 90s Bevel Border */
+  border: 3px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f; /* Light top/left, dark bottom/right */
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2); /* 90s style shadow */
+  image-rendering: pixelated;
 }
 
 .garden-plot:hover:not(.locked) {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
-  border-color: #5d468a;
+  transform: translateY(-3px) translateX(-1px);
+  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
+  border-color: #b59dc4; /* Highlight border on hover */
 }
 
 .garden-plot.selected:not(.locked) {
-  border: 2px solid #b59dc4;
-  box-shadow: 0 0 15px rgba(181, 157, 196, 0.6), inset 0 0 10px rgba(0, 0, 0, 0.3);
-  transform: translateY(-4px) scale(1.02);
+  border-color: var(--color-accent-secondary); /* Gold border for selected */
+  box-shadow: 0 0 0 3px var(--color-accent-secondary), 5px 5px 0px rgba(0, 0, 0, 0.3); /* Outer glow + shadow */
+  transform: translateY(-3px) translateX(-1px) scale(1.02);
 }
 
 .garden-plot.locked {
-  background-color: #23212e;
+  background-color: #555; /* Darker locked state */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%23555"/><path d="M0 0h20v20H0z" stroke-width="1" stroke="%23333" fill="none"/><path d="M0 0L20 20M0 20L20 0" stroke-width="2" stroke="%23444" fill="none"/></svg>');
   cursor: not-allowed;
-  opacity: 0.7;
-  filter: grayscale(0.7);
+  opacity: 0.8;
+  border-color: #777 #333 #333 #777;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .locked-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 2px; /* Match parent */
 }
 
 .lock-icon {
-  font-size: 28px;
-  color: #7a6c95;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-  animation: lockedPulse 3s infinite;
+  font-size: clamp(24px, 4vw, 32px); /* Responsive lock icon */
+  color: #aaa;
+  text-shadow: 1px 1px 0px #333;
 }
 
-@keyframes lockedPulse {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
+/* Represents the soil mound inside the plot */
 .plot-soil {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40%;
-  border-radius: 0 0 10px 10px;
-  transition: all 0.5s ease;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%233e2723" /><circle cx="20" cy="20" r="3" fill="%23331f1c" /><circle cx="40" cy="70" r="2" fill="%23331f1c" /><circle cx="70" cy="30" r="4" fill="%23331f1c" /><circle cx="80" cy="80" r="3" fill="%23331f1c" /></svg>');
-  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.4);
+  bottom: 2px; /* Sit just above the bottom border */
+  left: 2px;
+  right: 2px;
+  height: 45%; /* Soil takes up lower part */
+  background-color: #795548; /* Slightly different soil color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23795548"/><circle cx="3" cy="2" r="1" fill="%234e342e" opacity="0.4"/><circle cx="8" cy="7" r="1" fill="%234e342e" opacity="0.4"/><circle cx="1" cy="8" r="1" fill="%234e342e" opacity="0.4"/></svg>');
+  border-radius: 4px 4px 0 0; /* Rounded top */
+  transition: all 0.4s ease;
+  border-top: 2px solid #a1887f; /* Soil mound highlight */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Moisture levels affect soil appearance */
 .garden-plot.dry .plot-soil {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234e342e" /><path d="M10 10 L90 90 M20 80 L80 20 M5 50 L95 50 M50 5 L50 95" stroke="%233e2723" stroke-width="1" opacity="0.4" /></svg>');
-  filter: brightness(1.1) contrast(1.1);
+  background-color: #a1887f; /* Lighter, drier color */
+  filter: brightness(1.1);
 }
 
 .garden-plot.wet .plot-soil {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23331f1c" /><circle cx="20" cy="20" r="2" fill="%233e2723" opacity="0.8" /><circle cx="40" cy="70" r="1" fill="%233e2723" opacity="0.8" /><circle cx="70" cy="30" r="2" fill="%233e2723" opacity="0.8" /><circle cx="80" cy="80" r="1.5" fill="%233e2723" opacity="0.8" /></svg>');
-  filter: brightness(0.9) saturate(1.3);
+  background-color: #4e342e; /* Darker, wetter color */
+  filter: brightness(0.8);
 }
 
 /* Plant visualization styles */
 .plant {
   position: absolute;
-  bottom: 35%;
+  bottom: 35%; /* Start slightly above soil line */
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
-  height: 60%;
+  width: 70%; /* Adjust size relative to plot */
+  height: 55%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  transition: all 0.4s ease;
-  z-index: 2;
-}
-
-.plant.unhealthy {
-  filter: saturate(50%) brightness(70%) contrast(1.1);
-  transform: translateX(-50%) rotate(3deg);
-}
-
-.plant.fair {
-  filter: saturate(80%) brightness(90%);
-}
-
-.plant.healthy {
-  filter: saturate(110%) brightness(105%);
-}
-
-/* Base visual element */
-.plant > div {
-  position: absolute;
-  bottom: 0;
-  transform-origin: bottom center;
-  transform: translateX(-50%);
   transition: all 0.3s ease;
+  z-index: 2;
+  pointer-events: none; /* Allow clicks to pass through to plot */
+}
+/* Re-enable pointer events for double click target */
+.plant > div {
+    pointer-events: auto;
 }
 
-/* Growth stages */
+
+.plant.unhealthy { filter: saturate(50%) brightness(80%) contrast(1.1); }
+.plant.fair { filter: saturate(90%) brightness(95%); }
+.plant.healthy { filter: none; } /* Default healthy look */
+
+/* Base visual element for growth stages */
 .seedling-visual, .sprout-visual, .growing-visual, .maturing-visual, .mature-visual {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
   transform-origin: bottom center;
-  animation: gentleSway 4s ease-in-out infinite alternate;
+  transition: all 0.3s ease;
+  image-rendering: pixelated; /* Ensure crisp visuals */
 }
 
-@keyframes gentleSway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  25% { transform: translateX(-50%) rotate(2deg); }
-  75% { transform: translateX(-50%) rotate(-2deg); }
-}
+/* Growth Stage Placeholder Visuals (Simple CSS Shapes) */
 
-/* Seedling stage */
+/* Seedling: Small green dot/stem */
 .seedling-visual {
-  width: 18px;
-  height: 25px;
-  transform: translateX(-50%) scale(0.95);
-}
-.seedling-visual::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  height: 15px;
-  background-color: #7d8f4c;
-  border-radius: 1px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-.seedling-visual::after {
-  content: '';
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 7px;
-  background-color: #90a959;
-  border-radius: 7px 7px 0 0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Sprout stage */
-.sprout-visual {
-  width: 26px;
-  height: 38px;
-  animation-duration: 5s;
-}
-.sprout-visual::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 22px;
-  background-color: #7d8f4c;
-  border-radius: 1px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-.sprout-visual::after {
-  content: '';
-  position: absolute;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 10px;
-  background-color: #90a959;
-  border-radius: 10px 10px 0 0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.sprout-visual > div:first-child {
-  position: absolute;
-  bottom: 22px;
-  left: 2px;
-  width: 12px;
-  height: 7px;
-  background-color: #90a959;
-  border-radius: 50%;
-  transform: rotate(-30deg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.sprout-visual > div:last-child {
-  position: absolute;
-  bottom: 22px;
-  right: 2px;
-  width: 12px;
-  height: 7px;
-  background-color: #90a959;
-  border-radius: 50%;
-  transform: rotate(30deg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Growing stage */
-.growing-visual {
-  width: 42px;
-  height: 55px;
-  animation-duration: 6s;
-}
-.growing-visual::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 38px;
-  background-color: #7d8f4c;
-  border-radius: 1px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-.growing-visual::after {
-  content: '';
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 28px;
-  height: 14px;
-  background-color: #90a959;
-  border-radius: 14px 14px 5px 5px / 14px 14px 3px 3px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-.growing-visual > div:first-child {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%) scale(0.8) rotate(45deg);
-  width: 22px;
-  height: 12px;
-  background-color: #85a050;
-  border-radius: inherit;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.growing-visual > div:last-child {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) scale(0.8) rotate(-45deg);
-  width: 22px;
-  height: 12px;
-  background-color: #85a050;
-  border-radius: inherit;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Maturing stage */
-.maturing-visual {
-  width: 58px;
-  height: 75px;
-  animation-duration: 7s;
-}
-.maturing-visual::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
   width: 6px;
-  height: 55px;
-  background-color: #7d8f4c;
-  border-radius: 1px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-.maturing-visual > div:nth-child(1) {
-  position: absolute;
-  bottom: 40px;
-  left: 35%;
-  transform: translateX(-50%) rotate(-30deg);
-  width: 32px;
-  height: 17px;
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-.maturing-visual > div:nth-child(2) {
-  position: absolute;
-  left: 65%;
-  transform: translateX(-50%) rotate(30deg) scaleX(-1);
-  bottom: 45px;
-  width: 32px;
-  height: 17px;
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-.maturing-visual > div:nth-child(3) {
-  position: absolute;
-  top: 10px;
-  left: 50%;
+  height: 12px;
+  background-color: #8bc34a; /* Bright green */
+  border-radius: 3px 3px 0 0;
   transform: translateX(-50%);
-  width: 14px;
-  height: 14px;
-  background-color: #a58db8;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(181, 157, 196, 0.6);
+  border: 1px solid #558b2f; /* Darker outline */
 }
 
-/* Mature stage */
-.mature-visual {
-  width: 75px;
-  height: 90px;
-  animation-duration: 8s;
-  transform: translateX(-50%) scale(1);
-  transition: transform 0.5s ease;
+/* Sprout: Two small leaves */
+.sprout-visual {
+  width: 16px;
+  height: 18px;
+  transform: translateX(-50%);
 }
-.mature-visual:hover {
-  transform: translateX(-50%) scale(1.05);
-}
-.mature-visual::before {
+.sprout-visual::before, .sprout-visual::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 7px;
-  height: 70px;
-  background-color: #7d8f4c;
-  border-radius: 1px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-.mature-visual > div:nth-child(1) {
-  position: absolute;
-  bottom: 50px;
-  left: 30%;
-  transform: translateX(-50%) rotate(-35deg);
-  width: 38px;
-  height: 22px;
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  filter: brightness(1.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-.mature-visual > div:nth-child(2) {
-  position: absolute;
-  left: 70%;
-  transform: translateX(-50%) rotate(35deg) scaleX(-1);
-  bottom: 55px;
-  width: 38px;
-  height: 22px;
-  background-color: #90a959;
-  border-radius: 60% 40% 30% 70% / 70% 70% 30% 30%;
-  filter: brightness(1.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-.mature-visual > div:nth-child(3) {
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.mature-flower {
-  width: 24px;
-  height: 24px;
-  background-color: #b59dc4;
-  border-radius: 50%;
-  box-shadow: 0 0 12px rgba(181, 157, 196, 0.8);
-  animation: flowerGlow 3s infinite alternate;
-}
-.mature-flower::before, .mature-flower::after {
-  content: '';
-  position: absolute;
-  background-color: #c4b7d7;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(196, 183, 215, 0.6);
-}
-.mature-flower::before {
-  width: 20px;
-  height: 20px;
-  top: -5px;
-  left: -10px;
-  transform: rotate(-30deg);
-}
-.mature-flower::after {
-  width: 20px;
-  height: 20px;
-  top: -5px;
-  right: -10px;
-  transform: rotate(30deg);
-}
-
-@keyframes flowerGlow {
-  0%, 100% { box-shadow: 0 0 12px rgba(181, 157, 196, 0.8); }
-  50% { box-shadow: 0 0 18px rgba(181, 157, 196, 1); }
-}
-
-/* Mature Herb Visual */
-.mature-herb {
-  top: 10px !important;
-  width: 32px;
-  height: 28px;
-  background: none;
-}
-.mature-herb::before, .mature-herb::after {
-  content: '';
-  position: absolute;
-  background-color: #90a959;
+  width: 8px;
+  height: 14px;
+  background-color: #7cb342;
+  border: 1px solid #558b2f;
   border-radius: 50% 50% 0 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
-.mature-herb::before {
-  width: 16px;
-  height: 22px;
-  top: 0;
-  left: 0;
-  transform: rotate(-20deg);
-}
-.mature-herb::after {
-  width: 16px;
-  height: 22px;
-  top: 0;
-  right: 0;
-  transform: rotate(20deg);
-}
+.sprout-visual::before { left: 0; transform: rotate(-20deg); }
+.sprout-visual::after { right: 0; transform: rotate(20deg); }
 
-/* Mature Root Visual */
-.mature-root {
-  top: 55px !important;
-  width: 18px;
-  height: 12px;
-  background-color: #8a6d3b;
-  border-radius: 3px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+/* Growing: Taller stem with more leaves */
+.growing-visual {
+  width: 24px;
+  height: 30px;
+  transform: translateX(-50%);
 }
-.mature-root::before {
+.growing-visual::before { /* Stem */
   content: '';
   position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 22px;
-  height: 32px;
-  background-color: #a0844d;
-  border-radius: 0 0 11px 11px;
-  filter: brightness(0.9);
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+  bottom: 0;
+  left: calc(50% - 3px);
+  width: 6px;
+  height: 25px;
+  background-color: #689f38;
+  border: 1px solid #33691e;
+  border-radius: 2px 2px 0 0;
 }
-
-/* Mature Mushroom Visual */
-.mature-mushroom {
-  top: 45px !important;
-  width: 28px;
-  height: 20px;
-  background-color: #a79aad;
-  border-radius: 50% 50% 10% 10% / 100% 100% 0% 0%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  animation: mushGlow 4s infinite alternate;
-}
-.mature-mushroom::before {
+.growing-visual::after { /* Top leaf */
   content: '';
   position: absolute;
-  bottom: -16px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 20px;
+  left: calc(50% - 5px);
   width: 10px;
-  height: 18px;
-  background-color: #e9e3f0;
-  border-radius: 3px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+  height: 10px;
+  background-color: #7cb342;
+  border: 1px solid #558b2f;
+  border-radius: 50% 50% 0 0;
+}
+/* Add side leaves (simple example) */
+.growing-visual > div:nth-child(1) { /* Left leaf */
+  position: absolute; bottom: 10px; left: 2px; width: 8px; height: 12px;
+  background-color: #7cb342; border: 1px solid #558b2f; border-radius: 50% 0; transform: rotate(-45deg);
+}
+.growing-visual > div:nth-child(2) { /* Right leaf */
+  position: absolute; bottom: 10px; right: 2px; width: 8px; height: 12px;
+  background-color: #7cb342; border: 1px solid #558b2f; border-radius: 0 50%; transform: rotate(45deg);
 }
 
-@keyframes mushGlow {
-  0%, 100% { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
-  50% { box-shadow: 0 2px 8px rgba(167, 154, 173, 0.6); }
-}
 
-/* Mature Fruit Visual */
-.mature-fruit {
-  top: 28px !important;
-  width: 22px;
-  height: 22px;
-  background-color: #c75e54;
-  border-radius: 50%;
-  box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-.mature-fruit::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 8px;
-  background-color: #7d8f4c;
-  border-radius: 1px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Mature Leaf/Succulent */
-.mature-leaf {
-  top: 20px !important;
+/* Maturing: Larger plant, maybe hints of color */
+.maturing-visual {
   width: 32px;
-  height: 42px;
-  background-color: #81a36b;
-  border-radius: 20% 80% 30% 70% / 60% 40% 60% 40%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  height: 40px;
+  transform: translateX(-50%);
 }
-.mature-succulent {
-  top: 30px !important;
-  width: 38px;
-  height: 38px;
-  background-color: #a1c1a4;
-  border-radius: 50%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+.maturing-visual::before { /* Stem */
+  content: ''; position: absolute; bottom: 0; left: calc(50% - 4px); width: 8px; height: 35px;
+  background-color: #558b2f; border: 1px solid #33691e; border-radius: 3px 3px 0 0;
 }
+/* More leaves */
+.maturing-visual > div { position: absolute; background-color: #689f38; border: 1px solid #33691e; border-radius: 4px; }
+.maturing-visual > div:nth-child(1) { bottom: 25px; left: 0; width: 12px; height: 15px; transform: rotate(-30deg); }
+.maturing-visual > div:nth-child(2) { bottom: 25px; right: 0; width: 12px; height: 15px; transform: rotate(30deg); }
+.maturing-visual > div:nth-child(3) { bottom: 10px; left: 5px; width: 10px; height: 13px; transform: rotate(-50deg); }
+.maturing-visual > div:nth-child(4) { bottom: 10px; right: 5px; width: 10px; height: 13px; transform: rotate(50deg); }
+
+
+/* Mature Stage: Different look per category */
+.mature-visual { transform: translateX(-50%); width: 80%; height: 80%; } /* Take up more space */
+
+.mature-flower { width: 28px; height: 28px; background-color: #e1bee7; border: 2px solid #8e24aa; border-radius: 50%; position: relative; }
+.mature-flower::before, .mature-flower::after { content:''; position: absolute; background-color: #ce93d8; border: 1px solid #8e24aa; border-radius: 50%; }
+.mature-flower::before { width: 10px; height: 10px; top: 3px; left: 3px; }
+.mature-flower::after { width: 6px; height: 6px; top: 7px; left: 7px; background-color: #f3e5f5; }
+/* Simple petals */
+.mature-flower > div { position: absolute; width: 12px; height: 12px; background-color: #ba68c8; border: 1px solid #8e24aa; border-radius: 50% 0; }
+.mature-flower > div:nth-child(1) { top: -5px; left: calc(50% - 6px); }
+.mature-flower > div:nth-child(2) { bottom: -5px; left: calc(50% - 6px); transform: rotate(180deg); }
+.mature-flower > div:nth-child(3) { left: -5px; top: calc(50% - 6px); transform: rotate(-90deg); }
+.mature-flower > div:nth-child(4) { right: -5px; top: calc(50% - 6px); transform: rotate(90deg); }
+
+
+.mature-herb { width: 26px; height: 35px; position: relative; }
+/* Simple leafy structure */
+.mature-herb > div { position: absolute; background-color: #a5d6a7; border: 1px solid #388e3c; border-radius: 50% 0; }
+.mature-herb > div:nth-child(1) { width: 12px; height: 18px; bottom: 0; left: 0; transform: rotate(-25deg); }
+.mature-herb > div:nth-child(2) { width: 12px; height: 18px; bottom: 0; right: 0; transform: rotate(25deg); }
+.mature-herb > div:nth-child(3) { width: 10px; height: 15px; bottom: 10px; left: calc(50% - 5px); transform: rotate(0deg); border-radius: 0 0 50% 50%;}
+
+
+.mature-root { width: 18px; height: 25px; background-color: #bcaaa4; border: 2px solid #5d4037; border-radius: 3px 3px 8px 8px; }
+/* Add simple leafy top */
+.mature-root::before { content:''; position: absolute; top: -8px; left: calc(50% - 8px); width: 16px; height: 10px; background-color: #a5d6a7; border: 1px solid #388e3c; border-radius: 50% 50% 0 0; }
+
+
+.mature-mushroom { width: 24px; height: 20px; background-color: #e0e0e0; border: 2px solid #757575; border-radius: 50% 50% 0 0; position: relative; }
+/* Stem */
+.mature-mushroom::after { content:''; position: absolute; bottom: -12px; left: calc(50% - 5px); width: 10px; height: 14px; background-color: #f5f5f5; border: 1px solid #9e9e9e; border-radius: 0 0 3px 3px; }
+
+
+.mature-fruit { width: 22px; height: 22px; background-color: #ef5350; border: 2px solid #c62828; border-radius: 50%; }
+/* Simple leaf */
+.mature-fruit::before { content:''; position: absolute; top: -5px; left: calc(50% - 3px); width: 6px; height: 8px; background-color: #a5d6a7; border: 1px solid #388e3c; border-radius: 50% 50% 0 0; transform: rotate(15deg); }
+
+.mature-leaf { width: 20px; height: 30px; background-color: #81c784; border: 2px solid #388e3c; border-radius: 50% 0; }
+.mature-succulent { width: 26px; height: 26px; background-color: #aed581; border: 2px solid #689f38; border-radius: 6px; }
+
 
 /* Moon blessing effect */
 .moon-blessing-effect {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 150%;
-  height: 150%;
-  background: radial-gradient(
-    circle at center,
-    rgba(229, 225, 241, 0.2) 0%,
-    rgba(229, 225, 241, 0) 70%
-  );
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 130%; height: 130%;
+  background: radial-gradient(circle, rgba(226, 217, 243, 0.2) 0%, transparent 70%);
   border-radius: 50%;
-  animation: moonPulse 4s infinite ease-in-out;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.8;
+  animation: moonPulse 3s infinite ease-in-out;
+  pointer-events: none; z-index: 1;
 }
 
 @keyframes moonPulse {
@@ -553,162 +265,78 @@
 /* Plot status indicators */
 .plot-status {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 5px; right: 5px;
   z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: flex; flex-direction: column; gap: 4px;
 }
 
 .status-icon {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-size: 14px;
-  color: #1a1a24;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; /* Square-ish icons */
+  font-size: 12px;
+  color: #fff; /* White icons */
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   text-align: center;
-  animation: iconPop 0.5s ease-out;
 }
 
-@keyframes iconPop {
-  0% { transform: scale(0); opacity: 0; }
-  70% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
+.status-icon.ready-to-harvest { background-color: #689f38; /* Darker green */ }
+.status-icon.needs-water { background-color: #1e88e5; /* Darker blue */ }
+.status-icon.empty-plot { background-color: #757575; /* Grey */ color: #e0e0e0; }
 
-.status-icon.ready-to-harvest {
-  background-color: #7eba76;
-  animation: harvestPulse 2s infinite;
-}
-
-.status-icon.needs-water {
-  background-color: #6fa6cc;
-  animation: waterDrop 3s infinite;
-}
-
-.status-icon.empty-plot {
-  background-color: #483d66;
-  color: #a294b8;
-}
-
-@keyframes harvestPulse {
+/* Ready to harvest animation */
+.status-icon.ready-to-harvest { animation: harvestPulseIcon 1.5s infinite; }
+@keyframes harvestPulseIcon {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); box-shadow: 0 2px 8px rgba(126, 186, 118, 0.6); }
+  50% { transform: scale(1.2); box-shadow: 0 0 5px #a5d6a7, 1px 1px 2px rgba(0, 0, 0, 0.5); }
 }
 
-@keyframes waterDrop {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(3px); }
-}
-
-/* Placeholder for empty grid slots */
+/* Placeholder for empty grid slots (used if plots array is sparse) */
 .garden-plot.placeholder {
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.1);
   background-image: none;
-  border: 2px dashed #483d66;
-  box-shadow: none;
+  border-color: rgba(93, 64, 55, 0.5);
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
   cursor: default;
-  opacity: 0.5;
+  opacity: 0.6;
 }
-
-.garden-plot.placeholder:hover {
-  transform: none;
-}
+.garden-plot.placeholder:hover { transform: none; box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2); }
 
 /* Plant hint for empty plots */
 .plant-hint {
   position: absolute;
-  top: 50%;
+  top: calc(50% - 10px); /* Adjust position */
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: center; /* Align icon and text */
   gap: 5px;
   opacity: 0;
-  animation: hintFadeIn 0.3s forwards;
+  animation: hintFadeIn 0.3s 0.1s forwards; /* Delay slightly */
   pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.7); /* Dark background */
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
-
-.hint-icon {
-  font-size: 24px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
-.hint-text {
-  background-color: rgba(93, 70, 138, 0.9);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  white-space: nowrap;
-}
+.hint-icon { font-size: 14px; color: #a5d6a7; /* Light green icon */ }
+.hint-text { color: white; font-size: 11px; font-family: 'Courier New', monospace; }
 
 @keyframes hintFadeIn {
-  from { opacity: 0; transform: translate(-50%, -40%); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
+  from { opacity: 0; transform: translate(-50%, 5px); } /* Fade in from bottom */
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Interactive highlight effect */
-.garden-plot:not(.locked):not(.placeholder)::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.garden-plot:not(.locked):not(.placeholder):hover::after {
-  opacity: 1;
-}
-
-/* Watering animation */
-.garden-plot.watering .plot-soil::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: 0;
-  width: 100%;
-  height: 20px;
-  background: linear-gradient(to bottom, rgba(111, 166, 204, 0) 0%, rgba(111, 166, 204, 0.6) 100%);
-  animation: wateringFlow 2s ease-in;
-}
-
-@keyframes wateringFlow {
-  0% { transform: translateY(-20px); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translateY(100%); opacity: 0; }
-}
 
 /* Seasonal variations */
-.garden-plot.spring .plot-soil {
-  background-color: #4a3e2a;
-  filter: saturate(1.1) brightness(1.05);
-}
+.garden-plot.spring .plot-soil { background-color: #795548; }
+.garden-plot.summer .plot-soil { background-color: #8d6e63; }
+.garden-plot.fall .plot-soil { background-color: #6d4c41; }
+.garden-plot.winter .plot-soil { background-color: #616161; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23616161"/><circle cx="5" cy="5" r="0.5" fill="%23eeeeee" opacity="0.7"/><circle cx="2" cy="8" r="0.5" fill="%23eeeeee" opacity="0.7"/><circle cx="8" cy="2" r="0.5" fill="%23eeeeee" opacity="0.7"/></svg>');} /* Add snow speckles */
 
-.garden-plot.summer .plot-soil {
-  background-color: #4e342e;
-  filter: brightness(1.1) contrast(1.1);
-}
 
-.garden-plot.fall .plot-soil {
-  background-color: #3e2e24;
-  filter: sepia(0.3);
-}
-
-.garden-plot.winter .plot-soil {
-  background-color: #3a3248;
-  filter: saturate(0.8) brightness(0.9);
-}
+/* --- Whispering Garden Easter Egg --- */
+/* (Styles added within the GardenPlot component using <style> tag) */

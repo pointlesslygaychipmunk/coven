@@ -1,30 +1,7 @@
-import { useState, useEffect } from 'react';
-import './HUD.css'; // Changed to match the existing CSS file name
+import React, { useState, useEffect, useRef } from 'react'; // Added useRef to the import
+import './HUD.css'; // Styles for the sidebar HUD
+import LunarPhaseIcon from './LunarPhaseIcon'; // Import the icon component
 import { MoonPhase } from 'coven-shared';
-
-interface LunarPhaseIconProps {
-  phase: MoonPhase;
-  size: number;
-}
-
-// Lunar Phase Icon component
-const LunarPhaseIcon: React.FC<LunarPhaseIconProps> = ({ phase, size }) => {
-  // This is a placeholder - you would implement the actual moon phase icon
-  return (
-    <div 
-      className="moon-phase" 
-      style={{ 
-        width: size, 
-        height: size, 
-        backgroundColor: phase.includes('Full') ? '#f0f0f0' : 
-                         phase.includes('New') ? '#333' : 
-                         phase.includes('Waxing') ? 'linear-gradient(to right, #333, #f0f0f0)' : 
-                         'linear-gradient(to left, #333, #f0f0f0)',
-        borderRadius: '50%' 
-      }}
-    />
-  );
-};
 
 interface HUDProps {
   playerName: string;
@@ -41,7 +18,7 @@ const HUD: React.FC<HUDProps> = ({
   playerName = "Elspeth",
   gold = 75,
   day = 3,
-  lunarPhase = "Waxing Crescent", // Updated default value to match MoonPhase type
+  lunarPhase = "Waxing Crescent",
   reputation = 12,
   playerLevel = 2,
   onChangeLocation,
@@ -51,153 +28,170 @@ const HUD: React.FC<HUDProps> = ({
   const [confirmEndDay, setConfirmEndDay] = useState<boolean>(false);
   const [confirmTimeoutId, setConfirmTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
+  // Easter Egg State
+  const [portraitClicks, setPortraitClicks] = useState(0);
+  const [showSparkle, setShowSparkle] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const portraitClickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+
   // Handle location change
   const handleLocationClick = (location: string) => {
     setActiveLocation(location);
     onChangeLocation(location);
-    resetEndDayConfirm();
+    resetEndDayConfirm(); // Reset confirm state when changing location
   };
 
   // Handle end day click with confirmation step
   const handleEndDayClick = () => {
     if (confirmEndDay) {
-      if(confirmTimeoutId) clearTimeout(confirmTimeoutId);
+      if (confirmTimeoutId) clearTimeout(confirmTimeoutId);
       onAdvanceDay();
       setConfirmEndDay(false);
       setConfirmTimeoutId(null);
     } else {
       setConfirmEndDay(true);
-      // Set a timeout to automatically cancel confirmation after a few seconds
+      // Set timeout to auto-cancel confirmation
       const timeoutId = setTimeout(() => {
          setConfirmEndDay(false);
          setConfirmTimeoutId(null);
-      }, 5000); // 5 seconds timeout
+      }, 5000); // 5 seconds
       setConfirmTimeoutId(timeoutId);
     }
   };
 
-  // Helper to reset the end day confirmation state and clear timeout
+  // Helper to reset end day confirmation state
   const resetEndDayConfirm = () => {
-    if(confirmTimeoutId) {
+    if (confirmTimeoutId) {
       clearTimeout(confirmTimeoutId);
       setConfirmTimeoutId(null);
     }
     setConfirmEndDay(false);
   };
 
-  // Handle escape key to close menu
-  useEffect(() => {
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        // Close any open dialogs or reset states if needed
-        resetEndDayConfirm();
-      }
-    };
+   // Easter Egg: Player Portrait Click
+   const handlePortraitClick = () => {
+       // Clear existing timeout
+       if (portraitClickTimeoutRef.current) {
+           clearTimeout(portraitClickTimeoutRef.current);
+       }
 
-    document.addEventListener('keydown', handleEscKey);
-    return () => {
-      document.removeEventListener('keydown', handleEscKey);
-    };
-  }, []);
+       const newClicks = portraitClicks + 1;
+       setPortraitClicks(newClicks);
+
+       if (newClicks >= 5) {
+           setShowSparkle(true);
+           setStatusMessage(`${playerName} feels particularly determined! ✨`);
+           setTimeout(() => setShowSparkle(false), 1000); // Sparkle duration
+           setTimeout(() => setStatusMessage(null), 3000); // Message duration
+           setPortraitClicks(0); // Reset clicks after activation
+       } else {
+           // Set a timeout to reset clicks if not clicked again quickly
+           portraitClickTimeoutRef.current = setTimeout(() => {
+               setPortraitClicks(0);
+           }, 800); // Reset after 0.8 seconds of inactivity
+       }
+   };
+
+   // Cleanup portrait click timeout on unmount
+   useEffect(() => {
+       return () => {
+           if (portraitClickTimeoutRef.current) {
+               clearTimeout(portraitClickTimeoutRef.current);
+           }
+       };
+   }, []);
+
 
   // Get player initial for avatar
   const getPlayerInitial = (): string => {
     return playerName.charAt(0).toUpperCase();
   };
 
+  // Navigation items
+  const navItems = [
+    { id: 'garden', name: 'Garden', icon: '🌿' },
+    { id: 'brewing', name: 'Brewing', icon: '🧪' },
+    { id: 'atelier', name: 'Atelier', icon: '✨' },
+    { id: 'market', name: 'Market', icon: '💰' },
+    { id: 'journal', name: 'Journal', icon: '📖' }
+  ];
+
   return (
-    <div className="coven-ui">
-      {/* Top HUD Bar */}
-      <div className="coven-hud">
-        {/* Player Info */}
-        <div className="player-panel">
-          <div className="player-portrait">
-            <div className="player-avatar">{getPlayerInitial()}</div>
-          </div>
-          <div className="player-stats">
-            <div className="player-name">{playerName}</div>
-            <div className="player-level">
-              <span>Atelier Lv</span>
-              <span className="level-number">{playerLevel}</span>
-            </div>
-          </div>
-        </div>
+    <aside className="coven-hud-sidebar">
 
-        {/* Lunar Display */}
-        <div className="lunar-panel">
-          <div className="lunar-icon">
-            <LunarPhaseIcon phase={lunarPhase} size={40} />
-          </div>
-          <div className="lunar-info">
-            <div className="lunar-phase">{lunarPhase}</div>
-            <div className="day-count">Day {day}</div>
-          </div>
-        </div>
-
-        {/* Resources */}
-        <div className="resources-panel">
-          <div className="resource-item gold">
-            <div className="resource-icon"></div>
-            <div className="resource-value">{gold}</div>
-          </div>
-          <div className="resource-item reputation">
-            <div className="resource-icon"></div>
-            <div className="resource-value">{reputation}</div>
-          </div>
-        </div>
-
-        {/* End Day Button */}
-        <button
-          className={`end-day-button ${confirmEndDay ? 'confirm' : ''}`}
-          onClick={handleEndDayClick}
+      {/* Player Info */}
+      <div className="player-panel">
+        <div
+            className={`player-portrait ${showSparkle ? 'sparkling' : ''}`}
+            onClick={handlePortraitClick}
+            title="Click portrait rapidly..."
         >
-          {confirmEndDay ? 'Confirm?' : 'End Day'}
-        </button>
+          <div className="player-avatar">{getPlayerInitial()}</div>
+        </div>
+        <div className="player-name">{playerName}</div>
+        <div className="player-level">
+          <span>Atelier Lv </span>
+          <span className="level-number">{playerLevel}</span>
+        </div>
       </div>
 
-      {/* Main Navigation Panel */}
+      {/* Lunar Display */}
+      <div className="lunar-panel">
+        <div className="lunar-icon">
+          {/* Use the dedicated LunarPhaseIcon component */}
+          <LunarPhaseIcon phase={lunarPhase} size={40} />
+        </div>
+        <div className="lunar-info">
+          <div className="lunar-phase">{lunarPhase}</div>
+          <div className="day-count">Day {day}</div>
+        </div>
+      </div>
+
+      {/* Resources */}
+      <div className="resources-panel">
+        <div className="resource-item gold" title={`${gold} Gold`}>
+          <div className="resource-icon"></div>
+          <div className="resource-value">{gold}</div>
+        </div>
+        <div className="resource-item reputation" title={`${reputation} Reputation`}>
+          <div className="resource-icon"></div>
+          <div className="resource-value">{reputation}</div>
+        </div>
+      </div>
+
+      {/* Navigation Panel */}
       <div className="navigation-panel">
         <div className="location-tabs">
-          {[
-            { id: 'garden', name: 'Garden', icon: '🌿' },
-            { id: 'brewing', name: 'Brewing', icon: '🧪' },
-            { id: 'atelier', name: 'Atelier', icon: '✨' },
-            { id: 'market', name: 'Market', icon: '💰' },
-            { id: 'journal', name: 'Journal', icon: '📖' }
-          ].map(loc => (
+          {navItems.map(loc => (
             <button
               key={loc.id}
               className={`location-tab ${activeLocation === loc.id ? 'active' : ''}`}
               onClick={() => handleLocationClick(loc.id)}
+              title={loc.name}
             >
               <span className="location-icon">{loc.icon}</span>
               <span className="location-name">{loc.name}</span>
             </button>
           ))}
         </div>
+
+        {/* End Day Button */}
+        <button
+          className={`end-day-button ${confirmEndDay ? 'confirm' : ''}`}
+          onClick={handleEndDayClick}
+          disabled={confirmEndDay && !confirmTimeoutId} // Prevent spamming after confirm timeout resets
+        >
+          {confirmEndDay ? 'Confirm End Day?' : 'End Day'}
+        </button>
       </div>
 
-      {/* Main Content Window (placeholder) */}
-      <div className="content-window">
-        <div className="content-header">
-          {activeLocation === 'garden' && <h2>Witch's Garden</h2>}
-          {activeLocation === 'brewing' && <h2>Brewing Station</h2>}
-          {activeLocation === 'atelier' && <h2>Atelier Workshop</h2>}
-          {activeLocation === 'market' && <h2>Village Market</h2>}
-          {activeLocation === 'journal' && <h2>Witch's Journal</h2>}
-        </div>
-        <div className="content-area">
-          {/* This is where your view-specific content would go */}
-          <div className="placeholder-content">
-            {activeLocation === 'garden' && <p>Your magical garden area with plants and herbs</p>}
-            {activeLocation === 'brewing' && <p>Create magical potions and brews</p>}
-            {activeLocation === 'atelier' && <p>Craft mystical items and artifacts</p>}
-            {activeLocation === 'market' && <p>Browse and trade with local merchants</p>}
-            {activeLocation === 'journal' && <p>Review your recipes, discoveries and quests</p>}
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Easter Egg Status Message */}
+       <div className={`hud-status-message ${statusMessage ? 'visible' : ''}`}>
+           {statusMessage}
+       </div>
+
+    </aside>
   );
 };
 

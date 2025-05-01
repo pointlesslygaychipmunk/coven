@@ -1,16 +1,22 @@
-/* LunarPhaseIcon.css */
-/* Magical lunar phase visualization with 90s point-and-click adventure game aesthetic */
+/* frontend/src/components/LunarPhaseIcon.css */
+/* Redesigned Lunar Phase Icon with 90s UI Aesthetic */
 
 .lunar-phase-icon {
   display: inline-block;
-  background-color: transparent;
-  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
-  cursor: help;
+  cursor: help; /* Indicate hover information */
+  border-radius: 50%; /* Keep the icon circular */
+  /* 90s Bevel effect */
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2); /* 90s shadow */
+  background-color: var(--color-bg-dark); /* Dark background inside the border */
+  transition: transform 0.15s ease;
+  image-rendering: pixelated; /* Ensure crisp edges if possible */
 }
 
 .lunar-phase-icon:hover {
-  transform: scale(1.15) rotate(2deg);
+  transform: scale(1.1); /* Simple scale on hover */
 }
 
 .lunar-phase-container {
@@ -20,90 +26,91 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* Add a magical ambient glow */
-.lunar-phase-glow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
   border-radius: 50%;
-  box-shadow: 0 0 20px rgba(140, 120, 190, 0.3), 
-              0 0 40px rgba(140, 120, 190, 0.1);
-  animation: pulseGlow 6s ease-in-out infinite alternate;
-  opacity: 0.8;
-  z-index: -1;
+  overflow: hidden; /* Clip contents to circle */
 }
 
-/* Shimmering star background for the moon */
-.lunar-phase-stars {
-  position: absolute;
-  width: 140%;
-  height: 140%;
-  border-radius: 50%;
-  top: -20%;
-  left: -20%;
-  opacity: 0;
-  z-index: -2;
-  background-image: 
-    radial-gradient(1px 1px at 20% 30%, white 100%, transparent),
-    radial-gradient(1px 1px at 40% 70%, #f8f5ff 100%, transparent),
-    radial-gradient(1.5px 1.5px at 60% 50%, #e3dfff 100%, transparent),
-    radial-gradient(1px 1px at 70% 20%, white 100%, transparent),
-    radial-gradient(1px 1px at 80% 40%, #f8f5ff 100%, transparent),
-    radial-gradient(1px 1px at 90% 60%, white 100%, transparent),
-    radial-gradient(1.5px 1.5px at 10% 80%, #e3dfff 100%, transparent);
-  animation: twinkleStars 8s ease-in-out infinite alternate;
+/* Subtle texture/noise for the background */
+.lunar-phase-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%23ffffff" fill-opacity="0.03" d="M1 3h1v1H1V3zm2-2h1v1H3V1z"%3E%3C/path%3E%3C/svg%3E');
+    pointer-events: none;
+    z-index: 0;
 }
 
-/* Shadow effect for depth */
-.lunar-phase-shadow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.3);
-  opacity: 0.4;
-  pointer-events: none;
+
+/* SVG style refinements */
+.lunar-phase-icon svg {
+  display: block; /* Prevent extra space below SVG */
+  position: relative;
+  z-index: 2; /* Above background effects */
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.4)); /* Basic shadow */
+  overflow: visible; /* Allow stroke to be fully visible */
 }
 
-/* Make Full Moon and New Moon phases more special */
-.lunar-phase-icon.fullmoon .lunar-phase-glow {
-  box-shadow: 0 0 20px rgba(225, 215, 255, 0.5), 
-              0 0 40px rgba(225, 215, 255, 0.3);
-  animation: pulseBrightGlow 4s ease-in-out infinite alternate;
+/* Define stroke width using CSS variable passed from component */
+.lunar-phase-icon svg circle,
+.lunar-phase-icon svg path {
+  stroke-width: var(--stroke-width, 1px);
 }
 
-.lunar-phase-icon.fullmoon .lunar-phase-stars {
-  opacity: 0.8;
-  animation: twinkleBright 4s ease-in-out infinite alternate;
+/* Dark part of the moon */
+.lunar-phase-icon svg .moon-dark {
+  fill: var(--color-bg-dark); /* Very dark fill */
+  stroke: var(--color-border-dark); /* Dark outline */
 }
 
-.lunar-phase-icon.newmoon .lunar-phase-glow {
-  box-shadow: 0 0 15px rgba(70, 60, 100, 0.5),
-              0 0 30px rgba(70, 60, 100, 0.3);
-  animation: pulseDarkGlow 7s ease-in-out infinite alternate;
+/* Light part of the moon */
+.lunar-phase-icon svg .moon-light {
+  fill: var(--color-text-light); /* Parchment color for light */
+  stroke: #c1b29f; /* Slightly darker parchment stroke */
 }
 
-/* Add special style for hover tooltip */
+/* Special styling for Full Moon */
+.lunar-phase-icon.fullmoon svg .moon-light {
+  fill: #fff; /* Brighter white for full moon */
+  stroke: #e4dbee;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6)); /* Glow */
+}
+
+/* Special styling for New Moon */
+.lunar-phase-icon.newmoon svg .moon-dark {
+  fill: #1c1824; /* Even darker */
+  stroke: #2d2038;
+}
+
+/* Easter Egg: Pulsing Glow on Full Moon Hover */
+.lunar-phase-icon.fullmoon.pulsing-glow svg .moon-light {
+    animation: fullMoonPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes fullMoonPulse {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); transform: scale(1.03); }
+}
+
+
+/* Tooltip styling */
 .lunar-phase-tooltip {
   position: absolute;
-  top: -40px;
+  bottom: calc(100% + 8px); /* Position above the icon */
   left: 50%;
   transform: translateX(-50%);
-  background-color: #211d2c;
-  color: #e4dbee;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-family: 'Times New Roman', serif;
+  background-color: var(--color-bg-panel); /* Panel background */
+  color: var(--color-text-light);
+  padding: 5px 10px;
+  border-radius: var(--border-radius-sm);
+  font-family: 'Courier New', monospace; /* Use monospace */
   font-size: 12px;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: none;
   z-index: 10;
-  border: 1px solid #483d66;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2); /* 90s shadow */
 }
 
 .lunar-phase-tooltip::after {
@@ -114,101 +121,14 @@
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #211d2c transparent transparent transparent;
+  border-color: var(--color-bg-panel) transparent transparent transparent; /* Arrow */
 }
 
 .lunar-phase-icon:hover .lunar-phase-tooltip {
   opacity: 1;
-  transform: translateX(-50%) translateY(-5px);
+  transform: translateX(-50%) translateY(-3px); /* Slight upward move */
 }
 
-/* SVG style refinements */
-.lunar-phase-icon svg {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.lunar-phase-icon svg circle.moon-dark {
-  fill: #342f48;
-  stroke: #483d66;
-  stroke-width: var(--stroke-width, 1);
-}
-
-.lunar-phase-icon svg circle.moon-light {
-  fill: #e4dbee;
-  stroke: #c9b7d3;
-  stroke-width: var(--stroke-width, 1);
-}
-
-.lunar-phase-icon svg path.moon-dark {
-  fill: #342f48;
-  stroke: #483d66;
-  stroke-width: var(--stroke-width, 1);
-}
-
-.lunar-phase-icon svg path.moon-light {
-  fill: #e4dbee;
-  stroke: #c9b7d3;
-  stroke-width: var(--stroke-width, 1);
-}
-
-/* Animations */
-@keyframes pulseGlow {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba(140, 120, 190, 0.2),
-                0 0 20px rgba(140, 120, 190, 0.1);
-    transform: scale(0.95);
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(140, 120, 190, 0.3),
-                0 0 40px rgba(140, 120, 190, 0.2);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes pulseBrightGlow {
-  0%, 100% { 
-    box-shadow: 0 0 15px rgba(225, 215, 255, 0.4),
-                0 0 30px rgba(225, 215, 255, 0.2);
-    transform: scale(0.95);
-  }
-  50% { 
-    box-shadow: 0 0 30px rgba(225, 215, 255, 0.6),
-                0 0 60px rgba(225, 215, 255, 0.3);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes pulseDarkGlow {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba(70, 60, 100, 0.3),
-                0 0 20px rgba(70, 60, 100, 0.2);
-    transform: scale(0.98);
-  }
-  50% { 
-    box-shadow: 0 0 15px rgba(70, 60, 100, 0.5),
-                0 0 30px rgba(70, 60, 100, 0.3);
-    transform: scale(1.02);
-  }
-}
-
-@keyframes twinkleStars {
-  0%, 100% {
-    opacity: 0.2;
-    transform: rotate(0deg);
-  }
-  50% {
-    opacity: 0.4;
-    transform: rotate(180deg);
-  }
-}
-
-@keyframes twinkleBright {
-  0%, 100% {
-    opacity: 0.5;
-    transform: rotate(0deg) scale(0.95);
-  }
-  50% {
-    opacity: 0.8;
-    transform: rotate(180deg) scale(1.05);
-  }
-}
+/* Remove redundant glow/stars/shadow overlays if not needed */
+/* .lunar-phase-glow, .lunar-phase-stars, .lunar-phase-shadow { display: none; } */
+/* These are removed in favor of simpler border/shadow/filter effects */

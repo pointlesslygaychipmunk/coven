@@ -13,7 +13,14 @@
   position: relative;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(58, 36, 71, 0.4);
   border: 8px solid transparent;
-  border-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h100v100H0z" fill="%23553e66"/><path d="M10 10h80v80H10z" fill="%234b334b" stroke="%235d468a" stroke-width="2"/><path d="M20 20h60v60H20z" fill="%23664c78" stroke="%23805e91" stroke-width="1" stroke-dasharray="5 3"/></svg>') 20;
+  /* Ornate border using border-image - pixelated look */
+  border-image-source: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="%23553e66"/><path d="M3 3h18v18H3z" fill="%234b334b"/><path d="M6 6h12v12H6z" fill="%23664c78"/><path d="M9 9h6v6H9z" fill="%23805e91"/><path d="M0 0h6v6H0zm18 0h6v6h-6zM0 18h6v6H0zm18 18h6v6h-6z" fill="%234b334b"/></svg>');
+  border-image-slice: 8;
+  border-image-width: 8px;
+  border-image-outset: 0;
+  border-image-repeat: round;
+  border-style: solid; /* Required for border-image */
+  image-rendering: pixelated; /* Enforce pixelated look for border */
 }
 
 /* Mystical floating dust particles effect */
@@ -24,7 +31,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     radial-gradient(circle at 25% 25%, rgba(181, 157, 196, 0.05) 2px, transparent 2px),
     radial-gradient(circle at 75% 75%, rgba(181, 157, 196, 0.05) 2px, transparent 2px),
     radial-gradient(circle at 40% 60%, rgba(181, 157, 196, 0.05) 2px, transparent 2px),
@@ -59,21 +66,21 @@
   bottom: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(181, 157, 196, 0.3), 
-    rgba(181, 157, 196, 0.7), 
-    rgba(181, 157, 196, 0.3), 
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(181, 157, 196, 0.3),
+    rgba(181, 157, 196, 0.7),
+    rgba(181, 157, 196, 0.3),
     transparent);
 }
 
 .atelier-header h2 {
   margin: 0;
   color: var(--color-text-heading);
-  font-weight: 500;
+  font-weight: 500; /* Use font weight from variables */
   font-size: 26px;
   letter-spacing: 1px;
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use primary font */
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
@@ -85,18 +92,19 @@
   content: '✨';
   font-size: 22px;
   animation: sparkle 2s infinite alternate ease-in-out;
+  text-shadow: 0 0 5px var(--color-accent-secondary);
 }
 
 @keyframes sparkle {
-  0% { transform: scale(1) rotate(0deg); opacity: 0.7; }
-  50% { transform: scale(1.1) rotate(10deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  0% { transform: scale(1) rotate(0deg); opacity: 0.7; filter: brightness(1); }
+  50% { transform: scale(1.1) rotate(10deg); opacity: 1; filter: brightness(1.3); }
+  100% { transform: scale(1) rotate(0deg); opacity: 0.7; filter: brightness(1); }
 }
 
 .spec-badge {
   font-size: 14px;
   color: var(--color-accent-primary);
-  font-family: var(--font-secondary);
+  font-family: var(--font-secondary); /* Use secondary font */
   font-weight: 300;
   margin-left: 10px;
   border: 1px solid var(--color-border);
@@ -125,37 +133,26 @@
   overflow: hidden;
 }
 
+/* Add subtle texture to phase indicator */
 .phase-indicator::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, 
-    transparent, 
-    rgba(181, 157, 196, 0.1), 
-    transparent, 
-    rgba(181, 157, 196, 0.1), 
-    transparent);
-  animation: shine 3s infinite linear;
-}
-
-@keyframes shine {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
+  inset: 0;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z0AEZEAGADdjCA8GUKD8AAAAAElFTkSuQmCC');
+  opacity: 0.1;
+  pointer-events: none;
 }
 
 .phase-indicator span {
   font-size: 14px;
   color: var(--color-accent-primary);
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use primary font */
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .atelier-workspace {
   display: grid;
-  grid-template-columns: 1fr 1.3fr 1fr;
+  grid-template-columns: 1fr 1.3fr 1fr; /* Ingredients | Cauldron | Results */
   gap: 25px;
   flex: 1;
   overflow: hidden;
@@ -172,18 +169,21 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 3px solid;
-  border-color: #45394c #2a202f #2a202f #45394c;
+  /* Bevelled Border Effect */
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
   position: relative;
 }
 
-/* Provide an embossed frame effect */
-.ingredients-panel::before, .crafting-area::before, .results-panel::before {
+/* Add texture overlay to panels */
+.ingredients-panel::after, .crafting-area::after, .results-panel::after {
   content: '';
   position: absolute;
-  inset: 1px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  inset: 0;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z0AEZEAGADdjCA8GUKD8AAAAAElFTkSuQmCC');
+  opacity: 0.05;
   pointer-events: none;
+  border-radius: var(--border-radius-md); /* Match parent border radius */
 }
 
 .ingredients-panel h3, .crafting-area h3, .results-panel h3 {
@@ -194,24 +194,10 @@
   font-weight: 500;
   text-align: center;
   letter-spacing: 1px;
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use primary font */
   position: relative;
   text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
-}
-
-/* Decorative underline for headings */
-.ingredients-panel h3::after, .crafting-area h3::after, .results-panel h3::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(181, 157, 196, 0.5), 
-    transparent);
+  border-bottom: 1px solid var(--color-border); /* Simple line */
 }
 
 .ingredient-list, .results-list {
@@ -223,9 +209,10 @@
   grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
   gap: 12px;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-accent-primary) var(--color-bg-medium);
+  scrollbar-color: var(--color-border-light) var(--color-bg-medium); /* Custom scrollbar */
 }
 
+/* Webkit Scrollbar Styling */
 .ingredient-list::-webkit-scrollbar, .results-list::-webkit-scrollbar {
   width: 8px;
 }
@@ -233,11 +220,17 @@
 .ingredient-list::-webkit-scrollbar-track, .results-list::-webkit-scrollbar-track {
   background: var(--color-bg-medium);
   border-radius: 4px;
+  border: 1px solid var(--color-bg-dark);
 }
 
 .ingredient-list::-webkit-scrollbar-thumb, .results-list::-webkit-scrollbar-thumb {
-  background: var(--color-accent-primary);
+  background: var(--color-border-light);
   border-radius: 4px;
+  border: 1px solid var(--color-bg-dark);
+}
+
+.ingredient-list::-webkit-scrollbar-thumb:hover, .results-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-primary);
 }
 
 .ingredient-item {
@@ -248,33 +241,45 @@
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: all 0.25s ease;
-  border: 3px solid;
-  border-color: #45394c #2a202f #2a202f #45394c;
+  transition: all 0.2s ease;
+  /* 90s Button Style Border */
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
   aspect-ratio: 1 / 1.2;
   min-height: 90px;
   position: relative;
   transform-style: preserve-3d;
-  transform: perspective(500px) rotateX(0) rotateY(0);
+  transform: translateY(0);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 }
 
 .ingredient-item:hover {
-  transform: perspective(500px) rotateX(5deg) rotateY(5deg) translateY(-5px);
-  filter: brightness(1.2);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  background-color: var(--color-border); /* Slightly lighter on hover */
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.4);
+  border-color: var(--color-accent-primary) var(--color-bg-medium) var(--color-bg-medium) var(--color-accent-primary);
+}
+
+.ingredient-item:active {
+  transform: translateY(0px);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-color: var(--color-bg-dark) var(--color-border-light) var(--color-border-light) var(--color-bg-dark);
 }
 
 .ingredient-item.selected-dim {
   opacity: 0.5;
   cursor: default;
-  transform: perspective(500px) rotateX(0) rotateY(0) scale(0.95);
+  transform: scale(0.95);
   filter: grayscale(0.5);
+  box-shadow: none;
+  border-color: var(--color-border);
 }
 
 .ingredient-item.selected-dim:hover {
-  transform: perspective(500px) rotateX(0) rotateY(0) scale(0.95);
+  transform: scale(0.95);
   filter: grayscale(0.5);
   box-shadow: none;
+  background-color: var(--color-bg-light); /* Keep background consistent when dimmed */
 }
 
 .ingredient-item.disabled {
@@ -282,11 +287,8 @@
   cursor: not-allowed;
   pointer-events: none;
   filter: grayscale(0.7);
-}
-
-.ingredient-item.disabled:hover {
-  transform: none;
   box-shadow: none;
+  transform: none;
 }
 
 .item-image {
@@ -299,56 +301,24 @@
   justify-content: center;
   margin-bottom: 8px;
   overflow: hidden;
-  border: 2px solid var(--color-border-light);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border); /* Simple border */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
   position: relative;
+  image-rendering: pixelated; /* Ensure pixel art looks crisp */
 }
 
 .item-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Or contain if sprites have transparency */
 }
 
 .placeholder-image {
   font-size: 18px;
   color: var(--color-accent-primary);
   font-weight: bold;
+  font-family: 'Courier New', monospace; /* Use monospace for placeholder */
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Shine effect on item images */
-.item-image::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    transparent 30%,
-    rgba(255, 255, 255, 0.4) 47%,
-    rgba(255, 255, 255, 0.4) 53%,
-    transparent 70%,
-    transparent 100%
-  );
-  transform: rotate(45deg);
-  animation: shine-item 3s infinite;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ingredient-item:hover .item-image::after {
-  opacity: 1;
-}
-
-@keyframes shine-item {
-  0% { opacity: 0; transform: rotate(45deg) translateY(-120%); }
-  30% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; transform: rotate(45deg) translateY(120%); }
 }
 
 .item-name {
@@ -360,6 +330,7 @@
   max-width: 100%;
   color: var(--color-text-light);
   font-weight: 500;
+  font-family: 'Courier New', monospace; /* Use monospace font */
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
@@ -370,6 +341,7 @@
   padding: 1px 6px;
   border-radius: 8px;
   margin-top: 3px;
+  font-family: 'Courier New', monospace; /* Monospace for numbers */
 }
 
 .selected-count-badge {
@@ -389,14 +361,17 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   z-index: 5;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-family: 'Courier New', monospace;
 }
 
-/* Make the crafting cauldron the centerpiece */
+/* Crafting Cauldron Centerpiece */
 .crafting-area {
   align-items: center;
   justify-content: center;
   padding-bottom: 20px;
   background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="200" fill="%23352b3a"/><filter id="a"><feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="2" seed="42"/><feDisplacementMap in="SourceGraphic" scale="10"/></filter><rect width="200" height="200" filter="url(%23a)" opacity="0.2" fill="%235d468a"/></svg>');
+  position: relative; /* Needed for absolute positioning of cauldron effects */
 }
 
 .cauldron {
@@ -414,36 +389,19 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  /* 90s style chunky shadow */
   box-shadow:
-    inset 0 0 25px rgba(93, 70, 138, 0.4),
-    0 8px 15px rgba(0, 0, 0, 0.6),
-    0 0 0 3px #483758,
-    0 0 0 6px #2a1f35;
-  border: 2px solid #5d3d73;
+    8px 8px 0px rgba(0, 0, 0, 0.3), /* Main shadow */
+    inset 0 0 25px rgba(93, 70, 138, 0.4); /* Inner glow */
+  /* 90s style border */
+  border: 4px solid;
+  border-color: #483758 #2a1f35 #2a1f35 #483758;
   overflow: hidden;
   transform-style: preserve-3d;
   transform: perspective(500px) rotateX(10deg);
 }
 
-/* Create the rim of the cauldron */
-.cauldron::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 8px solid transparent;
-  border-top: 8px solid rgba(161, 137, 176, 0.4);
-  border-left: 8px solid rgba(161, 137, 176, 0.2);
-  border-right: 8px solid rgba(161, 137, 176, 0.2);
-  filter: blur(1px);
-  box-sizing: border-box;
-  pointer-events: none;
-}
-
-/* Create the liquid effect */
+/* Add liquid and bubbles */
 .cauldron::after {
   content: '';
   position: absolute;
@@ -451,8 +409,8 @@
   left: 0;
   width: 100%;
   height: 40%;
-  background: linear-gradient(to bottom, 
-    rgba(148, 124, 190, 0.3), 
+  background: linear-gradient(to bottom,
+    rgba(148, 124, 190, 0.3),
     rgba(156, 132, 190, 0.6) 70%,
     rgba(165, 140, 198, 0.7));
   border-radius: 0 0 100% 100% / 0 0 50% 50%;
@@ -461,31 +419,26 @@
   animation: bubbling 8s infinite alternate ease-in-out;
 }
 
-@keyframes bubbling {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  25% { transform: scale(1.02) translateX(1%); opacity: 0.85; }
-  50% { transform: scale(0.98) translateX(-1%); opacity: 0.75; }
-  75% { transform: scale(1.01) translateX(0.5%); opacity: 0.8; }
-}
-
-/* Add bubbles */
-.cauldron::after {
-  content: '';
+/* Bubbles inside the cauldron */
+.bubble {
   position: absolute;
-  bottom: 5%;
-  left: 20%;
-  width: 7px;
-  height: 7px;
   border-radius: 50%;
-  background-color: rgba(181, 157, 196, 0.6);
-  filter: blur(1px);
-  animation: bubble1 4s infinite;
+  background: radial-gradient(circle, rgba(200, 180, 220, 0.7) 0%, rgba(181, 157, 196, 0.4) 70%);
+  opacity: 0;
+  bottom: 10%;
+  animation: rise-bubble 4s infinite ease-out;
+  pointer-events: none;
+  box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
-@keyframes bubble1 {
-  0% { transform: translateY(0) scale(1); opacity: 0.3; }
-  50% { transform: translateY(-40px) translateX(10px) scale(1.5); opacity: 0.5; }
-  100% { transform: translateY(-80px) translateX(5px) scale(0.5); opacity: 0; }
+.bubble-1 { width: 8px; height: 8px; left: 30%; animation-delay: 0s; }
+.bubble-2 { width: 12px; height: 12px; left: 50%; animation-delay: 1s; }
+.bubble-3 { width: 10px; height: 10px; left: 70%; animation-delay: 0.5s; }
+
+@keyframes rise-bubble {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  20% { opacity: 0.7; }
+  100% { transform: translateY(-80px) scale(1.2); opacity: 0; }
 }
 
 .empty-cauldron {
@@ -496,11 +449,10 @@
   font-size: 14px;
   z-index: 1;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  animation: float 4s infinite ease-in-out;
-  transform-style: preserve-3d;
+  animation: floatText 4s infinite ease-in-out;
 }
 
-@keyframes float {
+@keyframes floatText {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
@@ -515,7 +467,8 @@
   overflow-y: auto;
   align-content: center;
   justify-content: center;
-  z-index: 1;
+  z-index: 1; /* Ensure they are above the liquid */
+  position: relative; /* Needed for z-index */
 }
 
 .selected-item {
@@ -525,12 +478,13 @@
   padding: 6px 10px;
   font-size: 13px;
   font-weight: 500;
+  font-family: 'Courier New', monospace; /* Monospace for selected items */
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
@@ -540,26 +494,12 @@
 .selected-item:hover {
   background: linear-gradient(135deg, #9980b2, #b397c9);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-.selected-item::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 30%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.4);
 }
 
 .remove-item {
   font-size: 14px;
-  color: #8b5f65;
+  color: var(--color-danger); /* Use danger color */
   margin-left: 3px;
   font-weight: bold;
   line-height: 1;
@@ -569,73 +509,66 @@
 }
 
 .remove-item:hover {
-  color: var(--color-danger);
+  color: #ff8080; /* Brighter red on hover */
   transform: scale(1.2);
 }
 
+/* Clear button styling */
 .clear-button {
   margin-top: 15px;
-  background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
+  padding: 8px 15px;
+  background-color: var(--color-bg-light);
   color: var(--color-text-medium);
   border: 2px solid;
-  border-color: #45394c #2a202f #2a202f #45394c;
-  padding: 8px 15px;
+  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
   font-size: 13px;
   font-weight: bold;
+  font-family: 'Courier New', monospace;
   border-radius: var(--border-radius-sm);
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
   overflow: hidden;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 }
 
 .clear-button:hover {
-  background: linear-gradient(to bottom, var(--color-bg-medium), var(--color-border));
+  background-color: var(--color-border);
   color: var(--color-text-light);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .clear-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  border-color: #2a202f #45394c #45394c #2a202f;
+  transform: translateY(0px);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-color: var(--color-bg-dark) var(--color-border-light) var(--color-border-light) var(--color-bg-dark);
 }
 
-.clear-button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 40%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-}
-
+/* Results Panel Tabs */
 .tabs {
   display: flex;
   gap: 5px;
   margin-bottom: 15px;
   flex-shrink: 0;
+  background-color: var(--color-bg-dark); /* Darker background for tabs */
+  padding: 4px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-border);
 }
 
 .tabs button {
   flex: 1;
-  background: linear-gradient(to bottom, var(--color-bg-light), var(--color-bg-medium));
+  background-color: var(--color-bg-light);
   border: 2px solid;
-  border-color: #45394c #2a202f #2a202f #45394c;
+  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
   border-radius: var(--border-radius-sm);
   padding: 8px 10px;
   color: var(--color-text-medium);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use primary font for tabs */
   font-size: 13px;
   font-weight: 500;
   position: relative;
@@ -644,10 +577,9 @@
 }
 
 .tabs button:hover {
-  background: linear-gradient(to bottom, var(--color-bg-medium), var(--color-border));
+  background-color: var(--color-border);
   color: var(--color-text-light);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
 }
 
 .tabs button.active {
@@ -656,28 +588,16 @@
   color: var(--color-bg-dark);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
   transform: translateY(0);
-}
-
-.tabs button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 40%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  font-weight: bold;
 }
 
 .tabs button:active {
   transform: translateY(1px);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-  border-color: #2a202f #45394c #45394c #2a202f;
+  border-color: var(--color-bg-dark) var(--color-border-light) var(--color-border-light) var(--color-bg-dark);
 }
 
+/* Results list styling */
 .result-item {
   background-color: var(--color-bg-light);
   border-radius: var(--border-radius-sm);
@@ -687,32 +607,18 @@
   gap: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 3px solid;
-  border-color: #45394c #2a202f #2a202f #45394c;
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 }
 
 .result-item:hover {
   background-color: var(--color-border);
-  transform: translateX(5px);
+  transform: translateX(3px);
   border-color: var(--color-accent-primary);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.result-item::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 30%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .result-image {
@@ -725,43 +631,16 @@
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  border: 2px solid var(--color-border-light);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border); /* Simple border */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
   position: relative;
+  image-rendering: pixelated;
 }
 
 .result-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* Magic sparkles around result icons */
-.result-image::before {
-  content: '✨';
-  position: absolute;
-  top: -10px;
-  left: -5px;
-  font-size: 12px;
-  opacity: 0;
-  transform: rotate(-20deg);
-  transition: all 0.3s ease;
-}
-
-.result-image::after {
-  content: '✨';
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  font-size: 12px;
-  opacity: 0;
-  transform: rotate(20deg);
-  transition: all 0.3s ease;
-}
-
-.result-item:hover .result-image::before,
-.result-item:hover .result-image::after {
-  opacity: 1;
 }
 
 .result-details {
@@ -776,7 +655,7 @@
   font-size: 15px;
   color: var(--color-accent-primary);
   font-weight: 500;
-  font-family: var(--font-primary);
+  font-family: var(--font-primary); /* Use primary font */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -789,6 +668,7 @@
   line-height: 1.3;
   height: 2.6em;
   overflow: hidden;
+  font-family: 'Courier New', monospace; /* Monospace for descriptions */
 }
 
 .result-rarity {
@@ -801,27 +681,13 @@
   border-radius: 3px;
   display: inline-block;
   align-self: flex-end;
+  font-family: 'Courier New', monospace; /* Monospace for rarity */
 }
 
-.result-rarity.common {
-  color: #a1a1a1;
-  background-color: rgba(161, 161, 161, 0.1);
-}
-
-.result-rarity.uncommon {
-  color: #7eba76;
-  background-color: rgba(126, 186, 118, 0.1);
-}
-
-.result-rarity.rare {
-  color: #6fa6cc;
-  background-color: rgba(111, 166, 204, 0.1);
-}
-
-.result-rarity.legendary {
-  color: #d6a44c;
-  background-color: rgba(214, 164, 76, 0.1);
-}
+.result-rarity.common { color: #a1a1a1; background-color: rgba(161, 161, 161, 0.1); }
+.result-rarity.uncommon { color: #7eba76; background-color: rgba(126, 186, 118, 0.1); }
+.result-rarity.rare { color: #6fa6cc; background-color: rgba(111, 166, 204, 0.1); }
+.result-rarity.legendary { color: #d6a44c; background-color: rgba(214, 164, 76, 0.1); }
 
 .no-results {
   padding: 20px;
@@ -829,14 +695,11 @@
   color: var(--color-text-medium);
   font-style: italic;
   font-size: 14px;
-  animation: float 4s infinite ease-in-out;
+  font-family: 'Courier New', monospace; /* Monospace for status messages */
+  animation: floatText 4s infinite ease-in-out;
 }
 
 /* 90s-style easter egg - click the corner 3 times quickly to reveal secret */
-.atelier-container {
-  counter-reset: corner-clicks;
-}
-
 .atelier-container::after {
   content: '';
   position: absolute;
@@ -844,8 +707,11 @@
   right: 0;
   width: 20px;
   height: 20px;
-  cursor: pointer;
+  cursor: pointer; /* Add cursor for interaction */
   z-index: 10;
+  /* Uncomment below to make it visible for debugging
+  background-color: rgba(255, 0, 0, 0.2);
+  */
 }
 
 /* Hidden 90s cheat code popup */
@@ -855,8 +721,8 @@
   bottom: 20px;
   transform: translateX(-50%) translateY(100px);
   background-color: rgba(0, 0, 0, 0.8);
-  color: #8bc483;
-  font-family: monospace;
+  color: #8bc483; /* Green Matrix-like color */
+  font-family: 'Courier New', monospace; /* Classic cheat code font */
   padding: 10px 20px;
   border-radius: 4px;
   font-size: 12px;
@@ -867,11 +733,18 @@
   text-align: center;
   border: 1px solid #8bc483;
   box-shadow: 0 0 10px rgba(139, 196, 131, 0.5);
+  text-transform: uppercase;
 }
 
 .secret-cheat.show {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
+  animation: flicker 1.5s infinite alternate; /* Add flicker effect */
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
 }
 
 /* Media queries for responsiveness */
@@ -880,16 +753,16 @@
     grid-template-columns: 1fr 1.5fr;
     grid-template-rows: 1fr 1fr;
   }
-  
+
   .ingredients-panel {
     grid-row: span 2;
   }
-  
+
   .crafting-area {
     grid-column: 2;
     grid-row: 1;
   }
-  
+
   .results-panel {
     grid-column: 2;
     grid-row: 2;
@@ -902,25 +775,36 @@
     grid-template-rows: auto auto auto;
     gap: 15px;
   }
-  
+
   .ingredients-panel, .crafting-area, .results-panel {
     grid-column: 1;
   }
-  
+
   .ingredients-panel {
     grid-row: 1;
     max-height: 30vh;
   }
-  
+
   .crafting-area {
     grid-row: 2;
+    min-height: 200px; /* Ensure cauldron area has space */
   }
-  
+
   .results-panel {
     grid-row: 3;
   }
-  
+
   .ingredient-list {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+
+  .atelier-header h2 {
+      font-size: 22px;
+  }
+  .phase-indicator {
+      padding: 6px 10px;
+  }
+  .phase-indicator span {
+      font-size: 12px;
   }
 }

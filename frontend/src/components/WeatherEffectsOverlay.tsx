@@ -19,425 +19,279 @@ const WeatherEffectsOverlay: React.FC<WeatherEffectsOverlayProps> = ({
   season = 'Spring'
 }) => {
   const [thunderFlash, setThunderFlash] = useState(false);
-  const [magicalEvent, setMagicalEvent] = useState(false);
-  // Remove unused state
-  // const [spriteVariants, setSpriteVariants] = useState<string[]>([]);
+  const [isMagicalEvent, setIsMagicalEvent] = useState(false); // Renamed state
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Determine if this is a special night (full moon, new moon)
-  const isSpecialNight = timeOfDay === 'night' && (
-    weatherType === 'normal' || weatherType === 'clear' || weatherType === 'foggy'
-  );
+
+  // Determine if this is a special night (full moon, new moon for stars/magic)
+  // Note: Moon phase isn't passed here, so we rely on weather/time for night effects
+  const isSpecialNight = timeOfDay === 'night' && (weatherType === 'clear' || weatherType === 'normal' || weatherType === 'foggy');
 
   // Calculate particle counts based on weather and intensity
   const particleCounts = useMemo(() => {
-    // Base counts for different particle types
-    const counts = {
-      rain: { light: 50, medium: 100, heavy: 200 }[intensity] || 100,
-      wind: { light: 30, medium: 60, heavy: 100 }[intensity] || 60,
-      stars: 120,
-      fireflies: 25,
-      dust: 40,
-      snowflakes: { light: 50, medium: 100, heavy: 150 }[intensity] || 100,
-      spirits: Math.random() < 0.3 ? Math.floor(Math.random() * 3) + 1 : 0, // Rare spirits
+    const baseCounts = {
+      rain: { light: 40, medium: 80, heavy: 150 },
+      wind: { light: 20, medium: 40, heavy: 70 },
+      stars: 100,
+      fireflies: 20,
+      dust: 30,
+      snowflakes: { light: 40, medium: 80, heavy: 130 },
+      spirits: 3, // Base count for magical event spirits
+      magic_glows: 15, // Base count for magical event glows
     };
-    
-    // Adjust based on season
-    if (season === 'Spring') {
-      counts.wind += 20;
-      counts.fireflies += 10;
-    } else if (season === 'Summer') {
-      counts.fireflies += 30;
-      counts.dust += 20;
-    } else if (season === 'Fall') {
-      counts.wind += 40;
-      counts.dust += 10;
-    } else if (season === 'Winter') {
-      counts.wind += 10;
-      counts.snowflakes += 50;
-    }
-    
+
+    let counts = {
+      rain: baseCounts.rain[intensity] || baseCounts.rain.medium,
+      wind: baseCounts.wind[intensity] || baseCounts.wind.medium,
+      stars: baseCounts.stars,
+      fireflies: baseCounts.fireflies,
+      dust: baseCounts.dust,
+      snowflakes: baseCounts.snowflakes[intensity] || baseCounts.snowflakes.medium,
+      spirits: baseCounts.spirits,
+      magic_glows: baseCounts.magic_glows,
+    };
+
+    // Seasonal Adjustments
+    if (season === 'Spring') { counts.rain = Math.round(counts.rain * 1.1); counts.wind += 10; }
+    if (season === 'Summer') { counts.fireflies += 20; counts.dust += 15; counts.rain = Math.round(counts.rain * 0.8); }
+    if (season === 'Fall') { counts.wind += 25; counts.dust += 5; }
+    if (season === 'Winter') { counts.snowflakes = Math.round(counts.snowflakes * 1.2); counts.wind = Math.round(counts.wind * 0.7); }
+
     return counts;
   }, [intensity, season]);
-  
-  // We'll use seasonal variants directly in the component rather than storing in state
-  // Generate sprite variants for whimsical effects
-  useEffect(() => {
-    
-    // Instead of storing in state, we could use these variants directly in component logic
-    // const variants = seasonalVariants[season] || ['sprite', 'twinkle', 'wisp'];
-    // setSpriteVariants(variants);
-  }, [season]);
 
   // Trigger thunder flashes for stormy weather
   useEffect(() => {
     let thunderInterval: NodeJS.Timeout | null = null;
-    
     if (weatherType === 'stormy') {
-      thunderInterval = setInterval(() => {
-        if (Math.random() < 0.25) {
-          setThunderFlash(true);
-          setTimeout(() => setThunderFlash(false), 800);
-        }
-      }, 8000 + Math.random() * 12000); // Random interval between 8-20 seconds
+      const flash = () => {
+         setThunderFlash(true);
+         // Reset flash after animation duration (1s in CSS)
+         setTimeout(() => setThunderFlash(false), 1000);
+         // Schedule next potential flash
+         thunderInterval = setTimeout(flash, 6000 + Math.random() * 10000); // 6-16 seconds
+      };
+      // Initial delay before first flash
+      thunderInterval = setTimeout(flash, 2000 + Math.random() * 5000);
     }
-    
-    return () => {
-      if (thunderInterval) clearInterval(thunderInterval);
-      setThunderFlash(false);
-    };
+    return () => { if (thunderInterval) clearTimeout(thunderInterval); setThunderFlash(false); };
   }, [weatherType]);
-  
-  // Trigger rare magical events
+
+  // Trigger rare magical events (Easter Egg)
   useEffect(() => {
-    // Only in special weather conditions and rarely
-    const magicalCondition = 
-      (weatherType === 'foggy' && timeOfDay === 'night') || 
-      (weatherType === 'clear' && timeOfDay === 'night') ||
-      (weatherType === 'windy' && season === 'Fall');
-    
-    if (magicalCondition && Math.random() < 0.15) {
-      const timeout = setTimeout(() => {
-        setMagicalEvent(true);
-        setTimeout(() => setMagicalEvent(false), 15000); // Magical event lasts 15 seconds
-      }, 5000 + Math.random() * 30000); // Random start between 5-35 seconds
-      
-      return () => clearTimeout(timeout);
-    }
-    
-    return () => setMagicalEvent(false);
-  }, [weatherType, timeOfDay, season]);
+     let eventTimeout: NodeJS.Timeout | null = null;
+     let eventEndTimeout: NodeJS.Timeout | null = null;
 
-  // Generate rain particles
-  const renderRainParticles = () => {
-    const particles = [];
-    const isWhimsical = Math.random() < 0.2; // 20% chance for whimsical rain
-    
-    for (let i = 0; i < particleCounts.rain; i++) {
-      const left = `${Math.random() * 105 - 5}%`;
-      const fallDuration = `${0.5 + Math.random() * 0.8}s`;
-      const delay = `${Math.random() * 1.5}s`;
-      const opacity = 0.7 + Math.random() * 0.3;
-      
-      particles.push(
-        <div
-          key={`rain-${i}`}
-          className={`rain-drop ${isWhimsical ? 'whimsical' : ''}`}
-          style={{
-            left,
-            '--fall-duration': fallDuration,
-            animationDelay: delay,
-            opacity
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    return (
-      <div className="rain-container">
-        {particles}
-      </div>
-    );
-  };
+     // Conditions for a magical event (e.g., foggy night, clear night, maybe specific season/weather combos)
+     const canBeMagical = (weatherType === 'foggy' && timeOfDay === 'night') ||
+                          (weatherType === 'clear' && timeOfDay === 'night') ||
+                          (weatherType === 'windy' && season === 'Fall' && Math.random() < 0.3); // Less likely for windy fall
 
-  // Generate wind particles
-  const renderWindParticles = () => {
-    const particles = [];
-    const leaves = [];
-    const useLeaves = (season === 'Fall' || season === 'Spring');
-    const leafCount = season === 'Fall' ? 40 : 20;
-    
-    for (let i = 0; i < particleCounts.wind; i++) {
-      const top = `${Math.random() * 100}%`;
-      const duration = `${1 + Math.random() * 3}s`;
-      const delay = `${Math.random() * 5}s`;
-      
-      particles.push(
-        <div
-          key={`wind-${i}`}
-          className="wind-particle"
-          style={{
-            top,
-            '--wind-duration': duration,
-            animationDelay: delay,
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    if (useLeaves) {
-      for (let i = 0; i < leafCount; i++) {
-        const top = `${Math.random() * 100}%`;
-        const duration = `${5 + Math.random() * 8}s`;
-        const delay = `${Math.random() * 10}s`;
-        const scale = 0.6 + Math.random() * 0.8;
-        
-        leaves.push(
-          <div
-            key={`leaf-${i}`}
-            className="wind-leaf"
-            style={{
-              top,
-              '--leaf-duration': duration,
-              animationDelay: delay,
-              transform: `scale(${scale})`,
-            } as React.CSSProperties}
-          />
+     if (canBeMagical && Math.random() < 0.10) { // 10% chance if conditions met
+       const startDelay = 5000 + Math.random() * 25000; // Start after 5-30 seconds
+       eventTimeout = setTimeout(() => {
+         console.log("✨ Magical Event Triggered! ✨");
+         setIsMagicalEvent(true);
+         // Event lasts for 15 seconds
+         eventEndTimeout = setTimeout(() => setIsMagicalEvent(false), 15000);
+       }, startDelay);
+     }
+
+     // Cleanup timeouts on unmount or condition change
+     return () => {
+       if (eventTimeout) clearTimeout(eventTimeout);
+       if (eventEndTimeout) clearTimeout(eventEndTimeout);
+       setIsMagicalEvent(false); // Ensure it's off on cleanup
+     };
+   }, [weatherType, timeOfDay, season]); // Re-evaluate if these change
+
+
+  // --- Render Functions for Particles ---
+
+  const renderRainParticles = () => (
+    <div className="rain-container">
+      {Array.from({ length: particleCounts.rain }).map((_, i) => {
+        const isWhimsical = Math.random() < 0.05; // 5% whimsical rain
+        return (
+            <div key={`rain-${i}`}
+                 className={`rain-drop ${isWhimsical ? 'whimsical' : ''}`}
+                 style={{
+                    left: `${Math.random() * 105 - 5}%`, // Allow slight off-screen start
+                    '--fall-duration': `${0.5 + Math.random() * 0.7}s`,
+                    animationDelay: `${Math.random() * 1.2}s`,
+                 } as React.CSSProperties} />
         );
-      }
-    }
-    
-    return (
-      <div className="wind-container">
-        {particles}
-        {leaves}
+      })}
+    </div>
+  );
+
+  const renderWindParticles = () => (
+    <div className="wind-container">
+      {/* Wind Streaks */}
+      {Array.from({ length: particleCounts.wind }).map((_, i) => (
+        <div key={`wind-${i}`} className="wind-particle"
+             style={{
+                top: `${Math.random() * 100}%`,
+                '--wind-duration': `${1 + Math.random() * 2.5}s`,
+                animationDelay: `${Math.random() * 4}s`,
+             } as React.CSSProperties} />
+      ))}
+      {/* Leaves (conditional) */}
+      {(season === 'Fall' || season === 'Spring') && Array.from({ length: season === 'Fall' ? 30 : 15 }).map((_, i) => (
+        <div key={`leaf-${i}`} className="wind-leaf"
+             style={{
+                top: `${Math.random() * 100}%`,
+                '--leaf-duration': `${6 + Math.random() * 6}s`,
+                animationDelay: `${Math.random() * 8}s`,
+                transform: `scale(${0.7 + Math.random() * 0.6})`,
+             } as React.CSSProperties} />
+      ))}
+    </div>
+  );
+
+  const renderStarParticles = () => (
+    <div className="clear-night-overlay">
+      {Array.from({ length: particleCounts.stars }).map((_, i) => {
+          const isBig = Math.random() < 0.1;
+          const isSparkle = Math.random() < 0.08;
+          return (
+              <div key={`star-${i}`} className={`star ${isBig ? 'big' : ''} ${isSparkle ? 'sparkle' : ''}`}
+                   style={{
+                      top: `${Math.random() * 65}%`, // Concentrate higher up
+                      left: `${Math.random() * 100}%`,
+                      '--twinkle-duration': `${4 + Math.random() * 5}s`,
+                      '--twinkle-delay': `${Math.random() * 8}s`,
+                   } as React.CSSProperties} />
+          );
+      })}
+      {/* Optional Moon Glow for clear nights */}
+      {isSpecialNight && <div className="moon-glow" />}
+    </div>
+  );
+
+   const renderDustParticles = () => (
+     <div className="dry-overlay">
+       {Array.from({ length: particleCounts.dust }).map((_, i) => (
+         <div key={`dust-${i}`} className="dust-particle"
+              style={{
+                 top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
+                 '--dust-duration': `${10 + Math.random() * 10}s`,
+                 '--wind-x': `${-40 + Math.random() * 80}px`,
+                 '--wind-y': `${-40 + Math.random() * 80}px`,
+                 animationDelay: `${Math.random() * 8}s`,
+              } as React.CSSProperties} />
+       ))}
+     </div>
+   );
+
+   const renderFogEffect = () => (
+     <div className="fog-container">
+       <div className="fog-layer"></div>
+       <div className="fog-layer"></div>
+       <div className="fog-layer"></div>
+     </div>
+   );
+
+   const renderCloudOverlay = () => <div className="cloud-overlay" />;
+
+   const renderSnowflakes = () => (
+     <div className="snow-container">
+       {Array.from({ length: particleCounts.snowflakes }).map((_, i) => (
+         <div key={`snow-${i}`} className="snowflake"
+              style={{
+                 left: `${Math.random() * 100}%`,
+                 width: `${3 + Math.random() * 4}px`, height: `${3 + Math.random() * 4}px`, // Size variation
+                 '--snowfall-duration': `${8 + Math.random() * 8}s`,
+                 '--drift-x': `${-25 + Math.random() * 50}px`,
+                 animationDelay: `${Math.random() * 10}s`,
+                 opacity: 0.6 + Math.random() * 0.4, // Opacity variation
+              } as React.CSSProperties} />
+       ))}
+     </div>
+   );
+
+   const renderFireflies = () => (
+     timeOfDay === 'night' && (season === 'Summer' || season === 'Spring') && // Common in warmer months
+     <div className="firefly-container">
+       {Array.from({ length: particleCounts.fireflies }).map((_, i) => (
+         <div key={`firefly-${i}`} className="firefly"
+              style={{
+                 left: `${Math.random() * 100}%`, top: `${40 + Math.random() * 60}%`, // Tend to be lower
+                 '--float-duration': `${15 + Math.random() * 15}s`,
+                 '--glow-duration': `${1.5 + Math.random() * 2}s`,
+                 '--x1': `${-80 + Math.random() * 160}px`, '--y1': `${-80 + Math.random() * 160}px`,
+                 '--x2': `${-80 + Math.random() * 160}px`, '--y2': `${-80 + Math.random() * 160}px`,
+                 animationDelay: `${Math.random() * 10}s, ${Math.random() * 2.5}s`,
+              } as React.CSSProperties} />
+       ))}
+     </div>
+   );
+
+  // Render Magical Event Easter Egg effects
+  const renderMagicalEvent = () => (
+    isMagicalEvent && (
+      <div className={`magical-event-overlay ${season.toLowerCase()}-magic`}>
+        <div className="magical-mist"></div>
+        {/* Glowing Particles */}
+        {Array.from({ length: particleCounts.magic_glows }).map((_, i) => (
+          <div key={`mglow-${i}`} className="magical-glow"
+               style={{
+                 top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
+                 animationDelay: `${Math.random() * 8}s`,
+                 transform: `scale(${0.5 + Math.random() * 0.5})`
+               }} />
+        ))}
+        {/* Spirit Entities */}
+        {Array.from({ length: particleCounts.spirits }).map((_, i) => {
+           const duration = 25 + Math.random() * 20;
+           const delay = Math.random() * 10;
+           const opacity = 0.3 + Math.random() * 0.3;
+           return (
+             <div key={`spirit-${i}`} className="spirit-entity"
+                  style={{
+                     left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
+                     '--spirit-duration': `${duration}s`,
+                     '--end-x': `${-100 + Math.random() * 200}px`,
+                     '--end-y': `${-100 + Math.random() * 200}px`,
+                     '--spirit-opacity': opacity, // Pass opacity as CSS var
+                     animationDelay: `${delay}s`,
+                     transform: `scale(${0.6 + Math.random() * 0.6})`,
+                  } as React.CSSProperties} />
+           );
+        })}
       </div>
-    );
-  };
-
-  // Generate star particles for night sky
-  const renderStarParticles = () => {
-    const stars = [];
-    const hasMoon = Math.random() < 0.7; // 70% chance of visible moon
-    
-    for (let i = 0; i < particleCounts.stars; i++) {
-      const top = `${Math.random() * 70}%`; // Keep stars in upper portion
-      const left = `${Math.random() * 100}%`;
-      const twinkleDuration = `${3 + Math.random() * 6}s`;
-      const twinkleDelay = `${Math.random() * 10}s`;
-      const isBig = Math.random() < 0.15; // 15% chance of bigger stars
-      const isSparkle = Math.random() < 0.1; // 10% chance of sparkle effect
-      
-      stars.push(
-        <div
-          key={`star-${i}`}
-          className={`star ${isBig ? 'big' : ''} ${isSparkle ? 'sparkle' : ''}`}
-          style={{
-            top,
-            left,
-            '--twinkle-duration': twinkleDuration,
-            '--twinkle-delay': twinkleDelay,
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    return (
-      <div className="clear-night-overlay">
-        {stars}
-        {hasMoon && <div className="moon-glow" />}
-      </div>
-    );
-  };
-
-  // Generate dust particles
-  const renderDustParticles = () => {
-    const particles = [];
-    
-    for (let i = 0; i < particleCounts.dust; i++) {
-      const top = `${Math.random() * 100}%`;
-      const left = `${Math.random() * 100}%`;
-      const duration = `${8 + Math.random() * 7}s`;
-      const delay = `${Math.random() * 5}s`;
-      const windX = (-50 + Math.random() * 100) + 'px';
-      const windY = (-50 + Math.random() * 100) + 'px';
-      
-      particles.push(
-        <div
-          key={`dust-${i}`}
-          className="dust-particle"
-          style={{
-            top,
-            left,
-            '--dust-duration': duration,
-            '--wind-x': windX,
-            '--wind-y': windY,
-            animationDelay: delay,
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    return (
-      <div className="dry-overlay">
-        {particles}
-      </div>
-    );
-  };
-
-  // Generate fog effect with layered mist
-  const renderFogEffect = () => {
-    return (
-      <div className="fog-container">
-        <div className="fog-layer"></div>
-        <div className="fog-layer"></div>
-        <div className="fog-layer"></div>
-      </div>
-    );
-  };
-
-  // Generate cloud overlay
-  const renderCloudOverlay = () => {
-    return <div className="cloud-overlay" />;
-  };
-
-  // Generate snowflakes for winter
-  const renderSnowflakes = () => {
-    const flakes = [];
-    
-    for (let i = 0; i < particleCounts.snowflakes; i++) {
-      const left = `${Math.random() * 100}%`;
-      const size = 3 + Math.random() * 6;
-      const duration = `${7 + Math.random() * 10}s`;
-      const delay = `${Math.random() * 10}s`;
-      const driftX = (-30 + Math.random() * 60) + 'px';
-      
-      flakes.push(
-        <div
-          key={`snow-${i}`}
-          className="snowflake"
-          style={{
-            left,
-            width: `${size}px`,
-            height: `${size}px`,
-            '--snowfall-duration': duration,
-            '--drift-x': driftX,
-            animationDelay: delay,
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    return (
-      <div className="snow-container">
-        {flakes}
-      </div>
-    );
-  };
-
-  // Generate fireflies for summer nights
-  const renderFireflies = () => {
-    if (timeOfDay !== 'night') return null;
-    
-    const fireflies = [];
-    
-    for (let i = 0; i < particleCounts.fireflies; i++) {
-      const startX = `${Math.random() * 100}%`;
-      const startY = `${Math.random() * 100}%`;
-      const floatDuration = `${15 + Math.random() * 20}s`;
-      const glowDuration = `${1 + Math.random() * 3}s`;
-      const delay = `${Math.random() * 10}s`;
-      const glowDelay = `${Math.random() * 3}s`;
-      
-      // Random movement pattern
-      const x1 = (-100 + Math.random() * 200) + 'px';
-      const y1 = (-100 + Math.random() * 200) + 'px';
-      const x2 = (-100 + Math.random() * 200) + 'px';
-      const y2 = (-100 + Math.random() * 200) + 'px';
-      
-      fireflies.push(
-        <div
-          key={`firefly-${i}`}
-          className="firefly"
-          style={{
-            '--start-x': startX,
-            '--start-y': startY,
-            '--x1': x1,
-            '--y1': y1,
-            '--x2': x2,
-            '--y2': y2,
-            '--float-duration': floatDuration,
-            '--glow-duration': glowDuration,
-            animationDelay: `${delay}, ${glowDelay}`,
-            left: startX,
-            top: startY,
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    return fireflies;
-  };
-
-  // Generate magical spirits
-  const renderMagicalSpirits = () => {
-    if (!magicalEvent && particleCounts.spirits === 0) return null;
-    
-    const spirits = [];
-    const count = magicalEvent ? 5 : particleCounts.spirits;
-    
-    for (let i = 0; i < count; i++) {
-      const startX = `${Math.random() * 100}%`;
-      const startY = `${Math.random() * 100}%`;
-      const endX = (-200 + Math.random() * 400) + 'px';
-      const endY = (-200 + Math.random() * 400) + 'px';
-      const duration = `${30 + Math.random() * 30}s`;
-      const delay = `${Math.random() * 15}s`;
-      const scale = 0.5 + Math.random() * 1.5;
-      const opacity = 0.3 + Math.random() * 0.4;
-      
-      spirits.push(
-        <div
-          key={`spirit-${i}`}
-          className="spirit-entity"
-          style={{
-            '--start-x': startX,
-            '--start-y': startY,
-            '--end-x': endX,
-            '--end-y': endY,
-            '--spirit-duration': duration,
-            animationDelay: delay,
-            left: startX,
-            top: startY,
-            transform: `scale(${scale})`,
-            opacity,
-          } as React.CSSProperties}
-        />
-      );
-    }
-    
-    return spirits;
-  };
-
-  // Generate seasonal magical effects
-  const renderSeasonalMagic = () => {
-    // Only render during magical events or special nighttime conditions
-    if (!magicalEvent && !isSpecialNight) return null;
-    
-    return (
-      <>
-        <div className="magical-mist" />
-        <div className="magical-glow" />
-      </>
-    );
-  };
+    )
+  );
 
   // Determine the main CSS class for the overlay
-  const overlayClass = `weather-overlay ${weatherType} ${intensity} ${timeOfDay} ${season.toLowerCase()}`;
+  const overlayClass = `weather-overlay ${weatherType} ${intensity} ${timeOfDay} ${season.toLowerCase()} ${isMagicalEvent ? 'magical' : ''}`;
+
+  // Function to check if snowy conditions are present
+  const shouldShowSnow = () => {
+    return season === 'Winter' && (weatherType === 'normal' || weatherType === 'cloudy');
+  };
 
   return (
     <div className={overlayClass} ref={containerRef}>
-      {/* Base time of day tint */}
+      {/* Base Overlays */}
       <div className={`time-overlay ${timeOfDay}`} />
-
-      {/* Base seasonal tint */}
       <div className={`seasonal-overlay ${season.toLowerCase()}-overlay`} />
 
-      {/* Weather-specific particle containers / effects */}
+      {/* Weather Effects */}
       {(weatherType === 'rainy' || weatherType === 'stormy') && renderRainParticles()}
-      {(weatherType === 'windy' || weatherType === 'stormy') && renderWindParticles()}
-      {(weatherType === 'normal' || weatherType === 'clear') && timeOfDay === 'night' && renderStarParticles()}
+      {(weatherType === 'windy' || weatherType === 'stormy' || season === 'Fall') && renderWindParticles()}
+      {(weatherType === 'clear' || weatherType === 'normal') && timeOfDay === 'night' && renderStarParticles()}
       {weatherType === 'foggy' && renderFogEffect()}
       {(weatherType === 'cloudy' || weatherType === 'stormy') && renderCloudOverlay()}
       {weatherType === 'dry' && renderDustParticles()}
-      {season === 'Winter' && (weatherType === 'normal' || weatherType === 'cloudy') && renderSnowflakes()}
-      
-      {/* Special effects */}
+      {shouldShowSnow() && renderSnowflakes()} {/* Fixed snowy condition check */}
+
+      {/* Ambient Effects */}
       {renderFireflies()}
-      {renderMagicalSpirits()}
-      {renderSeasonalMagic()}
-      
-      {/* Thunder flash sits on top */}
+
+      {/* Magical Event Effects */}
+      {renderMagicalEvent()}
+
+      {/* Thunder Flash */}
       {thunderFlash && <div className="thunder-flash" />}
     </div>
   );
