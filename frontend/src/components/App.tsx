@@ -76,8 +76,11 @@ const App: React.FC = () => {
                    clearError();
                 }
             }, 5000);
+            // Return the cleanup function for this path
             return () => clearTimeout(timer);
         }
+        // Explicitly return undefined for the path where error is null
+        return undefined;
     }, [error, lastErrorTimestamp]);
 
 
@@ -86,7 +89,7 @@ const App: React.FC = () => {
         actionPromise: Promise<GameState>,
         successMessage?: string,
         errorMessagePrefix?: string
-    ): Promise<void> => { // Explicitly return Promise<void>
+    ): Promise<void> => {
         try {
             const newState = await actionPromise;
             setGameState(newState);
@@ -99,8 +102,7 @@ const App: React.FC = () => {
             setError(displayMessage);
             setLastErrorTimestamp(Date.now());
         }
-        // Add explicit return here to satisfy strict checks
-        return;
+        // Implicit return is fine here now
     };
 
 
