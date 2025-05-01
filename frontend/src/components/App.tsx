@@ -269,7 +269,7 @@ const App: React.FC = () => {
         return (
             <div className="loading-screen">
                 <div className="loading-content">
-                    <h1>Awakening Coven...</h1>
+                    <h1>Brewing up your match...</h1>
                     <div className="cauldron-container">
                         <div className="cauldron-body">
                            <div className="cauldron-liquid"></div>
