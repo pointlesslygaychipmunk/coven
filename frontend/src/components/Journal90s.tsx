@@ -117,11 +117,10 @@ const Journal90s: React.FC<Journal90sProps> = ({
     onClaimRitual(selectedRitual.id);
   };
   
-  // Helper to format a timestamp to a date string
-  const formatDate = (timestamp: number) => {
-    // In a real game, you'd have a proper calendar system
-    // For this demo, we'll just show the day and moon phase
-    // Unused: const date = new Date(timestamp);
+  // Helper to format a date string - ignores timestamp and uses game time
+  const formatDate = (_: number) => {
+    // In a real game, we'd use the timestamp
+    // For this demo, we'll just show the day and moon phase from game time
     return `Day ${time.dayCount}, ${time.phaseName}, ${time.season}`;
   };
   

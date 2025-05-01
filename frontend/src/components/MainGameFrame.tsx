@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './MainGameFrame.css';
+import type { InventoryItem, ItemType, ItemCategory } from 'coven-shared';
 
 // Import updated 90s-style components
 import Garden90s from './Garden90s';
@@ -80,14 +81,15 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     { id: 8, fertility: 0, moisture: 0, isUnlocked: false, plant: null }
   ];
   
-  const mockInventory = [
-    { id: "1", baseId: "chamomile", name: "Chamomile", quantity: 5, type: "ingredient", category: "herb" },
-    { id: "2", baseId: "lavender", name: "Lavender", quantity: 3, type: "ingredient", category: "herb" },
-    { id: "3", baseId: "ginseng", name: "Ginseng", quantity: 1, type: "ingredient", category: "root" },
-    { id: "4", baseId: "vial", name: "Crystal Vial", quantity: 2, type: "tool", category: "tool" },
-    { id: "5", baseId: "moonflower_seed", name: "Moonflower Seeds", quantity: 4, type: "seed", category: "seed" },
-    { id: "6", baseId: "chamomile_seed", name: "Chamomile Seeds", quantity: 2, type: "seed", category: "seed" },
-    { id: "7", baseId: "dragon_scale", name: "Dragon Scale", quantity: 1, type: "ingredient", category: "essence" }
+  // Use full type assertion to ensure TypeScript properly recognizes our mock data
+  const mockInventory: InventoryItem[] = [
+    { id: "1", baseId: "chamomile", name: "Chamomile", quantity: 5, type: "ingredient" as ItemType, category: "herb" as ItemCategory },
+    { id: "2", baseId: "lavender", name: "Lavender", quantity: 3, type: "ingredient" as ItemType, category: "herb" as ItemCategory },
+    { id: "3", baseId: "ginseng", name: "Ginseng", quantity: 1, type: "ingredient" as ItemType, category: "root" as ItemCategory },
+    { id: "4", baseId: "vial", name: "Crystal Vial", quantity: 2, type: "tool" as ItemType, category: "tool" as ItemCategory },
+    { id: "5", baseId: "moonflower_seed", name: "Moonflower Seeds", quantity: 4, type: "seed" as ItemType, category: "seed" as ItemCategory },
+    { id: "6", baseId: "chamomile_seed", name: "Chamomile Seeds", quantity: 2, type: "seed" as ItemType, category: "seed" as ItemCategory },
+    { id: "7", baseId: "dragon_scale", name: "Dragon Scale", quantity: 1, type: "ingredient" as ItemType, category: "essence" as ItemCategory }
   ];
   
   const mockRecipes = [
