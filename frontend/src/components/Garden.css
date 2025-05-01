@@ -127,3 +127,139 @@
   .plot-details h3, .inventory-panel h3 { font-size: 16px; }
   .scroll-content .action-button { font-size: 13px; padding: 6px 12px; }
 }
+
+/* Garden Plot Grid Fix */
+
+/* Fix for the garden grid layout */
+.garden-grid {
+  flex: 3; /* Take more space */
+  display: grid; /* Use grid for fixed layout */
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  grid-template-rows: repeat(3, 1fr); /* 3 rows */
+  gap: 10px; /* Reduced gap */
+  padding: 10px; /* Reduced padding */
+  background-color: #a1887f; /* Lighter dirt/wood color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%23a1887f"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%238d6e63" opacity="0.2"/></svg>');
+  border-radius: var(--border-radius-sm);
+  box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.4);
+  position: relative;
+  border: 2px solid;
+  border-color: #5d4037 #c19a70 #c19a70 #5d4037; /* Wood bevel */
+  overflow: auto; /* Allow scrolling if plots overflow */
+  min-height: 0; /* Fix for flex child */
+}
+
+/* Ensure garden plots display properly */
+.garden-plot {
+  position: relative;
+  aspect-ratio: 1 / 1; /* Keep plots square */
+  min-width: 80px; /* Minimum size */
+  background-color: #8d6e63; /* Base dirt color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%238d6e63"/><circle cx="2" cy="3" r="1" fill="%235d4037" opacity="0.3"/><circle cx="7" cy="6" r="1" fill="%235d4037" opacity="0.3"/><circle cx="5" cy="9" r="1" fill="%235d4037" opacity="0.3"/><circle cx="8" cy="1" r="1" fill="%235d4037" opacity="0.3"/></svg>');
+  border-radius: 4px; /* Subtle rounding */
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* 90s Bevel Border */
+  border: 3px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f; /* Light top/left, dark bottom/right */
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2); /* 90s style shadow */
+  image-rendering: pixelated;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix for the plot soil */
+.plot-soil {
+  position: absolute;
+  bottom: 2px; /* Sit just above the bottom border */
+  left: 2px;
+  right: 2px;
+  height: 45%; /* Soil takes up lower part */
+  background-color: #795548; /* Slightly different soil color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23795548"/><circle cx="3" cy="2" r="1" fill="%234e342e" opacity="0.4"/><circle cx="8" cy="7" r="1" fill="%234e342e" opacity="0.4"/><circle cx="1" cy="8" r="1" fill="%234e342e" opacity="0.4"/></svg>');
+  border-radius: 4px 4px 0 0; /* Rounded top */
+  transition: all 0.4s ease;
+  border-top: 2px solid #a1887f; /* Soil mound highlight */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Fix for locked garden plots */
+.garden-plot.locked {
+  background-color: #555; /* Darker locked state */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%23555"/><path d="M0 0h20v20H0z" stroke-width="1" stroke="%23333" fill="none"/><path d="M0 0L20 20M0 20L20 0" stroke-width="2" stroke="%23444" fill="none"/></svg>');
+  cursor: not-allowed;
+  opacity: 0.8;
+  border-color: #777 #333 #333 #777;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 2px; /* Match parent */
+}
+
+.lock-icon {
+  font-size: clamp(24px, 4vw, 32px); /* Responsive lock icon */
+  color: #aaa;
+  text-shadow: 1px 1px 0px #333;
+}
+
+/* Fix for garden header */
+.garden-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-border); /* Simple border */
+  padding-bottom: 12px;
+  margin-bottom: 15px;
+  position: relative;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.garden-header h2 {
+  margin: 0;
+  color: var(--color-text-heading); /* Use heading color */
+  font-weight: bold; /* Bold header */
+  font-size: 24px; /* Slightly smaller */
+  letter-spacing: 1px;
+  font-family: var(--font-primary); /* Use primary font */
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+}
+
+/* Weather and season indicators */
+.garden-indicators {
+  display: flex;
+  gap: 10px; /* Reduced gap */
+}
+
+.weather-indicator, .season-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Reduced gap */
+  padding: 6px 10px; /* Reduced padding */
+  background-color: var(--color-bg-light); /* Slightly lighter bg */
+  border-radius: var(--border-radius-sm);
+  border: 2px solid;
+  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light); /* Bevel */
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.weather-icon, .season-icon {
+  font-size: 16px; /* Smaller icons */
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
+}
+
+.weather-label, .season-label {
+  font-size: 12px; /* Smaller labels */
+  color: var(--color-text-heading); /* Use heading color */
+  font-family: var(--font-secondary); /* Use secondary font */
+  font-weight: bold;
+}

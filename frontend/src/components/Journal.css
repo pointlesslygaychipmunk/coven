@@ -261,3 +261,241 @@
     padding: 10px;
   }
 }
+
+.journal-container {
+  display: flex;
+  flex-direction: column;
+  /* Simulate an old book cover */
+  background-color: #5d4037; /* Dark leather/wood color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" fill="%235d4037"/><path d="M0 0h5v50H0zm10 0h5v50H10zm10 0h5v50H20zm10 0h5v50H30zm10 0h5v50H40z" fill="%234e342e" opacity="0.2"/></svg>');
+  color: var(--color-text-on-parchment); /* Default text for parchment */
+  border-radius: var(--border-radius-sm); /* Slightly rounded book corners */
+  padding: 15px; /* Padding inside the 'cover' */
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.5); /* 90s shadow + inner shadow */
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Times New Roman', serif; /* Default book font */
+  border: 6px solid transparent; /* Match garden/market border style */
+  border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%235d4037"/><path d="M3 3h12v12H3z" fill="%238d6e63"/><path d="M6 6h6v6H6z" fill="%23a1887f"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%235d4037"/></svg>');
+  border-image-slice: 6;
+  border-image-width: 6px;
+  border-image-outset: 0;
+  border-image-repeat: round;
+  border-style: solid;
+  image-rendering: pixelated;
+  position: relative;
+  flex: 1;
+  min-height: 0; /* Fix for flex layout */
+}
+
+/* Ornate corners for the book */
+.journal-container::before, .journal-container::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #ffc107; /* 90s gold accent */
+  border: 1px solid #4e342e;
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+  z-index: 5;
+}
+.journal-container::before { top: 5px; left: 5px; border-radius: 3px 0 0 0;}
+.journal-container::after { top: 5px; right: 5px; border-radius: 0 3px 0 0;}
+
+/* Header styling */
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #8d6e63; /* Header separator */
+  flex-shrink: 0; /* Prevent shrinking */
+  position: relative;
+  z-index: 3; /* Above book texture */
+}
+
+.journal-header h2 {
+  margin: 0;
+  color: #ffc107; /* 90s gold title */
+  font-weight: bold;
+  font-size: 26px;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace; /* 90s font */
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Tab navigation styling - like page markers */
+.journal-tabs {
+  display: flex;
+  gap: 4px; /* Small gap between tabs */
+  background-color: rgba(93, 64, 55, 0.5); /* Darker tab bar */
+  border-radius: var(--border-radius-sm);
+  padding: 4px;
+  border: 1px solid;
+  border-color: #a1887f #4e342e #4e342e #a1887f; /* Bevel */
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+  flex-shrink: 0; /* Don't shrink */
+}
+
+.journal-tab {
+  position: relative;
+  padding: 6px 10px; /* Smaller tabs */
+  border: 2px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  background-color: #8d6e63; /* Tab color */
+  color: #f4e9d9;
+  font-family: 'Courier New', monospace; /* 90s font */
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 0; /* Square corners for 90s look */
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.journal-tab.active {
+  background-color: #ffc107; /* Gold active tab */
+  color: #5d4037; /* Dark text on gold */
+  border-color: #ffe08a #a07c2c #a07c2c #ffe08a; /* Gold bevel */
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+  transform: translateY(1px); /* Pressed effect */
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
+}
+
+/* Main content area */
+.journal-main {
+  flex: 1;
+  overflow: hidden; /* Key for containing children */
+  position: relative; /* For absolute positioning of corners */
+  z-index: 1;
+  margin-top: 5px;
+  background-color: #d3c6a6; /* Inner parchment color */
+  border: 1px solid #a1887f;
+  border-radius: var(--border-radius-sm);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack children */
+  min-height: 0; /* Fix for flex layout */
+}
+
+/* Add bottom corners (match top ones) */
+.journal-main::before, .journal-main::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #ffc107; /* 90s gold accent */
+  border: 1px solid #4e342e;
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+  z-index: 5;
+}
+.journal-main::before { bottom: 5px; left: 5px; border-radius: 0 0 0 3px; }
+.journal-main::after { bottom: 5px; right: 5px; border-radius: 0 0 3px 0; }
+
+.journal-content {
+  display: flex;
+  height: 100%;
+  gap: 15px; /* Gap between sidebar and content */
+  padding: 15px; /* Padding inside the parchment area */
+  overflow: hidden; /* Prevent overflow */
+  flex: 1; /* Take available space */
+  min-height: 0; /* Fix for flex layout */
+}
+
+/* Categories Sidebar */
+.journal-categories {
+  width: 200px; /* Slightly narrower sidebar */
+  flex-shrink: 0;
+  border-right: 1px solid #a1887f; /* Separator */
+  padding-right: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* For header */
+  min-height: 0; /* Fix for flex layout */
+  overflow: hidden; /* Fix for flex layout */
+}
+
+/* Journal entries section */
+.journal-entries { 
+  display: flex; 
+  flex-direction: column; 
+  height: 100%; 
+  min-height: 0; /* Fix for flex layout */
+  overflow: hidden; /* Prevent overflow */
+}
+
+.entries-list {
+  flex: 1; 
+  overflow-y: auto; 
+  padding-right: 8px; 
+  margin-right: -8px;
+  scrollbar-width: thin; 
+  scrollbar-color: #a1887f #e0d6c9;
+  min-height: 0; /* Fix for flex layout */
+}
+
+/* Journal entry styling */
+.journal-entry {
+  background-color: rgba(255, 255, 255, 0.3); 
+  border-radius: 0; /* Square corners for 90s look */
+  margin-bottom: 10px;
+  border: 2px solid;
+  border-color: #c19a70 #a1887f #a1887f #c19a70; /* 90s bevel */
+  border-left-width: 4px; 
+  transition: all 0.2s ease; 
+  overflow: hidden;
+}
+
+/* Journal main content area */
+.journal-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent its children from overflowing */
+  min-height: 0; /* Fix for flex layout */
+}
+
+/* Book Mode */
+.journal-book {
+  perspective: 1800px; /* Increased perspective */
+  width: 100%; 
+  height: 100%; 
+  position: relative;
+  background-color: #4e342e; /* Darker spine color */
+  border-radius: 0; /* Square corners for 90s look */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.3);
+  animation: book-appear 0.5s ease-out;
+  border: 1px solid #3e2723;
+  display: flex; /* Use flex for page alignment */
+  justify-content: center; /* Center pages */
+  flex: 1; /* Take all available space */
+  min-height: 0; /* Fix for flex layout */
+}
+
+/* Book Pages */
+.book-pages {
+  width: 100%; 
+  height: 100%;
+  position: relative; 
+  transform-style: preserve-3d;
+  min-height: 0; /* Fix for flex layout */
+}
+
+.book-page {
+  position: absolute; 
+  width: 50%; 
+  height: 100%;
+  background-color: #f4e9d9; /* Parchment */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f4e9d9" /><g fill="%23e0d6c9" opacity="0.5"><rect x="0" y="0" width="1" height="100" /><rect x="7" y="0" width="1" height="100" /><rect x="14" y="0" width="1" height="100" /><rect x="21" y="0" width="1" height="100" /><rect x="28" y="0" width="1" height="100" /><rect x="35" y="0" width="1" height="100" /><rect x="42" y="0" width="1" height="100" /><rect x="49" y="0" width="1" height="100" /><rect x="56" y="0" width="1" height="100" /><rect x="63" y="0" width="1" height="100" /><rect x="70" y="0" width="1" height="100" /><rect x="77" y="0" width="1" height="100" /><rect x="84" y="0" width="1" height="100" /><rect x="91" y="0" width="1" height="100" /><rect x="98" y="0" width="1" height="100" /></g><g fill="%23e0d6c9" opacity="0.5"><rect y="0" x="0" height="1" width="100" /><rect y="14" x="0" height="1" width="100" /><rect y="28" x="0" height="1" width="100" /><rect y="42" x="0" height="1" width="100" /><rect y="56" x="0" height="1" width="100" /><rect y="70" x="0" height="1" width="100" /><rect y="84" x="0" height="1" width="100" /><rect y="98" x="0" height="1" width="100" /></g></svg>');
+  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+  overflow: hidden; 
+  backface-visibility: hidden;
+  border: 1px solid #a1887f;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}

@@ -335,3 +335,377 @@
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     border-color: var(--color-bg-dark) var(--color-border-light) var(--color-border-light) var(--color-bg-dark);
   }
+
+  /* Seasonal Attunement Puzzle Fix */
+
+/* Main Container for the Attunement Puzzle */
+.attunement-puzzle-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    font-family: 'Courier New', monospace;
+  }
+  
+  /* Puzzle Panel Styling */
+  .attunement-puzzle {
+    background-color: #3a2f4a; /* Dark purple background */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%233a2f4a"/><path d="M0 25h100M0 50h100M0 75h100" stroke="%234a3b5c" stroke-width="1"/><path d="M25 0v100M50 0v100M75 0v100" stroke="%234a3b5c" stroke-width="1"/></svg>');
+    border: 6px solid transparent;
+    border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%233a2f4a"/><path d="M3 3h12v12H3z" fill="%235d468a"/><path d="M6 6h6v6H6z" fill="%237a6c95"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%232d2038"/></svg>');
+    border-image-slice: 6;
+    border-image-width: 6px;
+    border-image-outset: 0;
+    border-image-repeat: round;
+    border-style: solid;
+    width: 80%;
+    max-width: 600px;
+    padding: 20px;
+    color: #e4dbee;
+    box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    image-rendering: pixelated;
+  }
+  
+  /* Header Styling */
+  .attunement-puzzle h2 {
+    font-size: 24px;
+    margin: 0;
+    color: #ffc107; /* Gold title */
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5d468a;
+    font-family: 'Courier New', monospace;
+  }
+  
+  /* Instructions Styling */
+  .attunement-instructions {
+    background-color: #2d2038;
+    padding: 15px;
+    border: 2px solid;
+    border-color: #5d468a #2d2038 #2d2038 #5d468a;
+    margin-bottom: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    font-style: italic;
+    line-height: 1.5;
+  }
+  
+  /* Game Board Styling */
+  .attunement-board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    padding: 15px;
+    background-color: #4a3b5c;
+    border: 2px solid;
+    border-color: #7a6c95 #2d2038 #2d2038 #7a6c95;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Tile Styling */
+  .attunement-tile {
+    aspect-ratio: 1;
+    background-color: #5d468a;
+    border: 3px solid;
+    border-color: #7a6c95 #2d2038 #2d2038 #7a6c95;
+    border-radius: 0; /* Square corners for 90s look */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .attunement-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.4);
+  }
+  
+  .attunement-tile:active {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+    border-color: #2d2038 #7a6c95 #7a6c95 #2d2038;
+  }
+  
+  /* Selected and Matched Tile Styles */
+  .attunement-tile.selected {
+    background-color: #7a6c95;
+    border-color: #b59dc4 #483d66 #483d66 #b59dc4;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3), 3px 3px 0px rgba(0, 0, 0, 0.3);
+  }
+  
+  .attunement-tile.matched {
+    background-color: #8bc34a; /* Green for matched */
+    border-color: #aed581 #558b2f #558b2f #aed581;
+    cursor: default;
+    animation: tileGlow 1.5s infinite alternate;
+  }
+  @keyframes tileGlow {
+    from { box-shadow: 0 0 5px rgba(139, 195, 74, 0.5), 3px 3px 0px rgba(0, 0, 0, 0.3); }
+    to { box-shadow: 0 0 15px rgba(139, 195, 74, 0.7), 3px 3px 0px rgba(0, 0, 0, 0.3); }
+  }
+  
+  /* Spring Theme Tiles */
+  .attunement-tile.spring {
+    background-color: #8bc34a;  
+    border-color: #aed581 #558b2f #558b2f #aed581;
+  }
+  .attunement-tile.spring.selected {
+    background-color: #7cb342;
+    border-color: #c5e1a5 #33691e #33691e #c5e1a5;
+  }
+  
+  /* Summer Theme Tiles */
+  .attunement-tile.summer {
+    background-color: #ff9800;  
+    border-color: #ffb74d #ef6c00 #ef6c00 #ffb74d;
+  }
+  .attunement-tile.summer.selected {
+    background-color: #f57c00;
+    border-color: #ffcc80 #e65100 #e65100 #ffcc80;
+  }
+  
+  /* Fall Theme Tiles */
+  .attunement-tile.fall {
+    background-color: #795548;  
+    border-color: #a1887f #4e342e #4e342e #a1887f;
+  }
+  .attunement-tile.fall.selected {
+    background-color: #6d4c41;
+    border-color: #bcaaa4 #3e2723 #3e2723 #bcaaa4;
+  }
+  
+  /* Winter Theme Tiles */
+  .attunement-tile.winter {
+    background-color: #78909c;  
+    border-color: #90a4ae #455a64 #455a64 #90a4ae;
+  }
+  .attunement-tile.winter.selected {
+    background-color: #607d8b;
+    border-color: #b0bec5 #37474f #37474f #b0bec5;
+  }
+  
+  /* Tile Symbols */
+  .symbol {
+    font-size: 28px;
+    z-index: 2;
+  }
+  
+  /* Hidden Tile Content */
+  .attunement-tile .symbol {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+  }
+  .attunement-tile.selected .symbol,
+  .attunement-tile.matched .symbol {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  /* Elemental effects based on season */
+  .attunement-tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .attunement-tile.spring::after {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="none"/><path d="M20 5 L25 15 L35 20 L25 25 L20 35 L15 25 L5 20 L15 15 Z" fill="none" stroke="%23c5e1a5" stroke-width="1"/></svg>');
+  }
+  .attunement-tile.summer::after {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="none"/><circle cx="20" cy="20" r="15" fill="none" stroke="%23ffcc80" stroke-width="1"/><path d="M20 5 L20 35 M5 20 L35 20" stroke="%23ffcc80" stroke-width="1"/></svg>');
+  }
+  .attunement-tile.fall::after {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="none"/><path d="M10 10 L30 10 L30 30 L10 30 Z" fill="none" stroke="%23bcaaa4" stroke-width="1"/></svg>');
+  }
+  .attunement-tile.winter::after {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="none"/><path d="M20 5 L35 20 L20 35 L5 20 Z" fill="none" stroke="%23b0bec5" stroke-width="1"/></svg>');
+  }
+  
+  /* Game Status Panel */
+  .attunement-status {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: #2d2038;
+    border: 2px solid;
+    border-color: #5d468a #2d2038 #2d2038 #5d468a;
+    margin-top: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .attunement-timer {
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .timer-icon {
+    font-size: 18px;
+  }
+  
+  .attunement-score {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffc107; /* Gold for score */
+  }
+  
+  /* Progress meter */
+  .attunement-progress {
+    height: 20px;
+    background-color: #2d2038;
+    border: 2px solid;
+    border-color: #5d468a #2d2038 #2d2038 #5d468a;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background-color: #ffc107; /* Gold progress */
+    width: 0%; /* Set by JavaScript */
+    transition: width 0.3s ease;
+  }
+  
+  /* Seasonal element depending on current season */
+  .seasonal-accent {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 32px;
+    opacity: 0.8;
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.5));
+  }
+  
+  /* Control buttons */
+  .attunement-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+  }
+  
+  .attunement-button {
+    padding: 8px 15px;
+    font-size: 16px;
+    background-color: #4a3b5c;
+    color: #e4dbee;
+    border: 2px solid;
+    border-color: #7a6c95 #2d2038 #2d2038 #7a6c95;
+    border-radius: 0; /* Square for 90s look */
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+    min-width: 100px;
+  }
+  
+  .attunement-button:hover {
+    background-color: #5d468a;
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  }
+  
+  .attunement-button:active {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    border-color: #2d2038 #7a6c95 #7a6c95 #2d2038;
+  }
+  
+  .attunement-button.primary {
+    background-color: #ffc107; /* Gold button */
+    color: #2d2038;
+    border-color: #ffe082 #cc9a05 #cc9a05 #ffe082;
+  }
+  
+  .attunement-button.primary:hover {
+    background-color: #ffca28;
+  }
+  
+  /* Game over screen */
+  .game-result {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(45, 32, 56, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+  
+  .result-message {
+    background-color: #3a2f4a;
+    padding: 20px 30px;
+    border: 3px solid;
+    border-color: #7a6c95 #2d2038 #2d2038 #7a6c95;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 80%;
+  }
+  
+  .result-message h3 {
+    font-size: 24px;
+    color: #ffc107;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  }
+  
+  .bonus-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ffc107;
+    margin: 10px 0;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Success animation */
+  @keyframes success-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  .success-animation {
+    animation: success-pulse 1s ease-in-out;
+  }
+  
+  /* Making sure the game doesn't break on small screens */
+  @media (max-width: 768px) {
+    .attunement-puzzle {
+      width: 95%;
+      padding: 15px;
+    }
+    
+    .attunement-board {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 10px;
+    }
+    
+    .attunement-controls {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .attunement-button {
+      width: 100%;
+    }
+  }
