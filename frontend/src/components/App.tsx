@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'; // Added useCallback, useRef
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
-// REMOVED: Unused import 'BasicRecipeInfo'
-import { GameState, Season, InventoryItem, GardenSlot /*, BasicRecipeInfo*/ } from 'coven-shared';
+import { GameState, Season, InventoryItem, GardenSlot } from 'coven-shared';
 
 // Import Components
 import Garden from './Garden';
 import Brewing from './Brewing';
 import Market from './Market';
 import Journal from './Journal';
-import HUD from './HUD'; // Will be placed in the sidebar
+import HUD from './HUD';
 import Atelier from './Atelier';
 import WeatherEffectsOverlay from './WeatherEffectsOverlay';
 
@@ -29,6 +28,165 @@ const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Pr
   return responseData as GameState;
 };
 
+// Whimsical Garden Spirits Enhancement - adds occasional mystical visitors
+type SpiritType = 'flower' | 'herb' | 'mushroom' | 'root' | 'moon' | 'star' | 'forest';
+interface GardenSpirit {
+  id: string;
+  type: SpiritType;
+  name: string;
+  message: string;
+  position: { x: number; y: number };
+  lifespan: number; // in seconds
+  entryAnimation: string;
+  exitAnimation: string;
+  giftType?: string;
+  giftAmount?: number;
+}
+
+// Garden Spirit Folklore Database
+const spiritFolklore: Record<SpiritType, Array<{name: string, messages: string[], gifts?: {type: string, min: number, max: number}[]}>> = {
+  flower: [
+    { 
+      name: 'Petal Pixie', 
+      messages: [
+        "Your garden blooms with such happiness!", 
+        "May your flowers always find the sun...",
+        "I've blessed your soil with spring's whisper."
+      ],
+      gifts: [{ type: 'gold', min: 3, max: 8 }]
+    },
+    { 
+      name: 'Rosehip', 
+      messages: [
+        "The roses tell me you have a kind heart.", 
+        "I've left dewdrops on your flower buds.",
+        "The fragrance of your garden called to me."
+      ],
+      gifts: [{ type: 'seed', min: 1, max: 1 }]
+    }
+  ],
+  herb: [
+    { 
+      name: 'Sage Whisperer', 
+      messages: [
+        "Your herbs hold ancient wisdom...", 
+        "I sense healing energy in your garden.",
+        "May your herbs grow potent and true."
+      ],
+      gifts: [{ type: 'herb', min: 1, max: 2 }]
+    },
+    { 
+      name: 'Thyme Keeper', 
+      messages: [
+        "Time moves differently among the herbs.", 
+        "I've shared a secret with your mint leaves.",
+        "Your patience with herbs impresses the spirits."
+      ],
+      gifts: [{ type: 'growth', min: 5, max: 10 }]
+    }
+  ],
+  mushroom: [
+    { 
+      name: 'Spore Sprite', 
+      messages: [
+        "I emerge from the hidden networks below.", 
+        "Your mushrooms tell of the unseen world.",
+        "I've connected your garden to the mycelial web."
+      ],
+      gifts: [{ type: 'reputation', min: 1, max: 2 }]
+    },
+    { 
+      name: 'Morel Elder', 
+      messages: [
+        "From decay comes the most profound wisdom.", 
+        "I am ancient beyond your knowing, yet your garden welcomes me.",
+        "Even in shadow, your garden finds light."
+      ],
+      gifts: [{ type: 'fertility', min: 3, max: 7 }]
+    }
+  ],
+  root: [
+    { 
+      name: 'Taproot', 
+      messages: [
+        "I bring strength from deep below.", 
+        "Your garden's foundations are solid.",
+        "I've blessed your soil's deepest layers."
+      ],
+      gifts: [{ type: 'fertility', min: 5, max: 10 }]
+    },
+    { 
+      name: 'Rhizome', 
+      messages: [
+        "We are all connected beneath the surface.", 
+        "Your root vegetables are singing underground.",
+        "I spread through your garden, bringing abundance."
+      ],
+      gifts: [{ type: 'growth', min: 3, max: 8 }]
+    }
+  ],
+  moon: [
+    { 
+      name: 'Moonbeam', 
+      messages: [
+        "I bring the moon's blessing to your night garden.", 
+        "Silver light enhances magic - plant under the full moon.",
+        "Your garden shimmers beautifully in my light."
+      ],
+      gifts: [{ type: 'moonblessing', min: 1, max: 3 }]
+    },
+    { 
+      name: 'Luna', 
+      messages: [
+        "Even the moon finds peace in your garden.", 
+        "I've touched your herbs with lunar magic.",
+        "The tides of growth ebb and flow by my light."
+      ],
+      gifts: [{ type: 'gold', min: 10, max: 20 }]
+    }
+  ],
+  star: [
+    { 
+      name: 'Stardust', 
+      messages: [
+        "I've traveled light years to visit your garden.", 
+        "Your plants reach for the stars - as do you.",
+        "Cosmic energy flows through your soil now."
+      ],
+      gifts: [{ type: 'rare_seed', min: 1, max: 1 }]
+    },
+    { 
+      name: 'Celestial Spark', 
+      messages: [
+        "The constellations smile upon your work.", 
+        "I bring stardust for your most precious plants.",
+        "Even the stars notice a garden tended with love."
+      ],
+      gifts: [{ type: 'reputation', min: 2, max: 4 }]
+    }
+  ],
+  forest: [
+    { 
+      name: 'Grove Guardian', 
+      messages: [
+        "Your garden reminds me of the ancient forests.", 
+        "I've brought whispers from the wilderness.",
+        "Even in this small space, the forest spirit lives."
+      ],
+      gifts: [{ type: 'growth', min: 5, max: 15 }]
+    },
+    { 
+      name: 'Dryad', 
+      messages: [
+        "I rarely leave my tree, but your garden called to me.", 
+        "The balance of your garden pleases the old spirits.",
+        "Your hands speak the language of growing things."
+      ],
+      gifts: [{ type: 'herb', min: 2, max: 3 }]
+    }
+  ]
+};
+
 // Main App Component
 const App: React.FC = () => {
     const [gameState, setGameState] = useState<GameState | null>(null);
@@ -36,6 +194,322 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden'); // Default view
+
+    // Garden Spirits Enhancement
+    const [gardenSpirits, setGardenSpirits] = useState<GardenSpirit[]>([]);
+    const [spiritMessageVisible, setSpiritMessageVisible] = useState<boolean>(false);
+    const [currentSpiritMessage, setCurrentSpiritMessage] = useState<{text: string, spirit: string}>({text: "", spirit: ""});
+    const spiritCheckInterval = useRef<NodeJS.Timeout | null>(null);
+    const spiritMessageTimeout = useRef<NodeJS.Timeout | null>(null);
+    const lastSpiritAppearance = useRef<number>(0);
+
+    // Initialize Garden Spirits System
+    useEffect(() => {
+        // Check for spirit appearances every 2-3 minutes
+        spiritCheckInterval.current = setInterval(() => {
+            if (currentView === 'garden' && !loading && gameState) {
+                // Don't spawn spirits too frequently - minimum 2 minute cooldown
+                const now = Date.now();
+                const timeSinceLastSpirit = now - lastSpiritAppearance.current;
+                if (timeSinceLastSpirit < 1000 * 60 * 2) return;
+                
+                // Each check has a chance to spawn a spirit based on garden conditions
+                const spiritChance = calculateSpiritChance();
+                if (Math.random() < spiritChance) {
+                    spawnRandomSpirit();
+                }
+            }
+        }, 1000 * 60 * (2 + Math.random())); // Random interval between 2-3 minutes
+
+        return () => {
+            if (spiritCheckInterval.current) {
+                clearInterval(spiritCheckInterval.current);
+            }
+            if (spiritMessageTimeout.current) {
+                clearTimeout(spiritMessageTimeout.current);
+            }
+        };
+    }, [currentView, loading, gameState]);
+
+    // Calculate chance of spirit appearance based on garden state
+    const calculateSpiritChance = () => {
+        // Base chance is 0.15 (15%)
+        let chance = 0.15;
+        
+        // If no game state yet, return base chance
+        if (!gameState) return chance;
+        
+        const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+        
+        // Increase chance during special lunar phases
+        if (gameState.time?.phaseName === "Full Moon") chance += 0.2;
+        if (gameState.time?.phaseName === "New Moon") chance += 0.1;
+        
+        // Increase chance based on plants in garden
+        if (currentPlayer.garden && currentPlayer.garden.length > 0) {
+            const plantedPlots = currentPlayer.garden.filter(plot => plot.plant).length;
+            chance += plantedPlots * 0.05; // Each plant adds 5% chance
+            
+            // Mature plants attract more spirits
+            const maturePlants = currentPlayer.garden.filter(plot => plot.plant?.mature).length;
+            chance += maturePlants * 0.1; // Each mature plant adds 10% chance
+        }
+        
+        // Weather affects spirits
+        if (gameState.time?.weatherFate === "foggy") chance += 0.15;
+        if (gameState.time?.weatherFate === "stormy") chance += 0.1;
+        
+        // Reputation attracts spirits
+        if (currentPlayer.reputation > 10) chance += 0.1;
+        
+        // Cap at 75% chance
+        return Math.min(0.75, chance);
+    };
+
+    // Spawn a random spirit in the garden
+    const spawnRandomSpirit = () => {
+        // Update last appearance time
+        lastSpiritAppearance.current = Date.now();
+        
+        // Select a random spirit type with weighting
+        const spiritTypeWeights: [SpiritType, number][] = [
+            ['flower', 0.25],
+            ['herb', 0.2],
+            ['root', 0.15],
+            ['mushroom', 0.15],
+            ['moon', 0.1],
+            ['star', 0.05],
+            ['forest', 0.1]
+        ];
+        
+        // Select weighted random spirit type
+        let randomNum = Math.random();
+        let selectedType: SpiritType = 'flower'; // Default
+        for (const [type, weight] of spiritTypeWeights) {
+            if (randomNum < weight) {
+                selectedType = type;
+                break;
+            }
+            randomNum -= weight;
+        }
+        
+        // Get random spirit from folklore database
+        const spiritCategory = spiritFolklore[selectedType];
+        const spiritTemplate = spiritCategory[Math.floor(Math.random() * spiritCategory.length)];
+        
+        // Select random message
+        const message = spiritTemplate.messages[Math.floor(Math.random() * spiritTemplate.messages.length)];
+        
+        // Determine gift if applicable
+        let giftType: string | undefined;
+        let giftAmount: number | undefined;
+        
+        if (spiritTemplate.gifts && spiritTemplate.gifts.length > 0) {
+            const gift = spiritTemplate.gifts[Math.floor(Math.random() * spiritTemplate.gifts.length)];
+            giftType = gift.type;
+            giftAmount = Math.floor(Math.random() * (gift.max - gift.min + 1)) + gift.min;
+        }
+        
+        // Create spirit with random position
+        const spirit: GardenSpirit = {
+            id: `spirit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            type: selectedType,
+            name: spiritTemplate.name,
+            message: message,
+            position: {
+                x: 10 + Math.random() * 80, // 10-90% of width
+                y: 10 + Math.random() * 80  // 10-90% of height
+            },
+            lifespan: 15 + Math.floor(Math.random() * 20), // 15-35 seconds
+            entryAnimation: ['fadeIn', 'slideFromLeft', 'slideFromTop', 'spiral'][Math.floor(Math.random() * 4)],
+            exitAnimation: ['fadeOut', 'slideRight', 'slideDown', 'spiral'][Math.floor(Math.random() * 4)],
+            giftType,
+            giftAmount
+        };
+        
+        // Add spirit to state
+        setGardenSpirits(prev => [...prev, spirit]);
+        
+        // Show spirit message
+        setCurrentSpiritMessage({text: message, spirit: spiritTemplate.name});
+        setSpiritMessageVisible(true);
+        
+        // Clear previous message timeout
+        if (spiritMessageTimeout.current) {
+            clearTimeout(spiritMessageTimeout.current);
+        }
+        
+        // Hide message after 5 seconds
+        spiritMessageTimeout.current = setTimeout(() => {
+            setSpiritMessageVisible(false);
+        }, 5000);
+        
+        // Remove spirit after its lifespan
+        setTimeout(() => {
+            setGardenSpirits(prev => prev.filter(s => s.id !== spirit.id));
+            
+            // Apply spirit gift if present
+            if (spirit.giftType && spirit.giftAmount && spirit.giftAmount > 0) {
+                applyGardenGift(spirit.giftType, spirit.giftAmount);
+            }
+        }, spirit.lifespan * 1000);
+        
+        // Log spirit visit for debugging
+        console.log(`🌿✨ ${spirit.name} has visited your garden! ✨🌿`);
+    };
+
+    // Apply gifts from spirits
+    const applyGardenGift = (giftType: string, amount: number) => {
+        console.log(`Applying gift: ${giftType} x${amount}`);
+        
+        // Handle gift based on type
+        switch(giftType) {
+            case 'gold':
+                // Add gold to player
+                if (gameState && gameState.players[gameState.currentPlayerIndex]) {
+                    const updatedGameState = {...gameState};
+                    updatedGameState.players[gameState.currentPlayerIndex].gold += amount;
+                    setGameState(updatedGameState);
+                    
+                    // Show message about gold
+                    setCurrentSpiritMessage({
+                        text: `You found ${amount} gold in your garden!`,
+                        spirit: "Spirit Gift"
+                    });
+                    setSpiritMessageVisible(true);
+                    if (spiritMessageTimeout.current) clearTimeout(spiritMessageTimeout.current);
+                    spiritMessageTimeout.current = setTimeout(() => setSpiritMessageVisible(false), 5000);
+                }
+                break;
+                
+            case 'fertility':
+                // Increase fertility of random plots
+                if (gameState && gameState.players[gameState.currentPlayerIndex].garden) {
+                    const updatedGameState = {...gameState};
+                    const garden = [...updatedGameState.players[gameState.currentPlayerIndex].garden];
+                    
+                    // Find plots that aren't at max fertility
+                    const eligiblePlots = garden.filter(plot => 
+                        plot.isUnlocked !== false && plot.fertility !== undefined && plot.fertility < 100
+                    );
+                    
+                    if (eligiblePlots.length > 0) {
+                        // Select random plots to enhance
+                        const numPlotsToEnhance = Math.min(eligiblePlots.length, Math.ceil(amount / 5));
+                        const plotsToEnhance = [...eligiblePlots]
+                            .sort(() => 0.5 - Math.random())
+                            .slice(0, numPlotsToEnhance);
+                        
+                        // Apply fertility bonus
+                        for (const plot of plotsToEnhance) {
+                            if (plot.fertility !== undefined) {
+                                plot.fertility = Math.min(100, plot.fertility + amount);
+                            }
+                        }
+                        
+                        updatedGameState.players[gameState.currentPlayerIndex].garden = garden;
+                        setGameState(updatedGameState);
+                        
+                        // Show message
+                        setCurrentSpiritMessage({
+                            text: `The soil in your garden feels enriched and alive!`,
+                            spirit: "Spirit Gift"
+                        });
+                        setSpiritMessageVisible(true);
+                        if (spiritMessageTimeout.current) clearTimeout(spiritMessageTimeout.current);
+                        spiritMessageTimeout.current = setTimeout(() => setSpiritMessageVisible(false), 5000);
+                    }
+                }
+                break;
+                
+            case 'growth':
+                // Boost growth of planted plots
+                if (gameState && gameState.players[gameState.currentPlayerIndex].garden) {
+                    const updatedGameState = {...gameState};
+                    const garden = [...updatedGameState.players[gameState.currentPlayerIndex].garden];
+                    
+                    // Find plots with plants that aren't mature
+                    const eligiblePlots = garden.filter(plot => 
+                        plot.plant && !plot.plant.mature && 
+                        plot.plant.growth !== undefined && 
+                        plot.plant.maxGrowth !== undefined
+                    );
+                    
+                    if (eligiblePlots.length > 0) {
+                        // Apply growth to all eligible plants
+                        for (const plot of eligiblePlots) {
+                            if (plot.plant && plot.plant.growth !== undefined && plot.plant.maxGrowth !== undefined) {
+                                const growthBoost = amount;
+                                plot.plant.growth = Math.min(plot.plant.maxGrowth, plot.plant.growth + growthBoost);
+                                
+                                // Check if plant became mature
+                                if (plot.plant.growth >= plot.plant.maxGrowth) {
+                                    plot.plant.mature = true;
+                                }
+                            }
+                        }
+                        
+                        updatedGameState.players[gameState.currentPlayerIndex].garden = garden;
+                        setGameState(updatedGameState);
+                        
+                        // Show message
+                        setCurrentSpiritMessage({
+                            text: `Your plants seem to have grown while you weren't looking!`,
+                            spirit: "Spirit Gift"
+                        });
+                        setSpiritMessageVisible(true);
+                        if (spiritMessageTimeout.current) clearTimeout(spiritMessageTimeout.current);
+                        spiritMessageTimeout.current = setTimeout(() => setSpiritMessageVisible(false), 5000);
+                    }
+                }
+                break;
+                
+            case 'moonblessing':
+                // Apply moon blessing to random plants
+                if (gameState && gameState.players[gameState.currentPlayerIndex].garden) {
+                    const updatedGameState = {...gameState};
+                    const garden = [...updatedGameState.players[gameState.currentPlayerIndex].garden];
+                    
+                    // Find plots with plants that aren't blessed
+                    const eligiblePlots = garden.filter(plot => 
+                        plot.plant && !plot.plant.moonBlessed
+                    );
+                    
+                    if (eligiblePlots.length > 0) {
+                        // Select random plots to bless
+                        const numPlotsToBliss = Math.min(eligiblePlots.length, amount);
+                        const plotsToBliss = [...eligiblePlots]
+                            .sort(() => 0.5 - Math.random())
+                            .slice(0, numPlotsToBliss);
+                        
+                        // Apply blessing
+                        for (const plot of plotsToBliss) {
+                            if (plot.plant) {
+                                plot.plant.moonBlessed = true;
+                            }
+                        }
+                        
+                        updatedGameState.players[gameState.currentPlayerIndex].garden = garden;
+                        setGameState(updatedGameState);
+                        
+                        // Show message
+                        setCurrentSpiritMessage({
+                            text: `Moonlight has touched some of your plants with magic!`,
+                            spirit: "Spirit Gift"
+                        });
+                        setSpiritMessageVisible(true);
+                        if (spiritMessageTimeout.current) clearTimeout(spiritMessageTimeout.current);
+                        spiritMessageTimeout.current = setTimeout(() => setSpiritMessageVisible(false), 5000);
+                    }
+                }
+                break;
+                
+            // Additional gift types could be implemented here
+            
+            default:
+                console.log(`Gift type '${giftType}' not implemented yet`);
+        }
+    };
 
     // Moonlight Meadow Easter Egg state
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
@@ -45,6 +519,30 @@ const App: React.FC = () => {
     const konamiSequence = useRef<string[]>([]);
     const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
     const [konamiActivated, setKonamiActivated] = useState<boolean>(false);
+
+    // Viewport height fix for mobile browsers
+    useEffect(() => {
+      // Fix for mobile viewport height (100vh issue)
+      const setVh = () => {
+        // First we get the viewport height and multiply it by 1% to get a value for a vh unit
+        let vh = window.innerHeight * 0.01;
+        // Then we set the value in the --vh custom property to the root of the document
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+
+      // Set the initial value
+      setVh();
+
+      // We add an event listener for when the window resizes or orientation changes
+      window.addEventListener('resize', setVh);
+      window.addEventListener('orientationchange', setVh);
+
+      // We return a function to remove the event listeners when the component unmounts
+      return () => {
+        window.removeEventListener('resize', setVh);
+        window.removeEventListener('orientationchange', setVh);
+      };
+    }, []);
 
      // Konami Code Listener Effect
      useEffect(() => {
@@ -137,33 +635,6 @@ const App: React.FC = () => {
 
     // Fetch initial game state
     useEffect(() => {
-        // Add this to the top of your useEffect section in App.tsx
-
-// Handle window resize to fix mobile viewport issues
-useEffect(() => {
-    // Fix for mobile viewport height (100vh issue)
-    const setVh = () => {
-      // First we get the viewport height and we multiply it by 1% to get a value for a vh unit
-      let vh = window.innerHeight * 0.01;
-      // Then we set the value in the --vh custom property to the root of the document
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-  
-    // Set the initial value
-    setVh();
-  
-    // We add an event listener for when the window resizes or orientation changes
-    window.addEventListener('resize', setVh);
-    window.addEventListener('orientationchange', setVh);
-  
-    // We return a function to remove the event listeners when the component unmounts
-    return () => {
-      window.removeEventListener('resize', setVh);
-      window.removeEventListener('orientationchange', setVh);
-    };
-  }, []);
-  
-  // The rest of your existing useEffect hooks can stay as they are
         const fetchInitialState = async () => {
             try {
                 setLoading(true);
@@ -199,7 +670,7 @@ useEffect(() => {
     }, []); // No external dependencies needed here
 
     // Get current player and ID safely
-    const currentPlayer = gameState?.players[gameState.currentPlayerIndex];
+    const currentPlayer = gameState?.players[gameState?.currentPlayerIndex || 0];
     const playerId = currentPlayer?.id;
 
     // --- Wrapped API Call Functions ---
@@ -334,6 +805,52 @@ useEffect(() => {
         );
     }
 
+    // Render the garden spirits
+    const renderGardenSpirits = () => {
+        if (gardenSpirits.length === 0 || currentView !== 'garden') return null;
+        
+        return (
+            <div className="garden-spirits-container">
+                {gardenSpirits.map(spirit => (
+                    <div
+                        key={spirit.id}
+                        className={`garden-spirit garden-spirit-${spirit.type} garden-spirit-animation-${spirit.entryAnimation}`}
+                        style={{
+                            left: `${spirit.position.x}%`,
+                            top: `${spirit.position.y}%`,
+                            animationDuration: `${spirit.lifespan * 0.8}s`
+                        }}
+                        title={spirit.name}
+                    >
+                        {renderSpiritEmoji(spirit.type)}
+                    </div>
+                ))}
+                
+                {/* Spirit message display */}
+                {spiritMessageVisible && (
+                    <div className="garden-spirit-message">
+                        <div className="spirit-message-sender">{currentSpiritMessage.spirit}</div>
+                        <div className="spirit-message-text">{currentSpiritMessage.text}</div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+    
+    // Get emoji for spirit type
+    const renderSpiritEmoji = (type: SpiritType) => {
+        switch(type) {
+            case 'flower': return '🌸';
+            case 'herb': return '🌿';
+            case 'mushroom': return '🍄';
+            case 'root': return '🥕';
+            case 'moon': return '🌙';
+            case 'star': return '✨';
+            case 'forest': return '🌳';
+            default: return '✨';
+        }
+    };
+
     // --- Main Render ---
     return (
         <div className="game-container">
@@ -425,6 +942,9 @@ useEffect(() => {
                         )}
                     </div>
                 </main>
+
+                {/* Garden Spirits */}
+                {renderGardenSpirits()}
 
                 {/* Persistent Error Display */}
                 <ErrorDisplay />

@@ -807,3 +807,214 @@ body {
     min-height: 0; /* Allow content to shrink properly */
   }
 }
+
+/* Garden Spirits Enhancement CSS - Add this to your App.css file */
+
+/* Container for the spirits */
+.garden-spirits-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Base spirit styling */
+.garden-spirit {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+  transform-origin: center;
+  pointer-events: none;
+  z-index: 101;
+}
+
+/* Spirit types with unique glows */
+.garden-spirit-flower {
+  filter: drop-shadow(0 0 8px rgba(255, 182, 233, 0.9));
+  animation: spiritFlowerFloat 10s infinite alternate ease-in-out;
+}
+
+.garden-spirit-herb {
+  filter: drop-shadow(0 0 8px rgba(172, 255, 189, 0.9));
+  animation: spiritHerbFloat 12s infinite alternate ease-in-out;
+}
+
+.garden-spirit-mushroom {
+  filter: drop-shadow(0 0 8px rgba(230, 190, 255, 0.9));
+  animation: spiritMushroomFloat 15s infinite alternate ease-in-out;
+}
+
+.garden-spirit-root {
+  filter: drop-shadow(0 0 8px rgba(210, 180, 140, 0.9));
+  animation: spiritRootFloat 10s infinite alternate ease-in-out;
+}
+
+.garden-spirit-moon {
+  filter: drop-shadow(0 0 12px rgba(220, 230, 255, 0.9));
+  animation: spiritMoonFloat 18s infinite alternate ease-in-out;
+  font-size: 28px;
+}
+
+.garden-spirit-star {
+  filter: drop-shadow(0 0 15px rgba(255, 250, 205, 0.9));
+  animation: spiritStarFloat 10s infinite alternate ease-in-out;
+  font-size: 28px;
+}
+
+.garden-spirit-forest {
+  filter: drop-shadow(0 0 8px rgba(100, 200, 100, 0.9));
+  animation: spiritForestFloat 14s infinite alternate ease-in-out;
+}
+
+/* Spirit animations for different types */
+@keyframes spiritFlowerFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(10px, -15px) rotate(10deg) scale(1.1); }
+  50% { transform: translate(-5px, -20px) rotate(-5deg) scale(0.95); }
+  75% { transform: translate(-10px, -5px) rotate(-10deg) scale(1.05); }
+  100% { transform: translate(5px, -10px) rotate(5deg) scale(1); }
+}
+
+@keyframes spiritHerbFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(-10px, -15px) rotate(-8deg) scale(1.05); }
+  66% { transform: translate(15px, -10px) rotate(12deg) scale(0.95); }
+  100% { transform: translate(0px, -20px) rotate(-5deg) scale(1.1); }
+}
+
+@keyframes spiritMushroomFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0.7; }
+  20% { transform: translate(5px, -10px) rotate(5deg) scale(1.1); opacity: 1; }
+  40% { transform: translate(10px, -15px) rotate(-8deg) scale(0.9); opacity: 0.8; }
+  60% { transform: translate(0px, -25px) rotate(0deg) scale(1.2); opacity: 1; }
+  80% { transform: translate(-10px, -15px) rotate(8deg) scale(0.95); opacity: 0.9; }
+  100% { transform: translate(-5px, -5px) rotate(-5deg) scale(1.05); opacity: 0.8; }
+}
+
+@keyframes spiritRootFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  30% { transform: translate(-5px, -10px) rotate(-5deg) scale(1.1); }
+  70% { transform: translate(10px, -5px) rotate(10deg) scale(0.9); }
+  100% { transform: translate(0px, -15px) rotate(0deg) scale(1); }
+}
+
+@keyframes spiritMoonFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0.8; }
+  25% { transform: translate(-10px, -20px) rotate(-5deg) scale(1.1); opacity: 1; }
+  50% { transform: translate(5px, -30px) rotate(0deg) scale(1.2); opacity: 0.9; }
+  75% { transform: translate(15px, -15px) rotate(5deg) scale(1); opacity: 1; }
+  100% { transform: translate(0px, -10px) rotate(-8deg) scale(1.15); opacity: 0.8; }
+}
+
+@keyframes spiritStarFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(15px, -15px) rotate(45deg) scale(1.2); }
+  50% { transform: translate(5px, -25px) rotate(90deg) scale(0.8); }
+  75% { transform: translate(-10px, -10px) rotate(180deg) scale(1.1); }
+  100% { transform: translate(0px, -20px) rotate(360deg) scale(1); }
+}
+
+@keyframes spiritForestFloat {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  20% { transform: translate(-5px, -5px) rotate(-2deg) scale(1.05); }
+  40% { transform: translate(8px, -12px) rotate(3deg) scale(0.95); }
+  60% { transform: translate(0px, -18px) rotate(-1deg) scale(1.1); }
+  80% { transform: translate(-10px, -12px) rotate(2deg) scale(1); }
+  100% { transform: translate(5px, -8px) rotate(-3deg) scale(1.05); }
+}
+
+/* Entry animations for spirits */
+.garden-spirit-animation-fadeIn {
+  animation-name: spiritFadeIn;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.garden-spirit-animation-slideFromLeft {
+  animation-name: spiritSlideFromLeft;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.garden-spirit-animation-slideFromTop {
+  animation-name: spiritSlideFromTop;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.garden-spirit-animation-spiral {
+  animation-name: spiritSpiral;
+  animation-duration: 3s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes spiritFadeIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spiritSlideFromLeft {
+  0% { opacity: 0; transform: translateX(-100px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes spiritSlideFromTop {
+  0% { opacity: 0; transform: translateY(-100px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spiritSpiral {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  100% { opacity: 1; transform: scale(1) rotate(720deg); }
+}
+
+/* Spirit message display */
+.garden-spirit-message {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: 400px;
+  background-color: rgba(73, 54, 94, 0.85);
+  border: 3px solid;
+  border-color: #7a6c95 #3a2f4a #3a2f4a #7a6c95; /* 90s bevel */
+  border-radius: 10px;
+  padding: 15px;
+  color: #e4dbee;
+  font-family: 'Times New Roman', serif;
+  text-align: center;
+  z-index: 102;
+  box-shadow: 0 0 15px rgba(181, 157, 196, 0.5);
+  animation: spiritMessageAppear 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+.spirit-message-sender {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffc107;
+  margin-bottom: 5px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.spirit-message-text {
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+@keyframes spiritMessageAppear {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
