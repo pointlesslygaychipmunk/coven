@@ -261,6 +261,36 @@
   filter: drop-shadow(0 0 2px rgba(225, 190, 231, 0.5));
 }
 
+.plant-season {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.boost {
+  color: #a5d6a7; /* Green for positive */
+}
+
+.penalty {
+  color: #ef9a9a; /* Red for negative */
+}
+
+/* No plot selected message */
+.no-plot-message {
+  text-align: center;
+  margin: 15px 0;
+  color: #b59dc4;
+  font-style: italic;
+}
+
+.lock-icon-large {
+  font-size: 40px;
+  color: #757575;
+  text-align: center;
+  margin: 20px 0;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
 /* 90s style buttons with chunky design */
 .action-button {
   padding: 8px 10px;
@@ -331,16 +361,25 @@
   border-radius: 0px; /* Square for 90s look */
 }
 
-.garden-action-button:hover {
+.garden-action-button:hover:not(:disabled) {
   background-color: #7a6c95;
   transform: translateY(-2px);
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
 }
 
-.garden-action-button:active {
+.garden-action-button:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
   border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Inverted bevel when pressed */
+}
+
+.garden-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-icon {
+  font-size: 18px;
 }
 
 /* Seed inventory styling - Icon grid with tooltips */
@@ -423,7 +462,7 @@
   font-weight: bold;
 }
 
-/* FIXED: Seed Actions section with buttons stacked vertically */
+/* Seed Actions section with buttons stacked vertically */
 .seed-actions {
   display: flex; /* Always display */
   flex-direction: column; /* Stack buttons vertically */
@@ -433,7 +472,7 @@
 
 .action-button.plant {
   width: 100%;
-  background-color: #795548; /* Brown like clear button */
+  background-color: #795548; /* Brown like soil */
   border-color: #a1887f #4e342e #4e342e #a1887f;
   color: #fff;
   margin-bottom: 0; /* Remove margin between buttons */
@@ -446,12 +485,7 @@
   color: #fff;
 }
 
-/* Status area */
-.action-status {
-  margin-top: 8px;
-  min-height: 40px; /* Reserve space for messages */
-}
-
+/* Garden tip */
 .garden-tip {
   font-style: italic;
   font-size: 13px;
@@ -507,6 +541,33 @@
   0% { opacity: 0; }
   50% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* Hidden Easter egg trigger area */
+.garden-secret-spot {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  z-index: 5;
+  opacity: 0;
+}
+
+/* Empty plot status */
+.empty-plot-status {
+  text-align: center;
+  padding: 10px;
+  color: #b59dc4;
+  font-style: italic;
+}
+
+.plant-status {
+  text-align: center;
+  font-style: italic;
+  color: #a5d6a7;
+  margin-top: 5px;
 }
 
 /* Responsive adaptations */
@@ -570,222 +631,4 @@
     padding: 6px 8px;
     font-size: 12px;
   }
-}
-
-/* 90s Style Garden Component with Icons-Only Seed Pouch */
-
-/* Main container */
-.garden-container {
-  display: flex;
-  flex-direction: column;
-  background-color: #2d2038; /* Dark purple background */
-  color: #e4dbee; /* Light text */
-  border: 2px solid #5d468a; /* Purple border */
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: 'Courier New', monospace; /* Classic 90s font */
-}
-
-/* Garden header with title and indicators */
-.garden-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid #5d468a;
-}
-
-.garden-header h2 {
-  margin: 0;
-  color: #ffc107; /* Gold text */
-  font-size: 18px;
-  letter-spacing: 1px;
-}
-
-/* Weather indicators */
-.garden-indicators {
-  display: flex;
-  gap: 10px;
-}
-
-.weather-indicator, .season-indicator {
-  display: flex;
-  align-items: center;
-  padding: 5px 8px;
-  background-color: #3a2f4a;
-  border: 1px solid #5d468a;
-}
-
-/* Main content area */
-.garden-content {
-  display: flex;
-  flex: 1;
-  height: calc(100% - 50px);
-}
-
-/* Garden grid */
-.garden-grid {
-  flex: 3;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 10px;
-  padding: 15px;
-  background-color: #3a2f4a;
-  border-right: 1px solid #5d468a;
-}
-
-/* Garden sidebar */
-.garden-sidebar {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 200px;
-  max-width: 300px;
-  overflow: hidden;
-}
-
-/* Plot details panel */
-.plot-details {
-  flex: 1;
-  padding: 15px;
-  border-bottom: 1px solid #5d468a;
-  overflow-y: auto;
-}
-
-.plot-details h3 {
-  margin: 0 0 10px;
-  color: #ffc107; /* Gold text */
-  font-size: 18px;
-  text-align: center;
-}
-
-/* Inventory panel - completely restyled */
-.inventory-panel {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-}
-
-.inventory-panel h3 {
-  margin: 0 0 10px;
-  color: #ffc107; /* Gold text */
-  font-size: 18px;
-  text-align: center;
-}
-
-/* Icon-only seed grid */
-.seed-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-/* Individual seed icon */
-.seed-item {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #3a2f4a;
-  border: 1px solid #5d468a;
-  cursor: pointer;
-  position: relative;
-}
-
-.seed-item:hover {
-  background-color: #4a3b5c;
-}
-
-.seed-item.selected {
-  background-color: #5d468a;
-  border-color: #ffc107;
-}
-
-/* Seed letter */
-.seed-placeholder {
-  color: #ffc107;
-  font-size: 16px;
-}
-
-/* Quantity badge */
-.seed-quantity-badge {
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  background-color: #5d468a;
-  color: #e4dbee;
-  border: 1px solid #ffc107;
-  width: 15px;
-  height: 15px;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Static action buttons container - holds both buttons */
-.seed-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-/* Common button styling */
-.seed-actions button {
-  flex: 1;
-  background-color: #3a2f4a;
-  color: #e4dbee;
-  border: 1px solid #5d468a;
-  padding: 8px;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.seed-actions button:hover:not([disabled]) {
-  background-color: #4a3b5c;
-}
-
-.seed-actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Tip text */
-.garden-tip {
-  font-style: italic;
-  font-size: 12px;
-  color: #7a6c95;
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* Garden whisper popup */
-.garden-whisper {
-  position: absolute;
-  left: 50%;
-  top: 30%;
-  transform: translateX(-50%);
-  background-color: #3a2f4a;
-  color: #e4dbee;
-  padding: 10px 15px;
-  border: 1px solid #5d468a;
-  font-style: italic;
-  font-size: 14px;
-  max-width: 300px;
-  text-align: center;
-  z-index: 100;
-}
-
-/* Attunement animation overlay */
-.attunement-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, rgba(93, 70, 138, 0.3) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 100;
 }

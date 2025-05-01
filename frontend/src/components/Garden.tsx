@@ -163,26 +163,15 @@ const Garden: React.FC<GardenProps> = ({
 
   // Render garden plots in a grid (3x3)
   const renderPlots = () => {
-    return Array.from({ length: 9 }).map((_, i) => {
-      const plot = plots.find(p => p.id === i);
-      if (plot) {
-        return (
-          <GardenPlot
-            key={plot.id}
-            plot={plot}
-            selected={selectedPlotId === plot.id}
-            onClick={() => handlePlotClick(plot.id)}
-            season={season}
-          />
-        );
-      } else {
-        return (
-          <div key={`placeholder-${i}`} className="garden-plot placeholder locked">
-            <div className="locked-overlay"><div className="lock-icon">🔒</div></div>
-          </div>
-        );
-      }
-    });
+    return plots.map(plot => (
+      <GardenPlot
+        key={plot.id}
+        plot={plot}
+        selected={selectedPlotId === plot.id}
+        onClick={() => handlePlotClick(plot.id)}
+        season={season}
+      />
+    ));
   };
 
   // Render weather indicator
@@ -233,8 +222,19 @@ const Garden: React.FC<GardenProps> = ({
       return (
         <div className="plot-details">
           <h3>Plot Details</h3>
-          <p>Select a garden plot to view details.</p>
+          <p className="no-plot-message">Select a garden plot to view details.</p>
           <p className="garden-tip">{gardenTip}</p>
+          
+          {/* Garden Attune Button - Always available */}
+          <div className="garden-actions">
+            <button
+              className="garden-action-button"
+              onClick={handleStartAttunement}
+              disabled={showAttunementPuzzle}
+            >
+              <span className="button-icon">🌿</span> Attune Garden Energies
+            </button>
+          </div>
         </div>
       );
     }
@@ -245,7 +245,18 @@ const Garden: React.FC<GardenProps> = ({
         <div className="plot-details">
           <h3>Plot {selectedPlot.id + 1}</h3>
           <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
-          <div className="lock-icon" style={{fontSize: '40px', margin: '20px auto'}}>🔒</div>
+          <div className="lock-icon-large">🔒</div>
+          
+          {/* Garden Attune Button */}
+          <div className="garden-actions">
+            <button
+              className="garden-action-button"
+              onClick={handleStartAttunement}
+              disabled={showAttunementPuzzle}
+            >
+              <span className="button-icon">🌿</span> Attune Garden Energies
+            </button>
+          </div>
         </div>
       );
     }
@@ -261,14 +272,18 @@ const Garden: React.FC<GardenProps> = ({
         <h3>Plot {selectedPlot.id + 1} Details</h3>
         <div className="plot-stats">
           <div className="plot-stat">
-            <div className="stat-label">Fertility</div>
-            <div className="stat-bar"><div className="stat-fill fertility" style={{ width: `${selectedPlot.fertility || 0}%` }} /></div>
-            <div className="stat-value">{selectedPlot.fertility || 0}%</div>
+            <div className="stat-label">
+              <span>Fertility</span>
+              <span>{selectedPlot.fertility || 0}%</span>
+            </div>
+            <div className="stat-bar"><div className="stat-fill fertility" style={{ width: `${selectedPlot.fertility || 0}%` }}></div></div>
           </div>
           <div className="plot-stat">
-            <div className="stat-label">Moisture</div>
-            <div className="stat-bar"><div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }} /></div>
-            <div className="stat-value">{selectedPlot.moisture || 0}%</div>
+            <div className="stat-label">
+              <span>Moisture</span>
+              <span>{selectedPlot.moisture || 0}%</span>
+            </div>
+            <div className="stat-bar"><div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }}></div></div>
           </div>
         </div>
 
@@ -276,9 +291,11 @@ const Garden: React.FC<GardenProps> = ({
           <div className="plant-info">
             <h4>{plant.name}</h4>
             <div className="plant-progress">
-              <div className="progress-label">Growth</div>
-              <div className="progress-bar"><div className="progress-fill" style={{ width: `${growthPercent}%` }} /></div>
-              <div className="progress-value">{growthPercent.toFixed(0)}%</div>
+              <div className="progress-label">
+                <span>Growth</span>
+                <span>{growthPercent.toFixed(0)}%</span>
+              </div>
+              <div className="progress-bar"><div className="progress-fill" style={{ width: `${growthPercent}%` }}></div></div>
             </div>
             <div className="plant-stats">
               <div className="plant-stat">
@@ -289,44 +306,43 @@ const Garden: React.FC<GardenProps> = ({
                 <div className="stat-label">Age</div>
                 <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
               </div>
-              <div className="plant-stat">
-                <div className="stat-label">Watered</div>
-                <div className="stat-value">{selectedPlot.moisture > 40 ? 'Yes' : 'No'}</div>
-              </div>
             </div>
             {plant.moonBlessed && <div className="plant-blessing"><span className="moon-icon">🌙</span> Moon Blessed</div>}
             {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
               <div className="plant-season">
-                {plant.seasonalModifier > 1 ? <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>}
+                {plant.seasonalModifier > 1 ? 
+                  <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : 
+                  <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>
+                }
               </div>
             )}
             {plant.mature ? (
-              <button className="harvest-button" onClick={handleHarvest}>Harvest {plant.name}</button>
+              <button className="action-button harvest" onClick={handleHarvest}>Harvest {plant.name}</button>
             ) : (
               <div className="plant-status">Growing...</div>
             )}
           </div>
         ) : (
           <div className="empty-plot-status">
-            <p>This plot is empty.</p>
+            <p>This plot is empty. Select a seed to plant.</p>
           </div>
         )}
         
         {/* Garden Attune Button */}
         <div className="garden-actions">
           <button
-            className="attune-button"
+            className="garden-action-button"
             onClick={handleStartAttunement}
             disabled={showAttunementPuzzle}
           >
-            <span className="button-icon">🌿</span> Attune Energies
+            <span className="button-icon">🌿</span> Attune Garden Energies
           </button>
         </div>
       </div>
     );
   };
 
-  // Render seed pouch panel with icon-only seeds and static buttons
+  // Render seed pouch panel
   const renderSeedPouch = () => {
     const seeds = getAvailableSeeds();
     const selectedPlot = getSelectedPlot();
@@ -340,7 +356,6 @@ const Garden: React.FC<GardenProps> = ({
           <p>Your seed pouch is empty!</p>
         ) : (
           <>
-            {/* Icon-only seed grid */}
             <div className="seed-list">
               {seeds.map(seed => (
                 <div
@@ -349,25 +364,28 @@ const Garden: React.FC<GardenProps> = ({
                   onClick={() => handleSeedSelect(seed.id)}
                   title={`${seed.name} (Qty: ${seed.quantity})`}
                 >
-                  <div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div>
+                  <div className="seed-image">
+                    <div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div>
+                  </div>
                   <div className="seed-quantity-badge">{seed.quantity}</div>
                 </div>
               ))}
             </div>
             
-            {/* Combined static button container */}
             <div className="seed-actions">
-              <button
+              <button 
+                className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
+                onClick={handlePlant}
                 disabled={!canPlant || !selectedSeedId}
-                onClick={canPlant && selectedSeedId ? handlePlant : undefined}
               >
-                Plant
+                Plant Selected Seed
               </button>
-              <button
+              <button 
+                className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
+                onClick={handleClearSelection}
                 disabled={!selectedSeedId}
-                onClick={selectedSeedId ? handleClearSelection : undefined}
               >
-                Clear
+                Clear Selection
               </button>
             </div>
             
@@ -391,7 +409,7 @@ const Garden: React.FC<GardenProps> = ({
       <div className="garden-content">
         <div className="garden-grid">
           {renderPlots()}
-          {/* Easter Egg Click Spot */}
+          {/* Hidden Easter Egg spot */}
           <div className="garden-secret-spot" onClick={handleSecretSpotClick}></div>
         </div>
 
