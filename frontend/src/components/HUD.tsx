@@ -36,22 +36,6 @@ const HUD: React.FC<HUDProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const portraitClickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Track window size for responsiveness
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
-
-  // Update window width on resize
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    // Set initial state
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Handle location change
   const handleLocationClick = (location: string) => {
     setActiveLocation(location);
