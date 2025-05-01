@@ -1,6 +1,6 @@
 // frontend/src/components/App.tsx
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Using existing App.css 
+import './App.css'; 
 import {
   GameState, Season, InventoryItem, GardenSlot, BasicRecipeInfo
 } from 'coven-shared';
@@ -14,7 +14,7 @@ import HUD from './HUD';
 import Atelier from './Atelier';
 import WeatherEffectsOverlay from './WeatherEffectsOverlay';
 
-// API Utility - From your original code
+// API Utility
 const API_BASE_URL = '/api'; 
 
 const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Promise<GameState> => {
@@ -49,7 +49,7 @@ const App: React.FC = () => {
     const [meadowIntensity, setMeadowIntensity] = useState<number>(0);
     const [spiritPositions, setSpiritPositions] = useState<Array<{x: number, y: number, delay: number}>>([]);
 
-    // Moonlight Meadow Easter Egg Detection - From your original code
+    // Moonlight Meadow Easter Egg Detection
     useEffect(() => {
         if (!gameState || !gameState.players[gameState.currentPlayerIndex]) return;
         
@@ -224,7 +224,7 @@ const App: React.FC = () => {
         );
     };
 
-    // Handle location change with page transition - From your original code
+    // Handle location change with page transition
     const handleChangeLocation = (location: string) => {
         if (location === currentView) return;
         
@@ -367,8 +367,7 @@ const App: React.FC = () => {
                                 bottom: 10%;
                                 left: 50%;
                                 transform: translateX(-50%);
-                                color: rgba(255, 255, 255,
-0.9);
+                                color: rgba(255, 255, 255, 0.9);
                                 font-family: "Times New Roman", serif;
                                 font-size: 1.6rem;
                                 font-style: italic;
@@ -405,6 +404,7 @@ const App: React.FC = () => {
                     </div>
                 )}
                 
+                {/* Weather effects overlay */}
                 <WeatherEffectsOverlay
                     weatherType={gameState.time.weatherFate}
                     intensity="medium"
@@ -412,18 +412,21 @@ const App: React.FC = () => {
                     season={gameState.time.season as Season}
                 />
                 
-                {/* Integrate updated HUD component with the proper parameters */}
-                <HUD
-                    playerName={currentPlayer.name}
-                    gold={currentPlayer.gold}
-                    day={gameState.time.dayCount}
-                    lunarPhase={gameState.time.phaseName || 'New Moon'}
-                    reputation={currentPlayer.reputation}
-                    playerLevel={currentPlayer.atelierLevel}
-                    onChangeLocation={handleChangeLocation}
-                    onAdvanceDay={advanceDay}
-                />
+                {/* HUD Component - ensure it has the highest z-index */}
+                <div className="hud-wrapper">
+                    <HUD
+                        playerName={currentPlayer.name}
+                        gold={currentPlayer.gold}
+                        day={gameState.time.dayCount}
+                        lunarPhase={gameState.time.phaseName || 'New Moon'}
+                        reputation={currentPlayer.reputation}
+                        playerLevel={currentPlayer.atelierLevel}
+                        onChangeLocation={handleChangeLocation}
+                        onAdvanceDay={advanceDay}
+                    />
+                </div>
                 
+                {/* Main game content */}
                 <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
                     <div className="scroll-decoration top-left"></div>
                     <div className="scroll-decoration top-right"></div>

@@ -639,3 +639,35 @@
     width: 240px;
   }
 }
+
+/* HUD CSS Fix - Ensuring the HUD displays properly over the game content */
+
+.hud-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000; /* Ensure highest z-index */
+}
+
+.hud-container {
+  pointer-events: auto; /* Allow interaction with HUD elements */
+}
+
+/* All HUD elements should be positioned correctly */
+.hud-top,
+.location-menu,
+.menu-button,
+.end-day-button {
+  pointer-events: auto;
+}
+
+/* Fix positioning for menu if that's an issue */
+.location-menu {
+  position: absolute;
+  z-index: 1010;
+}
+
+/* Add these styles to the existing CSS file or link as a separate file */
