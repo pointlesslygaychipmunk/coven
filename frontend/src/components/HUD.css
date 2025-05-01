@@ -671,3 +671,204 @@
 }
 
 /* Add these styles to the existing CSS file or link as a separate file */
+
+/* CSS Fix for Overlapping UI Components */
+
+/* Left sidebar for HUD-style elements */
+.coven-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 180px; /* Width of sidebar */
+  height: 100vh;
+  background-color: var(--color-bg-dark);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+/* Adjust main game content to make room for the sidebar */
+.game-content {
+  margin-left: 180px; /* Same as HUD width */
+  width: calc(100% - 180px);
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* View container within game content */
+.view-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  z-index: 1; /* Ensure it's above the background but below HUD */
+}
+
+/* Player avatar and info */
+.player-avatar {
+  width: 70px;
+  height: 70px;
+  background-color: #8a60ce;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: white;
+  margin: 0 auto 10px;
+  font-family: 'Times New Roman', serif;
+}
+
+.player-name {
+  font-size: 18px;
+  color: #e9e1f8;
+  text-align: center;
+  margin-bottom: 5px;
+  font-family: 'Times New Roman', serif;
+}
+
+.player-level {
+  font-size: 14px;
+  color: #b59dc4;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: monospace;
+}
+
+/* Moon phase display */
+.moon-phase {
+  width: 50px;
+  height: 50px;
+  background-color: #292137;
+  border-radius: 50%;
+  margin: 0 auto 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.phase-name {
+  font-size: 14px;
+  color: #e9e1f8;
+  text-align: center;
+  margin-bottom: 5px;
+  font-family: 'Times New Roman', serif;
+}
+
+.day-counter {
+  font-size: 14px;
+  color: #b59dc4;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: monospace;
+}
+
+/* Resources display */
+.resources-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.gold-display, .reputation-display {
+  height: 24px;
+  background-color: #352e4a;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e9e1f8;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+/* End day button */
+.end-day-button {
+  width: 100%;
+  height: 40px;
+  background-color: #e9e1f8;
+  color: #292137;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Times New Roman', serif;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+}
+
+.end-day-button:hover {
+  background-color: #d8caee;
+}
+
+.end-day-button.confirm {
+  background-color: #c75e54;
+  color: #e9e1f8;
+}
+
+/* Navigation tabs */
+.nav-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-tab {
+  height: 40px;
+  background-color: #352e4a;
+  border: none;
+  border-radius: 5px;
+  color: #b59dc4;
+  font-family: monospace;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  transition: all 0.2s ease;
+}
+
+.nav-tab:hover {
+  background-color: #483d66;
+}
+
+.nav-tab.active {
+  background-color: #5d468a;
+  color: #e9e1f8;
+}
+
+.tab-icon {
+  margin-right: 5px;
+}
+
+/* Fix any weather effects overlay */
+.weather-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10; /* Above background but below UI elements */
+}
+
+/* Ensure game frame contains everything properly */
+.game-frame {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Ambient particles should be visible but not interfere */
+.ambient-particles-container {
+  z-index: 5; /* Above background but below most UI */
+}
