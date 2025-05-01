@@ -1,0 +1,681 @@
+/* Brewing90s.css - 90s fantasy game aesthetic for brewing */
+
+:root {
+  /* Brewing-specific colors */
+  --brewing-primary: #4a2c6f;          /* Brewing-specific primary (purple) */
+  --brewing-secondary: #7b4dab;        /* Brewing-specific secondary (lighter purple) */
+  --brewing-accent: #c09154;           /* Brewing-specific accent (gold) */
+  --brewing-dark: #2e1a47;             /* Brewing-specific dark (deep purple) */
+  
+  /* Potion colors */
+  --potion-blue: #5d8396;              /* Mana/wisdom potion */
+  --potion-green: #5a783e;             /* Health/vitality potion */
+  --potion-red: #a05c39;               /* Strength/fire potion */
+  --potion-purple: #8e5abc;            /* Magic/transform potion */
+  
+  /* Cauldron colors */
+  --cauldron-metal: #5e5e5e;           /* Cauldron metal */
+  --cauldron-liquid: #2e4852;          /* Default liquid color */
+  --cauldron-liquid-brewing: #7b4dab;  /* Brewing liquid color */
+  --cauldron-liquid-success: #5a783e;  /* Success liquid color */
+  --cauldron-liquid-failed: #a05c39;   /* Failed liquid color */
+  
+  /* From main theme */
+  --color-bg-dark: #1e1724;            /* Dark background */
+  --color-bg-medium: #2e2335;          /* Medium background */
+  --color-bg-light: #e4d9b9;           /* Light background (parchment) */
+  --color-text-dark: #1e1622;          /* Dark text */
+  --color-text-light: #e8dfc8;         /* Light text */
+  --color-text-gold: #e4b062;          /* Gold text */
+  --color-border-dark: #372a49;        /* Dark border */
+  --color-border-light: #7d6a94;       /* Light border */
+}
+
+/* Main brewing container */
+.brewing90s-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: var(--brewing-dark);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232e1a47"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%23372a49" stroke-width="1"/></svg>');
+  font-family: 'Times New Roman', serif;
+  color: var(--color-text-light);
+}
+
+/* Brewing header */
+.brewing-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: var(--brewing-primary);
+  border-bottom: 3px double var(--brewing-accent);
+}
+
+.brewing-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-variant: small-caps;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+  font-weight: normal;
+}
+
+.brewing-wisdom {
+  font-style: italic;
+  font-size: 14px;
+  color: var(--color-text-gold);
+  margin-top: 5px;
+}
+
+/* Main brewing layout */
+.brewing-main {
+  display: flex;
+  flex: 1;
+  padding: 10px;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* Panels */
+.brewing-left-panel,
+.brewing-right-panel {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brewing-center-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Generic panel styling */
+.ingredients-panel,
+.recipe-panel {
+  background-color: var(--color-bg-light);
+  border: 3px solid var(--brewing-primary);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.panel-header {
+  background-color: var(--brewing-primary);
+  padding: 8px 10px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: 16px;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Ingredients list */
+.ingredients-list,
+.recipe-list {
+  padding: 10px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.empty-list {
+  text-align: center;
+  font-style: italic;
+  padding: 20px;
+  color: var(--color-text-dark);
+}
+
+/* Ingredient item styling */
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background-color: var(--color-bg-medium);
+  border: 2px solid var(--color-border-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ingredient-item:hover {
+  border-color: var(--brewing-secondary);
+  box-shadow: 0 0 5px rgba(123, 77, 171, 0.4);
+}
+
+.ingredient-item.selected {
+  border-color: var(--brewing-accent);
+  background-color: rgba(192, 145, 84, 0.2);
+}
+
+.ingredient-icon {
+  width: 30px;
+  height: 30px;
+  background-color: var(--brewing-primary);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-size: 16px;
+  border: 2px solid var(--color-border-dark);
+}
+
+.ingredient-info {
+  flex: 1;
+}
+
+.ingredient-name {
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.ingredient-type {
+  font-size: 12px;
+  color: var(--brewing-secondary);
+  font-style: italic;
+}
+
+.ingredient-quantity {
+  font-size: 12px;
+  color: var(--color-text-gold);
+  font-family: 'Courier New', monospace;
+}
+
+/* Recipe item styling */
+.recipe-item {
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  background-color: var(--color-bg-medium);
+  border: 2px solid var(--color-border-dark);
+  transition: all 0.2s ease;
+  color: var(--color-text-light);
+}
+
+.recipe-item.matched {
+  border-color: var(--brewing-accent);
+  background-color: rgba(192, 145, 84, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { border-color: var(--brewing-accent); }
+  50% { border-color: var(--brewing-secondary); }
+}
+
+.recipe-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--color-text-gold);
+  border-bottom: 1px solid var(--brewing-accent);
+  padding-bottom: 3px;
+}
+
+.recipe-difficulty {
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: var(--brewing-secondary);
+}
+
+.recipe-ingredients {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.recipe-effect {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-text-gold);
+  padding-top: 5px;
+  border-top: 1px dashed var(--brewing-primary);
+}
+
+/* Cauldron container */
+.cauldron-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.cauldron-frame {
+  background-color: var(--color-bg-medium);
+  border: 3px solid var(--brewing-primary);
+  padding: 15px;
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 15px;
+}
+
+/* Selected ingredients */
+.cauldron-selection {
+  background-color: var(--color-bg-light);
+  border: 2px solid var(--brewing-secondary);
+  padding: 10px;
+}
+
+.cauldron-selection h3 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: normal;
+  color: var(--brewing-primary);
+  border-bottom: 1px solid var(--brewing-secondary);
+  padding-bottom: 5px;
+}
+
+.selected-ingredients {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.ingredient-slot {
+  width: 80px;
+  height: 80px;
+  background-color: var(--color-bg-medium);
+  border: 2px dashed var(--color-border-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  transition: all 0.2s ease;
+}
+
+.ingredient-slot.filled {
+  border-style: solid;
+  border-color: var(--brewing-secondary);
+  background-color: var(--brewing-dark);
+  cursor: pointer;
+}
+
+.ingredient-slot.filled:hover {
+  border-color: var(--brewing-accent);
+  box-shadow: 0 0 8px rgba(192, 145, 84, 0.4);
+}
+
+.slot-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.slot-name {
+  font-size: 12px;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slot-empty {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--color-border-light);
+}
+
+/* Main cauldron styling */
+.cauldron-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.cauldron {
+  width: 160px;
+  height: 130px;
+  background-color: var(--cauldron-metal);
+  border: 4px solid var(--color-bg-dark);
+  border-radius: 0 0 80px 80px;
+  position: relative;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.cauldron::before,
+.cauldron::after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background-color: var(--color-bg-dark);
+  border-radius: 50%;
+  bottom: 5px;
+}
+
+.cauldron::before {
+  left: 15px;
+}
+
+.cauldron::after {
+  right: 15px;
+}
+
+.cauldron-liquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 75%;
+  background-color: var(--cauldron-liquid);
+  transition: background-color 0.5s ease;
+}
+
+.cauldron.brewing .cauldron-liquid {
+  background-color: var(--cauldron-liquid-brewing);
+  animation: boil 1s infinite alternate;
+}
+
+.cauldron.success .cauldron-liquid {
+  background-color: var(--cauldron-liquid-success);
+  animation: glow 2s infinite alternate;
+}
+
+.cauldron.failed .cauldron-liquid {
+  background-color: var(--cauldron-liquid-failed);
+  animation: smoke 1.5s infinite alternate;
+}
+
+@keyframes boil {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-5px) scale(1.02); }
+}
+
+@keyframes glow {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.5); }
+}
+
+@keyframes smoke {
+  0% { opacity: 0.7; filter: blur(0); }
+  100% { opacity: 1; filter: blur(2px); }
+}
+
+.cauldron-bubble {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.cauldron.brewing .cauldron-bubble {
+  animation: bubble 2s infinite;
+}
+
+.bubble1 {
+  width: 20px;
+  height: 20px;
+  left: 30%;
+  bottom: 30%;
+  animation-delay: 0.2s !important;
+}
+
+.bubble2 {
+  width: 15px;
+  height: 15px;
+  left: 50%;
+  bottom: 20%;
+  animation-delay: 0.6s !important;
+}
+
+.bubble3 {
+  width: 12px;
+  height: 12px;
+  left: 70%;
+  bottom: 40%;
+  animation-delay: 1s !important;
+}
+
+@keyframes bubble {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+}
+
+/* Brewing controls */
+.brewing-controls {
+  display: flex;
+  gap: 15px;
+}
+
+.brewing-button {
+  padding: 8px 15px;
+  border: 2px outset var(--color-border-light);
+  background-color: var(--brewing-primary);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%234a2c6f"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%237b4dab"/></svg>');
+  color: var(--color-text-light);
+  font-family: 'Times New Roman', serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.brewing-button:hover:not(:disabled) {
+  background-color: var(--brewing-secondary);
+}
+
+.brewing-button:active:not(:disabled) {
+  border-style: inset;
+  transform: translateY(1px);
+}
+
+.brewing-button:disabled {
+  background-color: #767676;
+  border-color: #565656;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.brewing-button.brew {
+  background-color: var(--potion-purple);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%238e5abc"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%239c6dd0"/></svg>');
+}
+
+.brewing-button.puzzle {
+  background-color: var(--brewing-accent);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%23c09154"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%23ceaf80"/></svg>');
+}
+
+/* Brewing info section */
+.brewing-info {
+  background-color: var(--color-bg-light);
+  border: 2px solid var(--brewing-secondary);
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  color: var(--color-text-dark);
+}
+
+.lunar-bonus,
+.spec-bonus,
+.matched-recipe,
+.no-match {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  background-color: var(--color-bg-medium);
+  border: 1px solid var(--color-border-dark);
+}
+
+.info-label {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-bottom: 3px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--color-text-gold);
+}
+
+.no-match .info-value {
+  color: var(--potion-red);
+  font-style: italic;
+}
+
+/* Brewing result message */
+.brewing-result {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(30, 23, 36, 0.8);
+  border: 2px solid var(--brewing-accent);
+  color: var(--color-text-light);
+  font-size: 16px;
+  animation: fadeIn 0.5s ease, fadeOut 0.5s ease 4s forwards;
+  z-index: 10;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(20px); }
+}
+
+/* Brewing puzzle overlay */
+.brewing-puzzle-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(30, 23, 36, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.brewing-puzzle {
+  width: 400px;
+  height: 300px;
+  background-color: var(--color-bg-light);
+  border: 4px double var(--brewing-accent);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--color-text-dark);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.brewing-puzzle h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  color: var(--brewing-primary);
+  text-align: center;
+}
+
+.brewing-puzzle p {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.puzzle-runes {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.puzzle-rune {
+  width: 50px;
+  height: 50px;
+  background-color: var(--brewing-dark);
+  border: 2px solid var(--brewing-accent);
+  color: var(--color-text-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.puzzle-rune:hover {
+  background-color: var(--brewing-primary);
+  transform: scale(1.1);
+}
+
+.puzzle-rune:active {
+  transform: scale(0.95);
+}
+
+.puzzle-cancel {
+  margin-top: 20px;
+  padding: 8px 15px;
+  background-color: var(--potion-red);
+  border: 2px outset var(--color-border-dark);
+  color: var(--color-text-light);
+  cursor: pointer;
+}
+
+.puzzle-cancel:hover {
+  background-color: #b66c49;
+}
+
+.puzzle-cancel:active {
+  border-style: inset;
+}
+
+/* Decorative corners */
+.corner-decoration {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M40 0v40H0V0h40zM37 3H3v34h34V3z" fill="%234a2c6f"/><path d="M37 3v34H3V3h34zM35 5H5v30h30V5z" fill="%237b4dab"/><path d="M15 15L5 5v10h10zM25 15l10-10v10H25zM15 25L5 35v-10h10zM25 25l10 10v-10H25z" fill="%234a2c6f"/></svg>');
+  pointer-events: none;
+  z-index: 10;
+}
+
+.corner-decoration.top-left {
+  top: 0;
+  left: 0;
+}
+
+.corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  transform: rotate(90deg);
+}
+
+.corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  transform: rotate(270deg);
+}
+
+.corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}

@@ -1,0 +1,669 @@
+/* Garden90s.css - 90s fantasy game aesthetic for the garden view */
+
+:root {
+  /* Main colors */
+  --garden-primary: #5a783e;           /* Garden-specific primary color (earthy green) */
+  --garden-secondary: #976a4b;         /* Garden-specific secondary color (wood brown) */
+  --garden-accent: #8e5abc;            /* Garden-specific accent color (magical purple) */
+  
+  /* Soil colors */
+  --soil-dark: #553c28;                /* Dark soil color */
+  --soil-medium: #6d4e33;              /* Medium soil color */
+  --soil-light: #83613e;               /* Light soil color */
+  
+  /* Season-specific colors */
+  --spring-color: #5a783e;             /* Spring green */
+  --summer-color: #ac7339;             /* Summer amber */
+  --fall-color: #a05c39;               /* Fall auburn */
+  --winter-color: #5d8396;             /* Winter blue */
+  
+  /* UI colors (imported from main theme) */
+  --color-bg-dark: #1e1724;            /* Dark background */
+  --color-bg-medium: #2e2335;          /* Medium background */
+  --color-bg-light: #e4d9b9;           /* Light background (parchment) */
+  --color-primary-dark: #2e1a47;       /* Dark purple */
+  --color-primary: #4a2c6f;            /* Main purple */
+  --color-primary-light: #7b4dab;      /* Light purple */
+  --color-border-dark: #372a49;        /* Dark border */
+  --color-border-light: #7d6a94;       /* Light border */
+  --color-text-dark: #1e1622;          /* Dark text */
+  --color-text-light: #e8dfc8;         /* Light text */
+  --color-text-gold: #e4b062;          /* Gold accented text */
+}
+
+/* Garden container with seasonal backgrounds */
+.garden90s-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: var(--color-bg-medium);
+  font-family: 'Times New Roman', serif;
+}
+
+/* Seasonal variations */
+.garden90s-container.spring {
+  background-color: var(--spring-color);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%235a783e"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%234e6a34" stroke-width="1"/></svg>');
+}
+
+.garden90s-container.summer {
+  background-color: var(--summer-color);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ac7339"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%239c6832" stroke-width="1"/></svg>');
+}
+
+.garden90s-container.fall {
+  background-color: var(--fall-color);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23a05c39"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%238f5232" stroke-width="1"/></svg>');
+}
+
+.garden90s-container.winter {
+  background-color: var(--winter-color);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%235d8396"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%23517485" stroke-width="1"/></svg>');
+}
+
+/* Garden header */
+.garden-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: var(--color-primary-dark);
+  border-bottom: 3px double var(--garden-primary);
+  color: var(--color-text-light);
+}
+
+.garden-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-variant: small-caps;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+  font-weight: normal;
+}
+
+/* Garden info displays (weather & season) */
+.garden-info {
+  display: flex;
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-bg-medium);
+  border: 2px solid var(--garden-primary);
+  padding: 2px 8px;
+}
+
+.info-label {
+  font-size: 12px;
+  margin-right: 5px;
+  color: var(--color-text-gold);
+}
+
+.info-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.weather-icon, .season-icon {
+  font-size: 16px;
+}
+
+/* Main garden layout */
+.garden-main {
+  display: flex;
+  flex: 1;
+  padding: 10px;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* Garden grid - left panel */
+.garden-left-panel {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  flex: 1;
+  background-color: var(--soil-medium);
+  padding: 10px;
+  border: 4px solid var(--soil-dark);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Garden plot styling */
+.garden-plot {
+  position: relative;
+  background-color: var(--soil-light);
+  border: 2px solid var(--soil-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  min-height: 0;
+}
+
+.garden-plot:hover:not(.locked) {
+  border-color: var(--color-text-gold);
+  box-shadow: 0 0 8px rgba(228, 176, 98, 0.4);
+}
+
+.garden-plot.selected:not(.locked) {
+  border: 2px solid var(--color-text-gold);
+  box-shadow: 0 0 12px rgba(228, 176, 98, 0.5);
+}
+
+.garden-plot.locked {
+  background-color: var(--color-bg-dark);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.lock-icon {
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.plot-number {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 10px;
+  background-color: var(--soil-dark);
+  color: var(--color-text-light);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+}
+
+/* Plant display in plot */
+.plant-display {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.plant-icon {
+  font-size: 30px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  color: var(--color-text-light);
+  margin-bottom: 5px;
+}
+
+.growth-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--garden-primary);
+  opacity: 0.4;
+  transition: height 0.5s ease;
+  z-index: 1;
+}
+
+.garden-plot.mature .growth-indicator {
+  background-color: var(--garden-accent);
+  opacity: 0.5;
+}
+
+.garden-plot.mature .plant-icon {
+  color: var(--color-text-gold);
+}
+
+/* Garden actions section */
+.garden-actions {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background-color: var(--color-bg-medium);
+  border: 2px solid var(--color-border-dark);
+}
+
+/* Right panel - plot details and inventory */
+.garden-right-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+}
+
+/* Plot details section */
+.plot-details {
+  background-color: var(--color-bg-light);
+  border: 3px solid var(--garden-secondary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.plot-details h3 {
+  margin: 0;
+  padding: 8px 10px;
+  background-color: var(--garden-secondary);
+  color: var(--color-text-light);
+  font-size: 16px;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.detail-content {
+  padding: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  color: var(--color-text-dark);
+}
+
+/* Locked plot message */
+.locked-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 15px;
+}
+
+.big-lock {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+/* Meter styling */
+.soil-meters, .plant-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meter-label {
+  width: 70px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.meter-bar {
+  flex: 1;
+  height: 15px;
+  background-color: var(--color-bg-medium);
+  border: 1px solid var(--color-border-dark);
+  position: relative;
+}
+
+.meter-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.meter-fill.fertility {
+  background-color: var(--garden-accent);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%238e5abc"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%239c6dd0"/><path d="M0 5h20M0 10h20" stroke="%239c6dd0" stroke-width="1"/></svg>');
+}
+
+.meter-fill.moisture {
+  background-color: #5d8396;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%235d8396"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%236e94a7"/><path d="M0 5h20M0 10h20" stroke="%236e94a7" stroke-width="1"/></svg>');
+}
+
+.meter-fill.growth {
+  background-color: var(--garden-primary);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%235a783e"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%236a894e"/><path d="M0 5h20M0 10h20" stroke="%236a894e" stroke-width="1"/></svg>');
+}
+
+.meter-fill.health {
+  background-color: #ac7339;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%23ac7339"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%23bc8349"/><path d="M0 5h20M0 10h20" stroke="%23bc8349" stroke-width="1"/></svg>');
+}
+
+.meter-value {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+  color: var(--color-text-light);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+/* Plant details section */
+.plant-details {
+  background-color: var(--color-bg-light);
+  padding: 10px;
+  border: 1px solid var(--garden-secondary);
+}
+
+.plant-details h4 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 18px;
+  color: var(--garden-primary);
+  border-bottom: 1px solid var(--garden-secondary);
+  padding-bottom: 5px;
+}
+
+.plant-age {
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+  margin: 8px 0;
+}
+
+.garden-tip {
+  font-style: italic;
+  text-align: center;
+  margin-top: auto;
+  padding: 10px;
+  border-top: 1px dashed var(--garden-secondary);
+  font-size: 14px;
+  color: var(--color-text-dark);
+}
+
+/* Empty plot message */
+.empty-plot-message {
+  text-align: center;
+  font-style: italic;
+  padding: 10px;
+}
+
+/* Seed inventory section */
+.seed-inventory {
+  background-color: var(--color-bg-light);
+  border: 3px solid var(--garden-secondary);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.seed-list-header {
+  background-color: var(--garden-secondary);
+  padding: 8px 10px;
+}
+
+.seed-list-header h3 {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: 16px;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.seed-list {
+  padding: 10px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.empty-seeds {
+  text-align: center;
+  font-style: italic;
+  padding: 20px;
+  color: var(--color-text-dark);
+}
+
+/* Seed item styling */
+.seed-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  background-color: var(--color-bg-medium);
+  border: 2px solid var(--color-border-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.seed-item:hover {
+  border-color: var(--garden-primary);
+  box-shadow: 0 0 5px rgba(90, 120, 62, 0.4);
+}
+
+.seed-item.selected {
+  border-color: var(--garden-accent);
+  background-color: rgba(142, 90, 188, 0.2);
+}
+
+.seed-icon {
+  width: 30px;
+  height: 30px;
+  background-color: var(--garden-primary);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  color: var(--color-text-light);
+  font-weight: bold;
+  border: 2px solid var(--color-border-dark);
+}
+
+.seed-info {
+  flex: 1;
+}
+
+.seed-name {
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.seed-quantity {
+  font-size: 12px;
+  color: var(--color-text-gold);
+}
+
+/* Button styling */
+.garden-button {
+  padding: 8px 12px;
+  border: 2px outset var(--color-border-light);
+  background-color: var(--color-primary);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%234a2c6f"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%237b4dab"/></svg>');
+  color: var(--color-text-light);
+  font-family: 'Times New Roman', serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.garden-button:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+}
+
+.garden-button:active:not(:disabled) {
+  border-style: inset;
+  transform: translateY(1px);
+}
+
+.garden-button:disabled {
+  background-color: #767676;
+  border-color: #565656;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.garden-button.harvest {
+  background-color: var(--garden-primary);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%235a783e"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%236a894e"/></svg>');
+  margin-top: 10px;
+}
+
+.garden-button.plant {
+  background-color: var(--garden-accent);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%238e5abc"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%239c6dd0"/></svg>');
+}
+
+.garden-button.attune {
+  flex: 1;
+  background-color: var(--garden-secondary);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%23976a4b"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%23a77a5b"/></svg>');
+}
+
+.garden-button.clear {
+  background-color: #a05c39;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30"><rect width="100" height="30" fill="%23a05c39"/><path d="M0 0h100v2H0zM0 28h100v2H0z" fill="%23b06c49"/></svg>');
+}
+
+/* Garden whisper popup */
+.garden-whisper {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(30, 23, 36, 0.9);
+  border: 3px double var(--garden-accent);
+  padding: 15px 25px;
+  color: var(--color-text-light);
+  text-align: center;
+  font-style: italic;
+  max-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  animation: fadeIn 0.5s ease-in, fadeOut 0.5s ease-out 5.5s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Attunement effect overlay */
+.attunement-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(90, 120, 62, 0.2);
+  pointer-events: none;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.attunement-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.attunement-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: var(--garden-accent);
+  opacity: 0.8;
+  border-radius: 50%;
+  animation: particleFloat 4s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(calc(50px - 100px * Math.random()), -100px) scale(0);
+    opacity: 0;
+  }
+}
+
+.attunement-power {
+  font-size: 48px;
+  color: var(--color-text-gold);
+  text-shadow: 0 0 10px var(--garden-accent);
+  animation: pulsate 2s ease-in-out infinite;
+}
+
+@keyframes pulsate {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Decorative corners */
+.corner-decoration {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M40 0v40H0V0h40zM37 3H3v34h34V3z" fill="%235a783e"/><path d="M37 3v34H3V3h34zM35 5H5v30h30V5z" fill="%236a894e"/><path d="M15 15L5 5v10h10zM25 15l10-10v10H25zM15 25L5 35v-10h10zM25 25l10 10v-10H25z" fill="%235a783e"/></svg>');
+  pointer-events: none;
+  z-index: 10;
+}
+
+.corner-decoration.top-left {
+  top: 0;
+  left: 0;
+}
+
+.corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  transform: rotate(90deg);
+}
+
+.corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  transform: rotate(270deg);
+}
+
+.corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}
