@@ -29,11 +29,11 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   // Current view/location state
   const [currentView, setCurrentView] = useState<string>("garden");
   
-  // Character stats
-  const [health, setHealth] = useState<number>(100);
-  const [mana, setMana] = useState<number>(80);
-  const [herbalKnowledge, setHerbalKnowledge] = useState<number>(10);
-  const [alchemySkill, setAlchemySkill] = useState<number>(5);
+  // Character stats (read-only in this demo)
+  const health = 100;
+  const mana = 80;
+  const herbalKnowledge = 10;
+  const alchemySkill = 5;
   
   // Calculate fill percentages for status bars
   const healthPercent = `${health}%`;
@@ -67,13 +67,13 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     setCurrentView(view);
   };
   
-  // Mock data for demonstration purposes
+  // Mock data for demonstration purposes conforming to shared types
   const mockPlots = [
     { id: 0, fertility: 75, moisture: 60, isUnlocked: true, plant: null },
-    { id: 1, fertility: 80, moisture: 70, isUnlocked: true, plant: { name: "Moonflower", growth: 50, maxGrowth: 100, age: 2, health: 90, mature: false } },
+    { id: 1, fertility: 80, moisture: 70, isUnlocked: true, plant: { id: "p1", name: "Moonflower", growth: 50, maxGrowth: 100, age: 2, health: 90, mature: false, watered: true } },
     { id: 2, fertility: 65, moisture: 55, isUnlocked: true, plant: null },
-    { id: 3, fertility: 70, moisture: 65, isUnlocked: true, plant: { name: "Chamomile", growth: 100, maxGrowth: 100, age: 3, health: 95, mature: true } },
-    { id: 4, fertility: 90, moisture: 80, isUnlocked: true, plant: { name: "Ginseng", growth: 30, maxGrowth: 100, age: 1, health: 85, mature: false } },
+    { id: 3, fertility: 70, moisture: 65, isUnlocked: true, plant: { id: "p2", name: "Chamomile", growth: 100, maxGrowth: 100, age: 3, health: 95, mature: true, watered: true } },
+    { id: 4, fertility: 90, moisture: 80, isUnlocked: true, plant: { id: "p3", name: "Ginseng", growth: 30, maxGrowth: 100, age: 1, health: 85, mature: false, watered: true } },
     { id: 5, fertility: 60, moisture: 50, isUnlocked: false, plant: null },
     { id: 6, fertility: 0, moisture: 0, isUnlocked: false, plant: null },
     { id: 7, fertility: 0, moisture: 0, isUnlocked: false, plant: null },
@@ -81,13 +81,13 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   ];
   
   const mockInventory = [
-    { id: "1", name: "Chamomile", quantity: 5, type: "herb" },
-    { id: "2", name: "Lavender", quantity: 3, type: "herb" },
-    { id: "3", name: "Ginseng", quantity: 1, type: "rare_herb" },
-    { id: "4", name: "Crystal Vial", quantity: 2, type: "tool" },
-    { id: "5", name: "Moonflower Seeds", quantity: 4, type: "seed" },
-    { id: "6", name: "Chamomile Seeds", quantity: 2, type: "seed" },
-    { id: "7", name: "Dragon Scale", quantity: 1, type: "reagent" }
+    { id: "1", baseId: "chamomile", name: "Chamomile", quantity: 5, type: "ingredient", category: "herb" },
+    { id: "2", baseId: "lavender", name: "Lavender", quantity: 3, type: "ingredient", category: "herb" },
+    { id: "3", baseId: "ginseng", name: "Ginseng", quantity: 1, type: "ingredient", category: "root" },
+    { id: "4", baseId: "vial", name: "Crystal Vial", quantity: 2, type: "tool", category: "tool" },
+    { id: "5", baseId: "moonflower_seed", name: "Moonflower Seeds", quantity: 4, type: "seed", category: "seed" },
+    { id: "6", baseId: "chamomile_seed", name: "Chamomile Seeds", quantity: 2, type: "seed", category: "seed" },
+    { id: "7", baseId: "dragon_scale", name: "Dragon Scale", quantity: 1, type: "ingredient", category: "essence" }
   ];
   
   const mockRecipes = [
@@ -129,13 +129,15 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     { id: "rum2", text: "The moonflowers that grow in the hidden grove are said to possess twice the magical potency.", source: "Herbalist Mabel", discovered: true }
   ];
   
+  // For demo purposes, we'll adapt to the schema used in our Journal90s component
+  // This doesn't perfectly match the shared types but works with our component
   const mockJournalEntries = [
     {
       id: "j1",
       title: "Beginning My Journey",
       content: "Today I arrived at the witch's cottage that I inherited from my grandmother. The garden is overgrown, but I can sense the magical potential within the soil. I found her old grimoire and brewing equipment in good condition. Tomorrow I shall begin sorting through her notes and restoring the garden.",
       date: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-      type: "event",
+      type: "event" as const,
       tags: ["Beginning", "Cottage"]
     },
     {
@@ -143,7 +145,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
       title: "Moonflower Discovery",
       content: "During tonight's full moon, I discovered a peculiar flower that only blooms under moonlight. The townsfolk call it a 'Moonflower' and say it's particularly potent when harvested during the full moon phase. I've collected some seeds to plant in my garden.",
       date: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
-      type: "discovery",
+      type: "discovery" as const,
       tags: ["Plants", "Moon Magic"]
     }
   ];
@@ -153,7 +155,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
       id: "q1",
       title: "The Mayor's Malady",
       description: "Mayor Thornwood has fallen ill with a mysterious ailment. The town physician has tried traditional remedies without success. Brew a healing tonic to help him recover.",
-      status: "active",
+      status: "active" as const,
       progress: 25,
       steps: [
         { description: "Gather Chamomile from the garden", completed: true },
@@ -167,7 +169,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
       id: "q2",
       title: "Flower Festival Preparation",
       description: "The annual flower festival is approaching. The town florist has requested your help in growing special decorative plants.",
-      status: "active",
+      status: "active" as const,
       progress: 50,
       steps: [
         { description: "Grow Moonflowers in your garden", completed: true },

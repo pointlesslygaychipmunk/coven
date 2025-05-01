@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Brewing90s.css';
-import { InventoryItem } from 'coven-shared';
+import type { InventoryItem } from 'coven-shared';
 
 interface Recipe {
   id: string;
@@ -53,10 +53,11 @@ const Brewing90s: React.FC<Brewing90sProps> = ({
   // Filter inventory to only show valid brewing ingredients
   const getBrewingIngredients = () => {
     return playerInventory.filter(item => 
-      item.type === 'herb' || 
-      item.type === 'rare_herb' || 
-      item.type === 'reagent' || 
-      item.type === 'catalyst'
+      item.category === 'herb' || 
+      item.category === 'flower' ||
+      item.category === 'root' ||
+      item.category === 'essence' ||
+      item.category === 'crystal'
     );
   };
   

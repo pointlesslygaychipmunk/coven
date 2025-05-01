@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Journal90s.css';
 
+// Custom JournalEntry type for our UI component
+// This differs from the shared type but works for our UI
 interface JournalEntry {
   id: string;
   title: string;
@@ -119,7 +121,7 @@ const Journal90s: React.FC<Journal90sProps> = ({
   const formatDate = (timestamp: number) => {
     // In a real game, you'd have a proper calendar system
     // For this demo, we'll just show the day and moon phase
-    const date = new Date(timestamp);
+    // Unused: const date = new Date(timestamp);
     return `Day ${time.dayCount}, ${time.phaseName}, ${time.season}`;
   };
   

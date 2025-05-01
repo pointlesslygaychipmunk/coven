@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Garden90s.css';
-import { GardenSlot, InventoryItem, Season, WeatherFate } from 'coven-shared';
+import type { GardenSlot, InventoryItem, Season, WeatherFate } from 'coven-shared';
 
 interface Garden90sProps {
   plots: GardenSlot[];

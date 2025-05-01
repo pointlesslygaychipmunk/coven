@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Market90s.css';
-import { InventoryItem } from 'coven-shared';
+import type { InventoryItem } from 'coven-shared';
 
 interface MarketItem {
   id: string;
@@ -167,8 +167,9 @@ const Market90s: React.FC<Market90sProps> = ({
   
   // Render player inventory for selling
   const renderSellableItems = () => {
+    // Filter out any items with zero quantity
     const sellableItems = playerInventory.filter(item => 
-      item.type !== 'quest' && item.quantity > 0
+      item.quantity > 0
     );
     
     if (sellableItems.length === 0) {
@@ -388,14 +389,14 @@ const Market90s: React.FC<Market90sProps> = ({
   // Calculate sell price (typically 50% of buy price)
   const getSellPrice = (item: InventoryItem) => {
     // In a real implementation, you might have pricing logic based on item type, rarity, etc.
-    // For this demo, we'll use a simple calculation
+    // For this demo, we'll use a simple calculation based on category
     const basePrice = 
-      item.type === 'herb' ? 5 :
-      item.type === 'rare_herb' ? 20 :
-      item.type === 'reagent' ? 15 :
-      item.type === 'tool' ? 25 :
-      item.type === 'potion' ? 30 :
-      item.type === 'seed' ? 8 : 10;
+      item.category === 'herb' ? 5 :
+      item.category === 'flower' ? 20 :
+      item.category === 'root' ? 15 :
+      item.category === 'tool' ? 25 :
+      item.category === 'potion' ? 30 :
+      item.category === 'seed' ? 8 : 10;
     
     return Math.floor(basePrice * 0.5);
   };
