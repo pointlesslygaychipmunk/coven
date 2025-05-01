@@ -567,16 +567,149 @@
 
 /* These are the additional styles to add to your Garden.css file */
 
-/* Seed Actions section - Always visible */
-.seed-actions {
+/* Fixed Seed Pouch Styling with Proper Button Layout */
+
+/* Seed inventory styling */
+.inventory-panel {
+  background-color: var(--color-bg-panel, #3a2f4a);
+  border-radius: var(--border-radius-md, 0px);
+  padding: 15px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid;
+  border-color: var(--color-border-light, #7a6c95) var(--color-bg-dark, #2d2038) var(--color-bg-dark, #2d2038) var(--color-border-light, #7a6c95);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  position: relative;
+  min-height: 0;
+}
+
+.inventory-panel h3 {
+  margin: 0 0 10px;
+  color: var(--color-text-heading, #b59dc4);
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border, #5d468a);
+  padding-bottom: 5px;
+}
+
+.seed-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  overflow-y: auto;
+  max-height: 150px;
 }
 
-/* Disabled button state */
+.seed-item {
+  display: flex;
+  padding: 6px;
+  background-color: var(--color-bg-dark, #2d2038);
+  border: 2px solid;
+  border-color: var(--color-border, #5d468a) var(--color-bg-dark, #2d2038) var(--color-bg-dark, #2d2038) var(--color-border, #5d468a);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 8px;
+}
+
+.seed-item:hover {
+  background-color: var(--color-panel, #4a3b5c);
+  transform: translateY(-2px);
+}
+
+.seed-item.selected {
+  background-color: var(--color-border, #5d468a);
+  border-color: var(--color-text-heading, #b59dc4) var(--color-bg-dark, #2d2038) var(--color-bg-dark, #2d2038) var(--color-text-heading, #b59dc4);
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.seed-image {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #795548;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid #5d4037;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.seed-placeholder {
+  color: #c8e6c9;
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.seed-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  flex-grow: 1;
+}
+
+.seed-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #c8e6c9;
+}
+
+.seed-quantity {
+  font-size: 12px;
+  color: var(--color-text-heading, #b59dc4);
+}
+
+/* FIXED: Seed Actions section with proper inline buttons */
+.seed-actions {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: row; /* Change to row for inline buttons */
+  gap: 8px;
+  justify-content: space-between; /* Space evenly between buttons */
+}
+
+/* Common button styling */
+.action-button {
+  flex: 1; /* Make buttons take equal space */
+  padding: 8px 6px; /* Reduce horizontal padding slightly to fit buttons */
+  background-color: var(--color-accent, #ffc107);
+  color: var(--color-bg-dark, #2d2038);
+  border: 2px solid;
+  border-color: var(--color-accent-light, #ffe082) var(--color-accent-dark, #cc9a05) var(--color-accent-dark, #cc9a05) var(--color-accent-light, #ffe082);
+  font-family: var(--font-primary, 'Courier New', monospace);
+  font-size: 13px; /* Slightly smaller font */
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  white-space: nowrap; /* Prevent text wrapping */
+  min-width: 0; /* Allow shrinking */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis if text too long */
+}
+
+.action-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.action-button:active:not(.disabled) {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+  border-color: var(--color-accent-dark, #cc9a05) var(--color-accent-light, #ffe082) var(--color-accent-light, #ffe082) var(--color-accent-dark, #cc9a05);
+}
+
+/* Disabled state */
 .action-button.disabled {
   opacity: 0.6;
   background-color: #757575;
@@ -592,27 +725,40 @@
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Clear selection button */
+/* Plant button specific styles */
+.action-button.plant {
+  background-color: #4caf50; /* Green for plant */
+  border-color: #81c784 #2e7d32 #2e7d32 #81c784;
+}
+
+.action-button.plant:hover:not(.disabled) {
+  background-color: #43a047;
+}
+
+/* Clear button specific styles */
 .action-button.clear {
-  background-color: #795548;
+  background-color: #795548; /* Brown for clear */
   border-color: #a1887f #4e342e #4e342e #a1887f;
+  color: #fff;
 }
 
 .action-button.clear:hover:not(.disabled) {
-  background-color: #8d6e63;
+  background-color: #6d4c41;
 }
 
-/* Action status area */
+/* Status messages for feedback */
 .action-status {
-  margin-top: 5px;
+  margin-top: 8px;
+  text-align: center;
 }
 
 .action-status .garden-tip {
   margin: 3px 0;
   font-size: 12px;
+  opacity: 0.85;
 }
 
-/* Make sure buttons are crisp in mobile view too */
+/* Responsive adjustments */
 @media (max-width: 600px) {
   .seed-actions {
     gap: 6px;
@@ -620,7 +766,7 @@
   }
   
   .action-button {
-    padding: 6px 10px;
+    padding: 6px 8px;
     font-size: 12px;
   }
 }
