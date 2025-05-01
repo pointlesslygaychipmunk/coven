@@ -1,20 +1,4 @@
-/* frontend/src/components/App.css */
-/* Base layout and styling for the main App component - 90s Adventure Game Style */
-
-/* Use fonts defined in index.css */
-
-/* Main Game Container - Fills viewport */
-.game-container {
-  display: flex; /* Use flex for potential centering/framing */
-  height: 100vh;
-  width: 100vw;
-  justify-content: center;
-  align-items: center;
-  /* Dark, slightly textured background for outside the frame */
-  background-color: #1a1624;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" fill="%231a1624"/><path d="M0 0h5v50H0zm10 0h5v50H10zm10 0h5v50H20zm10 0h5v50H30zm10 0h5v50H40z" fill="%232d2038" opacity="0.2"/></svg>');
-  padding: 15px; /* Space around the game frame */
-}
+/* App.css Fixes - Improved Layout */
 
 /* Game Frame - The main game window */
 .game-frame {
@@ -36,13 +20,24 @@
   border-style: solid;
   image-rendering: pixelated;
   display: flex; /* Use flex for sidebar + content layout */
+  flex-direction: row; /* Ensure layout is horizontal */
+}
+
+/* HUD Sidebar - Fixed width */
+.coven-hud-sidebar {
+  position: relative;
+  float: none; /* Remove float */
+  width: 220px; /* Fixed width */
+  height: 100%; /* Full height */
+  min-height: 100%; /* Ensure minimum height */
+  flex: 0 0 220px; /* Fixed flex width, don't grow or shrink */
+  z-index: 10;
 }
 
 /* Game Content Main Panel (Right side) */
 .game-content {
-  /* MODIFIED: Changed to match width of viewport minus sidebar */
-  flex-grow: 1; /* Takes remaining width */
-  margin-left: 220px; /* Added to match the width of the sidebar */
+  flex: 1; /* Takes remaining width */
+  margin-left: 0; /* Remove margin, we're using flex */
   height: 100%; /* Full height within frame */
   overflow-y: auto; /* Allow content scrolling */
   overflow-x: hidden;
@@ -54,29 +49,13 @@
   /* 90s Scrollbar style */
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-light) var(--color-bg-dark);
-}
-.game-content::-webkit-scrollbar { width: 14px; height: 14px; }
-.game-content::-webkit-scrollbar-track { background: var(--color-bg-dark); border-left: 1px solid var(--color-border-dark); }
-.game-content::-webkit-scrollbar-thumb { background: var(--color-bg-light); border-radius: 0; border: 2px solid; border-color: var(--color-border-light) var(--color-border-dark) var(--color-border-dark) var(--color-border-light); }
-.game-content::-webkit-scrollbar-thumb:hover { background: var(--color-border); }
-.game-content::-webkit-scrollbar-corner { background: var(--color-bg-dark); }
-
-/* Page transition effect */
-.page-transition {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  transform: scale(0.98); /* Start slightly smaller */
-  opacity: 0;
-}
-.game-content:not(.page-transition) .view-container {
-    animation: viewFadeIn 0.4s ease-out;
-}
-@keyframes viewFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  display: flex; /* Make content area a flex container */
+  flex-direction: column; /* Stack children vertically */
 }
 
 .view-container {
-  height: 100%;
+  flex: 1; /* Take all available space */
+  min-height: 0; /* Important to allow proper flex sizing */
   width: 100%; /* Ensure view takes full content width */
   position: relative;
   z-index: 2; /* Above background patterns */
@@ -86,224 +65,23 @@
   border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark); /* Inset look */
   box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
   padding: 1px; /* Prevent padding collapse */
-  /* This container holds the actual Garden, Market etc. components */
-  /* Their specific CSS should handle internal padding */
+  display: flex; /* Make this flex too */
+  overflow: hidden; /* Prevent child overflow */
 }
-
-/* Decorative Scroll Corners inside game-content */
-.scroll-decoration {
-  position: absolute;
-  width: 60px; /* Smaller decoration */
-  height: 60px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  z-index: 3; /* Above view-container background */
-  pointer-events: none;
-  opacity: 0.6;
-  filter: brightness(0.8);
-}
-/* Position corners relative to game-content padding */
-.top-left { top: 10px; left: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60' fill='%23a07c2c'%3E%3Cpath d='M0 0 H15 C 15 5 10 10 5 15 V15 H0 Z M0 20 H5 V5 H0 Z M20 0 H5 V5 H20 Z'/%3E%3C/svg%3E"); }
-.top-right { top: 10px; right: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60' fill='%23a07c2c'%3E%3Cpath d='M60 0 H45 C 45 5 50 10 55 15 V15 H60 Z M60 20 H55 V5 H60 Z M40 0 H55 V5 H40 Z'/%3E%3C/svg%3E"); }
-.bottom-left { bottom: 10px; left: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60' fill='%23a07c2c'%3E%3Cpath d='M0 60 H15 C 15 55 10 50 5 45 V45 H0 Z M0 40 H5 V55 H0 Z M20 60 H5 V55 H20 Z'/%3E%3C/svg%3E"); }
-.bottom-right { bottom: 10px; right: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60' fill='%23a07c2c'%3E%3Cpath d='M60 60 H45 C 45 55 50 50 55 45 V45 H60 Z M60 40 H55 V55 H60 Z M40 60 H55 V55 H40 Z'/%3E%3C/svg%3E"); }
-
-
-/* Ambient Particles Container */
-.ambient-particles-container {
-  position: absolute;
-  inset: 0; /* Cover the game frame */
-  pointer-events: none;
-  z-index: 5; /* Above content, below HUD maybe */
-  overflow: hidden;
-}
-.ambient-particle {
-  position: absolute;
-  width: 3px; height: 3px; /* Smaller particles */
-  background: radial-gradient(circle, rgba(229, 225, 241, 0.6) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: floatParticle var(--particle-duration, 25s) ease-in-out infinite;
-  animation-delay: var(--particle-delay, 0s);
-  opacity: 0;
-}
-@keyframes floatParticle {
-  0%, 100% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-  25% { opacity: 0.6; }
-  50% { transform: translate(calc(var(--particle-x, 80px)), calc(var(--particle-y, -80px))) scale(1); opacity: 0.4; }
-  75% { opacity: 0.6; }
-}
-
-
-/* Loading Screen */
-.loading-screen {
-  display: flex; align-items: center; justify-content: center;
-  position: fixed; /* Cover everything */
-  inset: 0;
-  background: linear-gradient(135deg, #3a2f4a 0%, #1a1624 100%);
-  z-index: 2000; /* Highest */
-  font-family: var(--font-primary);
-}
-.loading-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 25px; }
-.loading-content h1 {
-  color: var(--color-text-heading); font-size: 28px; font-weight: bold;
-  letter-spacing: 1px; text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-  animation: loadingGlow 2s ease-in-out infinite alternate;
-}
-@keyframes loadingGlow { from { text-shadow: 2px 2px 0px rgba(0,0,0,0.5), 0 0 8px var(--color-accent-primary); } to { text-shadow: 2px 2px 0px rgba(0,0,0,0.5), 0 0 18px var(--color-accent-primary); } }
-
-/* Animated Cauldron */
-.cauldron-container { position: relative; width: 100px; height: 100px; }
-.cauldron-body {
-  position: absolute; width: 80px; height: 60px; background-color: #1a1624;
-  border: 3px solid #483d66; border-radius: 50% 50% 6px 6px; bottom: 15px; left: 10px;
-  overflow: hidden; box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-}
-.cauldron-legs { position: absolute; bottom: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 15px; }
-.leg { width: 12px; height: 15px; background-color: #483d66; border-radius: 0 0 4px 4px; border: 1px solid #2d2038; }
-.cauldron-liquid {
-  position: absolute; bottom: 0; left: 0; width: 100%; height: 55%;
-  background: linear-gradient(to bottom, #7eba76 0%, #4a8c4a 100%); /* Green liquid */
-  animation: liquidBubble 2.5s ease-in-out infinite alternate;
-}
-.cauldron-bubble {
-  position: absolute; background-color: rgba(160, 220, 160, 0.7); border-radius: 50%;
-  animation: bubbleRise 2.5s ease-in infinite; z-index: 10;
-  box-shadow: inset 0 0 2px rgba(255,255,255,0.5);
-}
-.bubble-1 { width: 8px; height: 8px; bottom: 8px; left: 20px; animation-delay: 0.1s; }
-.bubble-2 { width: 12px; height: 12px; bottom: 12px; left: 45px; animation-delay: 0.6s; }
-.bubble-3 { width: 6px; height: 6px; bottom: 5px; left: 65px; animation-delay: 0.3s; }
-@keyframes bubbleRise { from { transform: translateY(0) scale(0.8); opacity: 0; } 50% { opacity: 0.9; } 100% { transform: translateY(-35px) scale(1.1); opacity: 0; } }
-@keyframes liquidBubble { 0%, 100% { height: 50%; } 50% { height: 58%; } }
-.loading-flavor-text {
-  font-family: var(--font-secondary); font-style: italic; color: var(--color-text-medium);
-  font-size: 13px; animation: flavorTextCycle 12s linear infinite;
-}
-@keyframes flavorTextCycle { /* Using content property requires more complex setup, using fixed text */
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-
-/* Error Screen - Torn Parchment Style */
-.error-screen {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  position: fixed; inset: 0; background: #3a2f4a; z-index: 2000; padding: 20px;
-}
-.torn-page {
-  position: relative; width: 90%; max-width: 450px; background-color: #f4e9d9; color: #5d4037;
-  padding: 30px 25px; border-radius: 3px; box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
-  text-align: center; font-family: 'Times New Roman', serif;
-  /* Torn edge effect simulation */
-   border: 1px solid #d3c6a6;
-   mask-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="torn"><feTurbulence type="fractalNoise" baseFrequency="0.03 0.1" numOctaves="1" result="warp" /><feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="15" in="SourceGraphic" in2="warp" /></filter></defs><rect width="100" height="100" fill="white" filter="url(%23torn)"/></svg>');
-   mask-size: 100% 100%;
-   -webkit-mask-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="torn"><feTurbulence type="fractalNoise" baseFrequency="0.03 0.1" numOctaves="1" result="warp" /><feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="15" in="SourceGraphic" in2="warp" /></filter></defs><rect width="100" height="100" fill="white" filter="url(%23torn)"/></svg>');
-  -webkit-mask-size: 100% 100%;
-}
-
-.torn-page h1 { font-family: var(--font-primary); font-size: 24px; margin-bottom: 15px; color: #6a1b9a; text-shadow: 1px 1px 0 #d3c6a6; }
-.torn-page p { font-size: 15px; line-height: 1.6; margin-bottom: 20px; color: #6d4c41; }
-.cute-familiar { /* Simple cat icon */
-  width: 50px; height: 50px; margin: 10px auto; font-size: 40px; line-height: 50px;
-  filter: drop-shadow(2px 2px 1px rgba(0,0,0,0.2));
-  animation: familiarBob 3s ease-in-out infinite alternate;
-}
-.cute-familiar::before { content: '🐾'; } /* Use emoji */
-@keyframes familiarBob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
-
-.torn-page button { /* Style button on parchment */
-  background-color: #8d6e63; color: #f4e9d9; border: 2px solid;
-  border-color: #a1887f #5d4037 #5d4037 #a1887f; padding: 8px 18px;
-  border-radius: var(--border-radius-sm); font-family: var(--font-primary); font-size: 15px;
-  cursor: pointer; transition: all 0.15s ease; box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
-}
-.torn-page button:hover { background-color: #a1887f; transform: translateY(-2px); }
-
-
-/* Error Overlay (Bottom Notification) */
-.error-overlay {
-  position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-  z-index: 1500; pointer-events: none; /* Allow clicks through overlay */
-}
-.error-scroll {
-  background-color: rgba(199, 94, 84, 0.9); /* Danger color bg */
-  color: white; padding: 10px 20px; border-radius: var(--border-radius-sm);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3); border: 2px solid #a04040;
-  display: flex; align-items: center; gap: 10px; max-width: 80vw;
-  pointer-events: auto; /* Allow interaction with content */
-  animation: errorAppear 0.5s ease-out;
-}
-@keyframes errorAppear { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-
-.error-scroll p { font-family: var(--font-secondary); margin: 0; font-size: 13px; line-height: 1.4; text-shadow: 1px 1px 0px rgba(0,0,0,0.4); }
-.error-scroll button {
-  background-color: #a04040; color: white; border: 1px solid;
-  border-color: #e48d85 #8e24aa #8e24aa #e48d85; /* Red bevel */
-  padding: 4px 8px; border-radius: var(--border-radius-sm); cursor: pointer;
-  font-size: 12px; font-family: var(--font-primary); transition: all 0.15s ease;
-  margin-left: auto; /* Push button to right */
-}
-.error-scroll button:hover { background-color: #d66f66; }
-
-/* Moonlight Meadow Easter Egg */
-.moonlight-meadow {
-    position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(26, 22, 36, 0.7) 0%, rgba(26, 22, 36, 0.95) 100%);
-    z-index: 2000; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    animation: fadeInOverlay 1s ease-out;
-}
-.moonlight-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(74, 59, 92, 0.3)); }
-.moon-glow {
-    position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
-    width: 150px; height: 150px; background: radial-gradient(circle, rgba(240, 240, 255, 0.6) 0%, transparent 70%);
-    border-radius: 50%; filter: blur(15px); animation: moonPulse 5s infinite ease-in-out;
-}
-.meadow-spirit {
-    position: absolute; width: 5px; height: 5px; background-color: #e4dbee;
-    border-radius: 50%; box-shadow: 0 0 5px #e4dbee; opacity: 0;
-    animation: spiritWander 10s infinite ease-in-out;
-}
-@keyframes spiritWander {
-  0%, 100% { opacity: 0; transform: translate(0, 0) scale(0.5); }
-  20%, 80% { opacity: 0.8; }
-  50% { opacity: 0.6; transform: translate(50px, -30px) scale(1); }
-}
-.meadow-message {
-    color: #e4dbee; font-size: 18px; text-align: center; z-index: 10;
-    font-family: var(--font-primary); text-shadow: 0 0 10px #b59dc4;
-    background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 5px;
-}
-
-/* Konami Code Easter Egg Visual Cue */
-.konami-active-indicator {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: lime;
-    color: black;
-    padding: 5px 10px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    border-radius: 4px;
-    z-index: 3000; /* Very high */
-    animation: konamiFade 3s forwards;
-    box-shadow: 0 0 10px lime;
-}
-
-@keyframes konamiFade {
-    0% { opacity: 1; transform: scale(1); }
-    80% { opacity: 1; transform: scale(1.1); }
-    100% { opacity: 0; transform: scale(1); }
-}
-
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .game-frame { max-height: none; border-width: 8px; } /* Allow full height */
+  .game-frame { max-height: none; border-width: 8px; } /* Allow full height */
 }
+
 @media (max-width: 768px) {
   /* Updated mobile view to handle sidebar layout */
-  .game-frame { flex-direction: column; border-width: 6px; } 
+  .game-frame { 
+    flex-direction: column; 
+    border-width: 6px; 
+    height: auto;
+    min-height: 100vh;
+  } 
   
   /* Make sidebar responsive for mobile */
   .coven-hud-sidebar {
@@ -311,6 +89,7 @@
     width: 100%;
     height: auto;
     min-height: 80px;
+    flex: 0 0 auto;
     padding: 10px;
     display: flex;
     flex-direction: row;
@@ -352,13 +131,7 @@
   .game-content {
     margin-left: 0;
     padding: 10px;
+    flex: 1 1 auto;
+    min-height: 0; /* Allow content to shrink properly */
   }
-  
-  .scroll-decoration { width: 40px; height: 40px; }
-  .loading-content h1 { font-size: 22px; }
-  .torn-page h1 { font-size: 20px; }
-  .torn-page { padding: 20px 15px; }
-  .error-scroll { padding: 8px 15px; }
-  .error-scroll p { font-size: 12px; }
-  .error-scroll button { font-size: 11px; padding: 3px 6px; }
 }
