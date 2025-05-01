@@ -343,30 +343,34 @@
   border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Inverted bevel when pressed */
 }
 
-/* Seed inventory styling */
+/* Seed inventory styling - Icon grid with tooltips */
 .seed-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   overflow-y: auto;
   max-height: 150px;
   border: 2px solid;
   border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s inset bevel */
-  padding: 5px;
+  padding: 8px;
   background-color: #2d2038; /* Dark purple */
 }
 
 .seed-item {
+  position: relative;
+  width: 40px;
+  height: 40px;
   display: flex;
-  padding: 6px;
+  align-items: center;
+  justify-content: center;
   background-color: #3a2f4a; /* Slightly lighter purple */
-  border: 2px solid;
+  border: 3px solid;
   border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
   border-radius: 0px; /* Square for 90s look */
   cursor: pointer;
   transition: all 0.2s ease;
-  gap: 8px;
+  padding: 0;
 }
 
 .seed-item:hover {
@@ -401,40 +405,42 @@
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 }
 
-.seed-info {
+/* Quantity indicator */
+.seed-quantity-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #4caf50; /* Green */
+  color: #fff;
+  border: 2px solid #2d2038;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 2px;
-  flex-grow: 1;
-}
-
-.seed-name {
-  font-size: 14px;
   font-weight: bold;
-  color: #c8e6c9; /* Light green */
 }
 
-.seed-quantity {
-  font-size: 12px;
-  color: #b59dc4; /* Light purple */
-}
-
-/* FIXED: Seed Actions section with proper inline buttons */
+/* FIXED: Seed Actions section with buttons stacked vertically */
 .seed-actions {
-  display: flex; /* Always display as a row of buttons */
+  display: flex; /* Always display */
+  flex-direction: column; /* Stack buttons vertically */
   gap: 8px;
   margin-top: 10px;
 }
 
 .action-button.plant {
-  flex: 1;
-  background-color: #4caf50; /* Green for plant */
-  border-color: #81c784 #2e7d32 #2e7d32 #81c784;
+  width: 100%;
+  background-color: #795548; /* Brown like clear button */
+  border-color: #a1887f #4e342e #4e342e #a1887f;
+  color: #fff;
+  margin-bottom: 0; /* Remove margin between buttons */
 }
 
 .action-button.clear {
-  flex: 1;
+  width: 100%;
   background-color: #795548; /* Brown for clear */
   border-color: #a1887f #4e342e #4e342e #a1887f;
   color: #fff;
@@ -522,7 +528,7 @@
   }
   
   .seed-actions {
-    flex-direction: row; /* Ensure buttons stay horizontal */
+    flex-direction: column; /* Ensure buttons stay vertical */
   }
 }
 
