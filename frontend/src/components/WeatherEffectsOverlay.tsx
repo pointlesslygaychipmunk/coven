@@ -164,7 +164,7 @@ const WeatherEffectsOverlay: React.FC<WeatherEffectsOverlayProps> = ({
           );
       })}
       {/* Optional Moon Glow for clear nights */}
-      {isSpecialNight && <div className="moon-glow" />}
+      {isSpecialNight}
     </div>
   );
 
