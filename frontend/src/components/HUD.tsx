@@ -126,6 +126,21 @@ const HUD: React.FC<HUDProps> = ({
     { id: 'journal', name: 'Journal', icon: '📖' }
   ];
 
+  // Generate ASCII moon phases
+  const getMoonASCII = (phase: MoonPhase) => {
+    switch(phase) {
+      case 'New Moon':        return '   ______\n  /      \\\n |        |\n |        |\n  \\______/';
+      case 'Waxing Crescent': return '   ______\n  /   |  \\\n |    |   |\n |    |   |\n  \\___l__/';
+      case 'First Quarter':   return '   ______\n  /|     \\\n | |      |\n | |      |\n  \\|_____/';
+      case 'Waxing Gibbous':  return '   ______\n  /\\\\    \\\n | \\\\     |\n | \\\\     |\n  \\\\\\____/';
+      case 'Full Moon':       return '   ______\n  /      \\\n |  ****  |\n |  ****  |\n  \\______/';
+      case 'Waning Gibbous':  return '   ______\n  /    //\\\n |     // |\n |     // |\n  \\____///';
+      case 'Last Quarter':    return '   ______\n  /     |\\\n |      | |\n |      | |\n  \\_____|/';
+      case 'Waning Crescent': return '   ______\n  /  |   \\\n |   |    |\n |   |    |\n  \\__l___/';
+      default:                return '   ______\n  /      \\\n |   ?    |\n |   ?    |\n  \\______/';
+    }
+  };
+
   return (
     <div className="hud-wrapper">
       {/* Main HUD Container */}
@@ -134,14 +149,8 @@ const HUD: React.FC<HUDProps> = ({
         <div className="hud-top-section">
           {/* Player Info Panel */}
           <div className="panel player-panel">
-            <div className="metal-frame top"></div>
-            <div className="metal-frame left"></div>
-            <div className="metal-frame right"></div>
-            <div className="metal-frame bottom"></div>
             <div className="panel-header">
-              <div className="header-decoration left"></div>
               <h3>Character</h3>
-              <div className="header-decoration right"></div>
             </div>
             <div className="panel-content">
               <div
@@ -149,32 +158,25 @@ const HUD: React.FC<HUDProps> = ({
                 onClick={handlePortraitClick}
               >
                 <div className="portrait-frame"></div>
-                <div className="player-avatar">{playerName.charAt(0).toUpperCase()}</div>
-                {showSparkle && <div className="portrait-sparkles"></div>}
+                <div className="player-avatar" data-initial={playerName.charAt(0).toUpperCase()}></div>
               </div>
               <div className="player-name">{playerName}</div>
               <div className="player-level">
-                <span>Atelier Level </span>
+                <span>Level </span>
                 <span className="level-number">{playerLevel + levelBoost}</span>
               </div>
             </div>
           </div>
 
-          {/* Lunar Display Panel - Different style */}
+          {/* Lunar Display Panel */}
           <div className="panel moon-panel">
-            <div className="parchment-frame top"></div>
-            <div className="parchment-frame left"></div>
-            <div className="parchment-frame right"></div>
-            <div className="parchment-frame bottom"></div>
             <div className="panel-header">
-              <div className="header-decoration left"></div>
               <h3>Moon Phase</h3>
-              <div className="header-decoration right"></div>
             </div>
             <div className="panel-content">
               <div className="lunar-display">
                 <div className="lunar-icon">
-                  <LunarPhaseIcon phase={lunarPhase} size={40} />
+                  <pre>{getMoonASCII(lunarPhase)}</pre>
                 </div>
                 <div className="lunar-info">
                   <div className="lunar-phase">{lunarPhase}</div>
@@ -187,16 +189,10 @@ const HUD: React.FC<HUDProps> = ({
 
         {/* Middle Section */}
         <div className="hud-middle-section">
-          {/* Resources Panel - Different style */}
+          {/* Resources Panel */}
           <div className="panel resources-panel">
-            <div className="gem-frame top-left"></div>
-            <div className="gem-frame top-right"></div>
-            <div className="gem-frame bottom-left"></div>
-            <div className="gem-frame bottom-right"></div>
             <div className="panel-header">
-              <div className="header-decoration left"></div>
               <h3>Resources</h3>
-              <div className="header-decoration right"></div>
             </div>
             <div className="panel-content">
               <div className="resource-item gold">
@@ -219,7 +215,7 @@ const HUD: React.FC<HUDProps> = ({
 
         {/* Bottom Section */}
         <div className="hud-bottom-section">
-          {/* Navigation Bar - 90s style fixed navbar */}
+          {/* Navigation Bar */}
           <div className="nav-bar">
             {navItems.map(loc => (
               <button
@@ -228,8 +224,6 @@ const HUD: React.FC<HUDProps> = ({
                 onClick={() => handleLocationClick(loc.id)}
                 title={loc.name}
               >
-                <div className="button-highlight"></div>
-                <div className="button-shadow"></div>
                 <div className="button-content">
                   <div className="button-icon">{loc.icon}</div>
                   <span className="button-label">{loc.name}</span>
@@ -237,14 +231,12 @@ const HUD: React.FC<HUDProps> = ({
               </button>
             ))}
             
-            {/* End Day Button - Distinct style */}
+            {/* End Day Button */}
             <button
               className={`end-day-button ${confirmEndDay ? 'confirm' : ''}`}
               onClick={handleEndDayClick}
               disabled={confirmEndDay && !confirmTimeoutId}
             >
-              <div className="button-glow"></div>
-              <div className="button-frame"></div>
               <span>{confirmEndDay ? 'Confirm End Day?' : 'End Day'}</span>
             </button>
           </div>

@@ -51,18 +51,35 @@ body {
   background-color: #000;
   overflow: hidden;
   position: relative;
+  font-family: 'Courier New', monospace;
 }
 
-/* Background texture */
+/* Background texture - ASCII art style */
 .game-backdrop {
   position: absolute;
   inset: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23000"/><path d="M50 0v200M100 0v200M150 0v200M0 50h200M0 100h200M0 150h200" stroke="%23111" stroke-width="1"/></svg>');
-  opacity: 0.5;
+  background-color: #000;
+  opacity: 1;
   z-index: 0;
+  overflow: hidden;
 }
 
-/* Main game frame - more dimensional */
+.game-backdrop::after {
+  content: "· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #111;
+  opacity: 0.5;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Main game frame - ASCII style border */
 .game-frame {
   position: relative;
   width: 100%;
@@ -72,12 +89,38 @@ body {
   max-height: calc(var(--vh, 1vh) * 95);
   overflow: hidden;
   display: flex;
-  background-color: #1a1a1a;
-  border: 18px solid transparent;
-  border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%233c2a1a"/><rect x="5" y="5" width="50" height="50" fill="%234d3520"/><rect x="10" y="10" width="40" height="40" fill="%234d3520" stroke="%235d451f" stroke-width="1"/><rect x="12" y="12" width="36" height="36" fill="%234d3520" stroke="%237a5c3d" stroke-width="2"/><path d="M0 0h18v6H6v12H0zM60 0H42v6h12v12h6zM0 60h18v-6H6V42H0zM60 60H42v-6h12V42h6z" fill="%233c2a1a"/></svg>') 30;
-  border-style: solid;
+  background-color: #0d0d0d;
+  border: 2px solid #444;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
   z-index: 1;
+}
+
+.game-frame::before {
+  content: "+------------------------------------------------------------------------------------------------------------------------------------------------+";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  color: #5a5a5a;
+  font-family: 'Courier New', monospace;
+  white-space: pre;
+  line-height: 1;
+  font-size: 12px;
+  z-index: 3;
+}
+
+.game-frame::after {
+  content: "+------------------------------------------------------------------------------------------------------------------------------------------------+";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: #5a5a5a;
+  font-family: 'Courier New', monospace;
+  white-space: pre;
+  line-height: 1;
+  font-size: 12px;
+  z-index: 3;
 }
 
 /* Main content area */
@@ -87,10 +130,10 @@ body {
   height: 100%;
   overflow: hidden;
   transition: opacity 0.3s ease;
-  background-color: var(--color-parchment-dark);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e8d8c0"/><path d="M0 0h100v100H0z" stroke="%23d3c4a9" stroke-width="1" stroke-dasharray="2,10" opacity="0.3"/><circle cx="20" cy="20" r="1" fill="%23d3c4a9" opacity="0.5"/><circle cx="50" cy="50" r="1" fill="%23d3c4a9" opacity="0.5"/><circle cx="80" cy="20" r="1" fill="%23d3c4a9" opacity="0.5"/><circle cx="20" cy="80" r="1" fill="%23d3c4a9" opacity="0.5"/><circle cx="80" cy="80" r="1" fill="%23d3c4a9" opacity="0.5"/></svg>');
-  border: 4px solid var(--color-wood-light);
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
+  background-color: #1a0d00;
+  font-family: 'Courier New', monospace;
+  color: #e0e0e0;
+  font-size: 12px;
 }
 
 .game-content.page-transition {
@@ -105,42 +148,58 @@ body {
   z-index: 2;
   overflow: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-wood-medium) var(--color-parchment-dark);
+  scrollbar-color: #5a5a5a #1a0d00;
   padding: 10px;
+  margin-top: 10px; /* Space for the top border */
+  margin-bottom: 10px; /* Space for the bottom border */
 }
 
-/* Corner decorations - more ornate */
+/* Corner decorations - ASCII art */
 .corner-decoration {
   position: absolute;
-  width: 50px;
-  height: 50px;
-  background-repeat: no-repeat;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1;
+  white-space: pre;
+  color: #5a5a5a;
   z-index: 10;
   pointer-events: none;
 }
 
 .corner-decoration.top-left {
-  top: 0;
-  left: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><path d="M0 0v20c0 16.6 13.4 30 30 30h20V30c0-16.6-13.4-30-30-30z" fill="none" stroke="%237a5c3d" stroke-width="2"/><path d="M10 10v10c0 8.3 6.7 15 15 15h10V25c0-8.3-6.7-15-15-15z" fill="none" stroke="%23a17a4d" stroke-width="1"/><circle cx="25" cy="25" r="3" fill="%23ffd700" opacity="0.6"/></svg>');
+  top: 4px;
+  left: 4px;
+}
+
+.corner-decoration.top-left::before {
+  content: "+----+\A|    |\A|    |\A+    |\A |    |\A |    +\A |     \\\A |      \\\A";
 }
 
 .corner-decoration.top-right {
-  top: 0;
-  right: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><path d="M50 0v20c0 16.6-13.4 30-30 30H0V30c0-16.6 13.4-30 30-30z" fill="none" stroke="%237a5c3d" stroke-width="2"/><path d="M40 10v10c0 8.3-6.7 15-15 15H15V25c0-8.3 6.7-15 15-15z" fill="none" stroke="%23a17a4d" stroke-width="1"/><circle cx="25" cy="25" r="3" fill="%23ffd700" opacity="0.6"/></svg>');
+  top: 4px;
+  right: 4px;
+}
+
+.corner-decoration.top-right::before {
+  content: "+----+\A|    |\A|    |\A|    +\A|    |\A+    |\A/     |\A/      |\A";
 }
 
 .corner-decoration.bottom-left {
-  bottom: 0;
-  left: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><path d="M0 50v-20c0-16.6 13.4-30 30-30h20v20c0 16.6-13.4 30-30 30z" fill="none" stroke="%237a5c3d" stroke-width="2"/><path d="M10 40v-10c0-8.3 6.7-15 15-15h10v10c0 8.3-6.7 15-15 15z" fill="none" stroke="%23a17a4d" stroke-width="1"/><circle cx="25" cy="25" r="3" fill="%23ffd700" opacity="0.6"/></svg>');
+  bottom: 4px;
+  left: 4px;
+}
+
+.corner-decoration.bottom-left::before {
+  content: "\\      |\A \\     |\A |    +\A |    |\A |    |\A+    |\A|    |\A+----+\A";
 }
 
 .corner-decoration.bottom-right {
-  bottom: 0;
-  right: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><path d="M50 50v-20c0-16.6-13.4-30-30-30H0v20c0 16.6 13.4 30 30 30z" fill="none" stroke="%237a5c3d" stroke-width="2"/><path d="M40 40v-10c0-8.3-6.7-15-15-15H15v10c0 8.3 6.7 15 15 15z" fill="none" stroke="%23a17a4d" stroke-width="1"/><circle cx="25" cy="25" r="3" fill="%23ffd700" opacity="0.6"/></svg>');
+  bottom: 4px;
+  right: 4px;
+}
+
+.corner-decoration.bottom-right::before {
+  content: "/      |\A/     |\A+    |\A|    |\A|    |\A|    +\A|    |\A+----+\A";
 }
 
 /* Loading screen */

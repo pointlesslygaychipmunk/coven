@@ -338,7 +338,6 @@ const Garden: React.FC<GardenProps> = ({
               )}
               {plant.mature ? (
                 <button className="action-button harvest" onClick={handleHarvest}>
-                  <div className="button-icon"></div>
                   <span>Harvest</span>
                 </button>
               ) : (
@@ -357,7 +356,6 @@ const Garden: React.FC<GardenProps> = ({
               onClick={handleStartAttunement}
               disabled={showAttunementPuzzle}
             >
-              <div className="button-icon"></div>
               <span>Attune Garden</span>
             </button>
           </div>
@@ -388,7 +386,6 @@ const Garden: React.FC<GardenProps> = ({
               disabled={!canPlant || !selectedSeedId}
               onClick={handlePlant}
             >
-              <div className="button-icon"></div>
               <span>Plant Seed</span>
             </button>
             <button
@@ -396,7 +393,6 @@ const Garden: React.FC<GardenProps> = ({
               disabled={!selectedSeedId}
               onClick={handleClearSelection}
             >
-              <div className="button-icon"></div>
               <span>Clear</span>
             </button>
           </div>

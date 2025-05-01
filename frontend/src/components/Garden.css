@@ -561,54 +561,170 @@
 }
 
 /* Fixed seed action buttons - always visible */
+/* ASCII Art Garden Styling */
+:root {
+  --color-bg-dark: #1a0d00;
+  --color-bg-medium: #2b1a0d;
+  --color-bg-light: #3c2a1a;
+  --color-frame-dark: #3a3a3a;
+  --color-frame-light: #5a5a5a;
+  --color-text: #e0e0e0;
+  --color-text-dim: #a0a0a0;
+  --color-text-gold: #ffd700;
+  --color-accent-green: #81b622;
+  --color-accent-blue: #5555ff;
+  --color-accent-purple: #9933cc;
+  --color-accent-red: #cc3333;
+  --font-mono: 'Courier New', monospace;
+}
+
 .fixed-actions {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: rgba(244, 233, 213, 0.9);
-  padding: 10px;
+  background-color: var(--color-bg-dark);
+  padding: 5px;
   margin: -10px -10px 10px -10px;
-  border-bottom: 2px solid #7a5c3d;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--color-frame-light);
+  font-family: var(--font-mono);
 }
 
 .fixed-actions .action-button {
   position: relative;
-  background-color: #68904a;
-  border: 2px solid #4d6e32;
-  font-weight: bold;
+  font-family: var(--font-mono);
+  background-color: var(--color-bg-medium);
+  border: 0;
+  color: var(--color-accent-green);
+  margin-bottom: 2px;
+  padding: 0;
+  height: 30px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: pre;
+  line-height: 1;
+  font-size: 12px;
 }
 
 .fixed-actions .action-button::before {
-  content: '';
+  content: "+-------------------+";
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+  color: var(--color-accent-green);
+}
+
+.fixed-actions .action-button::after {
+  content: "+-------------------+";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: var(--color-accent-green);
 }
 
 .fixed-actions .action-button.plant {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .fixed-actions .action-button:hover:not(.disabled) {
-  background-color: #76a055;
-  transform: translateY(-2px);
+  background-color: var(--color-bg-light);
 }
 
-.fixed-actions .action-button:active:not(.disabled) {
-  transform: translateY(1px);
+.fixed-actions .action-button.disabled {
+  color: var(--color-text-dim);
+  cursor: not-allowed;
+}
+
+.fixed-actions .action-button.disabled::before,
+.fixed-actions .action-button.disabled::after {
+  color: var(--color-text-dim);
+}
+
+.fixed-actions .action-button span {
+  position: relative;
+  z-index: 1;
+}
+
+.fixed-actions .action-button.plant span {
+  color: var(--color-accent-green);
 }
 
 .fixed-actions .action-button.clear {
-  background-color: #8b7250;
-  border-color: #6d5940;
+  color: var(--color-accent-red);
 }
 
-.fixed-actions .action-button.clear:hover:not(.disabled) {
-  background-color: #a58e6a;
+.fixed-actions .action-button.clear::before,
+.fixed-actions .action-button.clear::after {
+  color: var(--color-accent-red);
+}
+
+/* ASCII-style buttons */
+.action-button.harvest {
+  position: relative;
+  font-family: var(--font-mono);
+  background-color: var(--color-bg-medium);
+  border: 0;
+  color: var(--color-accent-blue);
+  margin-bottom: 2px;
+  padding: 12px 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: pre;
+  line-height: 1;
+}
+
+.action-button.harvest::before {
+  content: "+-------------------+";
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--color-accent-blue);
+}
+
+.action-button.harvest::after {
+  content: "+-------------------+";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: var(--color-accent-blue);
+}
+
+.action-button.attunement {
+  position: relative;
+  font-family: var(--font-mono);
+  background-color: var(--color-bg-medium);
+  border: 0;
+  color: var(--color-accent-purple);
+  margin-bottom: 2px;
+  padding: 12px 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: pre;
+  line-height: 1;
+}
+
+.action-button.attunement::before {
+  content: "+-------------------+";
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--color-accent-purple);
+}
+
+.action-button.attunement::after {
+  content: "+-------------------+";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: var(--color-accent-purple);
 }
 
 /* Garden tip section */
