@@ -431,3 +431,11 @@
   .seed-name { font-size: 13px; }
   .seed-quantity { font-size: 11px; }
 }
+
+/* --- Add this to frontend/src/components/Garden.css --- */
+
+/* Override default browser selection highlight within the sidebar */
+.garden-sidebar ::selection {
+  background-color: transparent; /* Hide the blue highlight */
+  color: inherit; /* Keep text color the same */
+}
