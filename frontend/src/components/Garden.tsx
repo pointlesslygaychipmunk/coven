@@ -29,6 +29,7 @@ const Garden: React.FC<GardenProps> = ({
   const [showWhisper, setShowWhisper] = useState<string | null>(null);
   const [gardenTip, setGardenTip] = useState<string>('');
   const [showAttunementPuzzle, setShowAttunementPuzzle] = useState<boolean>(false);
+  const [actionStatus, setActionStatus] = useState<string | null>(null);
 
   // Garden whispers (tips that appear randomly)
   const gardenWhispers = [
@@ -85,43 +86,73 @@ const Garden: React.FC<GardenProps> = ({
     const plot = plots.find(p => p.id === plotId);
     if (!plot || plot.isUnlocked === false) return;
 
-    // Simply select or deselect the plot - no longer affects inventory visibility
+    // Select or deselect the plot
     if (selectedPlotId === plotId) {
       setSelectedPlotId(null);
+      setActionStatus("Plot deselected.");
     } else {
       setSelectedPlotId(plotId);
+      const action = plot.plant 
+        ? (plot.plant.mature ? "Ready to harvest!" : "Growing plant selected.")
+        : "Empty plot selected. Choose a seed to plant.";
+      setActionStatus(action);
     }
   };
 
-  // Handle seed selection from inventory
+  // Handle seed selection from inventory - 90s style direct interaction
   const handleSeedSelect = (seedId: string) => {
     setSelectedSeedId(seedId === selectedSeedId ? null : seedId);
+    
+    // Set user feedback status
+    if (seedId === selectedSeedId) {
+      setActionStatus("Seed deselected.");
+    } else {
+      const seedName = inventory.find(s => s.id === seedId)?.name || "Selected seed";
+      setActionStatus(`${seedName} selected. Choose a plot to plant in.`);
+    }
   };
 
-  // Handle planting the selected seed
+  // Plant action - unified with 90s immediate feedback
   const handlePlant = () => {
     const selectedPlot = getSelectedPlot();
     if (!selectedPlot || selectedPlot.plant || selectedPlotId === null || !selectedSeedId) {
+      // Show visual/audio feedback for invalid action
+      setActionStatus("Cannot plant! Select an empty plot and a seed first.");
       return;
     }
     
+    // Execute planting with 90s style direct feedback
     onPlant(selectedPlotId, selectedSeedId);
+    const seedName = inventory.find(s => s.id === selectedSeedId)?.name || "seed";
+    setActionStatus(`Planting ${seedName} in plot ${selectedPlotId + 1}...`);
+    
+    // Clear seed selection after planting - 90s games often reset state after action
     setSelectedSeedId(null);
   };
 
-  // Handle harvesting from the selected plot
+  // Clear selection - 90s games often had explicit "Cancel" options
+  const handleClearSelection = () => {
+    setSelectedSeedId(null);
+    setActionStatus("Selection cleared.");
+  };
+
+  // Handle harvesting with 90s-style direct feedback
   const handleHarvest = () => {
     const plot = getSelectedPlot();
     if (plot?.plant?.mature) {
+      setActionStatus(`Harvesting ${plot.plant.name} from plot ${plot.id + 1}...`);
       onHarvest(plot.id);
       setSelectedPlotId(null);
+    } else {
+      setActionStatus("Nothing ready to harvest!");
     }
   };
 
-  // Start the seasonal attunement puzzle
+  // Start the seasonal attunement puzzle - 90s puzzle integration
   const handleStartAttunement = () => {
     if(showAttunementPuzzle) return;
     setShowAttunementPuzzle(true);
+    setActionStatus("Beginning garden attunement ritual...");
   };
 
   // Handle when attunement puzzle completes
@@ -184,7 +215,7 @@ const Garden: React.FC<GardenProps> = ({
     return gridPlots;
   };
 
-  // Render weather indicator
+  // Render weather indicator with 90s chunky style
   const renderWeatherIndicator = () => {
     let icon: string;
     let label: string = weatherFate.charAt(0).toUpperCase() + weatherFate.slice(1);
@@ -205,7 +236,7 @@ const Garden: React.FC<GardenProps> = ({
     );
   };
 
-  // Render season indicator
+  // Render season indicator with 90s chunky style
   const renderSeasonIndicator = () => {
     let icon: string;
     switch (season) {
@@ -223,7 +254,7 @@ const Garden: React.FC<GardenProps> = ({
     );
   };
 
-  // Render plot details panel
+  // Render plot details panel with 90s chunky borders and panels
   const renderPlotDetails = () => {
     const selectedPlot = getSelectedPlot();
 
@@ -231,13 +262,9 @@ const Garden: React.FC<GardenProps> = ({
     if (!selectedPlot) {
       return (
         <div className="plot-details empty">
-          <div className="parchment-scroll">
-            <div className="scroll-content">
-              <h3>Plot Details</h3>
-              <p>Select a garden plot to view details.</p>
-              <p className="garden-tip">{gardenTip}</p>
-            </div>
-          </div>
+          <h3>Plot Details</h3>
+          <p>Select a garden plot to view details.</p>
+          <p className="garden-tip">{gardenTip}</p>
         </div>
       );
     }
@@ -246,18 +273,14 @@ const Garden: React.FC<GardenProps> = ({
     if (selectedPlot.isUnlocked === false) {
       return (
         <div className="plot-details empty">
-          <div className="parchment-scroll">
-            <div className="scroll-content">
-              <h3>Plot {selectedPlot.id + 1}</h3>
-              <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
-              <div className="lock-icon" style={{fontSize: '40px', margin: '20px auto'}}>🔒</div>
-            </div>
-          </div>
+          <h3>Plot {selectedPlot.id + 1}</h3>
+          <p>This plot is currently locked. Expand your garden through rituals or achievements.</p>
+          <div className="lock-icon" style={{fontSize: '40px', margin: '20px auto'}}>🔒</div>
         </div>
       );
     }
 
-    // Details for unlocked plot
+    // Details for unlocked plot - with 90s-style progress bars
     const plant = selectedPlot.plant;
     const growthPercent = plant?.growth !== undefined && plant.maxGrowth
                         ? Math.min(100, Math.max(0, (plant.growth / plant.maxGrowth) * 100))
@@ -265,80 +288,76 @@ const Garden: React.FC<GardenProps> = ({
 
     return (
       <div className="plot-details">
-        <div className="parchment-scroll">
-          <div className="scroll-content">
-            <h3>Plot {selectedPlot.id + 1} Details</h3>
-            <div className="plot-stats">
-              <div className="plot-stat">
-                <div className="stat-label">Fertility</div>
-                <div className="stat-bar"><div className="stat-fill fertility" style={{ width: `${selectedPlot.fertility || 0}%` }} /></div>
-                <div className="stat-value">{selectedPlot.fertility || 0}%</div>
+        <h3>Plot {selectedPlot.id + 1} Details</h3>
+        <div className="plot-stats">
+          <div className="plot-stat">
+            <div className="stat-label">Fertility</div>
+            <div className="stat-bar"><div className="stat-fill fertility" style={{ width: `${selectedPlot.fertility || 0}%` }} /></div>
+            <div className="stat-value">{selectedPlot.fertility || 0}%</div>
+          </div>
+          <div className="plot-stat">
+            <div className="stat-label">Moisture</div>
+            <div className="stat-bar"><div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }} /></div>
+            <div className="stat-value">{selectedPlot.moisture || 0}%</div>
+          </div>
+        </div>
+
+        {plant ? (
+          <div className="plant-info">
+            <h4>{plant.name}</h4>
+            <div className="plant-progress">
+              <div className="progress-label">Growth</div>
+              <div className="progress-bar"><div className="progress-fill" style={{ width: `${growthPercent}%` }} /></div>
+              <div className="progress-value">{growthPercent.toFixed(0)}%</div>
+            </div>
+            <div className="plant-stats">
+              <div className="plant-stat">
+                <div className="stat-label">Health</div>
+                <div className="stat-value">{plant.health?.toFixed(0) ?? '?'}%</div>
               </div>
-              <div className="plot-stat">
-                <div className="stat-label">Moisture</div>
-                <div className="stat-bar"><div className="stat-fill moisture" style={{ width: `${selectedPlot.moisture || 0}%` }} /></div>
-                <div className="stat-value">{selectedPlot.moisture || 0}%</div>
+              <div className="plant-stat">
+                <div className="stat-label">Age</div>
+                <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
+              </div>
+              <div className="plant-stat">
+                <div className="stat-label">Watered</div>
+                <div className="stat-value">{selectedPlot.moisture > 40 ? 'Yes' : 'No'}</div>
               </div>
             </div>
-
-            {plant ? (
-              <div className="plant-info">
-                <h4>{plant.name}</h4>
-                <div className="plant-progress">
-                  <div className="progress-label">Growth</div>
-                  <div className="progress-bar"><div className="progress-fill" style={{ width: `${growthPercent}%` }} /></div>
-                  <div className="progress-value">{growthPercent.toFixed(0)}%</div>
-                </div>
-                <div className="plant-stats">
-                  <div className="plant-stat">
-                    <div className="stat-label">Health</div>
-                    <div className="stat-value">{plant.health?.toFixed(0) ?? '?'}%</div>
-                  </div>
-                  <div className="plant-stat">
-                    <div className="stat-label">Age</div>
-                    <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
-                  </div>
-                  <div className="plant-stat">
-                    <div className="stat-label">Watered</div>
-                    <div className="stat-value">{selectedPlot.moisture > 40 ? 'Yes' : 'No'}</div>
-                  </div>
-                </div>
-                {plant.moonBlessed && <div className="plant-blessing" title="Influenced by the moon"><span className="moon-icon">🌙</span> Moon Blessed</div>}
-                {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
-                  <div className="plant-season">
-                    {plant.seasonalModifier > 1 ? <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>}
-                  </div>
-                )}
-                {plant.mature ? (
-                  <button className="action-button harvest" onClick={handleHarvest}>Harvest {plant.name}</button>
-                ) : (
-                  <div className="plant-status">Growing...</div>
-                )}
-              </div>
-            ) : (
-              <div className="empty-plot-actions">
-                <p>This plot is empty.</p>
+            {plant.moonBlessed && <div className="plant-blessing" title="Influenced by the moon"><span className="moon-icon">🌙</span> Moon Blessed</div>}
+            {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
+              <div className="plant-season">
+                {plant.seasonalModifier > 1 ? <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>}
               </div>
             )}
-            
-            {/* Garden Actions moved to plot details for mobile */}
-            <div className="garden-actions">
-              <button
-                className="garden-action-button attune"
-                onClick={handleStartAttunement}
-                title="Perform seasonal attunement puzzle"
-                disabled={showAttunementPuzzle}
-              >
-                <span className="button-icon">🌿</span> Attune Energies
-              </button>
-            </div>
+            {plant.mature ? (
+              <button className="action-button harvest" onClick={handleHarvest}>Harvest {plant.name}</button>
+            ) : (
+              <div className="plant-status">Growing...</div>
+            )}
           </div>
+        ) : (
+          <div className="empty-plot-actions">
+            <p>This plot is empty.</p>
+          </div>
+        )}
+        
+        {/* Garden Actions - 90s style panel and chunky button */}
+        <div className="garden-actions">
+          <button
+            className="garden-action-button attune"
+            onClick={handleStartAttunement}
+            title="Perform seasonal attunement puzzle"
+            disabled={showAttunementPuzzle}
+          >
+            <span className="button-icon">🌿</span> Attune Energies
+          </button>
         </div>
       </div>
     );
   };
 
-  // Render inventory panel with consistently visible buttons
+  // Render inventory panel with ALWAYS VISIBLE buttons - 90s style
   const renderInventoryPanel = () => {
     const seeds = getAvailableSeeds();
     const selectedPlot = getSelectedPlot();
@@ -346,66 +365,55 @@ const Garden: React.FC<GardenProps> = ({
 
     return (
       <div className="inventory-panel">
-        <div className="parchment-scroll">
-          <div className="scroll-content">
-            <h3>Seed Pouch</h3>
-            {seeds.length === 0 ? (
-              <div className="inventory-panel empty">
-                <p>Your seed pouch is empty!</p>
-              </div>
-            ) : (
-              <>
-                <div className="seed-list">
-                  {seeds.map(seed => (
-                    <div
-                      key={seed.id}
-                      className={`seed-item ${selectedSeedId === seed.id ? 'selected' : ''}`}
-                      onClick={() => handleSeedSelect(seed.id)}
-                      title={`${seed.name} (Qty: ${seed.quantity})`}
-                    >
-                      <div className="seed-image"><div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div></div>
-                      <div className="seed-info">
-                        <div className="seed-name">{seed.name}</div>
-                        <div className="seed-quantity">Qty: {seed.quantity}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* FIXED: Always show action buttons section */}
-                <div className="seed-actions">
-                  {/* Plant button - only enabled when conditions are met */}
-                  <button
-                    className={`action-button plant ${(!canPlant || !selectedSeedId) ? 'disabled' : ''}`}
-                    onClick={canPlant && selectedSeedId ? handlePlant : undefined}
-                    disabled={!canPlant || !selectedSeedId}
-                  >
-                    Plant {selectedSeedId ? 
-                      inventory.find(s => s.id === selectedSeedId)?.name || 'Selected Seed' : 
-                      'Selected Seed'}
-                  </button>
-                  
-                  {/* Clear selection button - only enabled when a seed is selected */}
-                  <button
-                    className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
-                    onClick={selectedSeedId ? () => setSelectedSeedId(null) : undefined}
-                    disabled={!selectedSeedId}
-                  >
-                    Clear Selection
-                  </button>
-                </div>
-                
-                {/* Status information for context */}
-                <div className="action-status">
-                  {!selectedPlot && <p className="garden-tip">Select a plot to plant in.</p>}
-                  {selectedPlot && selectedPlot.isUnlocked === false && <p className="garden-tip">Selected plot is locked.</p>}
-                  {selectedPlot && selectedPlot.plant && <p className="garden-tip">Selected plot already has a plant.</p>}
-                  {!selectedSeedId && <p className="garden-tip">Select a seed to plant.</p>}
-                </div>
-              </>
-            )}
+        <h3>Seed Pouch</h3>
+        {seeds.length === 0 ? (
+          <div className="inventory-empty">
+            <p>Your seed pouch is empty!</p>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="seed-list">
+              {seeds.map(seed => (
+                <div
+                  key={seed.id}
+                  className={`seed-item ${selectedSeedId === seed.id ? 'selected' : ''}`}
+                  onClick={() => handleSeedSelect(seed.id)}
+                  title={`${seed.name} (Qty: ${seed.quantity})`}
+                >
+                  <div className="seed-image"><div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div></div>
+                  <div className="seed-info">
+                    <div className="seed-name">{seed.name}</div>
+                    <div className="seed-quantity">Qty: {seed.quantity}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* FIXED: Always visible action buttons - 90s style */}
+            <div className="seed-actions">
+              <button
+                className={`action-button plant ${(!canPlant || !selectedSeedId) ? 'disabled' : ''}`}
+                onClick={canPlant && selectedSeedId ? handlePlant : undefined}
+                disabled={!canPlant || !selectedSeedId}
+              >
+                Plant Seed
+              </button>
+              
+              <button
+                className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
+                onClick={selectedSeedId ? handleClearSelection : undefined}
+                disabled={!selectedSeedId}
+              >
+                Clear
+              </button>
+            </div>
+            
+            {/* Action status - 90s style immediate feedback */}
+            <div className="action-status">
+              <p className="garden-tip">{actionStatus || "Select a seed and plot to plant."}</p>
+            </div>
+          </>
+        )}
       </div>
     );
   };
@@ -428,10 +436,10 @@ const Garden: React.FC<GardenProps> = ({
         </div>
 
         <div className="garden-sidebar">
-          {/* Plot Details - Always visible */}
+          {/* Plot Details - 90s panel style */}
           {renderPlotDetails()}
 
-          {/* Inventory - Always visible */}
+          {/* Inventory - 90s panel style with ALWAYS visible buttons */}
           {renderInventoryPanel()}
         </div>
       </div>

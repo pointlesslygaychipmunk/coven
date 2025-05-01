@@ -1,25 +1,22 @@
-/* Garden.css - Fixed with 90s Adventure Game Styling */
+/* Garden.css - Enhanced with 90s Adventure Game Styling */
 
-/*
- * Garden area styling - fixed to completely fill the container
- */
-
- .garden-container {
+/* Master container for the entire garden view */
+.garden-container {
   display: flex;
   flex-direction: column;
-  /* 90s style textured background - like stone or wood */
   background-color: #6b4f37; /* Dark wood color */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%236b4f37"/><path d="M0 0h10v80H0zm20 0h10v80H20zm20 0h10v80H40zm20 0h10v80H60z" fill="%235d4037" opacity="0.3"/><path d="M0 0h80v10H0zm0 20h80v10H0zm0 20h80v10H0zm0 20h80v10H0z" fill="%235d4037" opacity="0.2"/></svg>');
-  color: var(--color-text-light); /* Light text for contrast */
-  border-radius: var(--border-radius-sm); /* Slightly sharper corners */
-  padding: 20px; /* Reduced padding */
+  color: #e4dbee; /* Light text for contrast */
+  border-radius: 0px; /* Square corners for 90s look */
+  padding: 15px; /* Reduced padding */
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3); /* 90s style shadow */
-  height: 100%; /* Fill parent container height */
-  width: 100%; /* Fill parent container width */
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  font-family: 'Courier New', monospace; /* Use game font */
+  font-family: 'Courier New', monospace; /* Classic 90s font */
   position: relative;
-  /* Ornate pixelated border */
+  
+  /* Ornate pixelated border - 90s style */
   border: 6px solid transparent;
   border-image-source: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h18v18H0z" fill="%235d4037"/><path d="M3 3h12v12H3z" fill="%238d6e63"/><path d="M6 6h6v6H6z" fill="%23a1887f"/><path d="M0 0h3v3H0zm15 0h3v3h-3zM0 15h3v3H0zm15 15h3v3h-3z" fill="%235d4037"/></svg>');
   border-image-slice: 6;
@@ -27,82 +24,129 @@
   border-image-outset: 0;
   border-image-repeat: round;
   border-style: solid;
-  image-rendering: pixelated; /* Ensure pixelated border */
-  flex: 1; /* Take up all available space */
-  min-height: 0; /* Allow proper flexbox sizing */
+  image-rendering: pixelated; /* Crisp pixel art borders */
 }
 
-/* Garden content area */
+/* Garden header with title and status indicators */
+.garden-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #8d6e63; /* Brown border */
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.garden-header h2 {
+  margin: 0;
+  color: #ffc107; /* Golden text */
+  font-weight: bold;
+  font-size: 22px;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4); /* Classic 90s text shadow */
+}
+
+/* Weather and season indicators */
+.garden-indicators {
+  display: flex;
+  gap: 10px;
+}
+
+.weather-indicator, .season-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background-color: #5d4037; /* Brown background */
+  border-radius: 0px; /* Square for 90s look */
+  border: 2px solid;
+  border-color: #8d6e63 #3e2723 #3e2723 #8d6e63; /* Classic bevel */
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
+}
+
+.weather-icon, .season-icon {
+  font-size: 16px;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.5));
+}
+
+.weather-label, .season-label {
+  font-size: 14px;
+  color: #e4dbee; /* Light text */
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+/* Main content area with grid and sidebar */
 .garden-content {
   display: flex;
-  flex: 1; /* Take remaining space */
-  gap: 15px; /* Reduced gap */
-  overflow: hidden; /* Prevent content overflow */
-  min-height: 0; /* Fix flexbox overflow issue */
-  height: 100%; /* Ensure full height */
+  flex: 1;
+  gap: 15px;
+  height: calc(100% - 60px); /* Account for header */
+  min-height: 0; /* Fix for flexbox overflow */
 }
 
-/* Garden grid styling */
+/* Garden grid - 90s game style plot layout */
 .garden-grid {
   flex: 3; /* Take more space */
-  display: grid; /* Use grid for fixed layout */
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
-  grid-template-rows: repeat(3, 1fr); /* 3 rows */
-  gap: 10px; /* Reduced gap */
-  padding: 10px; /* Reduced padding */
-  background-color: #a1887f; /* Lighter dirt/wood color */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%23a1887f"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%238d6e63" opacity="0.2"/></svg>');
-  border-radius: var(--border-radius-sm);
-  box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.4);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  padding: 12px;
+  background-color: #8d6e63; /* Brown soil color */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%238d6e63"/><path d="M0 10h40v1H0zm0 10h40v1H0zm0 10h40v1H0zm10 0v10h1V0zm10 0v10h1V0zm10 0v10h1V0z" fill="%235d4037" opacity="0.3"/></svg>');
+  border-radius: 0px; /* Square for 90s look */
+  border: 3px solid;
+  border-color: #5d4037 #a1887f #a1887f #5d4037; /* 90s bevel border */
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inset for depth */
   position: relative;
-  border: 2px solid;
-  border-color: #5d4037 #c19a70 #c19a70 #5d4037; /* Wood bevel */
-  overflow: auto; /* Allow scrolling if plots overflow */
-  min-height: 0; /* Fix for flex child */
+  overflow: hidden;
 }
 
 /* Garden sidebar */
 .garden-sidebar {
-  flex: 1.2; /* Slightly wider sidebar */
+  flex: 1.3; /* Wider sidebar */
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Consistent gap */
-  min-width: 280px; /* Minimum width */
-  max-width: 300px; /* Maximum width */
-  min-height: 0; /* Fix for flex child */
-  overflow: hidden; /* Prevent overflow */
+  gap: 15px;
+  min-width: 250px;
+  max-width: 320px;
+  min-height: 0; /* Fix for flexbox overflow */
 }
 
-/* Plot details and inventory panel styling */
+/* Panels styling */
 .plot-details, .inventory-panel {
-  background-color: var(--color-bg-panel); /* Use panel color */
-  border-radius: var(--border-radius-md);
-  padding: 15px;
+  background-color: #3a2f4a; /* Dark purple bg */
+  border-radius: 0px; /* Square corners for 90s style */
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  border: 3px solid;
+  border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3); /* 90s shadow */
+  position: relative;
   flex: 1;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border: 2px solid;
-  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light); /* Bevel */
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2); /* 90s shadow */
-  position: relative;
-  min-height: 0; /* Fix for flex child */
 }
 
-/* Plot details specific styles */
+/* Panel headers */
 .plot-details h3, .inventory-panel h3 {
   margin: 0 0 10px;
-  color: var(--color-text-heading);
+  color: #ffc107; /* Golden header */
   font-size: 18px;
   font-weight: bold;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
   text-align: center;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 5px;
+  border-bottom: 2px solid #5d468a; /* Purple border */
+  padding-bottom: 8px;
+  font-family: 'Courier New', monospace;
 }
 
+/* Plot details area */
 .plot-stats {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .plot-stat {
@@ -114,51 +158,62 @@
   justify-content: space-between;
   margin-bottom: 3px;
   font-size: 14px;
+  color: #e4dbee;
 }
 
-.stat-bar {
-  height: 15px;
-  background-color: var(--color-bg-dark);
-  border: 1px solid var(--color-border);
-  border-radius: 3px;
+/* 90s style progress bars */
+.stat-bar, .progress-bar {
+  height: 14px;
+  background-color: #2d2038; /* Dark purple bg */
+  border: 2px solid;
+  border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Inverted bevel for inset */
+  border-radius: 0px; /* Square for 90s look */
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.stat-fill {
+/* Progress bar fills with 90s patterns */
+.stat-fill.fertility {
+  background-color: #9c27b0; /* Purple */
+  background-image: linear-gradient(45deg, #9c27b0 25%, #ba68c8 25%, #ba68c8 50%, #9c27b0 50%, #9c27b0 75%, #ba68c8 75%, #ba68c8 100%);
+  background-size: 10px 10px; /* Checkerboard pattern */
   height: 100%;
   transition: width 0.5s ease;
 }
 
-.stat-fill.fertility {
-  background-color: #9c27b0;
-  background-image: linear-gradient(45deg, #9c27b0 25%, #ba68c8 25%, #ba68c8 50%, #9c27b0 50%, #9c27b0 75%, #ba68c8 75%, #ba68c8 100%);
-  background-size: 10px 10px;
-}
-
 .stat-fill.moisture {
-  background-color: #2196f3;
+  background-color: #2196f3; /* Blue */
   background-image: linear-gradient(45deg, #2196f3 25%, #64b5f6 25%, #64b5f6 50%, #2196f3 50%, #2196f3 75%, #64b5f6 75%, #64b5f6 100%);
-  background-size: 10px 10px;
+  background-size: 10px 10px; /* Checkerboard pattern */
+  height: 100%;
+  transition: width 0.5s ease;
 }
 
-/* Plant info */
+.progress-fill {
+  height: 100%;
+  background-color: #4caf50; /* Green */
+  background-image: linear-gradient(45deg, #4caf50 25%, #81c784 25%, #81c784 50%, #4caf50 50%, #4caf50 75%, #81c784 75%, #81c784 100%);
+  background-size: 10px 10px; /* Checkerboard pattern */
+  transition: width 0.5s ease;
+}
+
+/* Plant info styling */
 .plant-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .plant-info h4 {
   font-size: 16px;
   margin: 0;
   text-align: center;
-  color: #a5d6a7;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  color: #a5d6a7; /* Light green */
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 }
 
 .plant-progress {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
 .progress-label {
@@ -168,21 +223,11 @@
   font-size: 14px;
 }
 
-.progress-bar {
-  height: 15px;
-  background-color: var(--color-bg-dark);
-  border: 1px solid var(--color-border);
-  border-radius: 3px;
-  overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #4caf50;
-  background-image: linear-gradient(45deg, #4caf50 25%, #81c784 25%, #81c784 50%, #4caf50 50%, #4caf50 75%, #81c784 75%, #81c784 100%);
-  background-size: 10px 10px;
-  transition: width 0.5s ease;
+.progress-value, .stat-value {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin-top: 2px;
+  color: #e4dbee;
 }
 
 .plant-stats {
@@ -193,11 +238,12 @@
 }
 
 .plant-stat {
-  background-color: var(--color-bg-dark);
+  background-color: #2d2038; /* Dark purple */
   padding: 5px;
-  border-radius: 3px;
+  border-radius: 0px; /* Square for 90s look */
   text-align: center;
-  border: 1px solid var(--color-border);
+  border: 2px solid;
+  border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s inset bevel */
 }
 
 .plant-blessing {
@@ -206,7 +252,7 @@
   justify-content: center;
   gap: 5px;
   margin-bottom: 10px;
-  color: #e1bee7;
+  color: #e1bee7; /* Light purple */
   font-size: 14px;
 }
 
@@ -215,162 +261,49 @@
   filter: drop-shadow(0 0 2px rgba(225, 190, 231, 0.5));
 }
 
-/* Seed inventory styles */
-.seed-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 10px;
-  overflow-y: auto; 
-  max-height: 150px;
-}
-
-.seed-item {
-  display: flex;
-  padding: 6px;
-  background-color: var(--color-bg-dark);
-  border: 2px solid;
-  border-color: var(--color-border) var(--color-bg-dark) var(--color-bg-dark) var(--color-border);
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  gap: 8px;
-}
-
-.seed-item:hover {
-  background-color: var(--color-panel);
-  transform: translateY(-2px);
-}
-
-.seed-item.selected {
-  background-color: var(--color-border);
-  border-color: var(--color-text-heading) var(--color-bg-dark) var(--color-bg-dark) var(--color-text-heading);
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-}
-
-.seed-image {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #795548;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid #5d4037;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-}
-
-.seed-placeholder {
-  color: #c8e6c9;
-  font-weight: bold;
-  font-size: 18px;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-}
-
-.seed-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  flex-grow: 1;
-}
-
-.seed-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: #c8e6c9;
-}
-
-.seed-quantity {
-  font-size: 12px;
-  color: var(--color-text-heading);
-}
-
-/* Garden header styling */
-.garden-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--color-border); /* Simple border */
-  padding-bottom: 12px;
-  margin-bottom: 15px;
-  position: relative;
-  flex-shrink: 0; /* Prevent header from shrinking */
-}
-
-.garden-header h2 {
-  margin: 0;
-  color: var(--color-text-heading); /* Use heading color */
-  font-weight: bold; /* Bold header */
-  font-size: 24px; /* Slightly smaller */
-  letter-spacing: 1px;
-  font-family: var(--font-primary); /* Use primary font */
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4); /* Stronger shadow */
-}
-
-/* Weather and season indicators */
-.garden-indicators {
-  display: flex;
-  gap: 10px; /* Reduced gap */
-}
-
-.weather-indicator, .season-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px; /* Reduced gap */
-  padding: 6px 10px; /* Reduced padding */
-  background-color: var(--color-bg-light); /* Slightly lighter bg */
-  border-radius: var(--border-radius-sm);
-  border: 2px solid;
-  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light); /* Bevel */
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.weather-icon, .season-icon {
-  font-size: 16px; /* Smaller icons */
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
-}
-
-.weather-label, .season-label {
-  font-size: 12px; /* Smaller labels */
-  color: var(--color-text-heading); /* Use heading color */
-  font-family: var(--font-secondary); /* Use secondary font */
-  font-weight: bold;
-}
-
-/* Action buttons */
+/* 90s style buttons with chunky design */
 .action-button {
-  padding: 8px 12px;
-  background-color: var(--color-accent);
-  color: var(--color-bg-dark);
-  border: 2px solid;
-  border-color: var(--color-accent-light) var(--color-accent-dark) var(--color-accent-dark) var(--color-accent-light);
-  font-family: var(--font-primary);
+  padding: 8px 10px;
+  background-color: #ffc107; /* Gold button */
+  color: #2d2038; /* Dark text */
+  border: 3px solid;
+  border-color: #ffe082 #cc9a05 #cc9a05 #ffe082; /* 90s gold bevel */
+  border-radius: 0px; /* Square corners for 90s look */
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.15s ease;
-  width: 100%;
   text-align: center;
   margin-top: 5px;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3); /* Chunky shadow */
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
 }
 
-.action-button:hover {
+.action-button:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
 }
 
-.action-button:active {
+.action-button:active:not(.disabled) {
   transform: translateY(1px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
-  border-color: var(--color-accent-dark) var(--color-accent-light) var(--color-accent-light) var(--color-accent-dark);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  border-color: #cc9a05 #ffe082 #ffe082 #cc9a05; /* Inverted bevel when pressed */
 }
 
 .action-button.harvest {
-  background-color: #4caf50;
-  border-color: #81c784 #2e7d32 #2e7d32 #81c784;
+  background-color: #4caf50; /* Green button */
+  border-color: #81c784 #2e7d32 #2e7d32 #81c784; /* Green bevel */
+}
+
+.action-button.disabled {
+  opacity: 0.6;
+  background-color: #757575; /* Gray button */
+  border-color: #9e9e9e #424242 #424242 #9e9e9e; /* Gray bevel */
+  color: #e0e0e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .garden-actions {
@@ -387,29 +320,142 @@
   justify-content: center;
   gap: 8px;
   font-size: 14px;
-  background-color: var(--color-bg-light);
-  color: var(--color-text);
-  border: 2px solid;
-  border-color: var(--color-border-light) var(--color-bg-dark) var(--color-bg-dark) var(--color-border-light);
-  font-family: var(--font-primary);
+  background-color: #5d468a; /* Purple button */
+  color: #e4dbee;
+  border: 3px solid;
+  border-color: #7a6c95 #2d2038 #2d2038 #7a6c95; /* Purple bevel */
+  font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 0px; /* Square for 90s look */
 }
 
 .garden-action-button:hover {
-  background-color: var(--color-border);
+  background-color: #7a6c95;
   transform: translateY(-2px);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
 }
 
 .garden-action-button:active {
   transform: translateY(1px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
-  border-color: var(--color-bg-dark) var(--color-border-light) var(--color-border-light) var(--color-bg-dark);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Inverted bevel when pressed */
 }
 
-/* Garden whisper for tips */
+/* Seed inventory styling */
+.seed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  overflow-y: auto;
+  max-height: 150px;
+  border: 2px solid;
+  border-color: #2d2038 #5d468a #5d468a #2d2038; /* 90s inset bevel */
+  padding: 5px;
+  background-color: #2d2038; /* Dark purple */
+}
+
+.seed-item {
+  display: flex;
+  padding: 6px;
+  background-color: #3a2f4a; /* Slightly lighter purple */
+  border: 2px solid;
+  border-color: #5d468a #2d2038 #2d2038 #5d468a; /* 90s bevel */
+  border-radius: 0px; /* Square for 90s look */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 8px;
+}
+
+.seed-item:hover {
+  background-color: #4a3b5c; /* Lighter on hover */
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.seed-item.selected {
+  background-color: #5d468a; /* Purple when selected */
+  border-color: #b59dc4 #2d2038 #2d2038 #b59dc4; /* Highlighted bevel */
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3), 2px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.seed-image {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #795548; /* Brown seed */
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid #5d4037; /* Brown border */
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.seed-placeholder {
+  color: #c8e6c9; /* Light green */
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.seed-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  flex-grow: 1;
+}
+
+.seed-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #c8e6c9; /* Light green */
+}
+
+.seed-quantity {
+  font-size: 12px;
+  color: #b59dc4; /* Light purple */
+}
+
+/* FIXED: Seed Actions section with proper inline buttons */
+.seed-actions {
+  display: flex; /* Always display as a row of buttons */
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.action-button.plant {
+  flex: 1;
+  background-color: #4caf50; /* Green for plant */
+  border-color: #81c784 #2e7d32 #2e7d32 #81c784;
+}
+
+.action-button.clear {
+  flex: 1;
+  background-color: #795548; /* Brown for clear */
+  border-color: #a1887f #4e342e #4e342e #a1887f;
+  color: #fff;
+}
+
+/* Status area */
+.action-status {
+  margin-top: 8px;
+  min-height: 40px; /* Reserve space for messages */
+}
+
+.garden-tip {
+  font-style: italic;
+  font-size: 13px;
+  color: #b59dc4; /* Light purple */
+  text-align: center;
+  font-family: 'Times New Roman', serif;
+  margin: 5px 0;
+}
+
+/* Whisper animation */
 .garden-whisper {
   position: absolute;
   left: 50%;
@@ -418,17 +464,17 @@
   background-color: rgba(93, 64, 55, 0.8);
   color: #e4dbee;
   padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-  font-family: var(--font-secondary);
+  border-radius: 0px; /* Square for 90s look */
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  font-family: 'Times New Roman', serif;
   font-style: italic;
   font-size: 16px;
   max-width: 400px;
   text-align: center;
   z-index: 100;
   animation: whisperAppear 0.6s ease-out forwards, whisperFade 0.6s ease-in 4.4s forwards;
-  border: 2px solid;
-  border-color: #a1887f #5d4037 #5d4037 #a1887f;
+  border: 3px solid;
+  border-color: #a1887f #5d4037 #5d4037 #a1887f; /* 90s bevel */
 }
 
 @keyframes whisperAppear {
@@ -439,15 +485,6 @@
 @keyframes whisperFade {
   from { opacity: 1; transform: translate(-50%, 0); }
   to { opacity: 0; transform: translate(-50%, -20px); }
-}
-
-.garden-tip {
-  font-style: italic;
-  font-size: 13px;
-  color: var(--color-text-heading);
-  margin-top: 10px;
-  text-align: center;
-  font-family: var(--font-secondary);
 }
 
 /* Attunement animation */
@@ -466,303 +503,61 @@
   100% { opacity: 0; }
 }
 
-/* Responsive adjustments */
+/* Responsive adaptations */
 @media (max-width: 900px) {
-  .garden-content { 
-    flex-direction: column; 
-    min-height: 0; /* Allow proper resizing */
+  .garden-content {
+    flex-direction: column;
   }
-  .garden-grid { 
-    min-height: 300px; /* Set minimum height */
-    max-height: 50vh; /* Limit maximum height on small screens */
+  
+  .garden-grid {
+    min-height: 300px;
+    max-height: 50vh;
   }
-  .garden-sidebar { 
+  
+  .garden-sidebar {
     flex: none;
     min-width: 0;
     max-width: none;
     width: 100%;
   }
+  
+  .seed-actions {
+    flex-direction: row; /* Ensure buttons stay horizontal */
+  }
 }
 
 @media (max-width: 600px) {
   .garden-container {
-    padding: 10px; /* Reduced padding on small screens */
-  }
-  .garden-header h2 { font-size: 20px; }
-  .garden-indicators { gap: 5px; }
-  .weather-indicator, .season-indicator { padding: 4px 6px; }
-  .weather-icon, .season-icon { font-size: 14px; }
-  .weather-label, .season-label { font-size: 11px; }
-  .garden-grid { 
-    gap: 5px; 
-    padding: 5px; 
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    aspect-ratio: 1 / 1; /* Keep it square */
-    min-height: 200px; /* Minimum height */
-  }
-  .plot-details h3, .inventory-panel h3 { font-size: 16px; }
-  .scroll-content .action-button { font-size: 13px; padding: 6px 12px; }
-}
-
-/* Add these styles to your Garden.css file */
-
-/* Seed Actions section - Always visible */
-.seed-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-  margin-bottom: 8px;
-}
-
-/* Disabled button state */
-.action-button.disabled {
-  opacity: 0.6;
-  background-color: #757575;
-  border-color: #9e9e9e #424242 #424242 #9e9e9e;
-  color: #e0e0e0;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-}
-
-.action-button.disabled:hover {
-  transform: none;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* Clear selection button */
-.action-button.clear {
-  background-color: #795548;
-  border-color: #a1887f #4e342e #4e342e #a1887f;
-}
-
-.action-button.clear:hover:not(.disabled) {
-  background-color: #8d6e63;
-}
-
-/* Action status area */
-.action-status {
-  margin-top: 5px;
-}
-
-.action-status .garden-tip {
-  margin: 3px 0;
-  font-size: 12px;
-}
-
-/* Make sure buttons are crisp in mobile view too */
-@media (max-width: 600px) {
-  .seed-actions {
-    gap: 6px;
-    margin-top: 10px;
+    padding: 10px;
   }
   
-  .action-button {
-    padding: 6px 10px;
-    font-size: 12px;
+  .garden-header h2 {
+    font-size: 18px;
   }
-}
-
-/* These are the additional styles to add to your Garden.css file */
-
-/* Fixed Seed Pouch Styling with Proper Button Layout */
-
-/* Seed inventory styling */
-.inventory-panel {
-  background-color: var(--color-bg-panel, #3a2f4a);
-  border-radius: var(--border-radius-md, 0px);
-  padding: 15px;
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border: 2px solid;
-  border-color: var(--color-border-light, #7a6c95) var(--color-bg-dark, #2d2038) var(--color-bg-dark, #2d2038) var(--color-border-light, #7a6c95);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
-  position: relative;
-  min-height: 0;
-}
-
-.inventory-panel h3 {
-  margin: 0 0 10px;
-  color: var(--color-text-heading, #b59dc4);
-  font-size: 18px;
-  font-weight: bold;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-  text-align: center;
-  border-bottom: 1px solid var(--color-border, #5d468a);
-  padding-bottom: 5px;
-}
-
-.seed-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 10px;
-  overflow-y: auto;
-  max-height: 150px;
-}
-
-.seed-item {
-  display: flex;
-  padding: 6px;
-  background-color: var(--color-bg-dark, #2d2038);
-  border: 2px solid;
-  border-color: var(--color-border, #5d468a) var(--color-bg-dark, #2d2038) var(--color-bg-dark, #2d2038) var(--color-border, #5d468a);
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  gap: 8px;
-}
-
-.seed-item:hover {
-  background-color: var(--color-panel, #4a3b5c);
-  transform: translateY(-2px);
-}
-
-.seed-item.selected {
-  background-color: var(--color-border, #5d468a);
-  border-color: var(--color-text-heading, #b59dc4) var(--color-bg-dark, #2d2038) var(--color-bg-dark, #2d2038) var(--color-text-heading, #b59dc4);
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-}
-
-.seed-image {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #795548;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid #5d4037;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-}
-
-.seed-placeholder {
-  color: #c8e6c9;
-  font-weight: bold;
-  font-size: 18px;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-}
-
-.seed-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  flex-grow: 1;
-}
-
-.seed-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: #c8e6c9;
-}
-
-.seed-quantity {
-  font-size: 12px;
-  color: var(--color-text-heading, #b59dc4);
-}
-
-/* FIXED: Seed Actions section with proper inline buttons */
-.seed-actions {
-  margin-top: 12px;
-  margin-bottom: 8px;
-  display: flex;
-  flex-direction: row; /* Change to row for inline buttons */
-  gap: 8px;
-  justify-content: space-between; /* Space evenly between buttons */
-}
-
-/* Common button styling */
-.action-button {
-  flex: 1; /* Make buttons take equal space */
-  padding: 8px 6px; /* Reduce horizontal padding slightly to fit buttons */
-  background-color: var(--color-accent, #ffc107);
-  color: var(--color-bg-dark, #2d2038);
-  border: 2px solid;
-  border-color: var(--color-accent-light, #ffe082) var(--color-accent-dark, #cc9a05) var(--color-accent-dark, #cc9a05) var(--color-accent-light, #ffe082);
-  font-family: var(--font-primary, 'Courier New', monospace);
-  font-size: 13px; /* Slightly smaller font */
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: center;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-  white-space: nowrap; /* Prevent text wrapping */
-  min-width: 0; /* Allow shrinking */
-  overflow: hidden;
-  text-overflow: ellipsis; /* Add ellipsis if text too long */
-}
-
-.action-button:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
-}
-
-.action-button:active:not(.disabled) {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
-  border-color: var(--color-accent-dark, #cc9a05) var(--color-accent-light, #ffe082) var(--color-accent-light, #ffe082) var(--color-accent-dark, #cc9a05);
-}
-
-/* Disabled state */
-.action-button.disabled {
-  opacity: 0.6;
-  background-color: #757575;
-  border-color: #9e9e9e #424242 #424242 #9e9e9e;
-  color: #e0e0e0;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-}
-
-.action-button.disabled:hover {
-  transform: none;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* Plant button specific styles */
-.action-button.plant {
-  background-color: #4caf50; /* Green for plant */
-  border-color: #81c784 #2e7d32 #2e7d32 #81c784;
-}
-
-.action-button.plant:hover:not(.disabled) {
-  background-color: #43a047;
-}
-
-/* Clear button specific styles */
-.action-button.clear {
-  background-color: #795548; /* Brown for clear */
-  border-color: #a1887f #4e342e #4e342e #a1887f;
-  color: #fff;
-}
-
-.action-button.clear:hover:not(.disabled) {
-  background-color: #6d4c41;
-}
-
-/* Status messages for feedback */
-.action-status {
-  margin-top: 8px;
-  text-align: center;
-}
-
-.action-status .garden-tip {
-  margin: 3px 0;
-  font-size: 12px;
-  opacity: 0.85;
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
+  
+  .garden-indicators {
+    gap: 5px;
+  }
+  
+  .weather-indicator, .season-indicator {
+    padding: 4px 6px;
+  }
+  
+  .weather-icon, .season-icon {
+    font-size: 14px;
+  }
+  
+  .weather-label, .season-label {
+    font-size: 11px;
+  }
+  
+  .garden-grid {
+    gap: 5px;
+    padding: 5px;
+  }
+  
   .seed-actions {
-    gap: 6px;
-    margin-top: 10px;
+    gap: 4px; /* Tighter spacing */
   }
   
   .action-button {
