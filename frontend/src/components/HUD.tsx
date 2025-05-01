@@ -15,22 +15,24 @@ interface HUDProps {
 }
 
 const HUD: React.FC<HUDProps> = ({
-  playerName = "Elspeth",
-  gold = 75,
-  day = 3,
+  playerName = "Willow",
+  gold = 100,
+  day = 1,
   lunarPhase = "Waxing Crescent",
-  reputation = 12,
-  playerLevel = 2,
+  reputation = 5,
+  playerLevel = 1,
   onChangeLocation,
   onAdvanceDay
 }) => {
+  // State
   const [activeLocation, setActiveLocation] = useState<string>('garden');
   const [confirmEndDay, setConfirmEndDay] = useState<boolean>(false);
   const [confirmTimeoutId, setConfirmTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
-  // Easter Egg State
+  // Portrait Easter Egg
   const [portraitClicks, setPortraitClicks] = useState(0);
   const [showSparkle, setShowSparkle] = useState(false);
+  const [levelBoost, setLevelBoost] = useState(0);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const portraitClickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -80,9 +82,23 @@ const HUD: React.FC<HUDProps> = ({
 
     if (newClicks >= 5) {
       setShowSparkle(true);
+      setLevelBoost(1); // Temporary visual level boost effect
       setStatusMessage(`${playerName} feels particularly determined! ✨`);
-      setTimeout(() => setShowSparkle(false), 1000); // Sparkle duration
-      setTimeout(() => setStatusMessage(null), 3000); // Message duration
+      
+      // Play a subtle sound effect
+      const sparkleSound = new Audio('data:audio/wav;base64,UklGRroYAABXQVZFZm10IBAAAAABAAEAESsAACJWAAABAAgAZGF0YZYYAAAAAFf/Vzb/No3+jQT+BKL9osH9wSL+IpT+lO/+70v/SzP/M3X+dVf+Vzb+NjD+MH3+ff/9/8/9z9f91y3+LcH+wWf/Z4n/ifj++AH+Ae397bT9tGP+Y5n+mZP+kxT/FK//r5j/mC3/LT3/Pf/+/4D+gHn+ef/9/wT+BPb99g==');
+      sparkleSound.volume = 0.2;
+      sparkleSound.play().catch(() => {/* Ignore audio errors */});
+      
+      setTimeout(() => {
+        setShowSparkle(false);
+        setLevelBoost(0);
+      }, 3000); // Sparkle effect duration
+      
+      setTimeout(() => {
+        setStatusMessage(null);
+      }, 4000); // Message duration
+      
       setPortraitClicks(0); // Reset clicks after activation
     } else {
       // Set a timeout to reset clicks if not clicked again quickly
@@ -125,11 +141,12 @@ const HUD: React.FC<HUDProps> = ({
           title="Click portrait rapidly..."
         >
           <div className="player-avatar">{getPlayerInitial()}</div>
+          {showSparkle && <div className="portrait-sparkles"></div>}
         </div>
         <div className="player-name" title={playerName}>{playerName}</div>
         <div className="player-level">
           <span>Atelier Lv </span>
-          <span className="level-number">{playerLevel}</span>
+          <span className="level-number">{playerLevel + levelBoost}</span>
         </div>
       </div>
 
@@ -147,11 +164,11 @@ const HUD: React.FC<HUDProps> = ({
       {/* Resources */}
       <div className="resources-panel">
         <div className="resource-item gold" title={`${gold} Gold`}>
-          <div className="resource-icon"></div>
+          <div className="resource-icon">💰</div>
           <div className="resource-value">{gold}</div>
         </div>
         <div className="resource-item reputation" title={`${reputation} Reputation`}>
-          <div className="resource-icon"></div>
+          <div className="resource-icon">✨</div>
           <div className="resource-value">{reputation}</div>
         </div>
       </div>
@@ -182,10 +199,10 @@ const HUD: React.FC<HUDProps> = ({
         </button>
       </div>
 
-      {/* Easter Egg Status Message */}
-      <div className={`hud-status-message ${statusMessage ? 'visible' : ''}`}>
-        {statusMessage}
-      </div>
+      {/* Status Message (Easter Egg) */}
+      {statusMessage && (
+        <div className="hud-status-message">{statusMessage}</div>
+      )}
     </aside>
   );
 };

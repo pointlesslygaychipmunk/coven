@@ -1,31 +1,30 @@
-/* HUD 90s Game Style Overhaul */
+/* HUD.css - 90s Adventure Game Style */
 
 .coven-hud-sidebar {
   position: relative;
-  float: none;
   width: 220px; 
   height: 100%; 
-  background-color: #2d2038; /* Darker purple background */
+  background-color: #2d2038; /* Dark purple background */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232d2038"/><path d="M0 25h100M0 50h100M0 75h100" stroke="%233a2f4a" stroke-width="1"/><path d="M25 0v100M50 0v100M75 0v100" stroke="%233a2f4a" stroke-width="1"/></svg>');
   border-right: 4px solid #5d468a;
-  padding: 0; /* Remove padding, handle within panels */
+  padding: 0;
   display: flex;
   flex-direction: column;
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4);
   z-index: 10;
-  color: #e4dbee;
+  color: #e4dbee; /* Light purple text */
   image-rendering: pixelated;
   flex: 0 0 220px;
   overflow: hidden;
-  font-family: 'Courier New', monospace; /* True 90s font */
+  font-family: 'Courier New', monospace; /* Classic 90s font */
 }
 
-/* Player Info Panel - DOS-style top panel */
+/* Player Info Panel */
 .player-panel {
   background-color: #3a2f4a;
   border: 0;
   border-bottom: 2px solid #5d468a;
-  border-radius: 0;
+  border-radius: 0; /* Square corners for 90s look */
   padding: 12px;
   text-align: center;
   box-shadow: none;
@@ -40,12 +39,49 @@
   background-color: #4a3b5c;
   border: 3px solid #7a6c95;
   box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 5px rgba(181, 157, 196, 0.3);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.player-portrait:hover {
+  border-color: #b59dc4;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px rgba(181, 157, 196, 0.5);
 }
 
 .player-avatar {
   font-size: 32px;
   color: #e4dbee;
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Portrait Sparkle Effect (Easter Egg) */
+.player-portrait.sparkling {
+  animation: portraitGlow 1s infinite alternate;
+}
+
+.portrait-sparkles {
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="%23b59dc4" opacity="0.7"><circle cx="20" cy="20" r="2"/><circle cx="80" cy="20" r="2"/><circle cx="20" cy="80" r="2"/><circle cx="80" cy="80" r="2"/><circle cx="50" cy="50" r="4"/><circle cx="30" cy="70" r="1"/><circle cx="70" cy="30" r="1"/><circle cx="30" cy="30" r="1"/><circle cx="70" cy="70" r="1"/></g></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+  animation: sparkleRotate 2s linear infinite;
+}
+
+@keyframes portraitGlow {
+  from { box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px rgba(181, 157, 196, 0.5); }
+  to { box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 20px rgba(181, 157, 196, 0.9); }
+}
+
+@keyframes sparkleRotate {
+  0% { transform: rotate(0deg); opacity: 0.7; }
+  100% { transform: rotate(360deg); opacity: 1; }
 }
 
 .player-name {
@@ -62,7 +98,7 @@
 }
 
 .level-number {
-  color: #ffc107; /* True gold/yellow for 90s UI */
+  color: #ffc107; /* Gold/yellow for level */
   font-weight: bold;
 }
 
@@ -76,6 +112,13 @@
   text-align: center;
   box-shadow: none;
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lunar-icon {
+  margin-bottom: 5px;
 }
 
 .lunar-phase {
@@ -110,7 +153,7 @@
   gap: 8px;
   background-color: #4a3b5c;
   padding: 5px 10px;
-  border-radius: 0;
+  border-radius: 0; /* Square for 90s look */
   border: 2px solid;
   border-color: #7a6c95 #2d2038 #2d2038 #7a6c95; /* True 90s bevel */
   box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
@@ -119,18 +162,18 @@
 .resource-icon {
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  text-align: center;
   flex-shrink: 0;
-  border: 1px solid rgba(0,0,0,0.3);
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.4);
 }
 
 .resource-item.gold .resource-icon { 
-  background-color: #ffc107; /* Brighter gold for readability */
+  color: #ffc107;
+  text-shadow: 0 0 3px rgba(255, 193, 7, 0.5);
 }
 
 .resource-item.reputation .resource-icon { 
-  background-color: #b59dc4; /* Purple */
+  color: #b59dc4;
+  text-shadow: 0 0 3px rgba(181, 157, 196, 0.5);
 }
 
 .resource-value {
@@ -144,17 +187,17 @@
 
 .resource-item.gold .resource-value { 
   color: #ffc107; 
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 }
 
 .resource-item.reputation .resource-value { 
   color: #b59dc4; 
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Navigation Panel - Classic 90s style menu */
+/* Navigation Panel */
 .navigation-panel {
-  margin-top: auto;
+  margin-top: auto; /* Push to bottom */
   display: flex;
   flex-direction: column;
   padding: 8px 6px;
@@ -186,19 +229,20 @@
   align-items: center;
   gap: 8px;
   text-align: left;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 .location-tab:hover:not(.active) {
   background-color: #5d468a;
   color: #fff;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
 }
 
 .location-tab:active {
   transform: translateY(1px);
-  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
-  border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Invert bevel */
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+  border-color: #2d2038 #7a6c95 #7a6c95 #2d2038; /* Invert bevel when pressed */
 }
 
 .location-tab.active {
@@ -213,10 +257,10 @@
   font-size: 18px;
   width: 20px;
   text-align: center;
-  filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.5));
+  filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.5));
 }
 
-/* End Day Button - Command button style */
+/* End Day Button */
 .end-day-button {
   padding: 10px 12px;
   background-color: #ffc107; /* Gold/yellow button */
@@ -231,14 +275,14 @@
   transition: all 0.15s ease;
   width: 100%;
   text-align: center;
-  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 .end-day-button:hover:not(:disabled):not(.confirm) {
   background-color: #ffca28;
   transform: translateY(-2px);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 }
 
 .end-day-button:active:not(:disabled):not(.confirm) {
@@ -259,7 +303,36 @@
   to   { box-shadow: 2px 2px 3px rgba(0,0,0,0.3), 0 0 15px #f44336; }
 }
 
-/* Responsive variations */
+.end-day-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Status Message (Easter Egg) */
+.hud-status-message {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background-color: rgba(181, 157, 196, 0.2);
+  color: #e4dbee;
+  font-size: 12px;
+  text-align: center;
+  border-top: 1px solid #5d468a;
+  border-bottom: 1px solid #5d468a;
+  animation: messageAppear 0.5s ease-in-out;
+  z-index: 100;
+}
+
+@keyframes messageAppear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adaptations */
 @media (max-height: 700px) {
   .player-portrait {
     width: 60px;
@@ -285,7 +358,7 @@
   }
 }
 
-/* Mobile responsive layout */
+/* Mobile Layout */
 @media (max-width: 768px) {
   .coven-hud-sidebar {
     float: none;
@@ -337,5 +410,11 @@
     max-width: 120px;
     padding: 5px 7px;
     font-size: 12px;
+  }
+  
+  .hud-status-message {
+    bottom: 5px;
+    left: 130px;
+    right: 5px;
   }
 }
