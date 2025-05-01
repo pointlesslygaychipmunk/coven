@@ -57,13 +57,18 @@ const Atelier: React.FC<AtelierProps> = ({
     // --- Placeholder Crafting Logic ---
     // In a real app, this would likely be an API call:
     // fetch('/api/atelier/check', { method: 'POST', body: JSON.stringify({ ingredientBaseIds: selectedBaseIds }) })
-    const findPotentialCrafts = (/* ingredientBaseIds: string[] */): CraftingResultDisplay[] => { // Removed unused parameter
+    const findPotentialCrafts = (ingredientBaseIds: string[]): CraftingResultDisplay[] => { // Now using ingredientBaseIds
         const results: CraftingResultDisplay[] = [];
         // Basic check against known recipes
         knownRecipes.forEach(known => {
             // TODO: Implement actual recipe matching logic based on known.ingredients
             // This is a very simplified placeholder check: Needs ingredient matching!
-            const recipeMatchesSelection = true; // Replace with real check based on known.ingredients and selectedBaseIds!
+            // Example check: if recipe ingredients EXACTLY match selected base IDs (order doesn't matter)
+            // Assuming the 'known' object (BasicRecipeInfo) might not have full ingredient details.
+            // A more robust check would likely require fetching full recipe data based on ID
+            // or doing the check entirely on the backend.
+            // For now, let's assume *some* matching logic exists or we rely on hardcoded examples.
+            const recipeMatchesSelection = true; // Replace with real check!
 
             if (recipeMatchesSelection) {
                 // Check if recipe type matches the active tab
@@ -84,11 +89,17 @@ const Atelier: React.FC<AtelierProps> = ({
         });
 
         // Example hardcoded discoveries (can be removed if using recipes only)
-        if (selectedBaseIds.length === 2 && selectedBaseIds.includes('ing_moonbud') && selectedBaseIds.includes('ing_silverleaf') && activeTab === 'charm') {
-            results.push({ id: 'charm_moon_silver', name: 'Moon Silver Charm', description: 'Shimmers with lunar light.', type: 'charm', category: 'charm', rarity: 'uncommon' });
+        // Ensure these checks consider the activeTab as well
+        if (activeTab === 'charm' && ingredientBaseIds.length === 2 && ingredientBaseIds.includes('ing_moonbud') && ingredientBaseIds.includes('ing_silverleaf') ) {
+            // Prevent adding duplicates if already found via knownRecipes
+            if (!results.some(r => r.id === 'charm_moon_silver')) {
+                results.push({ id: 'charm_moon_silver', name: 'Moon Silver Charm', description: 'Shimmers with lunar light.', type: 'charm', category: 'charm', rarity: 'uncommon' });
+            }
         }
-        if (selectedBaseIds.length === 3 && selectedBaseIds.includes('misc_wood_birch') && selectedBaseIds.includes('gem_quartz') && selectedBaseIds.includes('tool_knife') && activeTab === 'talisman') {
-             results.push({ id: 'talisman_birch_quartz', name: 'Carved Birch Talisman', description: 'A simple protective talisman.', type: 'talisman', category: 'talisman', rarity: 'common' });
+        if (activeTab === 'talisman' && ingredientBaseIds.length === 3 && ingredientBaseIds.includes('misc_wood_birch') && ingredientBaseIds.includes('gem_quartz') && ingredientBaseIds.includes('tool_knife')) {
+             if (!results.some(r => r.id === 'talisman_birch_quartz')) {
+                results.push({ id: 'talisman_birch_quartz', name: 'Carved Birch Talisman', description: 'A simple protective talisman.', type: 'talisman', category: 'talisman', rarity: 'common' });
+             }
         }
 
 
@@ -96,7 +107,7 @@ const Atelier: React.FC<AtelierProps> = ({
     };
     // --- End Placeholder ---
 
-    const potentialResults = findPotentialCrafts(/* selectedBaseIds */); // Pass if needed by actual logic
+    const potentialResults = findPotentialCrafts(selectedBaseIds); // Pass selectedBaseIds
 
     // Filter based on level etc.
     const filteredResults = potentialResults.filter(result => {
@@ -152,12 +163,14 @@ const Atelier: React.FC<AtelierProps> = ({
               availableComponents.map(item => {
                  const isSelectable = canSelectItem(item);
                  const selectedCount = selectedItems.filter(sel => sel.id === item.id).length;
-                 const isCurrentlySelected = selectedItems.some(sel => sel.id === item.id); // Is this specific instance selected?
+                 // Check how many instances of this BASE item are selected
+                 const selectedBaseCount = selectedItems.filter(sel => sel.baseId === item.baseId).length;
 
                  return (
                     <div
                       key={item.id} // Use the unique inventory ID as key
-                      className={`ingredient-item ${!isSelectable && !isCurrentlySelected ? 'disabled' : ''} ${isCurrentlySelected ? 'selected-dim' : ''}`} // Dim if selected, disable if cannot select more
+                      // Dim if *any* instance of this baseId is selected. Disable if *this* stack is fully used.
+                      className={`ingredient-item ${!isSelectable ? 'disabled' : ''} ${selectedBaseCount > 0 ? 'selected-dim' : ''}`}
                       onClick={isSelectable ? () => handleItemSelect(item) : undefined}
                       title={isSelectable ? `${item.name} (Qty: ${item.quantity})` : `Not enough ${item.name}`}
                     >
@@ -166,8 +179,9 @@ const Atelier: React.FC<AtelierProps> = ({
                          {/* Actual image would go here */}
                       </div>
                       <div className="item-name">{item.name}</div>
-                       <div className="item-quantity">x{item.quantity}</div> {/* Show total quantity */}
-                       {/* Selected count badge (optional) */}
+                       {/* Show quantity available in this stack */}
+                       <div className="item-quantity">x{item.quantity}</div>
+                       {/* Show count selected FROM THIS STACK */}
                        {selectedCount > 0 && <div className="selected-count-badge">{selectedCount}</div>}
                     </div>
                  );
@@ -214,7 +228,7 @@ const Atelier: React.FC<AtelierProps> = ({
         {/* Results Panel */}
         <div className="results-panel">
            <div className="tabs">
-               <button className={activeTab === 'charm' ? 'active' : ''} onClick={() => { setActiveTab('charm'); /* No need to clear here, useEffect handles results */ }}>Charms</button>
+               <button className={activeTab === 'charm' ? 'active' : ''} onClick={() => { setActiveTab('charm'); }}>Charms</button>
                <button className={activeTab === 'talisman' ? 'active' : ''} onClick={() => { setActiveTab('talisman'); }}>Talismans</button>
                <button className={activeTab === 'tool' ? 'active' : ''} onClick={() => { setActiveTab('tool'); }}>Tools</button>
            </div>

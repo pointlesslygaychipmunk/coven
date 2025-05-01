@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import './HUD.css'; // Ensure this uses the new styles
-import LunarPhaseIcon from './LunarPhaseIcon';
-import { MoonPhase } from 'coven-shared';
+import './HUD.css';
+import LunarPhaseIcon from './LunarPhaseIcon'; // Assuming LunarPhaseIcon exists and works
+import { MoonPhase } from 'coven-shared'; // Import shared type
 
 interface HUDProps {
   playerName: string;
   gold: number;
   day: number;
-  lunarPhase: MoonPhase;
+  lunarPhase: MoonPhase; // Correctly typed as MoonPhase
   reputation: number;
-  playerLevel: number; // Added playerLevel
+  playerLevel: number;
   onChangeLocation: (location: string) => void;
   onAdvanceDay: () => void;
 }
@@ -20,29 +20,36 @@ const HUD: React.FC<HUDProps> = ({
   day,
   lunarPhase,
   reputation,
-  playerLevel, // Use playerLevel
+  playerLevel,
   onChangeLocation,
   onAdvanceDay
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmEndDay, setConfirmEndDay] = useState(false);
   const [confirmTimeoutId, setConfirmTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [menuAnimation, setMenuAnimation] = useState('');
 
+  // Handle location change from menu
   const handleLocationClick = (location: string) => {
     onChangeLocation(location);
-    setMenuOpen(false);
+    setMenuAnimation('fadeOut');
+    setTimeout(() => {
+      setMenuOpen(false);
+      setMenuAnimation('');
+    }, 300);
     resetEndDayConfirm();
   };
 
+  // Handle end day click with confirmation step
   const handleEndDayClick = () => {
     if (confirmEndDay) {
       if(confirmTimeoutId) clearTimeout(confirmTimeoutId);
       onAdvanceDay();
       setConfirmEndDay(false);
       setConfirmTimeoutId(null);
-      setMenuOpen(false); // Close menu on confirm
     } else {
       setConfirmEndDay(true);
+      // Set a timeout to automatically cancel confirmation after a few seconds
       const timeoutId = setTimeout(() => {
          setConfirmEndDay(false);
          setConfirmTimeoutId(null);
@@ -51,45 +58,48 @@ const HUD: React.FC<HUDProps> = ({
     }
   };
 
+  // Toggle the location menu visibility with animation
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    if (menuOpen) {
+      setMenuAnimation('fadeOut');
+      setTimeout(() => {
+        setMenuOpen(false);
+        setMenuAnimation('');
+      }, 300);
+    } else {
+      setMenuOpen(true);
+      setMenuAnimation('fadeIn');
+    }
     resetEndDayConfirm();
   };
 
+  // Helper to reset the end day confirmation state and clear timeout
   const resetEndDayConfirm = () => {
-      if(confirmTimeoutId) {
-          clearTimeout(confirmTimeoutId);
-          setConfirmTimeoutId(null);
-      }
-      setConfirmEndDay(false);
+    if(confirmTimeoutId) {
+      clearTimeout(confirmTimeoutId);
+      setConfirmTimeoutId(null);
+    }
+    setConfirmEndDay(false);
   };
 
-  // Optional: Close menu if clicking outside HUD/menu area
+  // Handle escape key to close menu
   useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-          // Check if the click target is outside the HUD top bar and the menu itself
-          const hudTop = document.querySelector('.hud-top');
-          const menu = document.querySelector('.location-menu');
-          if (
-              hudTop && !hudTop.contains(event.target as Node) &&
-              menu && !menu.contains(event.target as Node)
-          ) {
-              setMenuOpen(false);
-              resetEndDayConfirm();
-          }
-      };
-
-      if (menuOpen) {
-          document.addEventListener('mousedown', handleClickOutside);
-      } else {
-          document.removeEventListener('mousedown', handleClickOutside);
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && menuOpen) {
+        toggleMenu();
       }
+    };
 
-      return () => {
-          document.removeEventListener('mousedown', handleClickOutside);
-      };
-  }, [menuOpen]); // Re-run when menuOpen changes
+    document.addEventListener('keydown', handleEscKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [menuOpen]);
 
+  // Get player initial for avatar
+  const getPlayerInitial = () => {
+    return playerName.charAt(0).toUpperCase();
+  };
 
   return (
     <div className="hud-container">
@@ -97,14 +107,13 @@ const HUD: React.FC<HUDProps> = ({
       <div className="hud-top">
         {/* Player Info */}
         <div className="player-info">
-          <div className="player-avatar" title={`Player: ${playerName}`}>
-            {/* Display first letter or a simple icon */}
-            {playerName.charAt(0).toUpperCase()}
+          <div className="player-avatar" title={`Witch: ${playerName}`}>
+            {getPlayerInitial()}
           </div>
           <div className="player-details">
             <div className="player-name">{playerName}</div>
             <div className="player-level">
-              <span className="level-label">Lv.</span>
+              <span className="level-label">Atelier Lv</span>
               <span className="level-number">{playerLevel}</span>
             </div>
           </div>
@@ -113,7 +122,7 @@ const HUD: React.FC<HUDProps> = ({
         {/* Lunar Display */}
         <div className="lunar-display">
           <div className="lunar-icon">
-            <LunarPhaseIcon phase={lunarPhase} size={40} />
+            <LunarPhaseIcon phase={lunarPhase} size={48} />
           </div>
           <div className="lunar-info">
             <div className="lunar-phase">{lunarPhase}</div>
@@ -138,17 +147,21 @@ const HUD: React.FC<HUDProps> = ({
           <button
             className={`end-day-button ${confirmEndDay ? 'confirm' : ''}`}
             onClick={handleEndDayClick}
-            title={confirmEndDay ? "Click again to confirm end day" : "End the Day"}
+            title={confirmEndDay ? "Click again to confirm ending the day" : "End the current day"}
           >
             {confirmEndDay ? 'Confirm?' : 'End Day'}
           </button>
           <button
             className={`menu-button ${menuOpen ? 'active' : ''}`}
             onClick={toggleMenu}
-            title="Navigation"
+            title="Open Navigation Menu"
+            aria-label="Navigation Menu"
+            aria-expanded={menuOpen}
           >
             <div className="menu-icon">
-              <span></span><span></span><span></span>
+              <span></span>
+              <span></span>
+              <span></span>
             </div>
           </button>
         </div>
@@ -156,17 +169,18 @@ const HUD: React.FC<HUDProps> = ({
 
       {/* Location Menu (conditionally rendered) */}
       {menuOpen && (
-        <div className="location-menu">
+        <div className={`location-menu ${menuAnimation}`}>
           <div className="menu-header">
-            <h3>Navigate</h3>
+            <h3>Witch's Journal</h3>
           </div>
           <div className="menu-items">
+            {/* Define locations with nostalgic icons */}
             {[
-              { name: 'Garden', location: 'garden', iconClass: 'garden-icon' },
-              { name: 'Brewing', location: 'brewing', iconClass: 'brewing-icon' },
-              { name: 'Atelier', location: 'atelier', iconClass: 'atelier-icon' },
-              { name: 'Market', location: 'market', iconClass: 'market-icon' },
-              { name: 'Journal', location: 'journal', iconClass: 'journal-icon' },
+              { name: 'Garden', location: 'garden', iconClass: 'garden-icon', description: 'Tend to your magical plants' },
+              { name: 'Brewing', location: 'brewing', iconClass: 'brewing-icon', description: 'Craft powerful potions' },
+              { name: 'Atelier', location: 'atelier', iconClass: 'atelier-icon', description: 'Create magical items' },
+              { name: 'Market', location: 'market', iconClass: 'market-icon', description: 'Buy and sell ingredients' },
+              { name: 'Journal', location: 'journal', iconClass: 'journal-icon', description: 'Review your discoveries' },
             ].map(item => (
               <div
                 key={item.location}
@@ -174,7 +188,8 @@ const HUD: React.FC<HUDProps> = ({
                 onClick={() => handleLocationClick(item.location)}
                 role="button"
                 tabIndex={0}
-                onKeyPress={(e) => { if (e.key === 'Enter') handleLocationClick(item.location); }} // Basic keyboard nav
+                title={item.description}
+                aria-label={`Go to ${item.name}: ${item.description}`}
               >
                 <div className={`menu-item-icon ${item.iconClass}`} />
                 <span>{item.name}</span>
@@ -185,6 +200,7 @@ const HUD: React.FC<HUDProps> = ({
              <button
                className="close-menu-button"
                onClick={toggleMenu}
+               aria-label="Close Menu"
              >
                Close
              </button>

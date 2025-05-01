@@ -16,6 +16,9 @@ import HUD from '@components/HUD';
 import Atelier from '@components/Atelier';
 import WeatherEffectsOverlay from '@components/WeatherEffectsOverlay';
 
+// Define the extended weather type locally if not updating shared package
+type ExtendedWeatherFate = WeatherFate | 'snowy' | 'magical';
+
 // API Utility
 const API_BASE_URL = '/api';
 
@@ -76,11 +79,9 @@ const App: React.FC = () => {
                    clearError();
                 }
             }, 5000);
-            // Return the cleanup function for this path
             return () => clearTimeout(timer);
         }
-        // Explicitly return undefined for the path where error is null
-        return undefined;
+        return undefined; // Explicit return for the null error path
     }, [error, lastErrorTimestamp]);
 
 
@@ -102,7 +103,7 @@ const App: React.FC = () => {
             setError(displayMessage);
             setLastErrorTimestamp(Date.now());
         }
-        // Implicit return is fine here now
+        // No explicit return needed here for void promise, as implicit undefined return works
     };
 
 
@@ -227,7 +228,8 @@ const App: React.FC = () => {
             <div className="error-screen">
                 <h1>Initialization Error</h1>
                 <p>{error || 'Failed to load essential game data. The coven remains hidden.'}</p>
-                <button onClick={() => window.location.reload()}>Retry Connection</button>
+                {/* Use button-90s style */}
+                <button className="button-90s" onClick={() => window.location.reload()}>Retry Connection</button>
             </div>
         );
     }
@@ -243,8 +245,9 @@ const App: React.FC = () => {
         return (
             <>
              {error && <ErrorDisplay />}
+                {/* Pass the extended weather type */}
                 <WeatherEffectsOverlay
-                    weatherType={gameState.time.weatherFate as WeatherFate}
+                    weatherType={gameState.time.weatherFate as ExtendedWeatherFate}
                     intensity="medium"
                     timeOfDay={timeOfDay}
                     season={gameState.time.season as Season}
