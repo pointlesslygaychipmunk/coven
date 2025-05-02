@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import './App.css';
-import { GameState, Season, InventoryItem, GardenSlot, WeatherFate } from 'coven-shared';
+import { GameState, Season, InventoryItem, GardenSlot, WeatherFate, AtelierSpecialization } from 'coven-shared';
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 // Import Components
@@ -29,6 +29,42 @@ const apiCall = async (endpoint: string, method: string = 'GET', body?: Record<s
     throw new Error(responseData.error || `API call failed: ${response.statusText}`);
   }
   return responseData as GameState;
+};
+
+// Create a mock game state function - defined before the component to avoid reference issues
+const createMockGameState = (): GameState => {
+    console.log('Creating mock game state');
+    return {
+        currentPlayerIndex: 0,
+        version: "1.0.0",
+        players: [{
+            id: "fallback",
+            name: "Fallback Witch",
+            gold: 500,
+            mana: 500,
+            reputation: 50,
+            atelierLevel: 5,
+            atelierSpecialization: "Essence" as AtelierSpecialization,
+            garden: [],
+            inventory: [],
+            blackMarketAccess: false,
+            skills: { gardening: 5, brewing: 5, trading: 5, crafting: 5, herbalism: 5, astrology: 5 },
+            knownRecipes: [],
+            completedRituals: [],
+            journalEntries: [],
+            questsCompleted: 0,
+            lastActive: Date.now()
+        }],
+        market: [],
+        marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: false, tradingVolume: 0 },
+        rumors: [],
+        townRequests: [],
+        journal: [],
+        rituals: [],
+        events: [],
+        knownRecipes: [],
+        time: { year: 1, dayCount: 1, phaseName: "Full Moon", phase: 0, season: "Spring", weatherFate: "clear" }
+    };
 };
 
 // Main App Component
@@ -156,9 +192,6 @@ const App: React.FC = () => {
     useEffect(() => {
         console.log('Fetching initial state, useMultiplayer:', useMultiplayer);
         
-        // Get the mock state from our stable reference function
-        const mockGameState = createMockGameState();
-        
         // Define fetchInitialState inside the effect to avoid dependencies
         const fetchInitialState = async () => {
             try {
@@ -178,7 +211,7 @@ const App: React.FC = () => {
                 console.error('Error fetching initial game state:', err);
                 // Use mock data instead of failing
                 console.log('Using mock game state');
-                setGameState(mockGameState);
+                setGameState(createMockGameState());
                 setError('Using mock data - backend server not available');
             } finally {
                 // Always exit loading state
@@ -205,7 +238,7 @@ const App: React.FC = () => {
         return () => {
             console.log('Cleaning up fetch effect');
         };
-    }, [useMultiplayer, showLobby, createMockGameState]);
+    }, [useMultiplayer, showLobby, error]);
 
     // --- Action Handlers ---
     // Use a ref for tracking the last action to avoid re-renders
@@ -442,8 +475,7 @@ const App: React.FC = () => {
         
         // Create a mock game state for testing if we don't have one yet
         if (!gameState) {
-            const mockState = createMockGameState();
-            setGameState(mockState);
+            setGameState(createMockGameState());
         }
         
         // Hide the lobby first
@@ -454,43 +486,7 @@ const App: React.FC = () => {
             setLoading(false);
             console.log('Loading disabled after entering game');
         }, 500);
-    }, [gameState, createMockGameState]);
-    
-    // Create a stable reference to the mockGameState creator to avoid re-renders
-    const createMockGameState = useCallback(() => {
-        console.log('Creating fallback game state');
-        return {
-            currentPlayerIndex: 0,
-            version: "1.0.0",
-            players: [{
-                id: "fallback",
-                name: "Fallback Witch",
-                gold: 500,
-                mana: 500,
-                reputation: 50,
-                atelierLevel: 5,
-                atelierSpecialization: "Essence",
-                garden: [],
-                inventory: [],
-                blackMarketAccess: false,
-                skills: { gardening: 5, brewing: 5, trading: 5, crafting: 5, herbalism: 5, astrology: 5 },
-                knownRecipes: [],
-                completedRituals: [],
-                journalEntries: [],
-                questsCompleted: 0,
-                lastActive: Date.now()
-            }],
-            market: [],
-            marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: false, tradingVolume: 0 },
-            rumors: [],
-            townRequests: [],
-            journal: [],
-            rituals: [],
-            events: [],
-            knownRecipes: [],
-            time: { year: 1, dayCount: 1, phaseName: "Full Moon", phase: 0, season: "Spring", weatherFate: "clear" }
-        };
-    }, []);
+    }, [gameState]);
     
     // Monitor key state changes and cleanup timers
     useEffect(() => {
@@ -508,8 +504,7 @@ const App: React.FC = () => {
                 
                 // If we don't have game state yet, create mock state
                 if (!gameState) {
-                    const mockState = createMockGameState();
-                    setGameState(mockState);
+                    setGameState(createMockGameState());
                 }
             }
         }, 5000);
@@ -541,7 +536,7 @@ const App: React.FC = () => {
             console.log('App unmounted, cleaning up all timers');
             timers.forEach(timer => clearTimeout(timer));
         };
-    }, [loading, gameState, createMockGameState]);
+    }, [loading, gameState]);
 
     // Stable references to functions to prevent unnecessary renders
     const renderOptimizedEffect = useCallback((weatherType: WeatherFate, intensity: string, phase: string, season: Season) => {
