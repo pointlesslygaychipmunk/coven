@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom/client';
+import * as React from 'react';
+import { useState } from 'react';
+import * as ReactDOM from 'react-dom/client';
 
 // A minimal app component for testing
 function MinimalApp() {

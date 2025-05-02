@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import './App.css';
-import { GameState, Season, InventoryItem, GardenSlot } from 'coven-shared';
+import { GameState, Season, InventoryItem, GardenSlot, WeatherFate } from 'coven-shared';
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 // Import Components

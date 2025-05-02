@@ -1,6 +1,6 @@
 // frontend/src/index.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
 import App from './components/App';
 import { renderMinimalApp } from './minimal';
 import './index.css';
@@ -16,10 +16,18 @@ if (!rootElement) {
 const urlParams = new URLSearchParams(window.location.search);
 const minimalMode = urlParams.get('minimal') === 'true';
 
+// Type guard to assert rootElement is not null
+function assertNonNull<T>(value: T | null | undefined): asserts value is T {
+  if (value === null || value === undefined) {
+    throw new Error("Value is null or undefined");
+  }
+}
+
 // Function to render the main app with error handling
 function renderMainApp() {
   try {
     console.log('Attempting to render main App component...');
+    assertNonNull(rootElement);
     const root = ReactDOM.createRoot(rootElement);
     
     // Remove StrictMode temporarily as it can cause double renders
