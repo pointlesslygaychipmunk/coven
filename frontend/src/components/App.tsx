@@ -39,10 +39,10 @@ const App: React.FC = () => {
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden'); // Default view
     
-    // Multiplayer state - ensure it's enabled by default
+    // Multiplayer state - temporarily disabled for debugging
     const [showLobby, setShowLobby] = useState(true);
-    // Force useMultiplayer to true to ensure multiplayer features are active
-    const [useMultiplayer, setUseMultiplayer] = useState(false);
+    // Set multiplayer to false to simplify debugging
+    const [useMultiplayer] = useState(false);
 
     // Moonlight Meadow Easter Egg state
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
