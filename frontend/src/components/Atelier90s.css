@@ -1,0 +1,1129 @@
+/* frontend/src/components/Atelier90s.css */
+/* Atelier component with authentic 90s DOS game aesthetic */
+
+.atelier90s-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  color: #cccccc;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+  /* DOS-style border with double line effect */
+  border: 4px solid;
+  border-color: #888888 #222222 #222222 #888888;
+  box-shadow: inset 2px 2px 0 #111111;
+  image-rendering: pixelated;
+}
+
+/* CRT scan line effect */
+.atelier90s-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.01) 50%,
+    transparent 51%,
+    rgba(0, 0, 0, 0.01) 100%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0.3;
+}
+
+/* DOS-style screen noise effect */
+.atelier90s-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/png;base64,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');
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* ----- HEADER SECTION ----- */
+.atelier90s-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #000080;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-bottom: 2px solid #888888;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 #000000;
+  z-index: 10;
+  position: relative;
+}
+
+.atelier90s-title {
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+/* 90s-style title shadow */
+.atelier90s-title::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  color: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+}
+
+.atelier90s-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+}
+
+.atelier90s-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.atelier90s-stat {
+  background-color: #000000;
+  border: 1px solid #888888;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: #00ff00;
+  font-family: monospace;
+}
+
+/* ----- WORKSPACE SECTION ----- */
+.atelier90s-workspace {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  gap: 4px;
+  padding: 4px;
+  flex: 1;
+  min-height: 0;
+  background-color: #333333;
+  position: relative;
+}
+
+/* ----- SPECIALIZATION PANEL ----- */
+.atelier90s-specialization {
+  background-color: #222222;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid;
+  border-color: #111111 #555555 #555555 #111111;
+  padding: 10px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.atelier90s-panel-title {
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffffff;
+  padding: 3px;
+  background-color: #000080;
+  border: 1px solid #666666;
+  text-transform: uppercase;
+}
+
+.atelier90s-spec-info {
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #444444;
+}
+
+.atelier90s-spec-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffcc00;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.atelier90s-spec-desc {
+  font-size: 11px;
+  color: #aaaaaa;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.atelier90s-spec-bonus {
+  font-size: 11px;
+  color: #00cc00;
+  margin-top: 3px;
+  padding-left: 10px;
+  position: relative;
+}
+
+.atelier90s-spec-bonus::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.atelier90s-upgrade-paths {
+  margin-top: 15px;
+}
+
+.atelier90s-upgrade-title {
+  font-size: 12px;
+  color: #00ccff;
+  margin-bottom: 5px;
+  text-align: center;
+  border-bottom: 1px solid #444444;
+  padding-bottom: 3px;
+}
+
+.atelier90s-upgrade-option {
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #252525;
+  border: 1px solid #444444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.atelier90s-upgrade-option:hover {
+  background-color: #303030;
+  border-color: #666666;
+}
+
+.atelier90s-upgrade-option.selected {
+  background-color: #003366;
+  border-color: #0066cc;
+}
+
+.atelier90s-upgrade-option.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.atelier90s-upgrade-name {
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffaa00;
+  margin-bottom: 3px;
+}
+
+.atelier90s-upgrade-desc {
+  font-size: 10px;
+  color: #aaaaaa;
+  line-height: 1.2;
+}
+
+.atelier90s-upgrade-bonus {
+  font-size: 10px;
+  color: #00cc00;
+  margin-top: 3px;
+}
+
+.atelier90s-upgrade-req {
+  font-size: 10px;
+  color: #ff6666;
+  margin-top: 3px;
+}
+
+/* ----- CRAFTING PANEL ----- */
+.atelier90s-crafting {
+  display: flex;
+  flex-direction: column;
+  background-color: #222222;
+  border: 2px solid;
+  border-color: #111111 #555555 #555555 #111111;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.atelier90s-crafting-tabs {
+  display: flex;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #444444;
+}
+
+.atelier90s-tab {
+  flex: 1;
+  padding: 5px 10px;
+  text-align: center;
+  background-color: #333333;
+  color: #aaaaaa;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid #444444;
+  margin-right: 2px;
+}
+
+.atelier90s-tab:last-child {
+  margin-right: 0;
+}
+
+.atelier90s-tab.active {
+  background-color: #000080;
+  color: #ffffff;
+  border-color: #000080;
+  position: relative;
+}
+
+/* Triangle indicator for active tab */
+.atelier90s-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  margin-left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #000080;
+}
+
+.atelier90s-crafting-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border: 1px solid #444444;
+}
+
+.atelier90s-crafting-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.atelier90s-ingredient-slot {
+  aspect-ratio: 1;
+  background-color: #333333;
+  border: 2px solid;
+  border-color: #222222 #555555 #555555 #222222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.atelier90s-ingredient-slot.filled {
+  background-color: #2a3a2a;
+  border-color: #2a2a2a #5a5a5a #5a5a5a #2a2a2a;
+}
+
+.atelier90s-ingredient-slot.filled::before {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border: 1px dashed #00cc00;
+  pointer-events: none;
+}
+
+.atelier90s-ingredient-placeholder {
+  font-size: 24px;
+  color: #555555;
+  opacity: 0.5;
+  animation: blink 2s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+
+.atelier90s-ingredient-item {
+  width: 90%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.atelier90s-ingredient-icon {
+  width: 24px;
+  height: 24px;
+  background-color: #2c2c2c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  margin-bottom: 3px;
+  font-weight: bold;
+  color: #00cc00;
+  font-size: 16px;
+  position: relative;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+
+.atelier90s-ingredient-name {
+  font-size: 10px;
+  color: #cccccc;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atelier90s-crafting-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.atelier90s-button {
+  padding: 5px 15px;
+  background-color: #2c2c2c;
+  color: #cccccc;
+  border: 2px solid;
+  border-color: #555555 #222222 #222222 #555555;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  transition: all 0.1s;
+  text-shadow: 1px 1px 0 #000000;
+}
+
+.atelier90s-button:hover {
+  background-color: #3c3c3c;
+  color: #ffffff;
+}
+
+.atelier90s-button:active {
+  border-color: #222222 #555555 #555555 #222222;
+  transform: translateY(1px);
+}
+
+.atelier90s-button.primary {
+  background-color: #006666;
+  color: #ffffff;
+  border-color: #008888 #004444 #004444 #008888;
+}
+
+.atelier90s-button.primary:hover {
+  background-color: #007777;
+}
+
+.atelier90s-button.primary:active {
+  border-color: #004444 #008888 #008888 #004444;
+}
+
+.atelier90s-crafting-result {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border: 1px solid #444444;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80px;
+}
+
+.atelier90s-result-placeholder {
+  color: #555555;
+  font-size: 12px;
+  font-style: italic;
+  animation: blink 2s steps(1) infinite;
+}
+
+.atelier90s-result-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.atelier90s-result-icon {
+  width: 32px;
+  height: 32px;
+  background-color: #2c2c2c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #ffcc00;
+  font-size: 20px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 5px;
+  border: 1px solid #666666;
+  image-rendering: pixelated;
+}
+
+.atelier90s-result-name {
+  font-size: 14px;
+  color: #ffcc00;
+  margin-bottom: 3px;
+}
+
+.atelier90s-result-desc {
+  font-size: 11px;
+  color: #aaaaaa;
+  text-align: center;
+  max-width: 80%;
+  margin-bottom: 5px;
+}
+
+.atelier90s-result-quality {
+  font-size: 10px;
+  color: #00cc00;
+}
+
+/* ----- INVENTORY PANEL ----- */
+.atelier90s-inventory {
+  background-color: #222222;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid;
+  border-color: #111111 #555555 #555555 #111111;
+  padding: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.atelier90s-inventory-filters {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.atelier90s-filter {
+  padding: 2px 6px;
+  background-color: #333333;
+  color: #aaaaaa;
+  font-size: 10px;
+  cursor: pointer;
+  border: 1px solid #444444;
+}
+
+.atelier90s-filter.active {
+  background-color: #006666;
+  color: #ffffff;
+  border-color: #006666;
+}
+
+.atelier90s-inventory-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #444444 #222222;
+}
+
+/* Webkit scrollbar styling */
+.atelier90s-inventory-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.atelier90s-inventory-list::-webkit-scrollbar-track {
+  background: #222222;
+}
+
+.atelier90s-inventory-list::-webkit-scrollbar-thumb {
+  background-color: #444444;
+  border-radius: 0;
+  border: 1px solid #222222;
+}
+
+.atelier90s-inventory-item {
+  background-color: #2c2c2c;
+  border: 2px solid;
+  border-color: #222222 #555555 #555555 #222222;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.atelier90s-inventory-item:hover {
+  background-color: #3c3c3c;
+}
+
+.atelier90s-inventory-item.selected {
+  background-color: #003366;
+  border-color: #0066cc;
+}
+
+.atelier90s-inventory-icon {
+  width: 20px;
+  height: 20px;
+  background-color: #222222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 3px;
+  position: relative;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+
+.atelier90s-inventory-item.quality-low .atelier90s-inventory-icon {
+  color: #cccccc;
+}
+
+.atelier90s-inventory-item.quality-medium .atelier90s-inventory-icon {
+  color: #00cc00;
+}
+
+.atelier90s-inventory-item.quality-high .atelier90s-inventory-icon {
+  color: #00ffff;
+}
+
+.atelier90s-inventory-item.quality-ultra .atelier90s-inventory-icon {
+  color: #ffcc00;
+}
+
+.atelier90s-inventory-name {
+  font-size: 10px;
+  color: #cccccc;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atelier90s-inventory-qty {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 9px;
+  color: #aaaaaa;
+  background-color: #222222;
+  padding: 1px 3px;
+  border: 1px solid #444444;
+}
+
+/* ----- TOOLTIP STYLING ----- */
+.atelier90s-tooltip {
+  position: absolute;
+  background-color: #000000;
+  border: 2px solid;
+  border-color: #555555 #222222 #222222 #555555;
+  padding: 8px;
+  font-size: 11px;
+  color: #cccccc;
+  z-index: 100;
+  max-width: 250px;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.atelier90s-tooltip.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.atelier90s-tooltip-title {
+  color: #ffcc00;
+  font-weight: bold;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #444444;
+  padding-bottom: 3px;
+}
+
+.atelier90s-tooltip-desc {
+  margin-bottom: 5px;
+  color: #aaaaaa;
+  line-height: 1.3;
+}
+
+.atelier90s-tooltip-stat {
+  color: #00cc00;
+  margin-top: 3px;
+}
+
+.atelier90s-tooltip-warn {
+  color: #ff6666;
+  margin-top: 3px;
+}
+
+/* ----- ANIMATIONS & EFFECTS ----- */
+/* Pixel animation for a DOS-style effect */
+@keyframes pixel-shift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(1px, 0); }
+  50% { transform: translate(1px, 1px); }
+  75% { transform: translate(0, 1px); }
+}
+
+.atelier90s-pixel-effect {
+  animation: pixel-shift 0.5s steps(1) infinite;
+}
+
+/* Pulsing glow effect for magical items */
+@keyframes magic-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+}
+
+.atelier90s-magic-item {
+  animation: magic-pulse 2s infinite;
+}
+
+/* DOS-style blinking cursor */
+.atelier90s-cursor::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 12px;
+  background-color: #cccccc;
+  margin-left: 2px;
+  animation: blink 1s steps(1) infinite;
+}
+
+/* Loading animation for crafting */
+.atelier90s-loading {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.atelier90s-loading div {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #cccccc;
+  animation: loading-grid 1.2s linear infinite;
+}
+
+.atelier90s-loading div:nth-child(1) {
+  top: 8px;
+  left: 8px;
+  animation-delay: 0s;
+}
+
+.atelier90s-loading div:nth-child(2) {
+  top: 8px;
+  left: 32px;
+  animation-delay: -0.4s;
+}
+
+.atelier90s-loading div:nth-child(3) {
+  top: 8px;
+  left: 56px;
+  animation-delay: -0.8s;
+}
+
+.atelier90s-loading div:nth-child(4) {
+  top: 32px;
+  left: 8px;
+  animation-delay: -0.4s;
+}
+
+.atelier90s-loading div:nth-child(5) {
+  top: 32px;
+  left: 32px;
+  animation-delay: -0.8s;
+}
+
+.atelier90s-loading div:nth-child(6) {
+  top: 32px;
+  left: 56px;
+  animation-delay: -1.2s;
+}
+
+.atelier90s-loading div:nth-child(7) {
+  top: 56px;
+  left: 8px;
+  animation-delay: -0.8s;
+}
+
+.atelier90s-loading div:nth-child(8) {
+  top: 56px;
+  left: 32px;
+  animation-delay: -1.2s;
+}
+
+.atelier90s-loading div:nth-child(9) {
+  top: 56px;
+  left: 56px;
+  animation-delay: -1.6s;
+}
+
+@keyframes loading-grid {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* 90s-style DOS boot text effect */
+.atelier90s-boot-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  padding: 20px;
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+}
+
+.atelier90s-boot-line {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: boot-line-appear 0.5s forwards;
+}
+
+@keyframes boot-line-appear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.atelier90s-boot-progress {
+  display: inline-block;
+  width: 200px;
+  height: 16px;
+  background-color: #000000;
+  border: 1px solid #00ff00;
+  margin-left: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.atelier90s-boot-progress-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #00ff00;
+  animation: boot-progress 2s linear forwards;
+}
+
+@keyframes boot-progress {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* 90s-style secret message */
+.atelier90s-secret {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #000000;
+  border: 2px solid;
+  padding: 15px;
+  color: #00ff00; /* Default color, can be overridden */
+  font-family: monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  z-index: 1000;
+  text-align: center;
+  animation: secret-flicker 0.1s infinite;
+  display: none;
+  border-color: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  max-width: 80%;
+  letter-spacing: 1px;
+}
+
+.atelier90s-secret.show {
+  display: block;
+}
+
+@keyframes secret-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Random tips */
+.atelier90s-tip {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background-color: #000080;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  padding: 8px 15px;
+  border-radius: 0;
+  font-size: 12px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 950;
+  pointer-events: none;
+  text-align: center;
+  border: 2px solid;
+  border-color: #aaaaaa #222222 #222222 #aaaaaa;
+  max-width: 80%;
+}
+
+.atelier90s-tip.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Crafting animation overlay */
+.atelier90s-crafting-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.atelier90s-ascii-animation {
+  color: #00ff00;
+  font-family: monospace;
+  text-align: center;
+  white-space: pre;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  animation: float 2s infinite alternate ease-in-out;
+}
+
+.atelier90s-crafting-animation-text {
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  animation: blink 1s infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(-5px); }
+  100% { transform: translateY(5px); }
+}
+
+/* Corner Easter egg effects */
+.atelier90s-corner-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 910;
+}
+
+.atelier90s-sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  filter: blur(2px);
+  opacity: 0;
+  animation: sparkle 2s infinite;
+}
+
+.atelier90s-sparkle-1 {
+  top: 20%;
+  left: 30%;
+  animation-delay: 0.2s;
+}
+
+.atelier90s-sparkle-2 {
+  top: 30%;
+  right: 20%;
+  animation-delay: 0.5s;
+}
+
+.atelier90s-sparkle-3 {
+  bottom: 20%;
+  left: 40%;
+  animation-delay: 0.8s;
+}
+
+.atelier90s-sparkle-4 {
+  bottom: 40%;
+  right: 30%;
+  animation-delay: 1.1s;
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 1;
+    filter: blur(1px) drop-shadow(0 0 5px #ffffff);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ASCII art decorations */
+.atelier90s-ascii-decoration {
+  position: absolute;
+  opacity: 0.2;
+  pointer-events: none;
+  color: #cccccc;
+  font-family: monospace;
+  font-size: 10px;
+  line-height: 1;
+  white-space: pre;
+  z-index: 5;
+}
+
+.atelier90s-ascii-decoration.topRight {
+  top: 10px;
+  right: 10px;
+  animation: subtle-rotate 20s infinite linear;
+}
+
+.atelier90s-ascii-decoration.bottomLeft {
+  bottom: 10px;
+  left: 10px;
+  animation: subtle-pulse 10s infinite alternate ease-in-out;
+}
+
+@keyframes subtle-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes subtle-pulse {
+  0% { transform: scale(1); opacity: 0.15; }
+  100% { transform: scale(1.1); opacity: 0.25; }
+}
+
+/* Text corruption effect */
+.atelier90s-corrupted-text {
+  animation: corrupted 0.1s infinite;
+  position: relative;
+}
+
+@keyframes corrupted {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+.atelier90s-corrupted::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 0, 0, 0.03) 10%, 
+    transparent 20%,
+    rgba(0, 255, 0, 0.03) 30%,
+    transparent 40%,
+    rgba(0, 0, 255, 0.03) 50%,
+    transparent 60%,
+    rgba(255, 0, 0, 0.03) 70%,
+    transparent 80%,
+    rgba(0, 255, 0, 0.03) 90%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: glitch-scan 1s linear infinite;
+  z-index: 1000;
+  opacity: 0.5;
+}
+
+@keyframes glitch-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 1200px) {
+  .atelier90s-workspace {
+    grid-template-columns: 180px 1fr 180px;
+  }
+}
+
+@media (max-width: 992px) {
+  .atelier90s-workspace {
+    grid-template-columns: 150px 1fr 150px;
+  }
+  
+  .atelier90s-inventory-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .atelier90s-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  
+  .atelier90s-specialization {
+    order: 3;
+    max-height: 200px;
+  }
+  
+  .atelier90s-crafting {
+    order: 1;
+  }
+  
+  .atelier90s-inventory {
+    order: 2;
+    max-height: 300px;
+  }
+  
+  .atelier90s-inventory-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
