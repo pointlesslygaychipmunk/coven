@@ -1,7 +1,8 @@
 // frontend/src/index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './components/App'; // Using our updated 90s game UI
+// Import our simple troubleshooting app
+import SimpleApp from './components/SimpleApp';
 import './index.css'; // Import global styles
 
 // Unregister any existing service workers to fix "Frame with ID 0 was removed" errors
@@ -29,9 +30,9 @@ if (!rootElement) {
 // Create the React root
 const root = ReactDOM.createRoot(rootElement);
 
-// Render the App component with our cozy 90s game UI
+// Render the simplified app for troubleshooting
+console.log('Rendering SimpleApp for troubleshooting');
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  // Disabling StrictMode which can cause double rendering during development
+  <SimpleApp />
 );
