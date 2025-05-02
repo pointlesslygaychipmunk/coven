@@ -1,13 +1,36 @@
 import { 
   Season, 
   MoonPhase, 
-  WeatherCondition,
-  ItemQuality,
-  Ingredient,
-  PlantStage,
-  GardenPlot,
-  PlantVariety 
+  WeatherFate as WeatherCondition,
+  Plant,
+  GardenSlot,
 } from '../../shared/src/types';
+
+// Type definitions missing from shared types
+type ItemQuality = 'poor' | 'common' | 'uncommon' | 'rare' | 'exceptional';
+type PlantStage = 'seed' | 'seedling' | 'growing' | 'flowering' | 'mature';
+
+interface Ingredient {
+  id: string;
+  name: string;
+  quality: ItemQuality;
+  harvestedAt: number;
+  sourceType: string;
+  sourceId: string;
+  traits: string[];
+  [key: string]: any;
+}
+
+interface PlantVariety {
+  id: string;
+  name: string;
+  baseQuality?: number;
+  baseYield?: number;
+  growthTimeDays?: number;
+  preferredSeason: Season;
+  baseTraits?: PlantTrait[];
+  [key: string]: any;
+}
 
 // Interactive Garden System
 // -------------------------
@@ -25,25 +48,27 @@ const WEATHER_EFFECT_MULTIPLIERS: Record<WeatherCondition, number> = {
   snowy: 0.5,
   windy: 0.8,
   foggy: 0.85,
-  sunny: 1.2
+  sunny: 1.2,
+  normal: 1.0,
+  dry: 0.8
 };
 
 const SEASONAL_AFFINITY: Record<Season, string[]> = {
-  spring: ['floral', 'green', 'fresh'],
-  summer: ['fruity', 'vibrant', 'warm'],
-  fall: ['earthy', 'spicy', 'woody'],
-  winter: ['cool', 'crisp', 'soothing']
+  Spring: ['floral', 'green', 'fresh'],
+  Summer: ['fruity', 'vibrant', 'warm'],
+  Fall: ['earthy', 'spicy', 'woody'],
+  Winter: ['cool', 'crisp', 'soothing']
 };
 
 const LUNAR_POTENCY: Record<MoonPhase, number> = {
-  new: 0.8,
-  waxingCrescent: 0.9,
-  firstQuarter: 1.0,
-  waxingGibbous: 1.1,
-  full: 1.3,
-  waningGibbous: 1.1,
-  lastQuarter: 1.0,
-  waningCrescent: 0.9
+  'New Moon': 0.8,
+  'Waxing Crescent': 0.9,
+  'First Quarter': 1.0,
+  'Waxing Gibbous': 1.1,
+  'Full Moon': 1.3,
+  'Waning Gibbous': 1.1,
+  'Last Quarter': 1.0,
+  'Waning Crescent': 0.9
 };
 
 // Mini-games interface
@@ -96,6 +121,14 @@ export interface InteractivePlant {
   lastInteraction: number;
   createdAt: number;
   careHistory: PlantCareAction[];
+  name?: string;
+  mature?: boolean;
+  category?: string;
+  moonBlessed?: boolean;
+  seasonalModifier?: number;
+  growth?: number;
+  maxGrowth?: number;
+  age?: number;
 }
 
 export interface PlantTrait {
@@ -132,12 +165,13 @@ export interface CrossBreedingResult {
   success: boolean;
   newVarietyId?: string;
   newVarietyName?: string;
-  traitInheritance: {
+  traitInheritance?: {
     fromParent1: PlantTrait[];
     fromParent2: PlantTrait[];
     newMutations: PlantTrait[];
   };
   rarityTier: number;
+  message?: string;
 }
 
 // Functions for interactive garden gameplay
@@ -148,12 +182,12 @@ export interface CrossBreedingResult {
  */
 export function playPlantingMiniGame(
   player: { id: string; gardeningSkill: number },
-  plot: GardenPlot,
+  plot: GardenSlot,
   varietyId: string,
   playScore: { timing: number; precision: number; pattern: number }
 ): PlantingMiniGame {
   // Calculate base success chance based on player skill and plot condition
-  const baseSuccess = 0.7 + (player.gardeningSkill * 0.01) + (plot.soilQuality * 0.05);
+  const baseSuccess = 0.7 + (player.gardeningSkill * 0.01) + (plot.fertility * 0.05);
   
   // Calculate score from player's mini-game performance
   const performanceScore = (playScore.timing + playScore.precision + playScore.pattern) / 3;
@@ -169,7 +203,7 @@ export function playPlantingMiniGame(
   const uniqueTraitChance = success ? performanceScore * 0.15 : 0;
   
   // Calculate soil-related scores
-  const soilQuality = plot.soilQuality * (1 + (performanceScore * 0.3));
+  const soilQuality = plot.fertility * (1 + (performanceScore * 0.3)) / 100;
   const wateringLevel = 0.8 + (performanceScore * 0.2);
   const spacingScore = 0.7 + (performanceScore * 0.3);
   
@@ -191,7 +225,7 @@ export function playPlantingMiniGame(
  */
 export function plantNewInteractivePlant(
   player: { id: string; name: string; gardeningSkill: number },
-  plot: GardenPlot,
+  plot: GardenSlot,
   variety: PlantVariety,
   miniGameResult: PlantingMiniGame,
   currentSeason: Season,
@@ -206,11 +240,12 @@ export function plantNewInteractivePlant(
   
   // Calculate growth modifiers from current conditions
   const seasonModifier = getSeasanalGrowthModifier(variety, currentSeason);
-  const weatherModifier = WEATHER_EFFECT_MULTIPLIERS[currentWeather];
-  const lunarModifier = LUNAR_POTENCY[currentMoonPhase];
+  const weatherModifier = WEATHER_EFFECT_MULTIPLIERS[currentWeather] || 1.0;
+  const lunarModifier = LUNAR_POTENCY[currentMoonPhase] || 1.0;
   
   // Calculate growth time
-  const baseGrowthTime = GROWTH_CYCLE_BASE_TIME * variety.growthTimeDays;
+  const growthTimeDays = variety.growthTimeDays || 3;
+  const baseGrowthTime = GROWTH_CYCLE_BASE_TIME * growthTimeDays;
   const modifiedGrowthTime = baseGrowthTime * 
     (1 - miniGameResult.timingBonus) * 
     (1 / seasonModifier) * 
@@ -232,11 +267,16 @@ export function plantNewInteractivePlant(
     notes: `Planted by ${player.name} during ${currentSeason} season, ${currentMoonPhase} moon.`
   };
   
+  // Calculate base quality and yield
+  const baseQuality = variety.baseQuality || 2;
+  const baseYield = variety.baseYield || 1;
+  
   // Create new plant object
-  return {
+  const newPlant: InteractivePlant = {
     id: plantId,
     varietyId: variety.id,
-    plotId: plot.id,
+    name: variety.name,
+    plotId: String(plot.id),
     currentStage: 'seed',
     health: initialHealth,
     growthProgress: 0,
@@ -272,8 +312,18 @@ export function plantNewInteractivePlant(
     ],
     lastInteraction: Date.now(),
     createdAt: Date.now(),
-    careHistory: [initialCareAction]
+    careHistory: [initialCareAction],
+    // Add compatibility with Plant interface
+    category: variety.category || 'herb',
+    growth: 0,
+    maxGrowth: 100,
+    mature: false,
+    moonBlessed: currentMoonPhase === 'Full Moon',
+    seasonalModifier: seasonModifier,
+    age: 0
   };
+  
+  return newPlant;
 }
 
 /**
@@ -285,7 +335,7 @@ function calculatePredictedQuality(
   traits: PlantTrait[]
 ): ItemQuality {
   // Base quality value from variety (1-5 scale)
-  const baseQuality = variety.baseQuality;
+  const baseQuality = variety.baseQuality || 2;
   
   // Add mini-game bonus
   const miniGameBonus = miniGameResult.qualityBonus;
@@ -317,7 +367,7 @@ function calculatePredictedYield(
   traits: PlantTrait[]
 ): number {
   // Base yield from variety
-  const baseYield = variety.baseYield;
+  const baseYield = variety.baseYield || 1;
   
   // Add mini-game bonus
   const miniGameBonus = miniGameResult.yieldBonus;
@@ -338,10 +388,10 @@ function getSeasanalGrowthModifier(variety: PlantVariety, currentSeason: Season)
   }
   
   const opposites: Record<Season, Season> = {
-    spring: 'fall',
-    summer: 'winter',
-    fall: 'spring',
-    winter: 'summer'
+    Spring: 'Fall',
+    Summer: 'Winter',
+    Fall: 'Spring',
+    Winter: 'Summer'
   };
   
   if (opposites[variety.preferredSeason] === currentSeason) {
@@ -511,7 +561,7 @@ export function applyWateringResults(
   // Adjust water bonus based on current weather
   const weatherWaterModifier = currentWeather === 'rainy' ? 0.5 : 
                               currentWeather === 'stormy' ? 0.3 : 
-                              currentWeather === 'sunny' ? 1.3 : 1.0;
+                              currentWeather === 'sunny' || currentWeather === 'dry' ? 1.3 : 1.0;
   
   const adjustedWaterBonus = waterBonus * weatherWaterModifier;
   
@@ -532,7 +582,7 @@ export function applyWateringResults(
   let nextWateringTime = baseWateringInterval;
   
   // Adjust for weather
-  if (currentWeather === 'sunny' || currentWeather === 'windy') {
+  if (currentWeather === 'sunny' || currentWeather === 'dry' || currentWeather === 'windy') {
     nextWateringTime *= 0.7; // Needs water sooner
   } else if (currentWeather === 'rainy' || currentWeather === 'cloudy') {
     nextWateringTime *= 1.5; // Needs water later
@@ -708,14 +758,13 @@ export function harvestPlant(
     // Create ingredient with traits from plant
     harvestedIngredients.push({
       id: `ingredient_${plant.id}_${i}_${now}`,
-      name: `Harvested ${plant.varietyId}`,
+      name: `Harvested ${plant.name || plant.varietyId}`,
       quality: itemQuality,
       harvestedAt: now,
       sourceType: 'garden',
       sourceId: plant.id,
-      traits: plant.geneticTraits.map(trait => trait.name),
-      // Add other required properties based on the Ingredient type
-    } as Ingredient);
+      traits: plant.geneticTraits.map(trait => trait.name)
+    });
   }
   
   // Calculate seeds obtained
@@ -812,7 +861,7 @@ export function applyWeatherProtection(
   const potentialDamage = weatherEvent === 'stormy' ? 25 :
                           weatherEvent === 'windy' ? 15 :
                           weatherEvent === 'snowy' ? 20 :
-                          weatherEvent === 'sunny' && plant.waterLevel < 30 ? 18 :
+                          (weatherEvent === 'sunny' || weatherEvent === 'dry') && plant.waterLevel < 30 ? 18 :
                           5;
   
   // Calculate actual damage after protection
@@ -890,8 +939,8 @@ export function crossBreedPlants(
   const baseSuccessChance = 0.5 + (player.gardeningSkill * 0.01);
   
   // Lunar phase affects cross-breeding success
-  const lunarBonus = currentMoonPhase === 'full' ? 0.2 :
-                     currentMoonPhase === 'new' ? -0.1 :
+  const lunarBonus = currentMoonPhase === 'Full Moon' ? 0.2 :
+                     currentMoonPhase === 'New Moon' ? -0.1 :
                      0;
   
   // Determine if cross-breeding is successful
@@ -910,8 +959,8 @@ export function crossBreedPlants(
   }
   
   // Create new variety name by combining parent names
-  const parent1Name = plant1.varietyId.split('_').pop() || 'Unknown';
-  const parent2Name = plant2.varietyId.split('_').pop() || 'Unknown';
+  const parent1Name = plant1.name || plant1.varietyId.split('_').pop() || 'Unknown';
+  const parent2Name = plant2.name || plant2.varietyId.split('_').pop() || 'Unknown';
   const newVarietyName = `${parent1Name.substring(0, 3)}${parent2Name.substring(0, 3)}`;
   
   // Generate new variety ID
@@ -1043,7 +1092,7 @@ export function updatePlantGrowth(
   }
   
   // Update water level (decreases over time)
-  const waterLossRate = currentWeather === 'sunny' ? 3 : 
+  const waterLossRate = currentWeather === 'sunny' || currentWeather === 'dry' ? 3 : 
                       currentWeather === 'windy' ? 2.5 :
                       currentWeather === 'rainy' ? 0.5 :
                       1.5; // per hour
@@ -1087,10 +1136,10 @@ export function updatePlantGrowth(
   baseGrowthRate *= seasonalModifier;
   
   // Apply weather modifier
-  baseGrowthRate *= WEATHER_EFFECT_MULTIPLIERS[currentWeather];
+  baseGrowthRate *= WEATHER_EFFECT_MULTIPLIERS[currentWeather] || 1.0;
   
   // Apply lunar modifier
-  baseGrowthRate *= LUNAR_POTENCY[currentMoonPhase];
+  baseGrowthRate *= LUNAR_POTENCY[currentMoonPhase] || 1.0;
   
   // Apply growth modifiers from plant traits
   for (const trait of updatedPlant.geneticTraits) {
@@ -1117,13 +1166,23 @@ export function updatePlantGrowth(
   // Update plant stage based on growth progress
   if (updatedPlant.growthProgress >= 95) {
     updatedPlant.currentStage = 'mature';
+    updatedPlant.mature = true;
   } else if (updatedPlant.growthProgress >= 60) {
     updatedPlant.currentStage = 'flowering';
+    updatedPlant.mature = false;
   } else if (updatedPlant.growthProgress >= 30) {
     updatedPlant.currentStage = 'growing';
+    updatedPlant.mature = false;
   } else if (updatedPlant.growthProgress >= 5) {
     updatedPlant.currentStage = 'seedling';
+    updatedPlant.mature = false;
   }
+  
+  // Update other Plant interface properties
+  updatedPlant.growth = updatedPlant.growthProgress;
+  
+  // Update age in game turns
+  updatedPlant.age = Math.max(1, Math.round(hoursElapsed / 24) + (updatedPlant.age || 0));
   
   // Update predicted quality and yield based on current conditions
   if (updatedPlant.health < 50) {

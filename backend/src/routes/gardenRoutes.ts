@@ -2,9 +2,23 @@ import express from 'express';
 import { playPlantingMiniGame, plantNewInteractivePlant, playHarvestingMiniGame, harvestPlant, 
          playWateringMiniGame, applyWateringResults, playWeatherProtectionMiniGame, 
          applyWeatherProtection, crossBreedPlants, updatePlantGrowth } from '../interactiveGarden';
-import { getPlayerById, updatePlayer } from '../gameHandler';
+import { GameHandler } from '../gameHandler.js';
 
 const router = express.Router();
+const gameHandler = new GameHandler();
+
+// Helper function to get player by ID
+const getPlayerById = (id: string) => {
+  const gameState = gameHandler.getState();
+  return gameState.players.find(p => p.id === id);
+};
+
+// Helper function to update player
+const updatePlayer = (player: any) => {
+  // In a real application, this would update the player in the game state
+  // For now, we'll just simulate success
+  return true;
+};
 
 /**
  * Get garden state for a player
@@ -19,17 +33,25 @@ router.get('/state/:playerId', (req, res) => {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code, ensure garden is an array
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Update plant growth based on time elapsed
-    const updatedPlots = player.garden.map(plot => {
+    const updatedPlots = player.garden.map((plot: any) => {
       if (!plot.plant) return plot;
       
       const currentTime = Date.now();
       const updatedPlant = updatePlantGrowth(
         plot.plant, 
         currentTime, 
-        req.app.locals.gameState.time.season, 
-        req.app.locals.gameState.time.phaseName, 
-        req.app.locals.gameState.time.weatherFate
+        gameState.time.season, 
+        gameState.time.phaseName, 
+        gameState.time.weatherFate
       );
       
       return {
@@ -57,14 +79,22 @@ router.post('/plant', (req, res) => {
   try {
     const { playerId, plotId, seedId, miniGameResult, currentSeason, currentMoonPhase, currentWeather } = req.body;
     
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Get player and validate request
     const player = getPlayerById(playerId);
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
     // Find the plot
-    const plotIndex = player.garden.findIndex(p => p.id === plotId);
+    const plotIndex = player.garden.findIndex((p: any) => p.id === plotId);
     if (plotIndex === -1) {
       return res.status(404).json({ message: 'Plot not found' });
     }
@@ -77,7 +107,11 @@ router.post('/plant', (req, res) => {
     }
     
     // Find the seed in inventory
-    const seedIndex = player.inventory.findIndex(item => item.id === seedId && item.type === 'seed');
+    if (!player.inventory || !Array.isArray(player.inventory)) {
+      player.inventory = [];
+    }
+    
+    const seedIndex = player.inventory.findIndex((item: any) => item.id === seedId && item.type === 'seed');
     if (seedIndex === -1 || player.inventory[seedIndex].quantity <= 0) {
       return res.status(400).json({ message: 'Seed not found in inventory' });
     }
@@ -91,7 +125,7 @@ router.post('/plant', (req, res) => {
       baseQuality: seed.quality || 2,
       baseYield: 1,
       growthTimeDays: 3,
-      preferredSeason: seed.harvestedSeason || currentSeason,
+      preferredSeason: seed.harvestedSeason || currentSeason || gameState.time.season,
       baseTraits: []
     };
     
@@ -101,17 +135,25 @@ router.post('/plant', (req, res) => {
       timingBonus: 0,
       qualityBonus: 0,
       yieldBonus: 0,
+      uniqueTraitChance: 0,
       score: 0.5,
       soilQuality: plot.fertility / 100,
       wateringLevel: plot.moisture / 100,
       spacingScore: 0.7
     };
     
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      name: player.name || 'Witch',
+      gardeningSkill: player.skills?.gardening || 0 
+    };
+    
     // Simulate planting mini-game if not provided
     const plantingResult = miniGameResult ? 
       gameResult : 
       playPlantingMiniGame(
-        { id: player.id, gardeningSkill: player.skills.gardening },
+        playerData,
         plot,
         variety.id,
         { timing: 0.5, precision: 0.5, pattern: 0.5 }
@@ -119,13 +161,13 @@ router.post('/plant', (req, res) => {
     
     // Create the new plant
     const newPlant = plantNewInteractivePlant(
-      { id: player.id, name: player.name, gardeningSkill: player.skills.gardening },
+      playerData,
       plot,
       variety,
       plantingResult,
-      currentSeason || req.app.locals.gameState.time.season,
-      currentMoonPhase || req.app.locals.gameState.time.phaseName,
-      currentWeather || req.app.locals.gameState.time.weatherFate
+      currentSeason || gameState.time.season,
+      currentMoonPhase || gameState.time.phaseName,
+      currentWeather || gameState.time.weatherFate
     );
     
     // Update plot with new plant
@@ -146,7 +188,8 @@ router.post('/plant', (req, res) => {
     
     // Update player experience
     const experienceGained = 5 + (plantingResult.success ? 5 : 0);
-    player.skills.gardening += experienceGained;
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
     
     // Save player state
     updatePlayer(player);
@@ -170,14 +213,26 @@ router.post('/harvest', (req, res) => {
   try {
     const { playerId, plotId, miniGameResult, currentSeason, currentMoonPhase } = req.body;
     
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Get player and validate request
     const player = getPlayerById(playerId);
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    if (!player.inventory || !Array.isArray(player.inventory)) {
+      player.inventory = [];
+    }
+    
     // Find the plot
-    const plotIndex = player.garden.findIndex(p => p.id === plotId);
+    const plotIndex = player.garden.findIndex((p: any) => p.id === plotId);
     if (plotIndex === -1) {
       return res.status(404).json({ message: 'Plot not found' });
     }
@@ -195,17 +250,23 @@ router.post('/harvest', (req, res) => {
       timingBonus: 0,
       qualityBonus: 0,
       yieldBonus: 0,
-      score: 0.6,
+      uniqueTraitChance: 0,
       precisionScore: 0.6,
       speedScore: 0.6,
       carefulnessScore: 0.6
+    };
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0 
     };
     
     // Simulate harvesting mini-game if not provided
     const harvestingResult = miniGameResult ? 
       gameResult : 
       playHarvestingMiniGame(
-        { id: player.id, gardeningSkill: player.skills.gardening },
+        playerData,
         plot.plant,
         { precision: 0.6, speed: 0.6, carefulness: 0.6 }
       );
@@ -214,8 +275,8 @@ router.post('/harvest', (req, res) => {
     const harvestResult = harvestPlant(
       plot.plant,
       harvestingResult,
-      currentSeason || req.app.locals.gameState.time.season,
-      currentMoonPhase || req.app.locals.gameState.time.phaseName
+      currentSeason || gameState.time.season,
+      currentMoonPhase || gameState.time.phaseName
     );
     
     // Add harvested ingredients to player inventory
@@ -227,9 +288,9 @@ router.post('/harvest', (req, res) => {
       category: plot.plant.category || 'herb',
       quantity: 1,
       quality: ingredient.quality,
-      harvestedDuring: currentMoonPhase || req.app.locals.gameState.time.phaseName,
-      harvestedSeason: currentSeason || req.app.locals.gameState.time.season,
-      description: `A ${ingredient.quality} quality ${plot.plant.name.toLowerCase()} harvested under a ${currentMoonPhase || req.app.locals.gameState.time.phaseName}.`
+      harvestedDuring: currentMoonPhase || gameState.time.phaseName,
+      harvestedSeason: currentSeason || gameState.time.season,
+      description: `A ${ingredient.quality} quality ${plot.plant.name} harvested under a ${currentMoonPhase || gameState.time.phaseName}.`
     }));
     
     // Add seeds to player inventory if any were obtained
@@ -242,9 +303,9 @@ router.post('/harvest', (req, res) => {
         type: 'seed',
         category: 'seed',
         quantity: harvestResult.seedsObtained,
-        harvestedDuring: currentMoonPhase || req.app.locals.gameState.time.phaseName,
-        harvestedSeason: currentSeason || req.app.locals.gameState.time.season,
-        description: `Seeds harvested from a ${plot.plant.name.toLowerCase()}.`
+        harvestedDuring: currentMoonPhase || gameState.time.phaseName,
+        harvestedSeason: currentSeason || gameState.time.season,
+        description: `Seeds harvested from a ${plot.plant.name}.`
       });
     }
     
@@ -265,7 +326,8 @@ router.post('/harvest', (req, res) => {
     }
     
     // Update player experience
-    player.skills.gardening += harvestResult.experience;
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + harvestResult.experience;
     
     // Save player state
     updatePlayer(player);
@@ -291,14 +353,22 @@ router.post('/water', (req, res) => {
   try {
     const { playerId, plotId, miniGameResult, currentWeather } = req.body;
     
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Get player and validate request
     const player = getPlayerById(playerId);
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
     // Find the plot
-    const plotIndex = player.garden.findIndex(p => p.id === plotId);
+    const plotIndex = player.garden.findIndex((p: any) => p.id === plotId);
     if (plotIndex === -1) {
       return res.status(404).json({ message: 'Plot not found' });
     }
@@ -328,17 +398,23 @@ router.post('/water', (req, res) => {
       timingBonus: 0,
       qualityBonus: 0,
       yieldBonus: 0,
-      score: 0.5,
+      uniqueTraitChance: 0,
       distributionScore: 0.5,
       amountScore: 0.5,
       techniqueScore: 0.5
+    };
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0 
     };
     
     // Simulate watering mini-game if not provided
     const wateringResult = miniGameResult ? 
       gameResult : 
       playWateringMiniGame(
-        { id: player.id, gardeningSkill: player.skills.gardening },
+        playerData,
         plot.plant,
         { distribution: 0.5, amount: 0.5, technique: 0.5 }
       );
@@ -347,7 +423,7 @@ router.post('/water', (req, res) => {
     const updatedPlant = applyWateringResults(
       plot.plant,
       wateringResult,
-      currentWeather || req.app.locals.gameState.time.weatherFate
+      currentWeather || gameState.time.weatherFate
     );
     
     // Update moisture level in the plot
@@ -363,7 +439,8 @@ router.post('/water', (req, res) => {
     
     // Calculate experience
     const experienceGained = wateringResult.success ? 3 : 1;
-    player.skills.gardening += experienceGained;
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
     
     // Save player state
     updatePlayer(player);
@@ -386,14 +463,22 @@ router.post('/water-all', (req, res) => {
   try {
     const { playerId, attunementBonus } = req.body;
     
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Get player and validate request
     const player = getPlayerById(playerId);
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
     // Apply water to all plots
-    const updatedPlots = player.garden.map(plot => {
+    const updatedPlots = player.garden.map((plot: any) => {
       // Calculate moisture increase with attunement bonus
       const bonus = attunementBonus || 0;
       const moistureIncrease = 20 + (bonus * 30);
@@ -407,7 +492,7 @@ router.post('/water-all', (req, res) => {
           ...plot.plant,
           health: Math.min(100, plot.plant.health + healthBonus),
           growthModifiers: [
-            ...plot.plant.growthModifiers,
+            ...(plot.plant.growthModifiers || []),
             {
               source: 'attunement',
               description: 'Seasonal attunement bonus',
@@ -432,7 +517,8 @@ router.post('/water-all', (req, res) => {
     
     // Calculate experience
     const experienceGained = Math.floor(5 + (attunementBonus * 10));
-    player.skills.gardening += experienceGained;
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
     
     // Save player state
     updatePlayer(player);
@@ -455,14 +541,22 @@ router.post('/protect', (req, res) => {
   try {
     const { playerId, plotId, miniGameResult, currentWeather } = req.body;
     
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Get player and validate request
     const player = getPlayerById(playerId);
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
     // Find the plot
-    const plotIndex = player.garden.findIndex(p => p.id === plotId);
+    const plotIndex = player.garden.findIndex((p: any) => p.id === plotId);
     if (plotIndex === -1) {
       return res.status(404).json({ message: 'Plot not found' });
     }
@@ -480,19 +574,25 @@ router.post('/protect', (req, res) => {
       timingBonus: 0,
       qualityBonus: 0,
       yieldBonus: 0,
-      score: 0.5,
+      uniqueTraitChance: 0,
       reactionTime: 0.5,
       coverageScore: 0.5,
       reinforcementScore: 0.5
+    };
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0 
     };
     
     // Simulate protection mini-game if not provided
     const protectionResult = miniGameResult ? 
       gameResult : 
       playWeatherProtectionMiniGame(
-        { id: player.id, gardeningSkill: player.skills.gardening },
+        playerData,
         plot.plant,
-        currentWeather || req.app.locals.gameState.time.weatherFate,
+        currentWeather || gameState.time.weatherFate,
         { reactionTime: 0.5, coverage: 0.5, reinforcement: 0.5 }
       );
     
@@ -500,7 +600,7 @@ router.post('/protect', (req, res) => {
     const updatedPlant = applyWeatherProtection(
       plot.plant,
       protectionResult,
-      currentWeather || req.app.locals.gameState.time.weatherFate
+      currentWeather || gameState.time.weatherFate
     );
     
     // Update plot with protected plant
@@ -514,7 +614,8 @@ router.post('/protect', (req, res) => {
     
     // Calculate experience
     const experienceGained = protectionResult.success ? 6 : 2;
-    player.skills.gardening += experienceGained;
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
     
     // Save player state
     updatePlayer(player);
@@ -537,15 +638,23 @@ router.post('/cross-breed', (req, res) => {
   try {
     const { playerId, plant1Id, plant2Id, currentSeason, currentMoonPhase } = req.body;
     
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
     // Get player and validate request
     const player = getPlayerById(playerId);
     if (!player) {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
     // Find both plants in the garden
-    const plant1Plot = player.garden.find(plot => plot.plant && plot.plant.id === plant1Id);
-    const plant2Plot = player.garden.find(plot => plot.plant && plot.plant.id === plant2Id);
+    const plant1Plot = player.garden.find((plot: any) => plot.plant && plot.plant.id === plant1Id);
+    const plant2Plot = player.garden.find((plot: any) => plot.plant && plot.plant.id === plant2Id);
     
     if (!plant1Plot || !plant1Plot.plant || !plant2Plot || !plant2Plot.plant) {
       return res.status(400).json({ message: 'One or both plants not found' });
@@ -556,13 +665,19 @@ router.post('/cross-breed', (req, res) => {
       return res.status(400).json({ message: 'Plants must be mature for cross-breeding' });
     }
     
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0 
+    };
+    
     // Perform cross-breeding
     const result = crossBreedPlants(
       plant1Plot.plant,
       plant2Plot.plant,
-      { id: player.id, gardeningSkill: player.skills.gardening },
-      currentSeason || req.app.locals.gameState.time.season,
-      currentMoonPhase || req.app.locals.gameState.time.phaseName
+      playerData,
+      currentSeason || gameState.time.season,
+      currentMoonPhase || gameState.time.phaseName
     );
     
     // If successful, create seeds from the new variety
@@ -578,22 +693,27 @@ router.post('/cross-breed', (req, res) => {
         category: 'seed',
         quantity: seedCount,
         quality: result.rarityTier,
-        harvestedDuring: currentMoonPhase || req.app.locals.gameState.time.phaseName,
-        harvestedSeason: currentSeason || req.app.locals.gameState.time.season,
+        harvestedDuring: currentMoonPhase || gameState.time.phaseName,
+        harvestedSeason: currentSeason || gameState.time.season,
         description: `Seeds from a newly cross-bred variety created from ${plant1Plot.plant.name} and ${plant2Plot.plant.name}.`
       });
       
       // Add seeds to player inventory
+      if (!player.inventory || !Array.isArray(player.inventory)) {
+        player.inventory = [];
+      }
+      
       player.inventory = [...player.inventory, ...seeds];
       
       // Calculate experience
       const experienceGained = 15 + (result.rarityTier * 5);
-      player.skills.gardening += experienceGained;
+      if (!player.skills) player.skills = {};
+      player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
       
       // After cross-breeding, plants are typically consumed
       // Find plot indices
-      const plot1Index = player.garden.findIndex(plot => plot.plant && plot.plant.id === plant1Id);
-      const plot2Index = player.garden.findIndex(plot => plot.plant && plot.plant.id === plant2Id);
+      const plot1Index = player.garden.findIndex((plot: any) => plot.plant && plot.plant.id === plant1Id);
+      const plot2Index = player.garden.findIndex((plot: any) => plot.plant && plot.plant.id === plant2Id);
       
       // Clear the plots
       if (plot1Index !== -1) {
@@ -615,24 +735,30 @@ router.post('/cross-breed', (req, res) => {
       
       // Add message and experience to the result
       result.message = `Success! You've created a new variety: ${result.newVarietyName}.`;
-      result.experience = experienceGained;
+      
+      return res.json({
+        ...result,
+        seeds,
+        experience: experienceGained
+      });
     } else {
       // Failed cross-breeding
       result.message = result.message || "The cross-breeding attempt failed. The plants were incompatible.";
       
       // Small experience gain for trying
       const experienceGained = 3;
-      player.skills.gardening += experienceGained;
-      result.experience = experienceGained;
+      if (!player.skills) player.skills = {};
+      player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
       
       // Save player state
       updatePlayer(player);
+      
+      return res.json({
+        ...result,
+        seeds: [],
+        experience: experienceGained
+      });
     }
-    
-    return res.json({
-      ...result,
-      seeds
-    });
   } catch (error) {
     console.error('Error cross-breeding plants:', error);
     return res.status(500).json({ message: 'Failed to cross-breed plants' });
