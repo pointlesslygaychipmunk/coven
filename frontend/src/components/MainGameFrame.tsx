@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './MainGameFrame.css';
-import type { InventoryItem, ItemType, ItemCategory } from 'coven-shared';
+import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization } from 'coven-shared';
 
 // Import updated 90s-style components
 import Garden90s from './Garden90s';
@@ -13,7 +13,7 @@ interface MainGameFrameProps {
   playerName: string;
   gold: number;
   day: number;
-  lunarPhase: string;
+  lunarPhase: MoonPhase;
   reputation: number;
   playerLevel: number;
   // Add more props as needed
@@ -23,7 +23,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   playerName = "Willow",
   gold = 100,
   day = 1,
-  lunarPhase = "Waxing Crescent",
+  lunarPhase = "Waxing Crescent" as MoonPhase,
   reputation = 5,
   playerLevel = 1,
 }) => {
@@ -241,7 +241,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     id: "player1",
     name: playerName,
     atelierLevel: playerLevel,
-    atelierSpecialization: "Alchemist",
+    atelierSpecialization: "Essence" as AtelierSpecialization,
     reputation: reputation,
     ritualPoints: 4
   };
@@ -274,7 +274,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
             playerInventory={mockInventory}
             knownRecipes={mockRecipes}
             lunarPhase={lunarPhase}
-            playerSpecialization="Alchemist"
+            playerSpecialization={"Essence" as AtelierSpecialization}
             onBrew={handleBrew}
           />
         );

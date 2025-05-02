@@ -53,6 +53,7 @@ const Brewing90s: React.FC<Brewing90sProps> = ({
       }, 250);
       return () => clearInterval(interval);
     }
+    return () => {}; // Return empty cleanup function when not bubbling
   }, [bubbling]);
 
   // Easter Egg: Track harmony with nature

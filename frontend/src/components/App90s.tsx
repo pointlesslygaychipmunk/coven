@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import './loadingScreen.css';
 import MainGameFrame from './MainGameFrame';
+import { MoonPhase } from 'coven-shared';
 
 // Mock game data for development - in a real app this would come from your backend
 const mockGameData = {
   playerName: "Willow",
   gold: 150,
   day: 3,
-  lunarPhase: "Full Moon",
+  lunarPhase: "Full Moon" as MoonPhase,
   reputation: 8,
   playerLevel: 2,
   inventory: [

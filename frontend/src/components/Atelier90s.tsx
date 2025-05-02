@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, createRef, ReactDOM } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Atelier90s.css';
 import LunarPhaseIcon from './LunarPhaseIcon';
-import { SoundEffects, AnimationSequences, SecretCodes, SecretMessages, ScreenEffects, AsciiArt, ErrorMessages, RandomTips, checkCornerClicks, generateCorruptedText, generateBootText } from './Atelier90sEasterEggs';
+import { SoundEffects, AnimationSequences, SecretCodes, SecretMessages, AsciiArt, RandomTips, checkCornerClicks, generateCorruptedText, generateBootText } from './Atelier90sEasterEggs';
 import { 
   InventoryItem, 
   BasicRecipeInfo, 
@@ -32,21 +32,6 @@ interface AtelierSubSpecialization {
   requiredLevel: number;
 }
 
-interface CraftingResult {
-  id: string;
-  name: string;
-  description: string;
-  type: ItemType;
-  category: ItemCategory;
-  rarity: Rarity;
-  imagePath?: string;
-  lunarRestriction?: MoonPhase;
-  levelRequirement?: number;
-  quality?: number;
-  potency?: number;
-  duration?: number;
-  bonusEffects?: string[];
-}
 
 // Define the props for the component
 interface Atelier90sProps {
@@ -65,8 +50,29 @@ interface Atelier90sProps {
   onSelectSubSpecialization?: (subSpecId: string) => void;
 }
 
+// Define custom types for research
+type ExtendedItemType = ItemType | 'research';
+type ExtendedItemCategory = ItemCategory | 'research';
+
 // Define the tabs for crafting
 type AtelierTab = 'charm' | 'talisman' | 'essence' | 'research';
+
+// Modify CraftingResult interface to use extended types
+interface CraftingResult {
+  id: string;
+  name: string;
+  description: string;
+  type: ExtendedItemType;
+  category: ExtendedItemCategory;
+  rarity: Rarity;
+  imagePath?: string;
+  lunarRestriction?: MoonPhase;
+  levelRequirement?: number;
+  quality?: number;
+  potency?: number;
+  duration?: number;
+  bonusEffects?: string[];
+}
 
 // Main component
 const Atelier90s: React.FC<Atelier90sProps> = ({
@@ -106,7 +112,7 @@ const Atelier90s: React.FC<Atelier90sProps> = ({
   const [randomTip, setRandomTip] = useState<string>("");
   const [showTip, setShowTip] = useState<boolean>(false);
   const [corruptedText, setCorruptedText] = useState<boolean>(false);
-  const [bootSequence, setBootSequence] = useState<string[]>(generateBootText("ATELIER SYSTEM", "v1.0.3"));
+  const [bootSequence] = useState<string[]>(generateBootText("ATELIER SYSTEM", "v1.0.3"));
   
   // Refs
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -181,6 +187,9 @@ const Atelier90s: React.FC<Atelier90sProps> = ({
         clearInterval(bootTextInterval);
       };
     }
+    
+    // Return empty cleanup function when not showing boot screen
+    return () => {};
   }, [showBootScreen, bootSequence]);
   
   // Function to show a random tip
@@ -877,9 +886,7 @@ const Atelier90s: React.FC<Atelier90sProps> = ({
           
           // Play secret sound
           playSound('secret');
-          
-          let easterEggMessage = "";
-          
+                    
           // Different Easter eggs for different corners
           if (corner === 'topLeft') {
             setSecretMessage("SECRET: +30% CRAFTING SPEED");
@@ -935,9 +942,27 @@ const Atelier90s: React.FC<Atelier90sProps> = ({
   const handleShowTooltip = (content: React.ReactNode, event: React.MouseEvent) => {
     if (tooltipRef.current) {
       const tooltip = tooltipRef.current;
-      tooltip.innerHTML = typeof content === 'string' ? content : '';
-      if (React.isValidElement(content)) {
-        ReactDOM.render(content, tooltip);
+      // For simple string content
+      if (typeof content === 'string') {
+        tooltip.innerHTML = content;
+      } 
+      // For React elements, use a safer approach than ReactDOM.render
+      else if (React.isValidElement(content)) {
+        // Clear existing content
+        tooltip.innerHTML = '';
+        // Create a temporary container for the content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content.props.children.map((child: any) => {
+          if (typeof child === 'string') return child;
+          // Basic support for simple div elements with className and text content
+          if (child?.props) {
+            const className = child.props.className || '';
+            const text = child.props.children || '';
+            return `<div class="${className}">${text}</div>`;
+          }
+          return '';
+        }).join('');
+        tooltip.appendChild(tempDiv);
       }
       
       tooltip.style.top = `${event.clientY + 10}px`;
