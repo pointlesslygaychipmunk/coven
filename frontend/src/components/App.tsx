@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo, Component, ReactNode } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Component, ReactNode } from 'react';
 import './App.css';
 import { GameState, Season, InventoryItem, GardenSlot, AtelierSpecialization } from 'coven-shared';
 
@@ -379,18 +379,15 @@ const App: React.FC = () => {
     }, [playerId, handleApiAction]);
 
     // Handle location change with page transition
-    // Use a ref to track ongoing transitions to avoid overlapping calls
-    const transitionInProgressRef = useRef(false);
-    
-    const handleChangeLocation = useCallback((location: string) => {
+    // Use a regular function instead of useCallback to avoid issues
+    function handleChangeLocation(location: string) {
         // Don't start a new transition if location is the same or a transition is already in progress
-        if (location === currentView || pageTransition || transitionInProgressRef.current) {
+        if (location === currentView || pageTransition) {
             console.log(`Location change skipped: ${currentView} -> ${location}`);
             return;
         }
         
         console.log(`Location change: ${currentView} -> ${location}`);
-        transitionInProgressRef.current = true;
         setPageTransition(true);
         
         setTimeout(() => {
@@ -399,11 +396,10 @@ const App: React.FC = () => {
             // End transition *after* view potentially changes content
             setTimeout(() => {
                 setPageTransition(false);
-                transitionInProgressRef.current = false;
                 console.log(`Location change completed: ${location}`);
             }, 150); // Shorter fade-in time
         }, 300); // Wait for fade-out
-    }, [currentView, pageTransition]);
+    }
 
     // --- Loading Screen --- Fantasy style
     console.log('Current loading state:', loading);
@@ -559,8 +555,8 @@ const App: React.FC = () => {
         };
     }, [loading, gameState]);
 
-    // Memoized weather overlay component to prevent re-renders
-    const weatherOverlay = useMemo(() => {
+    // Simple function to render weather overlay instead of useMemo
+    function renderWeatherOverlay() {
         if (!gameState) return null;
         
         return (
@@ -571,49 +567,51 @@ const App: React.FC = () => {
                 season={gameState.time.season as Season}
             />
         );
-    }, [gameState?.time?.weatherFate, gameState?.time?.phaseName, gameState?.time?.season]);
+    }
 
-    // Memoize the menu bar to prevent re-renders
-    const MenuBar = useMemo(() => (
-        <div className="game-menu-bar">
-            <div 
-                className={`game-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
-                onClick={() => handleChangeLocation('garden')}
-            >
-                <span className="game-menu-key">G</span>arden
+    // Simple function to render menu bar instead of useMemo
+    function renderMenuBar() {
+        return (
+            <div className="game-menu-bar">
+                <div 
+                    className={`game-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
+                    onClick={() => handleChangeLocation('garden')}
+                >
+                    <span className="game-menu-key">G</span>arden
+                </div>
+                <div 
+                    className={`game-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
+                    onClick={() => handleChangeLocation('brewing')}
+                >
+                    <span className="game-menu-key">B</span>rewing
+                </div>
+                <div 
+                    className={`game-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
+                    onClick={() => handleChangeLocation('atelier')}
+                >
+                    <span className="game-menu-key">A</span>telier
+                </div>
+                <div 
+                    className={`game-menu-item ${currentView === 'market' ? 'active' : ''}`} 
+                    onClick={() => handleChangeLocation('market')}
+                >
+                    <span className="game-menu-key">M</span>arket
+                </div>
+                <div 
+                    className={`game-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
+                    onClick={() => handleChangeLocation('journal')}
+                >
+                    <span className="game-menu-key">J</span>ournal
+                </div>
+                <div 
+                    className="game-menu-item"
+                    onClick={advanceDay}
+                >
+                    <span className="game-menu-key">E</span>nd Day
+                </div>
             </div>
-            <div 
-                className={`game-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
-                onClick={() => handleChangeLocation('brewing')}
-            >
-                <span className="game-menu-key">B</span>rewing
-            </div>
-            <div 
-                className={`game-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
-                onClick={() => handleChangeLocation('atelier')}
-            >
-                <span className="game-menu-key">A</span>telier
-            </div>
-            <div 
-                className={`game-menu-item ${currentView === 'market' ? 'active' : ''}`} 
-                onClick={() => handleChangeLocation('market')}
-            >
-                <span className="game-menu-key">M</span>arket
-            </div>
-            <div 
-                className={`game-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
-                onClick={() => handleChangeLocation('journal')}
-            >
-                <span className="game-menu-key">J</span>ournal
-            </div>
-            <div 
-                className="game-menu-item"
-                onClick={advanceDay}
-            >
-                <span className="game-menu-key">E</span>nd Day
-            </div>
-        </div>
-    ), [currentView, handleChangeLocation, advanceDay]);
+        );
+    }
     
     return (
         <MultiplayerProvider>
@@ -640,11 +638,11 @@ const App: React.FC = () => {
                             {/* Fantasy-style title bar */}
                             <div className="game-title-bar">The Witch Coven</div>
                             
-                            {/* Optimized menu bar */}
-                            {MenuBar}
+                            {/* Menu bar */}
+                            {renderMenuBar()}
                             
-                            {/* Weather Effects Overlay - Memoized */}
-                            {weatherOverlay}
+                            {/* Weather Effects Overlay */}
+                            {renderWeatherOverlay()}
 
                             {/* Main content area */}
                             {gameState && currentPlayer ? (
