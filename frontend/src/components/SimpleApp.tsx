@@ -3,23 +3,405 @@ import React, { useState, useEffect } from 'react';
 import { GameState, Season, MoonPhase } from 'coven-shared';
 import './App.css';
 import '../garden-styles.css';
+import '../inventory-modal.css';
 
 // Basic App that will definitely render without hooks issues
 const SimpleApp: React.FC = () => {
-  // Basic state - just enough to render the game
+  // State for game functionality
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('garden');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // Add simple function to advance the day
+  // Additional state for interactive features
+  const [selectedPlot, setSelectedPlot] = useState<number | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [activeAction, setActiveAction] = useState<'plant' | 'harvest' | 'water' | null>(null);
+  const [itemFilter, setItemFilter] = useState<string | null>(null);
+  
+  // Garden actions
+  const plantSeed = (plotId: number, seedId: string) => {
+    if (!gameState) return;
+    
+    try {
+      // Find the seed in the inventory
+      const player = gameState.players[gameState.currentPlayerIndex];
+      const seed = player.inventory.find(item => item.id === seedId);
+      
+      if (!seed) {
+        setErrorMessage("Seed not found in inventory!");
+        return;
+      }
+      
+      if (seed.quantity <= 0) {
+        setErrorMessage("You don't have any of this seed left!");
+        return;
+      }
+      
+      const plot = player.garden.find(p => p.id === plotId);
+      if (!plot) {
+        setErrorMessage("Garden plot not found!");
+        return;
+      }
+      
+      if (plot.plant) {
+        setErrorMessage("This plot already has a plant!");
+        return;
+      }
+      
+      // Create a new plant
+      const newPlant = {
+        id: `plant-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name: seed.name.replace(' Seeds', ''),
+        growth: 0,
+        maxGrowth: 100,
+        watered: false,
+        health: 100,
+        age: 0,
+        mature: false,
+      };
+      
+      // Update the garden plot
+      const updatedGarden = player.garden.map(p => 
+        p.id === plotId ? {...p, plant: newPlant} : p
+      );
+      
+      // Update the inventory (reduce seed quantity)
+      const updatedInventory = player.inventory.map(item => 
+        item.id === seedId 
+          ? {...item, quantity: item.quantity - 1} 
+          : item
+      ).filter(item => item.quantity > 0); // Remove if quantity becomes 0
+      
+      // Update the player
+      const updatedPlayer = {
+        ...player,
+        garden: updatedGarden,
+        inventory: updatedInventory
+      };
+      
+      // Update the game state
+      const updatedGameState = {
+        ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        )
+      };
+      
+      setGameState(updatedGameState as GameState);
+      setErrorMessage(null);
+      setActiveAction(null);
+      setSelectedPlot(null);
+      setSelectedItem(null);
+      setShowInventoryModal(false);
+    } catch (err) {
+      console.error('Error planting seed:', err);
+      setErrorMessage('Failed to plant seed.');
+    }
+  };
+  
+  const harvestPlant = (plotId: number) => {
+    if (!gameState) return;
+    
+    try {
+      const player = gameState.players[gameState.currentPlayerIndex];
+      const plot = player.garden.find(p => p.id === plotId);
+      
+      if (!plot) {
+        setErrorMessage("Garden plot not found!");
+        return;
+      }
+      
+      if (!plot.plant) {
+        setErrorMessage("No plant to harvest!");
+        return;
+      }
+      
+      if (!plot.plant.mature) {
+        setErrorMessage("Plant is not ready for harvest yet!");
+        return;
+      }
+      
+      // Create harvested item
+      const harvestedItem = {
+        id: `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        baseId: plot.plant.id.split('-')[0],
+        name: plot.plant.name,
+        type: 'ingredient' as const,
+        category: 'herb' as const,
+        quantity: 1 + Math.floor(Math.random() * 3), // Random 1-3 quantity
+        quality: Math.floor(70 + (plot.plant.health / 10)), // Quality based on plant health
+        value: 10 + Math.floor(Math.random() * 20),
+        description: `A freshly harvested ${plot.plant.name}.`,
+      };
+      
+      // Check if we already have this item and merge if so
+      const existingItemIndex = player.inventory.findIndex(
+        item => item.name === harvestedItem.name && item.type === harvestedItem.type
+      );
+      
+      let updatedInventory;
+      if (existingItemIndex >= 0) {
+        // Merge with existing item
+        updatedInventory = player.inventory.map((item, idx) => 
+          idx === existingItemIndex 
+            ? {...item, quantity: item.quantity + harvestedItem.quantity} 
+            : item
+        );
+      } else {
+        // Add as new item
+        updatedInventory = [...player.inventory, harvestedItem];
+      }
+      
+      // Clear the plot
+      const updatedGarden = player.garden.map(p => 
+        p.id === plotId ? {...p, plant: null} : p
+      );
+      
+      // Update the player
+      const updatedPlayer = {
+        ...player,
+        garden: updatedGarden,
+        inventory: updatedInventory
+      };
+      
+      // Update the game state
+      const updatedGameState = {
+        ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        )
+      };
+      
+      setGameState(updatedGameState as GameState);
+      setErrorMessage(null);
+      setActiveAction(null);
+      setSelectedPlot(null);
+    } catch (err) {
+      console.error('Error harvesting plant:', err);
+      setErrorMessage('Failed to harvest plant.');
+    }
+  };
+  
+  const waterPlants = () => {
+    if (!gameState) return;
+    
+    try {
+      const player = gameState.players[gameState.currentPlayerIndex];
+      
+      // Water all plants that aren't already at max moisture
+      const updatedGarden = player.garden.map(plot => {
+        if (plot.moisture < 100) {
+          return {
+            ...plot,
+            moisture: Math.min(100, plot.moisture + 30) // Increase moisture by 30%, max 100
+          };
+        }
+        return plot;
+      });
+      
+      // Update the player
+      const updatedPlayer = {
+        ...player,
+        garden: updatedGarden
+      };
+      
+      // Update the game state
+      const updatedGameState = {
+        ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        )
+      };
+      
+      setGameState(updatedGameState as GameState);
+      setErrorMessage(null);
+      setActiveAction(null);
+    } catch (err) {
+      console.error('Error watering plants:', err);
+      setErrorMessage('Failed to water plants.');
+    }
+  };
+  
+  // Market actions
+  const buyItem = (itemId: string) => {
+    if (!gameState) return;
+    
+    try {
+      const player = gameState.players[gameState.currentPlayerIndex];
+      const item = gameState.market.find(i => i.id === itemId);
+      
+      if (!item) {
+        setErrorMessage("Item not found in market!");
+        return;
+      }
+      
+      if (player.gold < item.price) {
+        setErrorMessage("Not enough gold to buy this item!");
+        return;
+      }
+      
+      // Create inventory item
+      const boughtItem = {
+        id: `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        baseId: item.id,
+        name: item.name,
+        type: item.type,
+        category: item.category,
+        quantity: 1,
+        quality: 80, // Market items have good quality
+        value: item.price,
+        description: item.description || `A ${item.name} bought from the market.`,
+      };
+      
+      // Check if we already have this item and merge if so
+      const existingItemIndex = player.inventory.findIndex(
+        i => i.name === boughtItem.name && i.type === boughtItem.type
+      );
+      
+      let updatedInventory;
+      if (existingItemIndex >= 0) {
+        // Merge with existing item
+        updatedInventory = player.inventory.map((i, idx) => 
+          idx === existingItemIndex 
+            ? {...i, quantity: i.quantity + boughtItem.quantity} 
+            : i
+        );
+      } else {
+        // Add as new item
+        updatedInventory = [...player.inventory, boughtItem];
+      }
+      
+      // Update the player's gold
+      const updatedPlayer = {
+        ...player,
+        gold: player.gold - item.price,
+        inventory: updatedInventory
+      };
+      
+      // Update the game state
+      const updatedGameState = {
+        ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        )
+      };
+      
+      setGameState(updatedGameState as GameState);
+      setErrorMessage(null);
+      setSelectedItem(null);
+    } catch (err) {
+      console.error('Error buying item:', err);
+      setErrorMessage('Failed to buy item.');
+    }
+  };
+  
+  const sellItem = (inventoryItemId: string) => {
+    if (!gameState) return;
+    
+    try {
+      const player = gameState.players[gameState.currentPlayerIndex];
+      const item = player.inventory.find(i => i.id === inventoryItemId);
+      
+      if (!item) {
+        setErrorMessage("Item not found in inventory!");
+        return;
+      }
+      
+      // Calculate sell price (70% of value)
+      const sellPrice = Math.floor((item.value || 10) * 0.7);
+      
+      // Remove one from inventory or reduce quantity
+      let updatedInventory;
+      if (item.quantity > 1) {
+        updatedInventory = player.inventory.map(i => 
+          i.id === inventoryItemId 
+            ? {...i, quantity: i.quantity - 1} 
+            : i
+        );
+      } else {
+        // Remove completely if only one left
+        updatedInventory = player.inventory.filter(i => i.id !== inventoryItemId);
+      }
+      
+      // Update the player's gold
+      const updatedPlayer = {
+        ...player,
+        gold: player.gold + sellPrice,
+        inventory: updatedInventory
+      };
+      
+      // Update the game state
+      const updatedGameState = {
+        ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        )
+      };
+      
+      setGameState(updatedGameState as GameState);
+      setErrorMessage(null);
+      setSelectedItem(null);
+    } catch (err) {
+      console.error('Error selling item:', err);
+      setErrorMessage('Failed to sell item.');
+    }
+  };
+  
+  // Add function to advance the day with growth calculations
   const advanceDay = () => {
     if (!gameState) return;
     
     try {
-      // Create a simplified day advancement
+      // Get the current player
+      const player = gameState.players[gameState.currentPlayerIndex];
+      
+      // Update each plant's growth and health
+      const updatedGarden = player.garden.map(plot => {
+        if (!plot.plant) return plot;
+        
+        // Calculate growth based on moisture and fertility
+        const growthFactor = (plot.moisture / 100) * (plot.fertility / 100);
+        const growthIncrease = Math.floor(10 * growthFactor);
+        
+        // Calculate health changes
+        let healthChange = 0;
+        if (plot.moisture < 30) healthChange -= 10; // Drought damage
+        if (plot.moisture > 30) healthChange += 5; // Some recovery
+        
+        // Check if plant reaches maturity
+        const newGrowth = Math.min(plot.plant.maxGrowth, plot.plant.growth + growthIncrease);
+        const becomesMature = newGrowth >= plot.plant.maxGrowth && !plot.plant.mature;
+        
+        // Reduce moisture as time passes
+        const newMoisture = Math.max(0, plot.moisture - 20);
+        
+        return {
+          ...plot,
+          moisture: newMoisture,
+          plant: {
+            ...plot.plant,
+            growth: newGrowth,
+            health: Math.max(0, Math.min(100, plot.plant.health + healthChange)),
+            age: plot.plant.age + 1,
+            mature: becomesMature || plot.plant.mature
+          }
+        };
+      });
+      
+      // Update the player
+      const updatedPlayer = {
+        ...player,
+        garden: updatedGarden
+      };
+      
+      // Create updated game state with new day
       const nextDay = {
         ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        ),
         time: {
           ...gameState.time,
           dayCount: gameState.time.dayCount + 1,
@@ -327,21 +709,75 @@ const SimpleApp: React.FC = () => {
             {view === 'garden' && (
               <div className="garden-view">
                 <h2>Witch's Garden</h2>
+                <div className="garden-actions">
+                  <button 
+                    className="garden-action-button"
+                    onClick={() => {
+                      setActiveAction('water');
+                      waterPlants();
+                    }}
+                  >
+                    Water All Plants
+                  </button>
+                </div>
                 <div className="garden-grid">
                   {Array.isArray(currentPlayer.garden) && currentPlayer.garden.length > 0 ? (
                     currentPlayer.garden.map((plot, index) => (
-                      <div key={index} className="garden-plot">
+                      <div 
+                        key={index} 
+                        className={`garden-plot ${selectedPlot === plot.id ? 'selected' : ''}`}
+                        data-growth={
+                          plot.plant ? 
+                            (plot.plant.mature ? 'mature' :
+                            plot.plant.growth >= 70 ? 'high' :
+                            plot.plant.growth >= 40 ? 'medium' : 'low')
+                          : 'empty'
+                        }
+                        onClick={() => setSelectedPlot(plot.id)}
+                      >
                         {plot.plant ? (
-                          <div className="plant-info">
+                          <div 
+                            className="plant-info"
+                            data-growth={
+                              plot.plant.mature ? 'mature' :
+                              plot.plant.growth >= 70 ? 'high' :
+                              plot.plant.growth >= 40 ? 'medium' : 'low'
+                            }
+                          >
                             <div className="plant-name">{plot.plant.name}</div>
                             <div className="plant-stats">
                               <div>Growth: {plot.plant.growth}/{plot.plant.maxGrowth}</div>
                               <div>Health: {plot.plant.health}%</div>
                               <div>{plot.plant.mature ? 'Ready to Harvest!' : 'Growing...'}</div>
                             </div>
+                            {plot.plant.mature && (
+                              <button 
+                                className="harvest-button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  harvestPlant(plot.id);
+                                }}
+                              >
+                                Harvest
+                              </button>
+                            )}
                           </div>
                         ) : (
-                          <div className="empty-plot">Empty Plot</div>
+                          <div className="empty-plot">
+                            <div>Empty Plot</div>
+                            <button 
+                              className="plant-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveAction('plant');
+                                setSelectedPlot(plot.id);
+                                setShowInventoryModal(true);
+                                setItemFilter('seed');
+                              }}
+                            >
+                              Plant
+                            </button>
+                          </div>
                         )}
                         <div className="plot-info">
                           <div>Moisture: {plot.moisture}%</div>
@@ -404,7 +840,12 @@ const SimpleApp: React.FC = () => {
                           <div key={index} className="market-item">
                             <div className="item-name">{item.name}</div>
                             <div className="item-price">{item.price} gold</div>
-                            <button className="buy-button" disabled={currentPlayer.gold < item.price}>
+                            <div className="item-description">{item.description}</div>
+                            <button 
+                              className="buy-button" 
+                              disabled={currentPlayer.gold < item.price}
+                              onClick={() => buyItem(item.id)}
+                            >
                               Buy
                             </button>
                           </div>
@@ -423,7 +864,11 @@ const SimpleApp: React.FC = () => {
                           <div key={index} className="inventory-item">
                             <div className="item-name">{item.name}</div>
                             <div className="item-quantity">x{item.quantity}</div>
-                            <button className="sell-button">
+                            <div className="item-value">Value: {Math.floor(item.value * 0.7)} gold</div>
+                            <button 
+                              className="sell-button"
+                              onClick={() => sellItem(item.id)}
+                            >
                               Sell
                             </button>
                           </div>
@@ -519,6 +964,110 @@ const SimpleApp: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Inventory Modal */}
+      {showInventoryModal && (
+        <div className="modal-backdrop" onClick={() => setShowInventoryModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>
+                {activeAction === 'plant' ? 'Select Seeds to Plant' : 
+                 activeAction === 'harvest' ? 'Harvest Plant' : 
+                 'Your Inventory'}
+              </h2>
+              <button className="close-button" onClick={() => setShowInventoryModal(false)}>×</button>
+            </div>
+
+            <div className="filter-bar">
+              <button 
+                className={`filter-button ${itemFilter === null ? 'active' : ''}`}
+                onClick={() => setItemFilter(null)}
+              >
+                All
+              </button>
+              <button 
+                className={`filter-button ${itemFilter === 'seed' ? 'active' : ''}`}
+                onClick={() => setItemFilter('seed')}
+              >
+                Seeds
+              </button>
+              <button 
+                className={`filter-button ${itemFilter === 'herb' ? 'active' : ''}`}
+                onClick={() => setItemFilter('herb')}
+              >
+                Herbs
+              </button>
+              <button 
+                className={`filter-button ${itemFilter === 'crystal' ? 'active' : ''}`}
+                onClick={() => setItemFilter('crystal')}
+              >
+                Crystals
+              </button>
+              <button 
+                className={`filter-button ${itemFilter === 'tool' ? 'active' : ''}`}
+                onClick={() => setItemFilter('tool')}
+              >
+                Tools
+              </button>
+            </div>
+
+            {currentPlayer.inventory.length > 0 ? (
+              <div className="inventory-grid">
+                {currentPlayer.inventory
+                  .filter(item => itemFilter === null || item.category === itemFilter || item.type === itemFilter)
+                  .map((item, index) => (
+                    <div 
+                      key={index} 
+                      className={`inventory-item ${item.category} ${selectedItem === item.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedItem(item.id)}
+                    >
+                      <div className="item-icon"></div>
+                      <div className="item-name">{item.name}</div>
+                      <div className="item-details">
+                        {item.type === 'ingredient' && `Quality: ${item.quality}`}
+                      </div>
+                      <div className="item-quantity">x{item.quantity}</div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="no-items">
+                <p>Your inventory is empty.</p>
+                {activeAction === 'plant' && (
+                  <p>Visit the market to purchase seeds for planting.</p>
+                )}
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button 
+                className="action-button cancel-button"
+                onClick={() => {
+                  setShowInventoryModal(false);
+                  setSelectedItem(null);
+                  setActiveAction(null);
+                }}
+              >
+                Cancel
+              </button>
+              
+              {activeAction === 'plant' && selectedPlot !== null && (
+                <button 
+                  className="action-button confirm-button"
+                  disabled={selectedItem === null}
+                  onClick={() => {
+                    if (selectedItem) {
+                      plantSeed(selectedPlot, selectedItem);
+                    }
+                  }}
+                >
+                  Plant Seed
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
