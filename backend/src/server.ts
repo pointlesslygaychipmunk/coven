@@ -7,6 +7,7 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import { GameHandler } from './gameHandler.js';
+import gardenRoutes from './routes/gardenRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -55,6 +56,9 @@ const handleRequest = (handlerFn: () => any, res: Response, actionName: string):
 
 // --- API Routes ---
 app.get('/api/state', (_req: Request, res: Response): void => handleRequest(gameHandler.getState.bind(gameHandler), res, 'get state'));
+
+// Add interactive garden routes
+app.use('/api/garden', gardenRoutes);
 
 app.post('/api/plant', (req: Request, res: Response): void => {
     const { playerId, slotId, seedItemId } = req.body;
