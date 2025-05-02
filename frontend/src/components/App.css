@@ -55,9 +55,10 @@
   padding: 0;
 }
 
+/* Use web-safe monospace fonts as fallbacks for DOS-style font */
 @font-face {
   font-family: 'DOS';
-  src: url('https://cdn.jsdelivr.net/npm/perfect-dos-vga@1.0.0/DOS.ttf') format('truetype');
+  src: local('Courier New'), local('Courier'), local('monospace');
   font-weight: normal;
   font-style: normal;
 }
