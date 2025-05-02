@@ -2,7 +2,8 @@
 import * as ReactDOM from 'react-dom/client';
 // @ts-ignore -- React is used in JSX even if not directly referenced
 import * as React from 'react';
-import App from './components/App';
+// Import the simple version only
+import SimpleApp from './components/SimpleApp';
 import { renderMinimalApp } from './minimal';
 import { renderStandaloneApp } from './standalone';
 import './index.css';
@@ -40,10 +41,8 @@ if (!rootElement) {
   throw new Error("Root element '#root' not found.");
 }
 
-// Check for special mode parameter to enable minimal app
+// Check for special mode parameters
 const urlParams = new URLSearchParams(window.location.search);
-const minimalMode = urlParams.get('minimal') === 'true';
-const debugMode = urlParams.get('debug') === 'true';
 
 // Type guard to assert rootElement is not null
 function assertNonNull<T>(value: T | null | undefined): asserts value is T {
@@ -72,18 +71,9 @@ function renderMainApp() {
       }
     });
     
-    // Use StrictMode only in debug mode
-    if (debugMode) {
-      console.log('Using React StrictMode (debug mode)');
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
-    } else {
-      // Remove StrictMode to avoid unnecessary double renders in production
-      root.render(<App />);
-    }
+    // Use SimpleApp instead of the complex App component
+    console.log('Rendering SimpleApp component');
+    root.render(<SimpleApp />);
     
     return true;
   } catch (error) {
@@ -97,22 +87,23 @@ function renderMainApp() {
   }
 }
 
-// Check mode parameters
-const standaloneMode = urlParams.get('standalone') === 'true';
+// Get URL parameters for different modes
+const useMinimal = urlParams.get('minimal') === 'true';
+const useStandalone = urlParams.get('standalone') === 'true';
 
 // Render appropriate version based on URL parameters
-if (standaloneMode) {
-  console.log('Starting in standalone mode');
+if (useStandalone) {
+  console.log('Starting in standalone test mode');
   renderStandaloneApp();
-} else if (minimalMode) {
+} else if (useMinimal) {
   console.log('Starting in minimal mode');
   renderMinimalApp();
 } else {
-  console.log('Starting in normal mode');
+  console.log('Starting SimpleApp (stable version)');
   try {
     renderMainApp();
   } catch (err) {
-    console.error('Critical failure in main app render, trying standalone mode:', err);
-    renderStandaloneApp();
+    console.error('Critical failure in SimpleApp render, trying minimal mode:', err);
+    renderMinimalApp();
   }
 }
