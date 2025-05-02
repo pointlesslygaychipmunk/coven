@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, Component, ReactNode } from 'react';
 import './App.css';
-import { GameState, Season, InventoryItem, GardenSlot, WeatherFate, AtelierSpecialization } from 'coven-shared';
+import { GameState, Season, InventoryItem, GardenSlot, AtelierSpecialization } from 'coven-shared';
 
 // ErrorBoundary class component to catch render errors
 class ErrorBoundary extends Component<{ fallback: ReactNode, children?: ReactNode }> {
