@@ -150,7 +150,9 @@ const App: React.FC = () => {
       }
     }, [gameState, moonlightMeadowActive]);
 
-    // Fetch initial game state
+    // Fetch initial game state with useRef to track fetch attempts
+    const fetchAttemptRef = useRef(0);
+    
     useEffect(() => {
         console.log('Fetching initial state, useMultiplayer:', useMultiplayer);
         
@@ -213,6 +215,10 @@ const App: React.FC = () => {
         
         const fetchInitialState = async () => {
             try {
+                // Increment fetch attempt counter
+                fetchAttemptRef.current += 1;
+                console.log(`Fetch attempt #${fetchAttemptRef.current}`);
+                
                 // Try to fetch from API
                 const initialState = await apiCall('/state');
                 console.log('Received state from API');
@@ -244,19 +250,42 @@ const App: React.FC = () => {
             console.log('Single player mode - fetching state');
             fetchInitialState();
         }
+        
+        // Cleanup
+        return () => {
+            console.log('Cleaning up fetch effect');
+        };
     }, [useMultiplayer, showLobby]);
 
     // --- Action Handlers ---
+    // Use a ref for tracking the last action to avoid re-renders
+    const lastActionRef = useRef<string>('none');
+    
     const handleApiAction = useCallback(async (
         actionPromise: Promise<GameState>,
         successMessage?: string,
         errorMessagePrefix?: string
     ) => {
         try {
+            // Track the action for debugging
+            const actionId = `action_${Date.now()}`;
+            lastActionRef.current = actionId;
+            console.log(`[Action Start] ${actionId}: ${successMessage || 'Unnamed action'}`);
+            
             const newState = await actionPromise;
-            setGameState(newState); // Update state with the result from the API
-            setError(null); // Clear previous errors
-            if (successMessage) console.log(`[Action Success] ${successMessage}`);
+            
+            // Only update state if this is still the current action
+            if (lastActionRef.current === actionId) {
+                console.log(`[Action Success] ${actionId}: ${successMessage}`);
+                setGameState(prevState => {
+                    // Only update if we have new state and it's different
+                    if (!newState) return prevState;
+                    return newState;
+                });
+                setError(null); // Clear previous errors
+            } else {
+                console.log(`[Action Skipped] ${actionId}: Action was superseded`);
+            }
         } catch (err) {
             const message = (err instanceof Error) ? err.message : 'An unknown error occurred';
             console.error(errorMessagePrefix || 'Action failed:', err);
@@ -343,13 +372,29 @@ const App: React.FC = () => {
     }, [playerId, handleApiAction]);
 
     // Handle location change with page transition
+    // Use a ref to track ongoing transitions to avoid overlapping calls
+    const transitionInProgressRef = useRef(false);
+    
     const handleChangeLocation = useCallback((location: string) => {
-        if (location === currentView || pageTransition) return;
+        // Don't start a new transition if location is the same or a transition is already in progress
+        if (location === currentView || pageTransition || transitionInProgressRef.current) {
+            console.log(`Location change skipped: ${currentView} -> ${location}`);
+            return;
+        }
+        
+        console.log(`Location change: ${currentView} -> ${location}`);
+        transitionInProgressRef.current = true;
         setPageTransition(true);
+        
         setTimeout(() => {
             setCurrentView(location);
+            
             // End transition *after* view potentially changes content
-            setTimeout(() => setPageTransition(false), 150); // Shorter fade-in time
+            setTimeout(() => {
+                setPageTransition(false);
+                transitionInProgressRef.current = false;
+                console.log(`Location change completed: ${location}`);
+            }, 150); // Shorter fade-in time
         }, 300); // Wait for fade-out
     }, [currentView, pageTransition]);
 
@@ -513,12 +558,16 @@ const App: React.FC = () => {
         }, 500);
     }, [gameState]);
     
-    // Monitor key state changes
+    // Monitor key state changes and cleanup timers
     useEffect(() => {
         console.log('App mounted');
         
+        // Track all timers to clean them up properly
+        const timers: NodeJS.Timeout[] = [];
+        
         // Add a failsafe timer to exit loading state after 5 seconds
         const loadingTimer = setTimeout(() => {
+            console.log('Checking loading state (5s failsafe)');
             if (loading) {
                 console.log('Failsafe: Loading state still true after 5 seconds, forcing to false');
                 setLoading(false);
@@ -560,13 +609,90 @@ const App: React.FC = () => {
                 }
             }
         }, 5000);
+        timers.push(loadingTimer);
         
+        // Add a secondary failsafe for extreme cases - force a refresh after 30 seconds if still loading
+        const extremeFailsafe = setTimeout(() => {
+            if (loading) {
+                console.log('CRITICAL: App still loading after 30 seconds, forcing minimal mode');
+                
+                // Attempt to use the minimal app
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                if (!urlParams.has('minimal')) {
+                    console.log('Redirecting to minimal mode...');
+                    // Add minimal=true to the URL and reload
+                    urlParams.set('minimal', 'true');
+                    window.location.search = urlParams.toString();
+                } else {
+                    console.log('Already in minimal mode but still failing, forcing refresh');
+                    window.location.reload();
+                }
+            }
+        }, 30000);
+        timers.push(extremeFailsafe);
+        
+        // Component cleanup
         return () => {
-            console.log('App unmounted');
-            clearTimeout(loadingTimer);
+            console.log('App unmounted, cleaning up all timers');
+            timers.forEach(timer => clearTimeout(timer));
         };
     }, [loading, gameState]);
 
+    // Stable references to functions to prevent unnecessary renders
+    const renderOptimizedEffect = useCallback((weatherType: WeatherFate, intensity: string, phase: string, season: Season) => {
+        return (
+            <WeatherEffectsOverlay
+                weatherType={weatherType}
+                intensity={intensity as 'light' | 'medium' | 'heavy'}
+                timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(phase) ? 'night' : 'day'}
+                season={season}
+            />
+        );
+    }, []);
+
+    // Memoize the menu bar to prevent re-renders
+    const MenuBar = useMemo(() => (
+        <div className="game-menu-bar">
+            <div 
+                className={`game-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
+                onClick={() => handleChangeLocation('garden')}
+            >
+                <span className="game-menu-key">G</span>arden
+            </div>
+            <div 
+                className={`game-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
+                onClick={() => handleChangeLocation('brewing')}
+            >
+                <span className="game-menu-key">B</span>rewing
+            </div>
+            <div 
+                className={`game-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
+                onClick={() => handleChangeLocation('atelier')}
+            >
+                <span className="game-menu-key">A</span>telier
+            </div>
+            <div 
+                className={`game-menu-item ${currentView === 'market' ? 'active' : ''}`} 
+                onClick={() => handleChangeLocation('market')}
+            >
+                <span className="game-menu-key">M</span>arket
+            </div>
+            <div 
+                className={`game-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
+                onClick={() => handleChangeLocation('journal')}
+            >
+                <span className="game-menu-key">J</span>ournal
+            </div>
+            <div 
+                className="game-menu-item"
+                onClick={advanceDay}
+            >
+                <span className="game-menu-key">E</span>nd Day
+            </div>
+        </div>
+    ), [currentView, handleChangeLocation, advanceDay]);
+    
     return (
         <MultiplayerProvider>
             <div className="game-container">
@@ -592,54 +718,15 @@ const App: React.FC = () => {
                             {/* Fantasy-style title bar */}
                             <div className="game-title-bar">The Witch Coven</div>
                             
-                            {/* Fancy menu bar */}
-                            <div className="game-menu-bar">
-                                <div 
-                                    className={`game-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
-                                    onClick={() => handleChangeLocation('garden')}
-                                >
-                                    <span className="game-menu-key">G</span>arden
-                                </div>
-                                <div 
-                                    className={`game-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
-                                    onClick={() => handleChangeLocation('brewing')}
-                                >
-                                    <span className="game-menu-key">B</span>rewing
-                                </div>
-                                <div 
-                                    className={`game-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
-                                    onClick={() => handleChangeLocation('atelier')}
-                                >
-                                    <span className="game-menu-key">A</span>telier
-                                </div>
-                                <div 
-                                    className={`game-menu-item ${currentView === 'market' ? 'active' : ''}`} 
-                                    onClick={() => handleChangeLocation('market')}
-                                >
-                                    <span className="game-menu-key">M</span>arket
-                                </div>
-                                <div 
-                                    className={`game-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
-                                    onClick={() => handleChangeLocation('journal')}
-                                >
-                                    <span className="game-menu-key">J</span>ournal
-                                </div>
-                                <div 
-                                    className="game-menu-item"
-                                    onClick={advanceDay}
-                                >
-                                    <span className="game-menu-key">E</span>nd Day
-                                </div>
-                            </div>
+                            {/* Optimized menu bar */}
+                            {MenuBar}
                             
-                            {/* Weather Effects Overlay */}
-                            {gameState && (
-                                <WeatherEffectsOverlay
-                                    weatherType={gameState.time.weatherFate}
-                                    intensity="medium"
-                                    timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(gameState.time.phaseName) ? 'night' : 'day'}
-                                    season={gameState.time.season as Season}
-                                />
+                            {/* Weather Effects Overlay - Optimized */}
+                            {gameState && renderOptimizedEffect(
+                                gameState.time.weatherFate,
+                                "medium",
+                                gameState.time.phaseName,
+                                gameState.time.season as Season
                             )}
 
                             {/* Main content area */}
@@ -651,7 +738,7 @@ const App: React.FC = () => {
                                             <OnlinePlayers showDetailed={false} />
                                         )}
                                         
-                                        {/* Render current view */}
+                                        {/* Render current view - Only render the active view */}
                                         {currentView === 'garden' && (
                                             <Garden
                                                 plots={currentPlayer.garden as GardenSlot[]}
@@ -712,7 +799,23 @@ const App: React.FC = () => {
                                     <h2>Waiting for game state...</h2>
                                     <p>The game is trying to connect to the backend. If you see this message for more than a few seconds, there may be an issue with the backend server.</p>
                                     <p>Error: {error || 'No error message'}</p>
-                                    <button className="game-button" onClick={() => window.location.reload()}>Refresh Page</button>
+                                    <button 
+                                        className="game-button" 
+                                        onClick={() => {
+                                            const urlParams = new URLSearchParams(window.location.search);
+                                            urlParams.set('minimal', 'true');
+                                            window.location.search = urlParams.toString();
+                                        }}
+                                    >
+                                        Try Minimal Mode
+                                    </button>
+                                    <button 
+                                        className="game-button" 
+                                        onClick={() => window.location.reload()}
+                                        style={{ marginLeft: '10px' }}
+                                    >
+                                        Refresh Page
+                                    </button>
                                 </div>
                             )}
 
