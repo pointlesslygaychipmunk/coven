@@ -159,6 +159,7 @@ export type Player = {
   atelierSpecialization: AtelierSpecialization;
   atelierLevel: number;
   skills: Skills;
+  skillExperience?: Record<string, number>; // Experience points for each skill
   inventory: InventoryItem[];
   garden: GardenSlot[];
   knownRecipes: string[]; // IDs of recipes personally known by the player
@@ -222,23 +223,37 @@ export type RitualQuestStep = {
 };
 
 export type RitualReward = {
-  type: 'gold' | 'item' | 'skill' | 'reputation' | 'recipe' | 'blueprint' | 'garden_slot';
-  value: string | number; // Item ID, skill name, gold amount, rep amount, recipe ID, etc.
+  type: 'gold' | 'item' | 'skill' | 'reputation' | 'recipe' | 'blueprint' | 'garden_slot' | 'resource' | 'mana' | 'items' | 'unlocksRituals';
+  value?: string | number; // Item ID, skill name, gold amount, rep amount, recipe ID, etc.
   quantity?: number;
+  resource?: string; // For 'resource' type, specifies which resource (mana, reputation, etc.)
+  amount?: number; // For 'resource' type, amount to give
+  items?: any[]; // For rewards that include multiple items
+  rituals?: any[]; // For rewards that include multiple rituals
+  gold?: number; // Amount of gold to give
+  reputation?: number; // Amount of reputation to give
+  mana?: number; // Amount of mana to give
+  unlocksRituals?: any[]; // Rituals to unlock
 };
 
 export type RitualQuest = {
   id: string;
   name: string;
   description: string;
-  stepsCompleted: number;
-  totalSteps: number;
-  steps: RitualQuestStep[];
+  stepsCompleted?: number;
+  totalSteps?: number;
+  steps?: RitualQuestStep[];
   rewards: RitualReward[];
   requiredMoonPhase?: MoonPhase;
   requiredSeason?: Season;
+  moonPhaseRequirement?: MoonPhase; // Added for backward compatibility
+  seasonRequirement?: Season; // Added for backward compatibility
+  skillAffinity?: string; // Added for skill experience gains
+  baseSuccessChance?: number; // Base chance of success before bonuses
+  oneTime?: boolean; // Whether the ritual can only be performed once
+  difficulty?: number; // Difficulty level of the ritual
   deadline?: number;
-  unlocked: boolean;
+  unlocked?: boolean;
   initiallyAvailable?: boolean;
   requiredItems?: { name: string; quantity: number }[]; // Use name for simplicity? Or baseId? Let's keep name for now.
 };

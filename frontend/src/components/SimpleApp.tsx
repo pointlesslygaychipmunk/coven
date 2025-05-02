@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { GameState, Season, MoonPhase, Plant } from 'coven-shared';
+import { GameState, Season, MoonPhase, Plant, RitualQuest, RitualReward } from 'coven-shared';
 
 // Fallback type definition in case import fails
 // This ensures type safety even if the shared types aren't fully available
@@ -1095,32 +1095,32 @@ const SimpleApp: React.FC = () => {
       }
       
       // Check if ritual has moon phase requirements
-      if ((ritual as any).moonPhaseRequirement && 
-          (ritual as any).moonPhaseRequirement !== gameState.time.phaseName) {
-        setErrorMessage(`This ritual requires the ${(ritual as any).moonPhaseRequirement} moon phase!`);
+      if (ritual.moonPhaseRequirement && 
+          ritual.moonPhaseRequirement !== gameState.time.phaseName) {
+        setErrorMessage(`This ritual requires the ${ritual.moonPhaseRequirement} moon phase!`);
         return;
       }
       
       // Check if ritual has season requirements
-      if ((ritual as any).seasonRequirement && 
-          (ritual as any).seasonRequirement !== gameState.time.season) {
-        setErrorMessage(`This ritual requires the ${(ritual as any).seasonRequirement} season!`);
+      if (ritual.seasonRequirement && 
+          ritual.seasonRequirement !== gameState.time.season) {
+        setErrorMessage(`This ritual requires the ${ritual.seasonRequirement} season!`);
         return;
       }
       
       // Calculate ritual success chance
-      let successChance = (ritual as any).baseSuccessChance || 70;
+      let successChance = ritual.baseSuccessChance || 70;
       
       // Adjust for player skills
-      if ((ritual as any).skillAffinity === 'astrology') {
+      if (ritual.skillAffinity === 'astrology') {
         successChance += player.skills.astrology * 5;
-      } else if ((ritual as any).skillAffinity === 'herbalism') {
+      } else if (ritual.skillAffinity === 'herbalism') {
         successChance += player.skills.herbalism * 5;
       }
       
       // Adjust for moon phase
-      if ((ritual as any).moonPhaseRequirement && 
-          (ritual as any).moonPhaseRequirement === gameState.time.phaseName) {
+      if (ritual.moonPhaseRequirement && 
+          ritual.moonPhaseRequirement === gameState.time.phaseName) {
         successChance += 20;
       }
       
@@ -1159,42 +1159,46 @@ const SimpleApp: React.FC = () => {
         };
         
         // Apply ritual rewards
-        if ((ritual.rewards as any)?.mana) {
-          updatedPlayer.mana += (ritual.rewards as any).mana;
-        }
-        
-        if ((ritual.rewards as any)?.reputation) {
-          updatedPlayer.reputation += (ritual.rewards as any).reputation;
-        }
-        
-        if ((ritual.rewards as any)?.gold) {
-          updatedPlayer.gold += (ritual.rewards as any).gold;
-        }
-        
-        // Add any reward items
-        if ((ritual.rewards as any)?.items?.length) {
-          for (const rewardItem of (ritual.rewards as any).items) {
-            const newItem = {
-              id: `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-              baseId: rewardItem.id,
-              name: rewardItem.name,
-              type: rewardItem.type,
-              category: rewardItem.category,
-              quantity: rewardItem.quantity || 1,
-              quality: rewardItem.quality || 80,
-              value: rewardItem.value || 50,
-              description: rewardItem.description || `A mystical item created through the ${ritual.name} ritual.`
-            };
-            
-            updatedPlayer.inventory.push(newItem);
+        for (const reward of ritual.rewards) {
+          if (reward.type === 'resource' && reward.resource === 'mana' && reward.amount) {
+            updatedPlayer.mana += reward.amount;
+          }
+          
+          if (reward.type === 'resource' && reward.resource === 'reputation' && reward.amount) {
+            updatedPlayer.reputation += reward.amount;
+          }
+          
+          if ((reward.type === 'resource' && reward.resource === 'gold' && reward.amount) || 
+              (reward.type === 'gold' && reward.amount)) {
+            updatedPlayer.gold += reward.amount;
+          }
+          
+          // Add any reward items
+          if (reward.type === 'items' && reward.items && reward.items.length > 0) {
+            for (const rewardItem of reward.items) {
+              const newItem = {
+                id: `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                baseId: rewardItem.id,
+                name: rewardItem.name,
+                type: rewardItem.type,
+                category: rewardItem.category,
+                quantity: rewardItem.quantity || 1,
+                quality: rewardItem.quality || 80,
+                value: rewardItem.value || 50,
+                description: rewardItem.description || `A mystical item created through the ${ritual.name} ritual.`
+              };
+              
+              updatedPlayer.inventory.push(newItem);
+            }
           }
         }
         
         // Unlock any new rituals
-        if ((ritual.rewards as any)?.unlocksRituals?.length) {
+        const unlocksRitualsReward = ritual.rewards.find(r => r.type === 'unlocksRituals');
+        if (unlocksRitualsReward?.rituals?.length) {
           const newRituals = [
             ...(gameState.rituals || []),
-            ...(ritual.rewards as any).unlocksRituals.filter(
+            ...unlocksRitualsReward.rituals.filter(
               (r: any) => !(gameState.rituals || []).some(existing => existing.id === r.id)
             )
           ];
@@ -1590,11 +1594,11 @@ const SimpleApp: React.FC = () => {
                   type: 'resource',
                   resource: 'mana',
                   amount: 20
-                }, {
+                } as RitualReward, {
                   type: 'resource',
                   resource: 'reputation',
                   amount: 5
-                }, {
+                } as RitualReward, {
                   type: 'items',
                   items: [
                     { 
@@ -1625,15 +1629,15 @@ const SimpleApp: React.FC = () => {
                   type: 'resource',
                   resource: 'mana',
                   amount: 15
-                }, {
+                } as RitualReward, {
                   type: 'resource',
                   resource: 'reputation',
                   amount: 3
-                }, {
+                } as RitualReward, {
                   type: 'resource',
                   resource: 'gold',
                   amount: 10
-                }, {
+                } as RitualReward, {
                   type: 'items',
                   items: [
                     {
@@ -1664,7 +1668,7 @@ const SimpleApp: React.FC = () => {
                   type: 'resource',
                   resource: 'reputation',
                   amount: 5
-                }, {
+                } as RitualReward, {
                   type: 'unlocksRituals',
                   rituals: [
                     {
@@ -1683,7 +1687,7 @@ const SimpleApp: React.FC = () => {
                         type: 'resource',
                         resource: 'reputation',
                         amount: 3
-                      }]
+                      } as RitualReward]
                     }
                   ]
                 }]
@@ -2012,33 +2016,33 @@ const SimpleApp: React.FC = () => {
                                   <div className="ritual-rewards">
                                     <div className="ritual-rewards-header">Rewards:</div>
                                     <div className="ritual-rewards-list">
-                                      {ritual.rewards.mana && (
+                                      {ritual.rewards.find(r => r.type === 'resource' && r.resource === 'mana') && (
                                         <div className="ritual-reward">
                                           <span className="reward-icon">✧</span>
-                                          <span className="reward-text">{ritual.rewards.mana} Mana</span>
+                                          <span className="reward-text">{ritual.rewards.find(r => r.type === 'resource' && r.resource === 'mana')?.amount} Mana</span>
                                         </div>
                                       )}
-                                      {ritual.rewards.gold && (
+                                      {ritual.rewards.find(r => r.type === 'gold' || (r.type === 'resource' && r.resource === 'gold')) && (
                                         <div className="ritual-reward">
                                           <span className="reward-icon">⛁</span>
-                                          <span className="reward-text">{ritual.rewards.gold} Gold</span>
+                                          <span className="reward-text">{ritual.rewards.find(r => r.type === 'gold' || (r.type === 'resource' && r.resource === 'gold'))?.amount} Gold</span>
                                         </div>
                                       )}
-                                      {ritual.rewards.reputation && (
+                                      {ritual.rewards.find(r => r.type === 'reputation' || (r.type === 'resource' && r.resource === 'reputation')) && (
                                         <div className="ritual-reward">
                                           <span className="reward-icon">★</span>
-                                          <span className="reward-text">{ritual.rewards.reputation} Reputation</span>
+                                          <span className="reward-text">{ritual.rewards.find(r => r.type === 'reputation' || (r.type === 'resource' && r.resource === 'reputation'))?.amount} Reputation</span>
                                         </div>
                                       )}
-                                      {ritual.rewards.items && ritual.rewards.items.length > 0 && (
+                                      {ritual.rewards.find(r => r.type === 'items') && (
                                         <div className="ritual-reward">
                                           <span className="reward-icon">🧪</span>
                                           <span className="reward-text">
-                                            {ritual.rewards.items.length} {ritual.rewards.items.length === 1 ? 'Item' : 'Items'}
+                                            {ritual.rewards.find(r => r.type === 'items')?.items?.length} {ritual.rewards.find(r => r.type === 'items')?.items?.length === 1 ? 'Item' : 'Items'}
                                           </span>
                                         </div>
                                       )}
-                                      {ritual.rewards.unlocksRituals && ritual.rewards.unlocksRituals.length > 0 && (
+                                      {ritual.rewards.find(r => r.type === 'unlocksRituals') && (
                                         <div className="ritual-reward special">
                                           <span className="reward-icon">📜</span>
                                           <span className="reward-text">Unlocks New Rituals</span>
