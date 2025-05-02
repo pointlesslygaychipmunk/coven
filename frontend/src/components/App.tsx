@@ -1,6 +1,27 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, Component, ReactNode } from 'react';
 import './App.css';
 import { GameState, Season, InventoryItem, GardenSlot, WeatherFate, AtelierSpecialization } from 'coven-shared';
+
+// ErrorBoundary class component to catch render errors
+class ErrorBoundary extends Component<{ fallback: ReactNode, children?: ReactNode }> {
+  state = { hasError: false, error: null };
+  
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  
+  componentDidCatch(error: any, info: any) {
+    console.error("Caught error in Error Boundary:", error, info);
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 // Import Components
@@ -632,65 +653,91 @@ const App: React.FC = () => {
                             {gameState && currentPlayer ? (
                                 <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
                                     <div className="view-container">
+                                        {/* Debug info - helps identify render loop source */}
+                                        <div style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px', fontSize: '10px', maxWidth: '300px', zIndex: 9999 }}>
+                                            View: {currentView} | 
+                                            Transition: {pageTransition.toString()} | 
+                                            Loading: {loading.toString()}
+                                        </div>
+                                        
                                         {/* Online players display */}
                                         {useMultiplayer && (
                                             <OnlinePlayers showDetailed={false} />
                                         )}
                                         
-                                        {/* Render current view - Only render the active view */}
-                                        {currentView === 'garden' && (
-                                            <Garden
-                                                plots={currentPlayer.garden as GardenSlot[]}
-                                                inventory={currentPlayer.inventory as InventoryItem[]}
-                                                onPlant={plantSeed}
-                                                onHarvest={harvestPlant}
-                                                onWater={waterPlants}
-                                                weatherFate={gameState.time.weatherFate}
-                                                season={gameState.time.season as Season}
-                                            />
-                                        )}
-                                        {currentView === 'brewing' && (
-                                            <Brewing
-                                                playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                                knownRecipes={gameState.knownRecipes || []}
-                                                lunarPhase={gameState.time.phaseName}
-                                                playerSpecialization={currentPlayer.atelierSpecialization}
-                                                onBrew={brewPotion}
-                                            />
-                                        )}
-                                        {currentView === 'atelier' && (
-                                            <Atelier
-                                                playerItems={currentPlayer.inventory as InventoryItem[]}
-                                                onCraftItem={(ingredientIds, resultItemId) => console.log('Craft action TBD', ingredientIds, resultItemId)}
-                                                lunarPhase={gameState.time.phaseName}
-                                                playerLevel={currentPlayer.atelierLevel}
-                                                playerSpecialization={currentPlayer.atelierSpecialization}
-                                                knownRecipes={gameState.knownRecipes || []}
-                                            />
-                                        )}
-                                        {currentView === 'market' && (
-                                            <Market
-                                                playerGold={currentPlayer.gold}
-                                                playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                                marketItems={gameState.market}
-                                                rumors={gameState.rumors}
-                                                townRequests={gameState.townRequests}
-                                                blackMarketAccess={currentPlayer.blackMarketAccess}
-                                                onBuyItem={buyItem}
-                                                onSellItem={sellItem}
-                                                onFulfillRequest={fulfillRequest}
-                                            />
-                                        )}
-                                        {currentView === 'journal' && (
-                                            <Journal
-                                                journal={gameState.journal}
-                                                rumors={gameState.rumors}
-                                                rituals={gameState.rituals}
-                                                time={gameState.time}
-                                                player={currentPlayer}
-                                                onClaimRitual={claimRitualReward}
-                                            />
-                                        )}
+                                        {/* Render current view with Error Boundaries */}
+                                        <ErrorBoundary fallback={<div style={{color: 'white'}}>Error rendering {currentView}</div>}>
+                                            {(() => {
+                                                // Use IIFE to isolate rendering logic
+                                                try {
+                                                    switch(currentView) {
+                                                        case 'garden':
+                                                            return (
+                                                                <Garden
+                                                                    plots={currentPlayer.garden as GardenSlot[]}
+                                                                    inventory={currentPlayer.inventory as InventoryItem[]}
+                                                                    onPlant={plantSeed}
+                                                                    onHarvest={harvestPlant}
+                                                                    onWater={waterPlants}
+                                                                    weatherFate={gameState.time.weatherFate}
+                                                                    season={gameState.time.season as Season}
+                                                                />
+                                                            );
+                                                        case 'brewing':
+                                                            return (
+                                                                <Brewing
+                                                                    playerInventory={currentPlayer.inventory as InventoryItem[]}
+                                                                    knownRecipes={gameState.knownRecipes || []}
+                                                                    lunarPhase={gameState.time.phaseName}
+                                                                    playerSpecialization={currentPlayer.atelierSpecialization}
+                                                                    onBrew={brewPotion}
+                                                                />
+                                                            );
+                                                        case 'atelier':
+                                                            return (
+                                                                <Atelier
+                                                                    playerItems={currentPlayer.inventory as InventoryItem[]}
+                                                                    onCraftItem={(ingredientIds, resultItemId) => console.log('Craft action TBD', ingredientIds, resultItemId)}
+                                                                    lunarPhase={gameState.time.phaseName}
+                                                                    playerLevel={currentPlayer.atelierLevel}
+                                                                    playerSpecialization={currentPlayer.atelierSpecialization}
+                                                                    knownRecipes={gameState.knownRecipes || []}
+                                                                />
+                                                            );
+                                                        case 'market':
+                                                            return (
+                                                                <Market
+                                                                    playerGold={currentPlayer.gold}
+                                                                    playerInventory={currentPlayer.inventory as InventoryItem[]}
+                                                                    marketItems={gameState.market}
+                                                                    rumors={gameState.rumors}
+                                                                    townRequests={gameState.townRequests}
+                                                                    blackMarketAccess={currentPlayer.blackMarketAccess}
+                                                                    onBuyItem={buyItem}
+                                                                    onSellItem={sellItem}
+                                                                    onFulfillRequest={fulfillRequest}
+                                                                />
+                                                            );
+                                                        case 'journal':
+                                                            return (
+                                                                <Journal
+                                                                    journal={gameState.journal}
+                                                                    rumors={gameState.rumors}
+                                                                    rituals={gameState.rituals}
+                                                                    time={gameState.time}
+                                                                    player={currentPlayer}
+                                                                    onClaimRitual={claimRitualReward}
+                                                                />
+                                                            );
+                                                        default:
+                                                            return <div style={{color: 'white'}}>Invalid view: {currentView}</div>;
+                                                    }
+                                                } catch (err) {
+                                                    console.error('Error rendering view:', err);
+                                                    return <div style={{color: 'white'}}>Error rendering view</div>;
+                                                }
+                                            })()}
+                                        </ErrorBoundary>
                                     </div>
                                 </main>
                             ) : (
