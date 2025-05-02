@@ -3,7 +3,7 @@
 
 // Use package name import
 import { AtelierSpecialization, ItemCategory, ItemType, Season, MoonPhase } from "coven-shared";
-import type { Skills, InventoryItem } from "coven-shared";
+import type { Skills } from "coven-shared";
 
 // Full specialization details interface (can stay local to backend)
 export interface AtelierSpecializationDetails {
@@ -1002,7 +1002,6 @@ export function getSubSpecializations(
 export function processCrafting(
   specialization: AtelierSpecialization | undefined,
   atelierLevel: number,
-  ingredients: InventoryItem[],
   recipeId: string,
   upgradePathId?: string,
   activeSubSpecializations: string[] = [],
