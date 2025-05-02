@@ -156,63 +156,10 @@ const App: React.FC = () => {
     useEffect(() => {
         console.log('Fetching initial state, useMultiplayer:', useMultiplayer);
         
-        // Create a mock game state for testing/development
-        const mockGameState: GameState = {
-            currentPlayerIndex: 0,
-            version: "1.0.0",
-            players: [
-                {
-                    id: "player1",
-                    name: "Test Witch",
-                    gold: 100,
-                    mana: 50,
-                    reputation: 50,
-                    atelierLevel: 1,
-                    atelierSpecialization: "Essence",
-                    garden: [],
-                    inventory: [],
-                    blackMarketAccess: false,
-                    skills: {
-                        gardening: 1,
-                        brewing: 1,
-                        trading: 1,
-                        crafting: 1,
-                        herbalism: 1,
-                        astrology: 1
-                    },
-                    knownRecipes: [],
-                    completedRituals: [],
-                    journalEntries: [],
-                    questsCompleted: 0,
-                    lastActive: Date.now()
-                }
-            ],
-            market: [],
-            marketData: {
-                inflation: 1.0,
-                demand: {},
-                supply: {},
-                volatility: 0.1,
-                blackMarketAccessCost: 500,
-                blackMarketUnlocked: false,
-                tradingVolume: 0
-            },
-            rumors: [],
-            townRequests: [],
-            journal: [],
-            rituals: [],
-            events: [],
-            knownRecipes: [],
-            time: {
-                year: 1,
-                dayCount: 1,
-                phaseName: "Full Moon",
-                phase: 0,
-                season: "Spring",
-                weatherFate: "clear"
-            }
-        };
+        // Get the mock state from our stable reference function
+        const mockGameState = createMockGameState();
         
+        // Define fetchInitialState inside the effect to avoid dependencies
         const fetchInitialState = async () => {
             try {
                 // Increment fetch attempt counter
@@ -223,7 +170,10 @@ const App: React.FC = () => {
                 const initialState = await apiCall('/state');
                 console.log('Received state from API');
                 setGameState(initialState);
-                setError(null);
+                // Only clear error if we have one
+                if (error !== null) {
+                    setError(null);
+                }
             } catch (err) {
                 console.error('Error fetching initial game state:', err);
                 // Use mock data instead of failing
@@ -255,7 +205,7 @@ const App: React.FC = () => {
         return () => {
             console.log('Cleaning up fetch effect');
         };
-    }, [useMultiplayer, showLobby]);
+    }, [useMultiplayer, showLobby, createMockGameState]);
 
     // --- Action Handlers ---
     // Use a ref for tracking the last action to avoid re-renders
@@ -282,7 +232,10 @@ const App: React.FC = () => {
                     if (!newState) return prevState;
                     return newState;
                 });
-                setError(null); // Clear previous errors
+                // Only set error to null if we have one
+                if (error !== null) {
+                    setError(null);
+                }
             } else {
                 console.log(`[Action Skipped] ${actionId}: Action was superseded`);
             }
@@ -482,70 +435,15 @@ const App: React.FC = () => {
     console.log('Exited loading check, rendering main UI');
 
     // We'll directly render error display in the render logic instead of as separate components
-
+    
     // Handler for entering the game from the lobby
     const handleEnterGame = useCallback(() => {
         console.log('Entering game from lobby');
         
         // Create a mock game state for testing if we don't have one yet
         if (!gameState) {
-            const mockGameState: GameState = {
-                currentPlayerIndex: 0,
-                version: "1.0.0",
-                players: [
-                    {
-                        id: "player1",
-                        name: "Test Witch",
-                        gold: 100,
-                        mana: 50,
-                        reputation: 50,
-                        atelierLevel: 1,
-                        atelierSpecialization: "Essence",
-                        garden: [],
-                        inventory: [],
-                        blackMarketAccess: false,
-                        skills: {
-                            gardening: 1,
-                            brewing: 1,
-                            trading: 1,
-                            crafting: 1,
-                            herbalism: 1,
-                            astrology: 1
-                        },
-                        knownRecipes: [],
-                        completedRituals: [],
-                        journalEntries: [],
-                        questsCompleted: 0,
-                        lastActive: Date.now()
-                    }
-                ],
-                market: [],
-                marketData: {
-                    inflation: 1.0,
-                    demand: {},
-                    supply: {},
-                    volatility: 0.1,
-                    blackMarketAccessCost: 500,
-                    blackMarketUnlocked: false,
-                    tradingVolume: 0
-                },
-                rumors: [],
-                townRequests: [],
-                journal: [],
-                rituals: [],
-                events: [],
-                knownRecipes: [],
-                time: {
-                    year: 1,
-                    dayCount: 1,
-                    phaseName: "Full Moon",
-                    phase: 0,
-                    season: "Spring",
-                    weatherFate: "clear"
-                }
-            };
-            
-            setGameState(mockGameState);
+            const mockState = createMockGameState();
+            setGameState(mockState);
         }
         
         // Hide the lobby first
@@ -556,7 +454,43 @@ const App: React.FC = () => {
             setLoading(false);
             console.log('Loading disabled after entering game');
         }, 500);
-    }, [gameState]);
+    }, [gameState, createMockGameState]);
+    
+    // Create a stable reference to the mockGameState creator to avoid re-renders
+    const createMockGameState = useCallback(() => {
+        console.log('Creating fallback game state');
+        return {
+            currentPlayerIndex: 0,
+            version: "1.0.0",
+            players: [{
+                id: "fallback",
+                name: "Fallback Witch",
+                gold: 500,
+                mana: 500,
+                reputation: 50,
+                atelierLevel: 5,
+                atelierSpecialization: "Essence",
+                garden: [],
+                inventory: [],
+                blackMarketAccess: false,
+                skills: { gardening: 5, brewing: 5, trading: 5, crafting: 5, herbalism: 5, astrology: 5 },
+                knownRecipes: [],
+                completedRituals: [],
+                journalEntries: [],
+                questsCompleted: 0,
+                lastActive: Date.now()
+            }],
+            market: [],
+            marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: false, tradingVolume: 0 },
+            rumors: [],
+            townRequests: [],
+            journal: [],
+            rituals: [],
+            events: [],
+            knownRecipes: [],
+            time: { year: 1, dayCount: 1, phaseName: "Full Moon", phase: 0, season: "Spring", weatherFate: "clear" }
+        };
+    }, []);
     
     // Monitor key state changes and cleanup timers
     useEffect(() => {
@@ -574,38 +508,8 @@ const App: React.FC = () => {
                 
                 // If we don't have game state yet, create mock state
                 if (!gameState) {
-                    console.log('Creating fallback game state');
-                    setGameState({
-                        currentPlayerIndex: 0,
-                        version: "1.0.0",
-                        players: [{
-                            id: "fallback",
-                            name: "Fallback Witch",
-                            gold: 500,
-                            mana: 500,
-                            reputation: 50,
-                            atelierLevel: 5,
-                            atelierSpecialization: "Essence",
-                            garden: [],
-                            inventory: [],
-                            blackMarketAccess: false,
-                            skills: { gardening: 5, brewing: 5, trading: 5, crafting: 5, herbalism: 5, astrology: 5 },
-                            knownRecipes: [],
-                            completedRituals: [],
-                            journalEntries: [],
-                            questsCompleted: 0,
-                            lastActive: Date.now()
-                        }],
-                        market: [],
-                        marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: false, tradingVolume: 0 },
-                        rumors: [],
-                        townRequests: [],
-                        journal: [],
-                        rituals: [],
-                        events: [],
-                        knownRecipes: [],
-                        time: { year: 1, dayCount: 1, phaseName: "Full Moon", phase: 0, season: "Spring", weatherFate: "clear" }
-                    });
+                    const mockState = createMockGameState();
+                    setGameState(mockState);
                 }
             }
         }, 5000);
@@ -637,7 +541,7 @@ const App: React.FC = () => {
             console.log('App unmounted, cleaning up all timers');
             timers.forEach(timer => clearTimeout(timer));
         };
-    }, [loading, gameState]);
+    }, [loading, gameState, createMockGameState]);
 
     // Stable references to functions to prevent unnecessary renders
     const renderOptimizedEffect = useCallback((weatherType: WeatherFate, intensity: string, phase: string, season: Season) => {
