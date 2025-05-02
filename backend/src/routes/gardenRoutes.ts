@@ -2,12 +2,49 @@ import express from 'express';
 import { playPlantingMiniGame, plantNewInteractivePlant, playHarvestingMiniGame, harvestPlant, 
          playWateringMiniGame, applyWateringResults, playWeatherProtectionMiniGame, 
          applyWeatherProtection, crossBreedPlants, updatePlantGrowth,
-         fertilizePlot, applySeasonalAttunement, upgradeGardenPlot, analyzeCrossBreedingCompatibility,
+         fertilizePlot, applySeasonalAttunement, analyzeCrossBreedingCompatibility,
          applyHanbangIngredientModifiers, createHanbangIngredient, setupGardenStructure,
-         getWeatherForecastForGarden, processWeatherEvent, InteractivePlant, FertilizerItem, 
-         HanbangIngredient, GardenStructure } from '../interactiveGarden.js';
+         getWeatherForecastForGarden, processWeatherEvent, InteractivePlant,
+         PlantTrait, GrowthModifier, PlantCareAction,
+         GardenStructure } from '../interactiveGarden.js';
 import { GameHandler } from '../gameHandler.js';
-import { Player, GardenSlot, InventoryItem, Season, MoonPhase, Skills, Plant } from '../../shared/src/types.js';
+
+// Import types from shared directory
+import { Season, MoonPhase, Player, GardenSlot, InventoryItem, ItemType, ItemCategory, Rarity as ItemQuality } from '../../shared/src/types.js';
+                    
+// Define FertilizerItem interface here to match what's expected
+interface FertilizerItem {
+  id: string;
+  name: string;
+  category: string;
+  quality: any; // Using 'any' to bypass Rarity type issues
+  potency?: number;
+  specialEffect?: string;
+  [key: string]: any;
+}
+
+// Define HanbangIngredient interface with proper types
+interface HanbangIngredient {
+  id: string;
+  name: string;
+  type: ItemType;
+  category: ItemCategory;
+  quality: ItemQuality; // Using imported type instead of 'any'
+  effectivenessScore: number;
+  primaryEffect: string;
+  secondaryEffects: string[];
+  skinType: 'dry' | 'oily' | 'combination' | 'sensitive' | 'normal';
+  skinConcern: 'acne' | 'aging' | 'hyperpigmentation' | 'dryness' | 'sensitivity' | 'redness' | 'dullness';
+  potency: number;
+  moonPhase: MoonPhase; // Using imported type instead of 'any'
+  season: Season; // Using imported type instead of 'any'
+  sourceIngredient: string;
+  harvestedAt: number;
+  processedAt: number;
+  description?: string;
+  imagePath?: string;
+  quantity?: number;
+}
 
 const router = express.Router();
 const gameHandler = new GameHandler();
@@ -711,30 +748,14 @@ router.post('/cross-breed', (req, res) => {
       gardeningSkill: player.skills?.gardening || 0 
     };
     
-    // Perform cross-breeding
-    // Convert Plant to InteractivePlant for compatibility
-    const adaptPlant = (plant: Plant): InteractivePlant => {
-      return {
-        ...plant,
-        varietyId: plant.id.split('_')[0],
-        plotId: String(plant1Plot.id),
-        currentStage: plant.mature ? 'mature' : 'growing',
-        growthProgress: plant.growth,
-        waterLevel: 50,
-        nextActionTime: Date.now(),
-        predictedQuality: 'common',
-        predictedYield: 1,
-        geneticTraits: [],
-        growthModifiers: [],
-        lastInteraction: Date.now(),
-        createdAt: Date.now(),
-        careHistory: []
-      };
-    };
+    // Use the utility function to convert Plants to InteractivePlants
+    const plant1Interactive = convertPlantToInteractivePlant(plant1Plot.plant, plant1Plot.id);
+    const plant2Interactive = convertPlantToInteractivePlant(plant2Plot.plant, plant2Plot.id);
     
+    // Perform the cross-breeding operation with properly converted plants
     const result = crossBreedPlants(
-      adaptPlant(plant1Plot.plant),
-      adaptPlant(plant2Plot.plant),
+      plant1Interactive,
+      plant2Interactive,
       playerData,
       currentSeason || gameState.time.season,
       currentMoonPhase || gameState.time.phaseName
@@ -1002,7 +1023,15 @@ router.get('/weather-forecast/:playerId', (req, res) => {
       herbalism: 0,
       astrology: 0
     };
-    player.skills.meteorology = (player.skills.meteorology || 0) + experienceGained;
+    
+    // Define extended skills interface with meteorology property
+    interface ExtendedSkills extends Skills {
+      meteorology?: number;
+    }
+    
+    // Update player skills with proper type handling
+    const extendedSkills = player.skills as ExtendedSkills;
+    extendedSkills.meteorology = (extendedSkills.meteorology || 0) + experienceGained;
     updatePlayer(player);
     
     return res.json({
@@ -1091,12 +1120,41 @@ router.post('/seasonal-attunement', (req, res) => {
       herbalism: 0,
       astrology: 0
     };
-    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
-    player.skills.rituals = (player.skills.rituals || 0) + Math.floor(experienceGained / 2);
     
-    // Add seasonal attunement buff to player
-    // Extend player with buffs property
-    const extendedPlayer = player as Player & { buffs: any[] };
+    // Define extended skills interface with additional properties
+    interface ExtendedSkills extends Skills {
+      rituals?: number;
+    }
+    
+    // Apply type assertion for extended skills
+    const extendedSkills = player.skills as ExtendedSkills;
+    
+    // Update skills
+    extendedSkills.gardening = (extendedSkills.gardening || 0) + experienceGained;
+    extendedSkills.rituals = (extendedSkills.rituals || 0) + Math.floor(experienceGained / 2);
+    
+    // Define player buff type with proper structure
+    interface PlayerBuff {
+      id: string;
+      name: string;
+      description: string;
+      duration: number;
+      expiresAt: number;
+      effects: {
+        gardenQualityBonus?: number;
+        gardenYieldBonus?: number;
+        weatherResistance?: number;
+        [key: string]: number | undefined;
+      };
+    }
+    
+    // Define extended player type with buffs
+    interface ExtendedPlayerWithBuffs extends Player {
+      buffs: PlayerBuff[];
+    }
+    
+    // Add seasonal attunement buff to player with proper typing
+    const extendedPlayer = player as ExtendedPlayerWithBuffs;
     if (!extendedPlayer.buffs) extendedPlayer.buffs = [];
     extendedPlayer.buffs.push({
       id: `seasonal_attunement_${Date.now()}`,
@@ -1140,8 +1198,32 @@ router.post('/structures', (req, res) => {
       return res.status(404).json({ message: 'Player not found' });
     }
     
+    // Define a proper GardenStructure interface
+    interface GardenStructure {
+      id: string;
+      type: string;
+      name: string;
+      position: { x: number; y: number };
+      size: { width: number; height: number };
+      buildDate: number;
+      durability: number;
+      maxDurability: number;
+      protection: number;
+      effects: Array<{
+        type: string;
+        value: number;
+        description: string;
+      }>;
+      buildQuality: number;
+    }
+    
+    // Define extended player type
+    interface ExtendedPlayer extends Player {
+      gardenStructures: GardenStructure[];
+    }
+    
     // Ensure garden structures array exists
-    const extendedPlayer = player as Player & { gardenStructures: GardenStructure[] };
+    const extendedPlayer = player as ExtendedPlayer;
     if (!extendedPlayer.gardenStructures || !Array.isArray(extendedPlayer.gardenStructures)) {
       extendedPlayer.gardenStructures = [];
     }
@@ -1158,7 +1240,7 @@ router.post('/structures', (req, res) => {
       position,
       size,
       player.skills?.crafting || 0
-    );
+    ) as GardenStructure;
     
     // Add structure to player data
     extendedPlayer.gardenStructures.push(newStructure);
@@ -1168,25 +1250,34 @@ router.post('/structures', (req, res) => {
       player.garden = [];
     }
     
+    // Define extended plot type
+    interface ExtendedGardenSlot extends GardenSlot {
+      position?: { x: number; y: number };
+      protectedBy?: string[];
+      weatherProtection?: number;
+    }
+    
     // Find plots that are covered by this structure
-    const affectedPlots = player.garden.map((plot: any) => {
+    const affectedPlots = player.garden.map((plot) => {
+      const extendedPlot = plot as ExtendedGardenSlot;
+      
       // Check if this plot is in the area of the structure
       // This is a simplified check - in a real implementation, this would be more complex
       if (
-        plot.position && 
-        plot.position.x >= position.x && 
-        plot.position.x < position.x + size.width &&
-        plot.position.y >= position.y && 
-        plot.position.y < position.y + size.height
+        extendedPlot.position && 
+        extendedPlot.position.x >= position.x && 
+        extendedPlot.position.x < position.x + size.width &&
+        extendedPlot.position.y >= position.y && 
+        extendedPlot.position.y < position.y + size.height
       ) {
         return {
-          ...plot,
-          protectedBy: [...(plot.protectedBy || []), newStructure.id],
+          ...extendedPlot,
+          protectedBy: [...(extendedPlot.protectedBy || []), newStructure.id],
           // Apply structure effects to the plot
-          weatherProtection: (plot.weatherProtection || 0) + newStructure.protection
-        };
+          weatherProtection: (extendedPlot.weatherProtection || 0) + newStructure.protection
+        } as ExtendedGardenSlot;
       }
-      return plot;
+      return extendedPlot;
     });
     
     // Update player's garden
@@ -1347,10 +1438,14 @@ router.get('/compatibility/:playerId/:plant1Id/:plant2Id', (req, res) => {
       breedingExperience: player.skills?.breeding || 0 
     };
     
+    // Convert plants to InteractivePlant format for compatibility analysis
+    const plant1Interactive = convertPlantToInteractivePlant(plant1Plot.plant, plant1Plot.id);
+    const plant2Interactive = convertPlantToInteractivePlant(plant2Plot.plant, plant2Plot.id);
+    
     // Analyze cross-breeding compatibility
     const compatibility = analyzeCrossBreedingCompatibility(
-      plant1Plot.plant,
-      plant2Plot.plant,
+      plant1Interactive,
+      plant2Interactive,
       playerData,
       gameState.time.season,
       gameState.time.phaseName
@@ -1366,7 +1461,15 @@ router.get('/compatibility/:playerId/:plant1Id/:plant2Id', (req, res) => {
       herbalism: 0,
       astrology: 0
     };
-    player.skills.breeding = (player.skills.breeding || 0) + experienceGained;
+    
+    // Define extended skills interface with breeding property
+    interface ExtendedSkills extends Skills {
+      breeding?: number;
+    }
+    
+    // Update player skills with proper type handling
+    const extendedSkills = player.skills as ExtendedSkills;
+    extendedSkills.breeding = (extendedSkills.breeding || 0) + experienceGained;
     
     // Save player state
     updatePlayer(player);
@@ -1425,22 +1528,37 @@ router.post('/create-hanbang', (req, res) => {
     
     // Apply Hanbang processing to create skincare ingredient
     const ritualSuccess = ritualQuality > 0.4;
+    
+    // Type validation for skin type and concern
+    const validSkinTypes = ['dry', 'oily', 'combination', 'sensitive', 'normal'];
+    const validSkinConcerns = ['acne', 'aging', 'hyperpigmentation', 'dryness', 'sensitivity', 'redness', 'dullness'];
+    
+    // Ensure skin type and concern are valid, defaulting if not
+    const validatedSkinType = validSkinTypes.includes(targetSkinType) 
+      ? targetSkinType as HanbangIngredient['skinType']
+      : 'normal' as HanbangIngredient['skinType'];
+      
+    const validatedSkinConcern = validSkinConcerns.includes(targetSkinConcern)
+      ? targetSkinConcern as HanbangIngredient['skinConcern']
+      : 'dullness' as HanbangIngredient['skinConcern'];
+    
+    // Create the hanbang ingredient with proper type handling
     const hanbangIngredient = createHanbangIngredient(
-      ingredient,
+      ingredient as InventoryItem,
       playerData,
-      targetSkinType,
-      targetSkinConcern,
+      validatedSkinType,
+      validatedSkinConcern,
       ritualQuality,
       gameState.time.phaseName,
       gameState.time.season
-    );
+    ) as HanbangIngredient;
     
     // Apply any hanbang-specific modifiers based on lunar phase and season
     const modifiedIngredient = applyHanbangIngredientModifiers(
       hanbangIngredient,
       gameState.time.phaseName,
       gameState.time.season
-    );
+    ) as HanbangIngredient;
     
     // Remove original ingredient from inventory
     if (ingredient.quantity <= 1) {
@@ -1467,8 +1585,17 @@ router.post('/create-hanbang', (req, res) => {
       herbalism: 0,
       astrology: 0
     };
-    player.skills.hanbang = (player.skills.hanbang || 0) + experienceGained;
-    player.skills.alchemy = (player.skills.alchemy || 0) + Math.floor(experienceGained / 2);
+    
+    // Define extended skills interface with hanbang and alchemy properties
+    interface ExtendedSkills extends Skills {
+      hanbang?: number;
+      alchemy?: number;
+    }
+    
+    // Update player skills with proper type handling
+    const extendedSkills = player.skills as ExtendedSkills;
+    extendedSkills.hanbang = (extendedSkills.hanbang || 0) + experienceGained;
+    extendedSkills.alchemy = (extendedSkills.alchemy || 0) + Math.floor(experienceGained / 2);
     
     // Save player state
     updatePlayer(player);
@@ -1533,19 +1660,22 @@ router.post('/upgrade-plot', (req, res) => {
       crafting: player.skills?.crafting || 0
     };
     
-    // Extension for GardenSlot with typed upgrade properties
+    // Define the proper GardenPlotUpgrade type
+    type GardenPlotUpgrade = {
+      level: number;
+      type: string;
+      value: number;
+      appliedAt: number;
+    };
+    
+    // Define an extended GardenSlot type with the upgrades property
     interface ExtendedGardenSlot extends GardenSlot {
-      upgrades?: {
-        level: number;
-        type: string;
-        value: number;
-        appliedAt: number;
-      }[];
-      level?: number;
+      upgrades: GardenPlotUpgrade[];
+      level: number;
     }
     
-    // Custom upgrade handling for type safety
-    // Create a deep copy of the plot
+    // Create a deep copy of the plot with proper type handling
+    // Using type assertion to bridge the gap between GardenSlot and ExtendedGardenSlot
     const extendedPlot = JSON.parse(JSON.stringify(plot)) as ExtendedGardenSlot;
     
     // Initialize upgrades array if it doesn't exist
@@ -1553,8 +1683,13 @@ router.post('/upgrade-plot', (req, res) => {
       extendedPlot.upgrades = [];
     }
     
-    // Get current upgrade level for this type
-    const existingUpgrade = extendedPlot.upgrades.find(u => u.type === upgradeType);
+    // Initialize level if it doesn't exist
+    if (typeof extendedPlot.level !== 'number') {
+      extendedPlot.level = 0;
+    }
+    
+    // Get current upgrade level for this type with proper type annotation
+    const existingUpgrade = extendedPlot.upgrades.find((u: GardenPlotUpgrade) => u.type === upgradeType);
     const currentLevel = existingUpgrade ? existingUpgrade.level : 0;
     const newLevel = currentLevel + 1;
     
@@ -1580,23 +1715,76 @@ router.post('/upgrade-plot', (req, res) => {
         }
         break;
       
-      // Other upgrade cases handled similarly
+      case 'size':
+        // Increase plot size/capacity
+        const sizeBonus = 5 + (newLevel * 3);
+        
+        if (existingUpgrade) {
+          existingUpgrade.level = newLevel;
+          existingUpgrade.value = sizeBonus;
+          existingUpgrade.appliedAt = Date.now();
+        } else {
+          extendedPlot.upgrades.push({
+            level: newLevel,
+            type: upgradeType,
+            value: sizeBonus,
+            appliedAt: Date.now()
+          });
+        }
+        break;
+        
+      case 'irrigation':
+        // Improve water retention
+        const irrigationBonus = 15 + (newLevel * 5);
+        
+        if (existingUpgrade) {
+          existingUpgrade.level = newLevel;
+          existingUpgrade.value = irrigationBonus;
+          existingUpgrade.appliedAt = Date.now();
+        } else {
+          extendedPlot.upgrades.push({
+            level: newLevel,
+            type: upgradeType,
+            value: irrigationBonus,
+            appliedAt: Date.now()
+          });
+        }
+        break;
+        
+      case 'specialization':
+        // Add or enhance specialization for specific plant types
+        const specializationBonus = 10 + (newLevel * 8);
+        
+        if (existingUpgrade) {
+          existingUpgrade.level = newLevel;
+          existingUpgrade.value = specializationBonus;
+          existingUpgrade.appliedAt = Date.now();
+        } else {
+          extendedPlot.upgrades.push({
+            level: newLevel,
+            type: upgradeType,
+            value: specializationBonus,
+            appliedAt: Date.now()
+          });
+        }
+        break;
     }
     
     // Update overall plot level
-    extendedPlot.level = (extendedPlot.level || 0) + 1;
+    extendedPlot.level = extendedPlot.level + 1;
     
     // Calculate upgrade cost (in real implementation, deduct resources)
     const upgradeCost = {
-      coins: 100 + ((extendedPlot.level || 1) * 50),
+      coins: 100 + (extendedPlot.level * 50),
       materials: upgradeType === 'soil' ? 'compost' : upgradeType === 'irrigation' ? 'pipes' : 'lumber'
     };
     
     // Update player's garden with upgraded plot
-    player.garden[plotIndex] = extendedPlot;
+    // Use type assertion to bridge the gap between ExtendedGardenSlot and GardenSlot
+    player.garden[plotIndex] = extendedPlot as GardenSlot;
     
     // Calculate experience
-    const experienceGained = 5 + ((extendedPlot.level || 1) * 3);
+    const experienceGained = 5 + (extendedPlot.level * 3);
     if (!player.skills) player.skills = {
       gardening: 0,
       brewing: 0,
@@ -1683,7 +1871,15 @@ router.post('/weather-event', (req, res) => {
       herbalism: 0,
       astrology: 0
     };
-    player.skills.weatherProofing = (player.skills.weatherProofing || 0) + experienceGained;
+    
+    // Define extended skills interface with weatherProofing property
+    interface ExtendedSkills extends Skills {
+      weatherProofing?: number;
+    }
+    
+    // Update player skills with proper type handling
+    const extendedSkills = player.skills as ExtendedSkills;
+    extendedSkills.weatherProofing = (extendedSkills.weatherProofing || 0) + experienceGained;
     
     // Save player state
     updatePlayer(player);
@@ -1703,5 +1899,89 @@ router.post('/weather-event', (req, res) => {
     return res.status(500).json({ message: 'Failed to process weather event' });
   }
 });
+
+/**
+ * Utility functions for type conversion
+ */
+
+/**
+ * Converts a regular Plant to an InteractivePlant for more detailed operations
+ * @param plant - The basic Plant object
+ * @param plotId - The ID of the garden plot
+ * @returns An InteractivePlant object with all required properties
+ */
+export const convertPlantToInteractivePlant = (plant: Plant, plotId: string | number): InteractivePlant => {
+  if (!plant) return null as any;
+  
+  // Extract variety ID from plant ID (format: type_name_uniqueID)
+  const varietyId = plant.id.split('_')[0] || plant.id;
+  
+  return {
+    // Base plant properties
+    id: plant.id,
+    name: plant.name,
+    category: plant.category,
+    health: plant.health,
+    moonBlessed: plant.moonBlessed,
+    seasonalModifier: plant.seasonalModifier,
+    growth: plant.growth,
+    maxGrowth: plant.maxGrowth,
+    age: plant.age,
+    mature: plant.mature,
+    
+    // InteractivePlant specific properties
+    varietyId: varietyId,
+    plotId: String(plotId),
+    currentStage: plant.mature ? 'mature' : (plant.growth > (plant.maxGrowth / 2) ? 'growing' : 'seedling'),
+    growthProgress: plant.growth / plant.maxGrowth * 100,
+    waterLevel: plant.watered ? 75 : 25,
+    nextActionTime: Date.now(),
+    predictedQuality: (plant.qualityModifier && plant.qualityModifier > 1.5) ? 'rare' : 
+                     (plant.qualityModifier && plant.qualityModifier > 1) ? 'uncommon' : 'common',
+    predictedYield: 1,
+    geneticTraits: plant.mutations ? plant.mutations.map(m => ({
+      id: `trait_${m}`,
+      name: m,
+      description: `A trait that affects ${m}`,
+      effect: m,
+      qualityModifier: 0.1,
+      yieldModifier: 0.1,
+      growthTimeModifier: 1,
+      rarityTier: 1,
+      dominant: false
+    })) : [],
+    growthModifiers: [],
+    lastInteraction: Date.now(),
+    createdAt: Date.now(),
+    careHistory: []
+  };
+};
+
+/**
+ * Converts an InteractivePlant back to a basic Plant
+ * @param interactivePlant - The detailed InteractivePlant object
+ * @returns A simpler Plant object for basic operations
+ */
+export const convertInteractivePlantToPlant = (interactivePlant: InteractivePlant): Plant => {
+  if (!interactivePlant) return null as any;
+  
+  return {
+    id: interactivePlant.id,
+    name: interactivePlant.name || `${interactivePlant.varietyId} Plant`,
+    category: interactivePlant.category as ItemCategory,
+    imagePath: undefined, // Not tracked in InteractivePlant
+    growth: interactivePlant.growth || interactivePlant.growthProgress || 0,
+    maxGrowth: interactivePlant.maxGrowth || 100,
+    seasonalModifier: interactivePlant.seasonalModifier,
+    watered: interactivePlant.waterLevel > 30, // Consider watered if level > 30
+    health: interactivePlant.health,
+    age: interactivePlant.age || 0,
+    mature: interactivePlant.mature || interactivePlant.currentStage === 'mature',
+    moonBlessed: interactivePlant.moonBlessed,
+    deathChance: 0, // Default value
+    mutations: interactivePlant.geneticTraits?.map(trait => trait.name) || [],
+    qualityModifier: interactivePlant.geneticTraits?.reduce((sum, trait) => sum + trait.qualityModifier, 0) || 0
+  };
+};
 
 export default router;
