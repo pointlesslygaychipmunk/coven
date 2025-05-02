@@ -775,7 +775,7 @@ const SimpleApp: React.FC = () => {
           weatherFate: (gameState as any).weatherControl?.active 
             ? (gameState as any).weatherControl.weather 
             : getRandomWeather() as any,
-        }
+        },
         // Reset weather control after using it
         weatherControl: (gameState as any).weatherControl?.active 
           ? { active: false, weather: null } 
@@ -1621,10 +1621,20 @@ const SimpleApp: React.FC = () => {
                 requiredItems: [
                   { name: "Midnight Nightshade", quantity: 2 }
                 ],
-                rewards: {
-                  mana: 15,
-                  reputation: 3,
-                  gold: 10,
+                rewards: [{
+                  type: 'resource',
+                  resource: 'mana',
+                  amount: 15
+                }, {
+                  type: 'resource',
+                  resource: 'reputation',
+                  amount: 3
+                }, {
+                  type: 'resource',
+                  resource: 'gold',
+                  amount: 10
+                }, {
+                  type: 'items',
                   items: [
                     {
                       id: "shadow-veil",
@@ -1650,9 +1660,13 @@ const SimpleApp: React.FC = () => {
                 requiredItems: [
                   { name: "Moonleaf", quantity: 1 }
                 ],
-                rewards: {
-                  reputation: 5,
-                  unlocksRituals: [
+                rewards: [{
+                  type: 'resource',
+                  resource: 'reputation',
+                  amount: 5
+                }, {
+                  type: 'unlocksRituals',
+                  rituals: [
                     {
                       id: "ritual-4",
                       name: "Verdant Growth",
@@ -1665,9 +1679,11 @@ const SimpleApp: React.FC = () => {
                         { name: "Moonleaf", quantity: 1 },
                         { name: "Witch Hazel", quantity: 1 }
                       ],
-                      rewards: {
-                        reputation: 3
-                      }
+                      rewards: [{
+                        type: 'resource',
+                        resource: 'reputation',
+                        amount: 3
+                      }]
                     }
                   ]
                 }
