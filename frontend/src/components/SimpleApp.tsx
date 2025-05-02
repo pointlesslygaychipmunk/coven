@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import './App.css';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState } from 'react'; // React import needed for JSX
+// Adding a console.log to debug import issues
+console.log('SimpleApp component is being loaded');
+// Make CSS import safe to avoid errors if file doesn't exist
+try {
+  require('./App.css');
+} catch (e) {
+  console.warn('App.css could not be loaded:', e);
+}
 
 const SimpleApp: React.FC = () => {
   const [count, setCount] = useState(0);

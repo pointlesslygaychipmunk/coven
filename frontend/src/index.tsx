@@ -1,5 +1,6 @@
 // frontend/src/index.tsx
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React from 'react'; // Required for JSX transform
 import ReactDOM from 'react-dom/client';
 // Import our simple troubleshooting app
 import SimpleApp from './components/SimpleApp';
@@ -27,12 +28,31 @@ if (!rootElement) {
   throw new Error("Root element '#root' not found.");
 }
 
-// Create the React root
-const root = ReactDOM.createRoot(rootElement);
+// Add a fallback content in case React rendering fails
+console.log('Creating fallback content');
+rootElement.innerHTML = '<div style="padding: 20px; text-align: center;">' +
+  '<p style="color: #e2dbff; font-family: sans-serif;">Loading app...</p>' +
+  '</div>';
 
-// Render the simplified app for troubleshooting
-console.log('Rendering SimpleApp for troubleshooting');
-root.render(
-  // Disabling StrictMode which can cause double rendering during development
-  <SimpleApp />
-);
+try {
+  // Create the React root
+  console.log('Creating React root');
+  const root = ReactDOM.createRoot(rootElement);
+
+  // Render the simplified app for troubleshooting
+  console.log('Rendering SimpleApp for troubleshooting');
+  setTimeout(() => {
+    root.render(
+      // Disabling StrictMode which can cause double rendering during development
+      <SimpleApp />
+    );
+    console.log('Render call completed');
+  }, 100); // Small delay to ensure DOM is ready
+} catch (error) {
+  console.error('Failed to render React component:', error);
+  rootElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #ff857b; font-family: sans-serif;">' +
+    '<h2>React Rendering Error</h2>' +
+    '<p>Failed to render the application. Please check the console for details.</p>' +
+    '<button onclick="window.location.reload()">Reload Page</button>' +
+    '</div>';
+}
