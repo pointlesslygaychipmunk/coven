@@ -1,0 +1,315 @@
+.lobby-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-dos);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  background-color: var(--color-bg-primary);
+}
+
+.lobby-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-primary);
+  background-image: 
+    repeating-linear-gradient(0deg, 
+      rgba(0, 0, 0, 0.1) 0px, 
+      rgba(0, 0, 0, 0.1) 1px, 
+      transparent 1px, 
+      transparent 2px);
+  z-index: -1;
+}
+
+.lobby-content {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  background-color: var(--color-bg-window);
+  border: 2px solid var(--color-border-active);
+  padding: 0;
+  box-shadow: 0 0 30px var(--color-shadow);
+  z-index: 1;
+  overflow: hidden;
+}
+
+.lobby-header {
+  height: 24px;
+  background-color: var(--color-button-bg);
+  color: var(--color-text-highlight);
+  font-family: var(--font-dos);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--color-border-active);
+  text-transform: uppercase;
+  position: relative;
+}
+
+.lobby-title {
+  font-size: 24px;
+  margin: 16px 0;
+  color: var(--color-text-highlight);
+  text-transform: uppercase;
+}
+
+.lobby-subtitle {
+  font-size: 16px;
+  margin-bottom: 24px;
+  color: var(--color-text-secondary);
+}
+
+.lobby-main {
+  padding: 20px;
+  text-align: center;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 8px;
+  background-color: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border-inactive);
+  padding: 8px;
+}
+
+.status-indicator {
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-dos-red);
+  animation: statusBlink 1.5s infinite;
+}
+
+.status-indicator.connecting {
+  background-color: var(--color-dos-yellow);
+}
+
+.status-indicator.connected {
+  background-color: var(--color-dos-bright-green);
+  animation: none;
+}
+
+.status-text {
+  font-size: 16px;
+  font-family: var(--font-dos);
+  color: var(--color-text-primary);
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.name-input {
+  padding: 8px;
+  font-size: 16px;
+  font-family: var(--font-dos);
+  background-color: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border-inactive);
+  color: var(--color-text-primary);
+  width: 100%;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: var(--color-border-active);
+}
+
+.name-input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.join-button {
+  padding: 8px;
+  font-size: 16px;
+  font-family: var(--font-dos);
+  background-color: var(--color-button-bg);
+  border: 2px outset var(--color-border-inactive);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+}
+
+.join-button:hover {
+  background-color: var(--color-button-active);
+  color: var(--color-text-highlight);
+}
+
+.join-button:active {
+  border-style: inset;
+  transform: translateY(1px);
+}
+
+.join-button:disabled {
+  background-color: var(--color-dos-dark-gray);
+  color: var(--color-dos-light-gray);
+  border-color: var(--color-dos-dark-gray);
+  cursor: not-allowed;
+}
+
+.players-online {
+  background-color: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border-inactive);
+  padding: 8px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.players-online h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--color-text-highlight);
+  text-transform: uppercase;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-inactive);
+}
+
+.players-list {
+  list-style: none;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.player-item {
+  padding: 4px 0;
+  font-family: var(--font-dos);
+  display: flex;
+  align-items: center;
+}
+
+.player-item:before {
+  content: "►";
+  margin-right: 8px;
+  color: var(--color-dos-bright-cyan);
+}
+
+.player-name {
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.lobby-footer {
+  font-family: var(--font-dos);
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-tertiary);
+  padding: 8px;
+  border-top: 2px solid var(--color-border-inactive);
+  animation: blinkText 3s infinite;
+}
+
+/* DOS style corner decorations */
+.corner-decoration {
+  position: absolute;
+  font-family: var(--font-dos);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--color-border-active);
+  z-index: 2;
+  white-space: pre;
+}
+
+.corner-decoration.top-left {
+  top: 6px;
+  left: 6px;
+}
+
+.corner-decoration.top-left::before {
+  content: "╔═╗\n║ ║\n╚═╝";
+}
+
+.corner-decoration.top-right {
+  top: 6px;
+  right: 6px;
+}
+
+.corner-decoration.top-right::before {
+  content: "╔═╗\n║ ║\n╚═╝";
+}
+
+.corner-decoration.bottom-left {
+  bottom: 6px;
+  left: 6px;
+}
+
+.corner-decoration.bottom-left::before {
+  content: "╔═╗\n║ ║\n╚═╝";
+}
+
+.corner-decoration.bottom-right {
+  bottom: 6px;
+  right: 6px;
+}
+
+.corner-decoration.bottom-right::before {
+  content: "╔═╗\n║ ║\n╚═╝";
+}
+
+/* DOS style ASCII art */
+.dos-ascii-logo {
+  font-family: var(--font-dos);
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-witch-purple);
+  white-space: pre;
+  margin: 16px auto;
+  display: inline-block;
+  text-align: left;
+}
+
+/* Animations */
+@keyframes statusBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.5; }
+}
+
+@keyframes blinkText {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.7; }
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .lobby-content {
+    width: 95%;
+  }
+  
+  .lobby-title {
+    font-size: 20px;
+  }
+  
+  .lobby-main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lobby-title {
+    font-size: 18px;
+  }
+  
+  .lobby-subtitle {
+    font-size: 14px;
+  }
+  
+  .name-input, 
+  .join-button,
+  .status-text,
+  .player-name {
+    font-size: 14px;
+  }
+}

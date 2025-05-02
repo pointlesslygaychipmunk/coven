@@ -1,27 +1,51 @@
-/* App.css - 90s Fantasy Game Style with Visual Variety */
+/* App.css - 90s DOS Game Style with Improved UI/UX */
 
 /* Global variables */
 :root {
-  --color-wood-dark: #3c2a1a;
-  --color-wood-medium: #4d3520;
-  --color-wood-light: #7a5c3d;
-  --color-parchment: #f4e9d5;
-  --color-parchment-dark: #e8d8c0;
-  --color-metal-dark: #2a2a35;
-  --color-metal-medium: #4a4a55;
-  --color-metal-light: #7a7a85;
-  --color-gem-blue: #3a5e8c;
-  --color-gem-purple: #5e3a8c;
-  --color-gem-red: #8c3a3a;
-  --color-text-dark: #3a2f1d;
-  --color-text-light: #e8d8c0;
-  --color-text-gold: #ffd700;
-  --color-accent-gold: #d4af37;
-  --color-accent-red: #9c2c1a;
-  --color-accent-green: #3c6e2a;
-  --color-accent-blue: #234e6e;
-  --color-accent-purple: #4e2a6e;
+  /* Classic DOS color palette */
+  --color-dos-black: #000000;
+  --color-dos-blue: #0000aa;
+  --color-dos-green: #00aa00;
+  --color-dos-cyan: #00aaaa;
+  --color-dos-red: #aa0000;
+  --color-dos-magenta: #aa00aa;
+  --color-dos-brown: #aa5500;
+  --color-dos-light-gray: #aaaaaa;
+  --color-dos-dark-gray: #555555;
+  --color-dos-bright-blue: #5555ff;
+  --color-dos-bright-green: #55ff55;
+  --color-dos-bright-cyan: #55ffff;
+  --color-dos-bright-red: #ff5555;
+  --color-dos-bright-magenta: #ff55ff;
+  --color-dos-yellow: #ffff55;
+  --color-dos-white: #ffffff;
+  
+  /* Magical witch theme accents */
+  --color-witch-purple: #6a0dad;
+  --color-witch-teal: #008080;
+  --color-witch-moon: #c8c8e8;
+  --color-witch-potion: #8a2be2;
+  
+  /* UI elements */
+  --color-bg-primary: #000088;
+  --color-bg-secondary: #000044;
+  --color-bg-tertiary: #000022;
+  --color-bg-window: #000066;
+  --color-border-active: var(--color-dos-bright-cyan);
+  --color-border-inactive: var(--color-dos-blue);
+  --color-text-primary: var(--color-dos-bright-cyan);
+  --color-text-secondary: var(--color-dos-light-gray);
+  --color-text-highlight: var(--color-dos-yellow);
+  --color-button-bg: var(--color-dos-blue);
+  --color-button-active: var(--color-dos-bright-blue);
+  --color-shadow: rgba(0, 0, 0, 0.7);
+  
   --vh: 1vh; /* Mobile viewport height fix */
+  
+  /* Fonts */
+  --font-dos: 'DOS', 'Perfect DOS VGA 437', 'Fixedsys', monospace;
+  --font-ui: 'DOS', 'Perfect DOS VGA 437', 'Fixedsys', monospace;
+  --font-heading: 'DOS', 'Perfect DOS VGA 437', 'Fixedsys', monospace;
 }
 
 /* Base styles */
@@ -31,13 +55,21 @@
   padding: 0;
 }
 
+@font-face {
+  font-family: 'DOS';
+  src: url('https://cdn.jsdelivr.net/npm/perfect-dos-vga@1.0.0/DOS.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
-  font-family: 'Times New Roman', serif;
-  background-color: #000;
-  color: var(--color-text-dark);
+  font-family: var(--font-dos);
+  background-color: var(--color-dos-black);
+  color: var(--color-text-primary);
   overflow: hidden;
   margin: 0;
   padding: 0;
+  line-height: 1.2;
 }
 
 /* Game container - fills viewport */
@@ -48,38 +80,40 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000;
+  background-color: var(--color-dos-black);
   overflow: hidden;
   position: relative;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-dos);
 }
 
-/* Background texture - ASCII art style */
+/* Background texture - DOS style */
 .game-backdrop {
   position: absolute;
   inset: 0;
-  background-color: #000;
+  background-color: var(--color-bg-primary);
   opacity: 1;
   z-index: 0;
   overflow: hidden;
 }
 
 .game-backdrop::after {
-  content: "· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ";
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  color: #111;
-  opacity: 0.5;
-  white-space: pre-wrap;
-  line-height: 1.6;
-  overflow: hidden;
+  background-image: 
+    repeating-linear-gradient(0deg, 
+      rgba(0, 0, 0, 0.1) 0px, 
+      rgba(0, 0, 0, 0.1) 1px, 
+      transparent 1px, 
+      transparent 2px);
+  opacity: 0.4;
   pointer-events: none;
 }
 
-/* Main game frame - ASCII style border */
+/* Main game frame - DOS window style */
 .game-frame {
   position: relative;
   width: 100%;
@@ -89,38 +123,47 @@ body {
   max-height: calc(var(--vh, 1vh) * 95);
   overflow: hidden;
   display: flex;
-  background-color: #0d0d0d;
-  border: 2px solid #444;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  flex-direction: column;
+  background-color: var(--color-bg-window);
+  border: 2px solid var(--color-border-active);
+  box-shadow: 0 0 30px var(--color-shadow);
   z-index: 1;
+  image-rendering: pixelated;
 }
 
-.game-frame::before {
-  content: "+------------------------------------------------------------------------------------------------------------------------------------------------+";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  color: #5a5a5a;
-  font-family: 'Courier New', monospace;
-  white-space: pre;
-  line-height: 1;
-  font-size: 12px;
-  z-index: 3;
+.dos-window-title {
+  height: 24px;
+  background-color: var(--color-button-bg);
+  color: var(--color-text-highlight);
+  font-family: var(--font-dos);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--color-border-active);
+  text-transform: uppercase;
+  position: relative;
 }
 
-.game-frame::after {
-  content: "+------------------------------------------------------------------------------------------------------------------------------------------------+";
+.dos-window-title::before {
+  content: "════════════ THE WITCH COVEN ════════════";
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  color: #5a5a5a;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-dos);
   white-space: pre;
-  line-height: 1;
-  font-size: 12px;
-  z-index: 3;
+  top: 2px;
+}
+
+.dos-window-statusbar {
+  height: 24px;
+  background-color: var(--color-button-bg);
+  color: var(--color-text-secondary);
+  font-family: var(--font-dos);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-top: 2px solid var(--color-border-active);
 }
 
 /* Main content area */
@@ -130,10 +173,12 @@ body {
   height: 100%;
   overflow: hidden;
   transition: opacity 0.3s ease;
-  background-color: #1a0d00;
-  font-family: 'Courier New', monospace;
-  color: #e0e0e0;
-  font-size: 12px;
+  background-color: var(--color-bg-secondary);
+  font-family: var(--font-dos);
+  color: var(--color-text-primary);
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .game-content.page-transition {
@@ -148,58 +193,146 @@ body {
   z-index: 2;
   overflow: auto;
   scrollbar-width: thin;
-  scrollbar-color: #5a5a5a #1a0d00;
-  padding: 10px;
-  margin-top: 10px; /* Space for the top border */
-  margin-bottom: 10px; /* Space for the bottom border */
+  scrollbar-color: var(--color-dos-dark-gray) var(--color-bg-secondary);
+  padding: 16px;
 }
 
-/* Corner decorations - ASCII art */
-.corner-decoration {
-  position: absolute;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
+/* New DOS style menu bar */
+.dos-menu-bar {
+  display: flex;
+  background-color: var(--color-dos-blue);
+  height: 24px;
+  border-bottom: 2px solid var(--color-border-active);
+}
+
+.dos-menu-item {
+  padding: 0 16px;
+  color: var(--color-dos-white);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.dos-menu-item:hover {
+  background-color: var(--color-dos-bright-blue);
+}
+
+.dos-menu-item.active {
+  background-color: var(--color-dos-bright-blue);
+}
+
+/* DOS style panels */
+.dos-panel {
+  border: 2px solid var(--color-border-active);
+  background-color: var(--color-bg-window);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dos-panel-title {
+  background-color: var(--color-button-bg);
+  color: var(--color-text-highlight);
+  padding: 4px 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 2px solid var(--color-border-active);
+}
+
+.dos-panel-content {
+  padding: 8px;
+  color: var(--color-text-primary);
+}
+
+/* DOS style buttons */
+.dos-button {
+  background-color: var(--color-button-bg);
+  border: 2px outset var(--color-border-inactive);
+  color: var(--color-text-primary);
+  font-family: var(--font-dos);
+  font-size: 16px;
+  padding: 4px 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+}
+
+.dos-button:hover {
+  background-color: var(--color-button-active);
+  color: var(--color-text-highlight);
+}
+
+.dos-button:active {
+  border-style: inset;
+  transform: translateY(1px);
+}
+
+.dos-button:disabled {
+  background-color: var(--color-dos-dark-gray);
+  color: var(--color-dos-light-gray);
+  border-color: var(--color-dos-dark-gray);
+  cursor: not-allowed;
+}
+
+/* ASCII box drawing characters for borders */
+.dos-border {
+  font-family: var(--font-dos);
   line-height: 1;
   white-space: pre;
-  color: #5a5a5a;
+  color: var(--color-border-active);
+}
+
+.dos-border-h {
+  display: block;
+  width: 100%;
+  height: 1px;
+  overflow: hidden;
+  background-color: var(--color-border-active);
+  margin: 8px 0;
+}
+
+.dos-border-v {
+  display: inline-block;
+  width: 1px;
+  height: 100%;
+  background-color: var(--color-border-active);
+  margin: 0 8px;
+}
+
+/* Corner decorations - DOS style */
+.corner-decoration {
+  position: absolute;
+  font-family: var(--font-dos);
+  font-size: 16px;
+  line-height: 1;
+  white-space: pre;
+  color: var(--color-border-active);
   z-index: 10;
   pointer-events: none;
 }
 
 .corner-decoration.top-left {
-  top: 4px;
-  left: 4px;
-}
-
-.corner-decoration.top-left::before {
-  content: "+----+\A|    |\A|    |\A+    |\A |    |\A |    +\A |     \\\A |      \\\A";
+  top: 40px;
+  left: 10px;
 }
 
 .corner-decoration.top-right {
-  top: 4px;
-  right: 4px;
-}
-
-.corner-decoration.top-right::before {
-  content: "+----+\A|    |\A|    |\A|    +\A|    |\A+    |\A/     |\A/      |\A";
+  top: 40px;
+  right: 10px;
 }
 
 .corner-decoration.bottom-left {
-  bottom: 4px;
-  left: 4px;
-}
-
-.corner-decoration.bottom-left::before {
-  content: "\\      |\A \\     |\A |    +\A |    |\A |    |\A+    |\A|    |\A+----+\A";
+  bottom: 40px;
+  left: 10px;
 }
 
 .corner-decoration.bottom-right {
-  bottom: 4px;
-  right: 4px;
-}
-
-.corner-decoration.bottom-right::before {
-  content: "/      |\A/     |\A+    |\A|    |\A|    |\A|    +\A|    |\A+----+\A";
+  bottom: 40px;
+  right: 10px;
 }
 
 /* Loading screen */
@@ -209,179 +342,102 @@ body {
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23000" opacity="0.8"/><path d="M20 0v100M40 0v100M60 0v100M80 0v100M0 20h100M0 40h100M0 60h100M0 80h100" stroke="%23222" stroke-width="1"/></svg>');
+  background-color: var(--color-bg-primary);
   position: relative;
   z-index: 100;
+  font-family: var(--font-dos);
 }
 
-/* Scroll styling for loading and error screens */
-.parchment-scroll {
-  position: relative;
+/* DOS style loading dialog */
+.dos-loading-dialog {
   width: 80%;
-  max-width: 500px;
-  margin: 0 auto;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  max-width: 600px;
+  border: 2px solid var(--color-border-active);
+  background-color: var(--color-bg-window);
+  box-shadow: 0 10px 20px var(--color-shadow);
+  overflow: hidden;
+  position: relative;
 }
 
-.scroll-top {
-  height: 40px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="40" viewBox="0 0 500 40"><path d="M0 40h500V10C500 4.5 495.5 0 490 0H10C4.5 0 0 4.5 0 10v30z" fill="%23f4e9d5"/><path d="M250 0v30" stroke="%23e8d8c0" stroke-width="1"/><path d="M0 15h500M0 30h500" stroke="%23e8d8c0" stroke-width="1"/></svg>');
-  background-size: 100% 100%;
-}
-
-.scroll-content {
-  background-color: var(--color-parchment);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="100" viewBox="0 0 500 100"><rect width="500" height="100" fill="%23f4e9d5"/><path d="M250 0v100" stroke="%23e8d8c0" stroke-width="1"/><path d="M0 25h500M0 50h500M0 75h500" stroke="%23e8d8c0" stroke-width="1"/></svg>');
-  padding: 20px 40px;
+.dos-loading-title {
+  height: 24px;
+  background-color: var(--color-button-bg);
+  color: var(--color-text-highlight);
+  font-size: 16px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  font-weight: bold;
   text-align: center;
-  border-left: 1px solid #d3c4a9;
-  border-right: 1px solid #d3c4a9;
+  border-bottom: 2px solid var(--color-border-active);
 }
 
-.scroll-bottom {
-  height: 40px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="40" viewBox="0 0 500 40"><path d="M0 0h500v30c0 5.5-4.5 10-10 10H10C4.5 40 0 35.5 0 30V0z" fill="%23f4e9d5"/><path d="M250 0v30" stroke="%23e8d8c0" stroke-width="1"/><path d="M0 15h500M0 30h500" stroke="%23e8d8c0" stroke-width="1"/></svg>');
-  background-size: 100% 100%;
+.dos-loading-content {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-text-primary);
 }
 
-.loading-screen h1 {
-  color: var(--color-text-dark);
-  font-size: 28px;
+.dos-loading-dialog h1 {
+  color: var(--color-text-highlight);
+  font-size: 20px;
   margin-bottom: 20px;
-  font-variant: small-caps;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
 }
 
 .loading-flavor-text {
-  color: var(--color-text-dark);
-  font-style: italic;
-  margin-top: 15px;
+  color: var(--color-text-secondary);
+  margin-top: 20px;
   font-size: 16px;
 }
 
-/* Cauldron animation - enhanced */
-.cauldron-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 30px auto;
-  filter: drop-shadow(0 10px 5px rgba(0, 0, 0, 0.3));
-}
-
-.cauldron-body {
-  position: absolute;
-  bottom: 15px;
-  left: 10px;
-  width: 80px;
-  height: 60px;
-  background-color: #222;
-  border-radius: 0 0 40px 40px;
-  border: 3px solid #111;
-  overflow: hidden;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.cauldron-body::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
-}
-
-.cauldron-liquid {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+/* DOS style loading animation */
+.dos-loading-animation {
+  display: block;
   width: 100%;
-  height: 40px;
-  background: linear-gradient(to bottom, #4e2a6e, #7743a8);
-  animation: bubbling 2s ease-in-out infinite alternate;
+  height: 24px;
+  background-color: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border-inactive);
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
 }
 
-.cauldron-liquid::after {
-  content: '';
+.dos-loading-bar {
+  height: 100%;
+  background-color: var(--color-dos-bright-cyan);
+  width: 0%;
+  animation: loadingBar 3s infinite;
+}
+
+.dos-loading-percent {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+  text-align: center;
+  line-height: 20px;
+  color: var(--color-text-highlight);
+  mix-blend-mode: difference;
 }
 
-.cauldron-legs {
-  position: absolute;
-  bottom: 0;
-  left: 20px;
-  width: 60px;
-  display: flex;
-  justify-content: space-between;
+@keyframes loadingBar {
+  0% { width: 0%; }
+  25% { width: 30%; }
+  50% { width: 60%; }
+  75% { width: 80%; }
+  90% { width: 95%; }
+  100% { width: 100%; }
 }
 
-.leg {
-  width: 8px;
-  height: 12px;
-  background-color: #111;
-  border-radius: 0 0 4px 4px;
-  position: relative;
-}
-
-.leg::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -2px;
-  right: -2px;
-  height: 2px;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 50%;
-  filter: blur(1px);
-}
-
-.bubble {
-  position: absolute;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
-  border-radius: 50%;
-  animation: rise 4s infinite;
-}
-
-.bubble-1 {
-  width: 10px;
-  height: 10px;
-  left: 15px;
-  bottom: 0;
-  animation-delay: 0.5s;
-}
-
-.bubble-2 {
-  width: 8px;
-  height: 8px;
-  left: 40px;
-  bottom: 0;
-  animation-delay: 1.2s;
-}
-
-.bubble-3 {
-  width: 6px;
-  height: 6px;
-  left: 60px;
-  bottom: 0;
-  animation-delay: 2s;
-}
-
-@keyframes bubbling {
-  0%, 100% { height: 40px; }
-  50% { height: 45px; }
-}
-
-@keyframes rise {
-  0% { transform: translateY(0) scale(0.8); opacity: 0.7; }
-  50% { transform: translateY(-25px) scale(1.2); opacity: 0.8; }
-  100% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+/* ASCII art */
+.dos-ascii-art {
+  margin: 20px auto;
+  font-family: var(--font-dos);
+  white-space: pre;
+  line-height: 1;
+  color: var(--color-dos-bright-magenta);
+  display: inline-block;
+  text-align: left;
 }
 
 /* Error screen */
@@ -391,68 +447,54 @@ body {
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--color-bg-primary);
   position: relative;
   z-index: 100;
+  font-family: var(--font-dos);
 }
 
-.error-screen h1 {
-  color: var(--color-accent-red);
-  font-size: 24px;
-  margin-bottom: 15px;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+.dos-error-dialog {
+  width: 80%;
+  max-width: 600px;
+  border: 2px solid var(--color-dos-bright-red);
+  background-color: var(--color-bg-window);
+  box-shadow: 0 10px 20px var(--color-shadow);
+  overflow: hidden;
 }
 
-.error-screen p {
-  color: var(--color-text-dark);
+.dos-error-title {
+  height: 24px;
+  background-color: var(--color-dos-red);
+  color: var(--color-dos-white);
+  font-size: 16px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid var(--color-dos-bright-red);
+}
+
+.dos-error-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.dos-error-dialog h1 {
+  color: var(--color-dos-bright-red);
+  font-size: 20px;
   margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.dos-error-dialog p {
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+  line-height: 1.4;
 }
 
 .retry-button-container {
   margin-top: 20px;
-}
-
-.retry-button {
-  position: relative;
-  background-color: var(--color-metal-dark);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40"><rect width="120" height="40" fill="%232a2a35"/><path d="M0 0h120v2H0z" fill="%234a4a55" opacity="0.7"/><path d="M0 38h120v2H0z" fill="%23222230" opacity="0.7"/></svg>');
-  border: 2px solid var(--color-metal-medium);
-  color: var(--color-text-light);
-  font-family: 'Times New Roman', serif;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-  text-shadow: 1px 1px 1px #000;
-  overflow: hidden;
-}
-
-.retry-button span {
-  position: relative;
-  z-index: 1;
-}
-
-.retry-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
-}
-
-.retry-button:hover {
-  background-color: var(--color-metal-medium);
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-.retry-button:active {
-  transform: translateY(1px);
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
 /* Error overlay */
@@ -461,59 +503,49 @@ body {
   top: 20px;
   right: 20px;
   z-index: 1000;
-  max-width: 300px;
-  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.4));
+  max-width: 400px;
 }
 
-.error-scroll {
-  background-color: var(--color-accent-red);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="80" viewBox="0 0 300 80"><rect width="300" height="80" fill="%239c2c1a"/><path d="M0 0h300v2H0z" fill="%23be3c2a" opacity="0.7"/><path d="M0 78h300v2H0z" fill="%237a2213" opacity="0.7"/></svg>');
-  border: 3px solid #be3c2a;
-  padding: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.dos-error-popup {
+  border: 2px solid var(--color-dos-bright-red);
+  background-color: var(--color-bg-window);
   animation: slideInError 0.3s ease-out forwards;
-  position: relative;
   overflow: hidden;
 }
 
-.error-scroll::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+.dos-error-popup-title {
+  height: 24px;
+  background-color: var(--color-dos-red);
+  color: var(--color-dos-white);
+  font-size: 16px;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-dos-bright-red);
 }
 
-.error-message {
-  color: var(--color-text-light);
-  font-size: 14px;
-  margin-right: 10px;
-  text-shadow: 1px 1px 1px #000;
+.dos-error-popup-content {
+  padding: 12px;
+  color: var(--color-text-primary);
 }
 
 .error-dismiss {
-  background-color: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--color-text-light);
-  color: var(--color-text-light);
-  width: 25px;
-  height: 25px;
-  border-radius: 0;
-  font-size: 16px;
+  background-color: var(--color-bg-window);
+  border: 1px solid var(--color-dos-white);
+  color: var(--color-dos-white);
+  width: 20px;
+  height: 18px;
+  font-size: 14px;
   cursor: pointer;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  margin-left: 8px;
 }
 
 .error-dismiss:hover {
-  background-color: rgba(0, 0, 0, 0.5);
-  transform: scale(1.1);
+  background-color: var(--color-dos-bright-red);
 }
 
 @keyframes slideInError {
@@ -521,21 +553,27 @@ body {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* Moonlight Meadow Easter Egg */
+/* Moonlight Meadow Easter Egg - DOS style */
 .moonlight-meadow {
   position: absolute;
   inset: 0;
   z-index: 900;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--color-bg-tertiary);
   cursor: pointer;
   overflow: hidden;
+  border: 2px solid var(--color-border-active);
 }
 
 .moonlight-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(180, 160, 255, 0.2) 0%, rgba(20, 20, 40, 0.9) 100%);
-  animation: moonlightPulse 5s infinite alternate;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(100, 100, 200, 0.1) 0px,
+    rgba(100, 100, 200, 0.1) 2px,
+    rgba(100, 100, 220, 0.2) 2px,
+    rgba(100, 100, 220, 0.2) 4px
+  );
 }
 
 .moon-glow {
@@ -545,59 +583,68 @@ body {
   transform: translateX(-50%);
   width: 150px;
   height: 150px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(200, 200, 255, 0.5) 30%, transparent 70%);
-  border-radius: 50%;
-  animation: moonGlow 8s infinite alternate;
-  filter: blur(4px);
+  background-color: var(--color-witch-moon);
+  border-radius: 0;
+  animation: moonPulse 4s infinite alternate;
+}
+
+/* ASCII moon */
+.moon-glow::after {
+  content: "   ████████   \n ██        ██ \n██          ██\n██    ██    ██\n██  ██████  ██\n██    ██    ██\n██          ██\n ██        ██ \n   ████████   ";
+  position: absolute;
+  white-space: pre;
+  font-family: var(--font-dos);
+  line-height: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-dos-white);
 }
 
 .meadow-spirit {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" fill="%23ccc" fill-opacity="0.8"/><path d="M7 10l2 2 4-4" stroke="%23fff" stroke-width="1"/></svg>');
-  background-repeat: no-repeat;
+  font-family: var(--font-dos);
+  font-size: 10px;
+  color: var(--color-dos-bright-cyan);
   animation: spiritFloat 10s infinite alternate;
-  filter: blur(1px);
+}
+
+.meadow-spirit::after {
+  content: "★";
 }
 
 .moonlight-message {
   position: absolute;
   bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--color-text-light);
-  font-size: 24px;
-  font-style: italic;
-  text-shadow: 0 0 10px rgba(180, 160, 255, 0.8);
-  animation: messageGlow 4s infinite alternate;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--color-dos-white);
+  font-size: 16px;
+  font-family: var(--font-dos);
+  text-transform: uppercase;
+  animation: blinkText 1.5s infinite;
 }
 
-@keyframes moonlightPulse {
-  0% { opacity: 0.7; }
-  100% { opacity: 0.9; }
-}
-
-@keyframes moonGlow {
-  0% { transform: translateX(-50%) scale(1); opacity: 0.7; filter: blur(4px); }
-  50% { transform: translateX(-50%) scale(1.1); opacity: 0.9; filter: blur(6px); }
-  100% { transform: translateX(-50%) scale(1); opacity: 0.7; filter: blur(4px); }
+@keyframes moonPulse {
+  0% { background-color: #a0a0c0; }
+  100% { background-color: #c8c8e8; }
 }
 
 @keyframes spiritFloat {
-  0% { transform: translate(0, 0) rotate(0deg) scale(0.8); opacity: 0.6; }
-  25% { transform: translate(20px, -15px) rotate(90deg) scale(1.2); opacity: 0.8; }
-  50% { transform: translate(10px, -30px) rotate(180deg) scale(1); opacity: 1; }
-  75% { transform: translate(-10px, -15px) rotate(270deg) scale(1.2); opacity: 0.8; }
-  100% { transform: translate(0, 0) rotate(360deg) scale(0.8); opacity: 0.6; }
+  0% { transform: translate(0, 0); opacity: 0.6; }
+  25% { transform: translate(20px, -15px); opacity: 1; }
+  50% { transform: translate(10px, -30px); opacity: 0.6; }
+  75% { transform: translate(-10px, -15px); opacity: 1; }
+  100% { transform: translate(0, 0); opacity: 0.6; }
 }
 
-@keyframes messageGlow {
-  0% { text-shadow: 0 0 10px rgba(180, 160, 255, 0.5); }
-  100% { text-shadow: 0 0 20px rgba(180, 160, 255, 1); }
+@keyframes blinkText {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
-/* Ambient particles */
+/* DOS style particles */
 .ambient-particles {
   position: absolute;
   inset: 0;
@@ -608,93 +655,174 @@ body {
 
 .particle {
   position: absolute;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
-  border-radius: 50%;
-  animation: float 20s linear infinite;
-  filter: blur(1px);
+  font-family: var(--font-dos);
+  font-size: 12px;
+  color: var(--color-dos-bright-cyan);
+  animation: moveParticle 15s linear infinite;
 }
 
-@keyframes float {
-  0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
-  10% { opacity: 0.3; transform: scale(1); }
-  90% { opacity: 0.3; transform: scale(0.9); }
-  100% { transform: translate(var(--float-x, 100px), var(--float-y, -100px)) scale(0.8); opacity: 0; }
+.particle::after {
+  content: "■";
 }
 
-/* Konami code activation */
+@keyframes moveParticle {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translate(var(--move-x, 100px), var(--move-y, -100px)); opacity: 0; }
+}
+
+/* Konami code activation - DOS style */
 .konami-activation {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;
-}
-
-.activation-glow {
-  width: 300px;
-  height: 100px;
-  background: radial-gradient(ellipse, rgba(255, 215, 0, 0.8) 0%, rgba(255, 215, 0, 0) 70%);
-  animation: activationPulse 1s infinite alternate;
-  filter: blur(3px);
+  border: 2px solid var(--color-dos-yellow);
+  background-color: var(--color-bg-window);
+  padding: 20px;
+  text-align: center;
+  animation: blinkBorder 0.5s infinite alternate;
 }
 
 .activation-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--color-text-gold);
+  color: var(--color-dos-yellow);
   font-weight: bold;
-  font-size: 24px;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.5);
+  font-size: 16px;
+  text-transform: uppercase;
+  font-family: var(--font-dos);
   white-space: nowrap;
 }
 
-@keyframes activationPulse {
-  0% { opacity: 0.5; transform: scale(1); filter: blur(3px); }
-  100% { opacity: 1; transform: scale(1.2); filter: blur(5px); }
+@keyframes blinkBorder {
+  0% { border-color: var(--color-dos-yellow); }
+  100% { border-color: var(--color-dos-bright-yellow); }
+}
+
+/* Form inputs - DOS style */
+.dos-input {
+  background-color: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border-inactive);
+  color: var(--color-text-primary);
+  font-family: var(--font-dos);
+  font-size: 16px;
+  padding: 4px 8px;
+  width: 100%;
+}
+
+.dos-input:focus {
+  outline: none;
+  border-color: var(--color-border-active);
+}
+
+.dos-input:disabled {
+  background-color: var(--color-dos-dark-gray);
+  color: var(--color-dos-light-gray);
+  cursor: not-allowed;
+}
+
+/* Dialog boxes - DOS style */
+.dos-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  border: 2px solid var(--color-border-active);
+  background-color: var(--color-bg-window);
+  min-width: 300px;
+  max-width: 80%;
+}
+
+.dos-dialog-title {
+  background-color: var(--color-button-bg);
+  color: var(--color-text-highlight);
+  font-family: var(--font-dos);
+  font-size: 16px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-border-active);
+}
+
+.dos-dialog-content {
+  padding: 16px;
+  color: var(--color-text-primary);
+}
+
+.dos-dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  border-top: 2px solid var(--color-border-inactive);
+}
+
+/* Text styles */
+.dos-text-primary {
+  color: var(--color-text-primary);
+}
+
+.dos-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.dos-text-highlight {
+  color: var(--color-text-highlight);
+}
+
+.dos-text-error {
+  color: var(--color-dos-bright-red);
+}
+
+.dos-text-success {
+  color: var(--color-dos-bright-green);
 }
 
 /* Media queries for responsive layout */
 @media (max-width: 768px) {
   .game-frame {
-    border-width: 10px;
+    border-width: 1px;
   }
   
-  .corner-decoration {
-    width: 40px;
-    height: 40px;
-    background-size: 40px 40px;
+  .dos-window-title, 
+  .dos-window-statusbar {
+    font-size: 14px;
   }
   
-  .parchment-scroll {
+  .dos-loading-dialog,
+  .dos-error-dialog {
     width: 90%;
   }
   
-  .scroll-content {
-    padding: 15px;
-  }
-  
-  .loading-screen h1,
-  .error-screen h1 {
-    font-size: 20px;
+  .dos-button {
+    min-width: 100px;
+    font-size: 14px;
   }
 }
 
 @media (max-width: 480px) {
-  .game-frame {
-    border-width: 5px;
+  .dos-button {
+    min-width: 80px;
+    font-size: 12px;
+    padding: 4px 8px;
   }
   
-  .corner-decoration {
-    width: 30px;
-    height: 30px;
-    background-size: 30px 30px;
+  .dos-panel-title {
+    font-size: 14px;
   }
   
   .error-overlay {
-    max-width: 250px;
+    max-width: 280px;
     right: 10px;
     top: 10px;
+  }
+  
+  .dos-menu-item {
+    padding: 0 8px;
+    font-size: 14px;
   }
 }

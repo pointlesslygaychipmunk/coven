@@ -7,6 +7,7 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import { GameHandler } from './gameHandler.js';
+import { MultiplayerManager } from './multiplayer.js';
 import gardenRoutes from './routes/gardenRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -205,18 +206,35 @@ try {
 const HTTP_PORT = process.env.PORT || 8080;
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 
-http.createServer(app).listen(HTTP_PORT, () => {
+// Create HTTP server and initialize multiplayer
+const httpServer = http.createServer(app);
+export const multiplayerManager = new MultiplayerManager(httpServer, gameHandler);
+
+httpServer.listen(HTTP_PORT, () => {
   console.log(`\n Backend server listening at http://localhost:${HTTP_PORT} ✨`);
+  console.log(`\n Multiplayer WebSocket server running on ws://localhost:${HTTP_PORT} 🌐`);
   console.log(`--------------------------------------------------`);
 });
 
+// Create a variable for the HTTPS multiplayer manager that we can export
+let httpsMultiplayerManager: MultiplayerManager | null = null;
+
+// If SSL is configured, set up HTTPS server as well
 if (sslOptions) {
-  https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
+  const httpsServer = https.createServer(sslOptions, app);
+  // Initialize another multiplayer manager for HTTPS
+  httpsMultiplayerManager = new MultiplayerManager(httpsServer, gameHandler);
+  
+  httpsServer.listen(HTTPS_PORT, () => {
     console.log(` Backend server (HTTPS) listening at https://localhost:${HTTPS_PORT} 🌙`);
+    console.log(` Secure WebSocket server running on wss://localhost:${HTTPS_PORT} 🔒`);
     console.log(`--------------------------------------------------`);
   });
 } else {
-     console.log(` (HTTPS server not started)`);
+  console.log(` (HTTPS server not started)`);
 }
+
+// Export the HTTPS multiplayer manager if it was created
+export { httpsMultiplayerManager };
 
 export default app;

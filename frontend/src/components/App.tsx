@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import { GameState, Season, InventoryItem, GardenSlot } from 'coven-shared';
+import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 // Import Components
 import Garden from './Garden';
 import Brewing from './Brewing';
 import Market from './Market';
 import Journal from './Journal';
-import HUD from './HUD';
 import Atelier from './Atelier';
 import WeatherEffectsOverlay from './WeatherEffectsOverlay';
+import Lobby from './Lobby';
+import MultiplayerChat from './MultiplayerChat';
+import OnlinePlayers from './OnlinePlayers';
 
 // API Utility
 const API_BASE_URL = '/api';
@@ -35,6 +38,11 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden'); // Default view
+    
+    // Multiplayer state
+    const [showLobby, setShowLobby] = useState(true);
+    // We're using useMultiplayer but not setUseMultiplayer yet, so mark it with underscore
+    const [useMultiplayer, _setUseMultiplayer] = useState(true);
 
     // Moonlight Meadow Easter Egg state
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
@@ -145,21 +153,30 @@ const App: React.FC = () => {
 
     // Fetch initial game state
     useEffect(() => {
-        const fetchInitialState = async () => {
-            try {
-                setLoading(true);
-                const initialState = await apiCall('/state');
-                setGameState(initialState);
-                setError(null);
-            } catch (err) {
-                console.error('Error fetching initial game state:', err);
-                setError('Failed to connect to the Coven server. Is it running?');
-            } finally {
-                setTimeout(() => setLoading(false), 800); // Shorter loading time
+        // Only fetch directly from API if not using multiplayer
+        if (!useMultiplayer) {
+            const fetchInitialState = async () => {
+                try {
+                    setLoading(true);
+                    const initialState = await apiCall('/state');
+                    setGameState(initialState);
+                    setError(null);
+                } catch (err) {
+                    console.error('Error fetching initial game state:', err);
+                    setError('Failed to connect to the Coven server. Is it running?');
+                } finally {
+                    setTimeout(() => setLoading(false), 800); // Shorter loading time
+                }
+            };
+            fetchInitialState();
+        } else {
+            // When using multiplayer, we'll get the state through the socket connection
+            // We'll still want to show the loading screen until the lobby is dismissed
+            if (!showLobby) {
+                setLoading(false);
             }
-        };
-        fetchInitialState();
-    }, []);
+        }
+    }, [useMultiplayer, showLobby]);
 
     // --- Action Handlers ---
     const handleApiAction = useCallback(async (
@@ -268,214 +285,302 @@ const App: React.FC = () => {
         }, 300); // Wait for fade-out
     }, [currentView, pageTransition]);
 
-    // --- Loading Screen ---
+    // --- Loading Screen --- DOS style
     if (loading) {
         return (
             <div className="game-container">
                 <div className="loading-screen">
-                    <div className="parchment-scroll">
-                        <div className="scroll-top"></div>
-                        <div className="scroll-content">
-                            <h1>Summoning Magical Energies</h1>
-                            <div className="cauldron-container">
-                                <div className="cauldron-body">
-                                    <div className="cauldron-liquid"></div>
-                                    <div className="bubble bubble-1"></div>
-                                    <div className="bubble bubble-2"></div>
-                                    <div className="bubble bubble-3"></div>
-                                </div>
-                                <div className="cauldron-legs">
-                                    <div className="leg"></div>
-                                    <div className="leg"></div>
-                                    <div className="leg"></div>
-                                </div>
+                    <div className="dos-loading-dialog">
+                        <div className="dos-loading-title">LOADING WITCH COVEN v1.0</div>
+                        <div className="dos-loading-content">
+                            <h1>INITIALIZING MAGICAL SYSTEMS</h1>
+                            
+                            {/* ASCII art cauldron */}
+                            <pre className="dos-ascii-art">
+                               .---.
+                              /     \\
+                             |       |
+                          .-/|       |\\-.
+                         /   |       |   \\
+                        /    \\       /    \\
+                       /      `---'      \\
+                      |                   |
+                      `-------------------'
+                            </pre>
+                            
+                            <div className="dos-loading-animation">
+                                <div className="dos-loading-bar"></div>
+                                <div className="dos-loading-percent">LOADING MAGICAL COMPONENTS...</div>
                             </div>
-                            <p className="loading-flavor-text">Brewing the perfect potion takes time...</p>
+                            
+                            <p className="loading-flavor-text">C:{'\\'}{'>'} LOADING WITCH.EXE...</p>
                         </div>
-                        <div className="scroll-bottom"></div>
                     </div>
                 </div>
             </div>
         );
     }
 
-    // --- Error Display ---
+    // --- Error Display - DOS style ---
     const ErrorDisplay = () => error && (
         <div className="error-overlay">
-            <div className="error-scroll">
-                <div className="error-message">{error}</div>
-                <button onClick={() => setError(null)} className="error-dismiss">×</button>
+            <div className="dos-error-popup">
+                <div className="dos-error-popup-title">
+                    ERROR
+                    <button onClick={() => setError(null)} className="error-dismiss">X</button>
+                </div>
+                <div className="dos-error-popup-content">{error}</div>
             </div>
         </div>
     );
 
-    // --- Error Screen ---
+    // --- Error Screen --- DOS style
     if (!gameState || !currentPlayer) {
         return (
             <div className="game-container">
                 <div className="error-screen">
-                    <div className="parchment-scroll">
-                        <div className="scroll-top"></div>
-                        <div className="scroll-content">
-                            <h1>The Grimoire Remains Closed</h1>
-                            <p>{error || 'Failed to load essential game data. The coven remains hidden.'}</p>
+                    <div className="dos-error-dialog">
+                        <div className="dos-error-title">SYSTEM ERROR</div>
+                        <div className="dos-error-content">
+                            <h1>GRIMOIRE.DAT ACCESS DENIED</h1>
+                            
+                            {/* ASCII art error symbol */}
+                            <pre className="dos-ascii-art">
+                            ▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+                            █              █
+                            █  ▄        ▄  █
+                            █   ▀▄    ▄▀   █
+                            █     ▀▀▀▀     █
+                            █     ▄▀▀▄     █
+                            █    ▄▀  ▀▄    █
+                            █              █
+                            ▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                            </pre>
+                            
+                            <p>{error || 'FATAL ERROR: Game data initialization failed. Please restart the application.'}</p>
+                            
                             <div className="retry-button-container">
                                 <button 
-                                    className="retry-button" 
+                                    className="dos-button" 
                                     onClick={() => window.location.reload()}>
-                                    <span>Retry</span>
+                                    RETRY [R]
                                 </button>
                             </div>
                         </div>
-                        <div className="scroll-bottom"></div>
                     </div>
                 </div>
             </div>
         );
     }
 
+    // Handler for entering the game from the lobby
+    const handleEnterGame = useCallback(() => {
+        setShowLobby(false);
+        setLoading(false);
+    }, []);
+    
     // --- Main Render ---
     return (
-        <div className="game-container">
-            <div className="game-backdrop"></div>
-            <div className="game-frame">
-                {/* Weather Effects Overlay */}
-                <WeatherEffectsOverlay
-                    weatherType={gameState.time.weatherFate}
-                    intensity="medium"
-                    timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(gameState.time.phaseName) ? 'night' : 'day'}
-                    season={gameState.time.season as Season}
-                />
-                
-                {/* Navigation HUD */}
-                <HUD
-                    playerName={currentPlayer.name}
-                    gold={currentPlayer.gold}
-                    day={gameState.time.dayCount}
-                    lunarPhase={gameState.time.phaseName || 'New Moon'}
-                    reputation={currentPlayer.reputation}
-                    playerLevel={currentPlayer.atelierLevel}
-                    onChangeLocation={handleChangeLocation}
-                    onAdvanceDay={advanceDay}
-                />
+        <MultiplayerProvider>
+            <div className="game-container">
+                {/* Show the lobby if we're in that state */}
+                {showLobby && useMultiplayer ? (
+                    <Lobby onEnterGame={handleEnterGame} />
+                ) : (
+                    <>
+                        <div className="game-backdrop"></div>
+                        <div className="game-frame">
+                            {/* DOS style window title bar */}
+                            <div className="dos-window-title">THE WITCH COVEN v1.0</div>
+                            
+                            {/* DOS style menu bar */}
+                            <div className="dos-menu-bar">
+                                <div 
+                                    className={`dos-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
+                                    onClick={() => handleChangeLocation('garden')}
+                                >
+                                    [G]arden
+                                </div>
+                                <div 
+                                    className={`dos-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
+                                    onClick={() => handleChangeLocation('brewing')}
+                                >
+                                    [B]rewing
+                                </div>
+                                <div 
+                                    className={`dos-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
+                                    onClick={() => handleChangeLocation('atelier')}
+                                >
+                                    [A]telier
+                                </div>
+                                <div 
+                                    className={`dos-menu-item ${currentView === 'market' ? 'active' : ''}`} 
+                                    onClick={() => handleChangeLocation('market')}
+                                >
+                                    [M]arket
+                                </div>
+                                <div 
+                                    className={`dos-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
+                                    onClick={() => handleChangeLocation('journal')}
+                                >
+                                    [J]ournal
+                                </div>
+                                <div 
+                                    className="dos-menu-item"
+                                    onClick={advanceDay}
+                                >
+                                    [E]nd Day
+                                </div>
+                            </div>
+                            
+                            {/* Weather Effects Overlay */}
+                            {gameState && (
+                                <WeatherEffectsOverlay
+                                    weatherType={gameState.time.weatherFate}
+                                    intensity="medium"
+                                    timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(gameState.time.phaseName) ? 'night' : 'day'}
+                                    season={gameState.time.season as Season}
+                                />
+                            )}
 
-                {/* Main content area */}
-                <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
-                    <div className="view-container">
-                        {/* Render current view */}
-                        {currentView === 'garden' && (
-                            <Garden
-                                plots={currentPlayer.garden as GardenSlot[]}
-                                inventory={currentPlayer.inventory as InventoryItem[]}
-                                onPlant={plantSeed}
-                                onHarvest={harvestPlant}
-                                onWater={waterPlants}
-                                weatherFate={gameState.time.weatherFate}
-                                season={gameState.time.season as Season}
-                            />
-                        )}
-                        {currentView === 'brewing' && (
-                            <Brewing
-                                playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                knownRecipes={gameState.knownRecipes || []}
-                                lunarPhase={gameState.time.phaseName}
-                                playerSpecialization={currentPlayer.atelierSpecialization}
-                                onBrew={brewPotion}
-                            />
-                        )}
-                        {currentView === 'atelier' && (
-                            <Atelier
-                                playerItems={currentPlayer.inventory as InventoryItem[]}
-                                onCraftItem={(ingredientIds, resultItemId) => console.log('Craft action TBD', ingredientIds, resultItemId)}
-                                lunarPhase={gameState.time.phaseName}
-                                playerLevel={currentPlayer.atelierLevel}
-                                playerSpecialization={currentPlayer.atelierSpecialization}
-                                knownRecipes={gameState.knownRecipes || []}
-                            />
-                        )}
-                        {currentView === 'market' && (
-                            <Market
-                                playerGold={currentPlayer.gold}
-                                playerInventory={currentPlayer.inventory as InventoryItem[]}
-                                marketItems={gameState.market}
-                                rumors={gameState.rumors}
-                                townRequests={gameState.townRequests}
-                                blackMarketAccess={currentPlayer.blackMarketAccess}
-                                onBuyItem={buyItem}
-                                onSellItem={sellItem}
-                                onFulfillRequest={fulfillRequest}
-                            />
-                        )}
-                        {currentView === 'journal' && (
-                            <Journal
-                                journal={gameState.journal}
-                                rumors={gameState.rumors}
-                                rituals={gameState.rituals}
-                                time={gameState.time}
-                                player={currentPlayer}
-                                onClaimRitual={claimRitualReward}
-                            />
-                        )}
-                    </div>
-                    
-                    {/* Decorative corners */}
-                    <div className="corner-decoration top-left"></div>
-                    <div className="corner-decoration top-right"></div>
-                    <div className="corner-decoration bottom-left"></div>
-                    <div className="corner-decoration bottom-right"></div>
-                </main>
+                            {/* Main content area */}
+                            {gameState && currentPlayer && (
+                                <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
+                                    <div className="view-container">
+                                        {/* Online players display */}
+                                        {useMultiplayer && (
+                                            <OnlinePlayers showDetailed={false} />
+                                        )}
+                                        
+                                        {/* Render current view */}
+                                        {currentView === 'garden' && (
+                                            <Garden
+                                                plots={currentPlayer.garden as GardenSlot[]}
+                                                inventory={currentPlayer.inventory as InventoryItem[]}
+                                                onPlant={plantSeed}
+                                                onHarvest={harvestPlant}
+                                                onWater={waterPlants}
+                                                weatherFate={gameState.time.weatherFate}
+                                                season={gameState.time.season as Season}
+                                            />
+                                        )}
+                                        {currentView === 'brewing' && (
+                                            <Brewing
+                                                playerInventory={currentPlayer.inventory as InventoryItem[]}
+                                                knownRecipes={gameState.knownRecipes || []}
+                                                lunarPhase={gameState.time.phaseName}
+                                                playerSpecialization={currentPlayer.atelierSpecialization}
+                                                onBrew={brewPotion}
+                                            />
+                                        )}
+                                        {currentView === 'atelier' && (
+                                            <Atelier
+                                                playerItems={currentPlayer.inventory as InventoryItem[]}
+                                                onCraftItem={(ingredientIds, resultItemId) => console.log('Craft action TBD', ingredientIds, resultItemId)}
+                                                lunarPhase={gameState.time.phaseName}
+                                                playerLevel={currentPlayer.atelierLevel}
+                                                playerSpecialization={currentPlayer.atelierSpecialization}
+                                                knownRecipes={gameState.knownRecipes || []}
+                                            />
+                                        )}
+                                        {currentView === 'market' && (
+                                            <Market
+                                                playerGold={currentPlayer.gold}
+                                                playerInventory={currentPlayer.inventory as InventoryItem[]}
+                                                marketItems={gameState.market}
+                                                rumors={gameState.rumors}
+                                                townRequests={gameState.townRequests}
+                                                blackMarketAccess={currentPlayer.blackMarketAccess}
+                                                onBuyItem={buyItem}
+                                                onSellItem={sellItem}
+                                                onFulfillRequest={fulfillRequest}
+                                            />
+                                        )}
+                                        {currentView === 'journal' && (
+                                            <Journal
+                                                journal={gameState.journal}
+                                                rumors={gameState.rumors}
+                                                rituals={gameState.rituals}
+                                                time={gameState.time}
+                                                player={currentPlayer}
+                                                onClaimRitual={claimRitualReward}
+                                            />
+                                        )}
+                                    </div>
+                                </main>
+                            )}
 
-                {/* Error Display */}
-                <ErrorDisplay />
+                            {/* DOS style status bar */}
+                            {gameState && currentPlayer && (
+                                <div className="dos-window-statusbar">
+                                    <div>Witch: {currentPlayer.name}</div>
+                                    <div>Gold: {currentPlayer.gold}G</div>
+                                    <div>Day: {gameState.time.dayCount}</div>
+                                    <div>Moon: {gameState.time.phaseName}</div>
+                                    <div>Rep: {currentPlayer.reputation}</div>
+                                    <div>Lvl: {currentPlayer.atelierLevel}</div>
+                                    {useMultiplayer && <div>Players: Online</div>}
+                                </div>
+                            )}
 
-                {/* Moonlight Meadow Easter Egg */}
-                {moonlightMeadowActive && (
-                    <div className="moonlight-meadow" onClick={() => setMoonlightMeadowActive(false)}>
-                        <div className="moonlight-overlay"></div>
-                        <div className="moon-glow"></div>
-                        {spiritPositions.map((spirit, i) => (
-                            <div key={i} className="meadow-spirit" style={{ 
-                                left: `${spirit.x}%`, 
-                                top: `${spirit.y}%`, 
-                                animationDelay: `${spirit.delay}s` 
-                            }}/>
-                        ))}
-                        <div className="moonlight-message">Your garden is blessed by moonlight...</div>
-                    </div>
-                )}
+                            {/* Chat component (only if multiplayer is enabled) */}
+                            {useMultiplayer && !showLobby && (
+                                <MultiplayerChat />
+                            )}
 
-                {/* Ambient particles */}
-                <div className="ambient-particles">
-                    {Array.from({ length: 15 }).map((_, i) => {
-                        const size = 2 + Math.random() * 3;
-                        const duration = 15 + Math.random() * 20;
-                        const delay = Math.random() * 15;
-                        return (
-                            <div 
-                                key={i} 
-                                className="particle"
-                                style={{
-                                    width: `${size}px`,
-                                    height: `${size}px`,
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                    animationDuration: `${duration}s`,
-                                    animationDelay: `${delay}s`
-                                }}
-                            />
-                        );
-                    })}
-                </div>
+                            {/* Error Display */}
+                            <ErrorDisplay />
 
-                {/* Konami Code Activation */}
-                {konamiActivated && (
-                    <div className="konami-activation">
-                        <div className="activation-glow"></div>
-                        <div className="activation-text">Ancient Coven Code Activated!</div>
-                    </div>
+                            {/* Moonlight Meadow Easter Egg - DOS style */}
+                            {moonlightMeadowActive && (
+                                <div className="moonlight-meadow" onClick={() => setMoonlightMeadowActive(false)}>
+                                    <div className="moonlight-overlay"></div>
+                                    <div className="moon-glow"></div>
+                                    {spiritPositions.map((spirit, i) => (
+                                        <div key={i} className="meadow-spirit" style={{ 
+                                            left: `${spirit.x}%`, 
+                                            top: `${spirit.y}%`, 
+                                            animationDelay: `${spirit.delay}s` 
+                                        }}/>
+                                    ))}
+                                    <div className="moonlight-message">GARDEN BLESSED BY MOONLIGHT</div>
+                                </div>
+                            )}
+
+                            {/* Ambient particles - DOS style */}
+                            <div className="ambient-particles">
+                                {Array.from({ length: 15 }).map((_, i) => {
+                                    const delay = Math.random() * 15;
+                                    const moveX = Math.random() * 400 - 200;
+                                    const moveY = Math.random() * 400 - 200;
+                                    return (
+                                        <div 
+                                            key={i} 
+                                            className="particle"
+                                            style={{
+                                                left: `${Math.random() * 100}%`,
+                                                top: `${Math.random() * 100}%`,
+                                                animationDuration: `${15 + Math.random() * 10}s`,
+                                                animationDelay: `${delay}s`,
+                                                '--move-x': `${moveX}px`,
+                                                '--move-y': `${moveY}px`
+                                            } as React.CSSProperties}
+                                        />
+                                    );
+                                })}
+                            </div>
+
+                            {/* Konami Code Activation - DOS style */}
+                            {konamiActivated && (
+                                <div className="konami-activation">
+                                    <div className="activation-text">ANCIENT COVEN CODE ACTIVATED!</div>
+                                </div>
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
-        </div>
+        </MultiplayerProvider>
     );
 };
 
