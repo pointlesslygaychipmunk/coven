@@ -1,0 +1,252 @@
+/* Skills System Styles */
+
+/* Level Up Modal */
+.level-up-modal {
+  background-color: rgba(40, 20, 60, 0.95);
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+  color: #e0d8ea;
+  font-family: 'Luminari', fantasy;
+  border: 2px solid #7e4e8e;
+  box-shadow: 0 0 20px rgba(100, 50, 150, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: modalAppear 0.5s ease-out;
+}
+
+.level-up-header {
+  background-color: rgba(60, 30, 90, 0.8);
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #7e4e8e;
+}
+
+.level-up-header h2 {
+  margin: 0;
+  font-size: 1.8em;
+  color: #d4b4ff;
+  text-align: center;
+  flex: 1;
+}
+
+.level-up-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.level-up-icon {
+  font-size: 3em;
+  margin-bottom: 15px;
+  animation: pulse 2s infinite alternate;
+}
+
+.level-up-skill-name {
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #d4b4ff;
+  margin-bottom: 5px;
+}
+
+.level-up-level {
+  font-size: 1.4em;
+  color: #ffcc00;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.level-up-description {
+  margin-bottom: 15px;
+  font-style: italic;
+  color: #a084c7;
+}
+
+.level-up-bonus {
+  background-color: rgba(70, 40, 100, 0.6);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #7e4e8e;
+}
+
+.level-up-next {
+  font-size: 0.9em;
+  color: #a084c7;
+}
+
+.level-up-actions {
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #7e4e8e;
+}
+
+.level-up-button {
+  background-color: rgba(106, 27, 154, 0.8);
+  border: 1px solid #b47ee4;
+  color: #e0d8ea;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Luminari', fantasy;
+  font-size: 1.1em;
+}
+
+.level-up-button:hover {
+  background-color: rgba(126, 37, 174, 0.8);
+  border-color: #d4b4ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Journal Skills Section */
+.journal-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #7e4e8e;
+  padding-bottom: 10px;
+}
+
+.journal-tab-button {
+  background-color: rgba(70, 40, 100, 0.6);
+  border: 1px solid #7e4e8e;
+  color: #e0d8ea;
+  padding: 8px 15px;
+  margin: 0 5px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Luminari', fantasy;
+}
+
+.journal-tab-button:hover {
+  background-color: rgba(90, 50, 120, 0.6);
+  border-color: #b47ee4;
+}
+
+.journal-tab-button.active {
+  background-color: rgba(106, 27, 154, 0.8);
+  border-color: #d4b4ff;
+  color: #fff;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.skill-card {
+  background-color: rgba(60, 30, 90, 0.6);
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #7e4e8e;
+  display: flex;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.skill-card:hover {
+  background-color: rgba(80, 40, 110, 0.6);
+  border-color: #b47ee4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.skill-icon {
+  font-size: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(40, 20, 60, 0.7);
+  border-radius: 50%;
+  border: 1px solid #7e4e8e;
+}
+
+.skill-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.skill-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #d4b4ff;
+  margin-bottom: 5px;
+}
+
+.skill-level {
+  font-size: 1em;
+  color: #ffcc00;
+  margin-bottom: 5px;
+}
+
+.skill-description {
+  font-size: 0.9em;
+  color: #a084c7;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.skill-bonus {
+  font-size: 0.85em;
+  margin-bottom: 10px;
+}
+
+.skill-exp-bar {
+  height: 8px;
+  background-color: rgba(40, 20, 60, 0.7);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.skill-exp-progress {
+  height: 100%;
+  background: linear-gradient(to right, #7e3ff2, #d4b4ff);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.skill-exp-text {
+  font-size: 0.8em;
+  color: #a084c7;
+  text-align: right;
+}
+
+/* Animations */
+@keyframes modalAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}

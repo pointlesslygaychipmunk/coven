@@ -10,6 +10,7 @@ interface GardenProps {
   onPlant: (slotId: number, seedInventoryItemId: string) => void;
   onHarvest: (slotId: number) => void;
   onWater: (puzzleBonus: number) => void;
+  onCrossBreed?: () => void; // Optional callback to open cross-breeding interface
   weatherFate: WeatherFate;
   season: Season;
 }
@@ -357,6 +358,13 @@ const Garden: React.FC<GardenProps> = ({
               disabled={showAttunementPuzzle}
             >
               <span>Attune Garden</span>
+            </button>
+            
+            <button
+              className="action-button cross-breed"
+              onClick={() => props.onCrossBreed && props.onCrossBreed()}
+            >
+              <span>Cross-Breed Plants</span>
             </button>
           </div>
           <div className="parchment-filler"></div>

@@ -1,0 +1,130 @@
+/* Puzzle Integration Styles */
+
+/* Puzzle container overlay */
+.puzzle-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Puzzle wrapper */
+.puzzle-wrapper {
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  background-color: rgba(30, 15, 45, 0.95);
+  border-radius: 10px;
+  border: 2px solid #7e4e8e;
+  box-shadow: 0 0 30px rgba(126, 78, 142, 0.6);
+  overflow: auto;
+  position: relative;
+}
+
+/* Close button for puzzles */
+.puzzle-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(70, 40, 100, 0.8);
+  border: 1px solid #7e4e8e;
+  color: #e0d8ea;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.puzzle-close-button:hover {
+  background-color: rgba(90, 50, 120, 0.8);
+  border-color: #d4b4ff;
+}
+
+/* Brewing puzzle integration */
+.brewing-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-button.puzzle {
+  background-color: rgba(90, 50, 120, 0.8);
+  border: 1px solid #7e4e8e;
+}
+
+.action-button.puzzle:hover {
+  background-color: rgba(120, 70, 160, 0.8);
+}
+
+/* Seasonal puzzle integration */
+.primary-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.garden-season-button {
+  background-color: rgba(90, 50, 120, 0.8);
+  border: 1px solid #7e4e8e;
+  color: #e0d8ea;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Luminari', fantasy;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.garden-season-button:hover {
+  background-color: rgba(120, 70, 160, 0.8);
+  border-color: #d4b4ff;
+}
+
+.season-icon {
+  font-size: 1.2em;
+}
+
+/* Bonus indicator */
+.bonus-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(106, 27, 154, 0.8);
+  border: 1px solid #d4b4ff;
+  border-radius: 15px;
+  padding: 5px 10px;
+  color: #ffffff;
+  font-size: 0.9em;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(212, 180, 255, 0.3);
+  z-index: 10;
+  animation: pulseBadge 2s infinite alternate;
+}
+
+@keyframes pulseBadge {
+  from { box-shadow: 0 0 10px rgba(212, 180, 255, 0.3); }
+  to { box-shadow: 0 0 20px rgba(212, 180, 255, 0.6); }
+}

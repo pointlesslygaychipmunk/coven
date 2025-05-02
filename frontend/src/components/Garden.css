@@ -961,6 +961,40 @@
   color: var(--color-accent-purple);
 }
 
+.action-button.cross-breed {
+  position: relative;
+  font-family: var(--font-mono);
+  background-color: var(--color-bg-medium);
+  border: 0;
+  color: var(--color-accent-green);
+  margin-top: 8px;
+  margin-bottom: 2px;
+  padding: 12px 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: pre;
+  line-height: 1;
+}
+
+.action-button.cross-breed::before {
+  content: "+-------------------+";
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--color-accent-green);
+}
+
+.action-button.cross-breed::after {
+  content: "+-------------------+";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: var(--color-accent-green);
+}
+
 /* Garden tip section */
 .garden-tip {
   font-style: italic;

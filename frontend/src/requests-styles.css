@@ -1,0 +1,227 @@
+/* Request view styles */
+
+.requests-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.requests-intro {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+/* Requests container */
+.requests-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 60px); /* Adjust for intro */
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+  position: relative;
+}
+
+/* List Area */
+.requests-list-area {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-right: -8px;
+  scrollbar-width: thin;
+  scrollbar-color: #a1887f #1f1a35;
+}
+.requests-list-area::-webkit-scrollbar { width: 8px; }
+.requests-list-area::-webkit-scrollbar-track { background: #1f1a35; border-radius: 4px; }
+.requests-list-area::-webkit-scrollbar-thumb { background-color: #a1887f; border-radius: 4px; border: 1px solid #1f1a35; }
+
+.request-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 5px;
+}
+
+.request-list.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #a1887f;
+  font-style: italic;
+  height: 100%;
+  padding: 20px;
+  font-size: 14px;
+  border: 1px dashed #a1887f;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Individual request items */
+.request-item {
+  background-color: #2a2440;
+  border-radius: 6px;
+  padding: 12px;
+  border: 2px solid;
+  border-color: #483758 #2a1f35 #2a1f35 #483758;
+  display: flex;
+  gap: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15);
+  position: relative;
+  cursor: default;
+  color: #e2dbff;
+}
+
+.request-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  border-color: #9f8bff;
+}
+
+/* Requester icon */
+.request-icon {
+  width: 42px;
+  height: 42px;
+  background-color: #4a3674;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Times New Roman', serif;
+  font-size: 18px;
+  color: #e2dbff;
+  border: 1px solid #5d468a;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+}
+
+.request-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.request-requester {
+  font-size: 15px;
+  color: #c1b3ff;
+  font-weight: bold;
+  font-family: 'Times New Roman', serif;
+}
+
+.request-item-info {
+  font-size: 13px;
+  color: #a399cc;
+  font-family: 'Courier New', monospace;
+  line-height: 1.4;
+}
+
+.inventory-check {
+  font-size: 11px;
+  color: #8a9dcc;
+  margin-left: 5px;
+  font-style: italic;
+}
+
+.request-item-info strong {
+  color: #e2dbff;
+  font-weight: bold;
+}
+
+.request-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 15px;
+}
+
+.request-reward {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  position: relative;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.request-reward-gold {
+  color: #ffd700;
+  font-weight: 500;
+}
+
+.request-reward-influence {
+  color: #b6a5ff;
+  font-weight: 500;
+}
+
+.request-reward::before {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.request-reward-gold::before {
+  content: '💰';
+}
+
+.request-reward-influence::before {
+  content: '⭐';
+}
+
+.request-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.request-difficulty {
+  display: flex;
+  color: #ffd700;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+}
+
+.fulfill-button {
+  padding: 6px 14px;
+  font-size: 13px;
+  min-width: 100px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.2s ease;
+}
+
+.fulfill-button.can-fulfill {
+  background-color: #4a6e68;
+  color: #e2dbff;
+  border-color: #5a8a84 #295550 #295550 #5a8a84;
+}
+
+.fulfill-button.can-fulfill:hover {
+  background-color: #5a8a84;
+  transform: translateY(-2px);
+}
+
+.fulfill-button.cant-fulfill {
+  background-color: #483758;
+  color: #a399cc;
+  border-color: #483758;
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.15);
+  transform: none;
+}
+
+.fulfill-button.cant-fulfill:hover {
+  transform: none;
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.15);
+}

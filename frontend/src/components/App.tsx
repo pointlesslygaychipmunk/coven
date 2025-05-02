@@ -34,6 +34,7 @@ import WeatherEffectsOverlay from './WeatherEffectsOverlay';
 import Lobby from './Lobby';
 import MultiplayerChat from './MultiplayerChat';
 import OnlinePlayers from './OnlinePlayers';
+import CrossBreedingInterface from './CrossBreedingInterface';
 
 // API Utility
 const API_BASE_URL = '/api';
@@ -361,6 +362,40 @@ const App: React.FC = () => {
             `Fulfilled request ${requestId}`, `Fulfillment failed`
         );
     }, [playerId, handleApiAction]);
+    
+    const handleCrossBreed = useCallback(async (plant1Id: string, plant2Id: string) => {
+        if (!playerId) return { success: false, message: "Player not found", rarityTier: 0 };
+        
+        try {
+            const result = await apiCall('/cross-breed', 'POST', { 
+                playerId, 
+                plant1Id, 
+                plant2Id 
+            });
+            
+            // Extract result from the API response
+            const crossBreedResult = {
+                success: result.crossBreedingResult?.success || false,
+                newVarietyId: result.crossBreedingResult?.newVarietyId,
+                newVarietyName: result.crossBreedingResult?.newVarietyName,
+                traitInheritance: result.crossBreedingResult?.traitInheritance,
+                rarityTier: result.crossBreedingResult?.rarityTier || 0,
+                message: result.crossBreedingResult?.message || "Cross-breeding completed"
+            };
+            
+            // Update game state with the new state from the API
+            setGameState(result);
+            
+            return crossBreedResult;
+        } catch (err) {
+            console.error("Cross-breeding failed:", err);
+            return { 
+                success: false, 
+                message: err instanceof Error ? err.message : "Cross-breeding failed",
+                rarityTier: 0
+            };
+        }
+    }, [playerId]);
 
     const advanceDay = useCallback(() => {
         if (!playerId) return;
@@ -667,16 +702,40 @@ const App: React.FC = () => {
                                                 try {
                                                     switch(currentView) {
                                                         case 'garden':
+                                                        case 'crossBreeding': // Include both cases to show Garden for both views
+                                                            // Create a state for cross-breeding
+                                                            const showCrossBreeding = currentView === 'crossBreeding';
+                                                            
+                                                            // Get all mature plants from the garden for cross-breeding
+                                                            const maturePlants = currentPlayer.garden
+                                                                .filter(plot => plot.plant && plot.plant.mature)
+                                                                .map(plot => plot.plant!);
+                                                                
                                                             return (
-                                                                <Garden
-                                                                    plots={currentPlayer.garden as GardenSlot[]}
-                                                                    inventory={currentPlayer.inventory as InventoryItem[]}
-                                                                    onPlant={plantSeed}
-                                                                    onHarvest={harvestPlant}
-                                                                    onWater={waterPlants}
-                                                                    weatherFate={gameState.time.weatherFate}
-                                                                    season={gameState.time.season as Season}
-                                                                />
+                                                                <>
+                                                                    <Garden
+                                                                        plots={currentPlayer.garden as GardenSlot[]}
+                                                                        inventory={currentPlayer.inventory as InventoryItem[]}
+                                                                        onPlant={plantSeed}
+                                                                        onHarvest={harvestPlant}
+                                                                        onWater={waterPlants}
+                                                                        onCrossBreed={() => setCurrentView('crossBreeding')}
+                                                                        weatherFate={gameState.time.weatherFate}
+                                                                        season={gameState.time.season as Season}
+                                                                    />
+                                                                    
+                                                                    {/* Show CrossBreedingInterface as an overlay when in crossBreeding view */}
+                                                                    {showCrossBreeding && (
+                                                                        <CrossBreedingInterface
+                                                                            plants={maturePlants}
+                                                                            onCrossBreed={handleCrossBreed}
+                                                                            onClose={() => setCurrentView('garden')}
+                                                                            currentSeason={gameState.time.season as Season}
+                                                                            currentMoonPhase={gameState.time.phaseName}
+                                                                            playerGardeningSkill={currentPlayer.skills.gardening}
+                                                                        />
+                                                                    )}
+                                                                </>
                                                             );
                                                         case 'brewing':
                                                             return (
