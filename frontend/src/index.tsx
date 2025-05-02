@@ -10,20 +10,17 @@ import './index.css';
 // Set up error tracking for React rendering errors
 const originalConsoleError = console.error;
 console.error = function(...args) {
-  // Check for maximum update depth error
+  // Check for maximum update depth error or other serious issues
   if (args[0] && typeof args[0] === 'string' && 
       (args[0].includes('Maximum update depth exceeded') || 
-       args[0].includes('Too many re-renders'))) {
+       args[0].includes('Too many re-renders') ||
+       args[0].includes('Minified React error #310'))) {
     console.warn('Infinite render loop detected!');
     
-    // Automatically switch to minimal mode
-    if (!window.location.search.includes('minimal=true')) {
-      console.warn('Redirecting to minimal mode due to render loop...');
-      const urlParams = new URLSearchParams(window.location.search);
-      urlParams.set('minimal', 'true');
-      window.location.search = urlParams.toString();
-      return;
-    }
+    // Automatically redirect to emergency page as last resort
+    console.warn('Redirecting to emergency HTML page due to render loop...');
+    window.location.href = '/emergency.html';
+    return;
   }
   
   // Call original for other errors
@@ -67,17 +64,11 @@ function renderMainApp() {
       console.error('Global error caught:', event.error);
       if (event.error && event.error.message && 
           (event.error.message.includes('Maximum update') || 
-           event.error.message.includes('Too many re-renders'))) {
-        console.error('Detected render loop, switching to fallback...');
-        // Remove the current render and try fallback
-        setTimeout(() => {
-          try {
-            renderFallbackApp();
-          } catch (e) {
-            console.error('Failed to render fallback, last resort is minimal:', e);
-            renderMinimalApp();
-          }
-        }, 100);
+           event.error.message.includes('Too many re-renders') ||
+           event.error.message.includes('React error #310'))) {
+        console.error('Detected render loop, going to emergency page...');
+        // Go to emergency.html which is a plain HTML page with no React
+        window.location.href = '/emergency.html';
       }
     });
     
