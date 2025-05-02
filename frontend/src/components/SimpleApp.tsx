@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { GameState, Season, MoonPhase, Plant, RitualQuest, RitualReward } from 'coven-shared';
+import TownMap from './TownMap';
 
 // Fallback type definition in case import fails
 // This ensures type safety even if the shared types aren't fully available
@@ -1896,6 +1897,12 @@ const SimpleApp: React.FC = () => {
             <span className="game-menu-key">M</span>arket
           </div>
           <div 
+            className={`game-menu-item ${view === 'townMap' ? 'active' : ''}`}
+            onClick={() => setView('townMap')}
+          >
+            <span className="game-menu-key">T</span>own
+          </div>
+          <div 
             className={`game-menu-item ${view === 'requests' ? 'active' : ''}`}
             onClick={() => setView('requests')}
           >
@@ -3189,6 +3196,18 @@ const SimpleApp: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+            
+            {view === 'townMap' && (
+              <div className="town-map-view">
+                <TownMap
+                  playerReputation={currentPlayer.reputation} 
+                  playerGold={currentPlayer.gold}
+                  onNavigateToMarket={() => setView('market')}
+                  onNavigateToGarden={() => setView('garden')}
+                  onNavigateToAtelier={() => setView('atelier')}
+                />
               </div>
             )}
             
