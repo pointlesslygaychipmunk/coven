@@ -1687,7 +1687,7 @@ const SimpleApp: React.FC = () => {
                     }
                   ]
                 }
-              }
+              },,
             ],
             events: [],
             knownRecipes: [],
