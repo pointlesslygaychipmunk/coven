@@ -4,6 +4,17 @@ import ReactDOM from 'react-dom/client';
 import App from './components/App'; // Using our updated 90s game UI
 import './index.css'; // Import global styles
 
+// Unregister any existing service workers to fix "Frame with ID 0 was removed" errors
+// This is a common issue when service workers aren't properly maintained
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (const registration of registrations) {
+      registration.unregister();
+      console.log('Service worker unregistered to prevent errors');
+    }
+  });
+}
+
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
