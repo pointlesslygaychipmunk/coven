@@ -775,7 +775,7 @@ const SimpleApp: React.FC = () => {
           weatherFate: (gameState as any).weatherControl?.active 
             ? (gameState as any).weatherControl.weather 
             : getRandomWeather() as any,
-        },
+        }
         // Reset weather control after using it
         weatherControl: (gameState as any).weatherControl?.active 
           ? { active: false, weather: null } 
