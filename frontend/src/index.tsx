@@ -1,6 +1,7 @@
 // frontend/src/index.tsx
-import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
+// @ts-ignore -- React is used in JSX even if not directly referenced
+import * as React from 'react';
 import App from './components/App';
 import { renderMinimalApp } from './minimal';
 import './index.css';

@@ -1,3 +1,4 @@
+// @ts-ignore -- React is used in JSX even if not directly referenced
 import * as React from 'react';
 import { useState } from 'react';
 import * as ReactDOM from 'react-dom/client';
