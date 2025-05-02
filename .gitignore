@@ -3,6 +3,12 @@ node_modules/
 
 # Build outputs (optional, but often good to ignore)
 **/dist/
+**/*.d.ts
+**/*.d.ts.map
+**/*.js.map
+# Skip compiled config files
+**/vite.config.js
+**/vite.config.d.ts
 
 # Log files
 npm-debug.log*
