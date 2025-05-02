@@ -373,14 +373,15 @@ const App: React.FC = () => {
                 plant2Id 
             });
             
-            // Extract result from the API response
+            // For successful API call, create a simplified result object
+            // This handles potential undefined crossBreedingResult property gracefully
             const crossBreedResult = {
-                success: result.crossBreedingResult?.success || false,
-                newVarietyId: result.crossBreedingResult?.newVarietyId,
-                newVarietyName: result.crossBreedingResult?.newVarietyName,
-                traitInheritance: result.crossBreedingResult?.traitInheritance,
-                rarityTier: result.crossBreedingResult?.rarityTier || 0,
-                message: result.crossBreedingResult?.message || "Cross-breeding completed"
+                success: result.success ?? false,
+                newVarietyId: result.newVarietyId ?? undefined,
+                newVarietyName: result.newVarietyName ?? undefined,
+                traitInheritance: result.traitInheritance ?? undefined,
+                rarityTier: result.rarityTier ?? 0,
+                message: result.message ?? "Cross-breeding completed"
             };
             
             // Update game state with the new state from the API

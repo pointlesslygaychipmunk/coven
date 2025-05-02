@@ -362,7 +362,7 @@ const Garden: React.FC<GardenProps> = ({
             
             <button
               className="action-button cross-breed"
-              onClick={() => props.onCrossBreed && props.onCrossBreed()}
+              onClick={() => onCrossBreed && onCrossBreed()}
             >
               <span>Cross-Breed Plants</span>
             </button>

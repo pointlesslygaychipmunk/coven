@@ -12,6 +12,7 @@ import '../skills-styles.css';
 import '../puzzle-integration.css';
 import BrewingPuzzle from './BrewingPuzzle';
 import SeasonalAttunementPuzzle from './SeasonalAttunementPuzzle';
+import CrossBreedingInterface from './CrossBreedingInterface';
 
 // Basic App that will definitely render without hooks issues
 const SimpleApp: React.FC = () => {
@@ -2474,6 +2475,12 @@ const SimpleApp: React.FC = () => {
                   <div className="primary-actions">
                     <button 
                       className="garden-action-button"
+                      onClick={() => setShowCrossBreeding(true)}
+                    >
+                      Cross-Breed Plants
+                    </button>
+                    <button 
+                      className="garden-action-button"
                       onClick={() => {
                         setActiveAction('water');
                         waterPlants();
@@ -3472,6 +3479,19 @@ const SimpleApp: React.FC = () => {
             />
           </div>
         </div>
+      )}
+      
+      {showCrossBreeding && gameState && (
+        <CrossBreedingInterface
+          plants={gameState.players[gameState.currentPlayerIndex].garden
+            .filter(plot => plot.plant && plot.plant.mature)
+            .map(plot => plot.plant!)}
+          onCrossBreed={handleCrossBreed}
+          onClose={() => setShowCrossBreeding(false)}
+          currentSeason={gameState.time.season as Season}
+          currentMoonPhase={gameState.time.phaseName}
+          playerGardeningSkill={gameState.players[gameState.currentPlayerIndex].skills.gardening}
+        />
       )}
     </div>
   );
