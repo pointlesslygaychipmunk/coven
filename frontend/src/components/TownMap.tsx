@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './TownMap.css';
+import type { MarketItem, GameState, TownRequest, Rumor } from '../../shared/src/types';
 
 // Define interfaces for props and data structures
+
 interface TownMapProps {
-  gameState: any; // Replace with proper GameState type when available
+  gameState: GameState;
   onNavigateToTown: (townId: string) => void;
   onFulfillRequest: (requestId: string) => void;
   onNavigateToMarket: () => void;
@@ -119,7 +121,7 @@ const sampleRoutes: TradeRoute[] = [
 ];
 
 // Helper function to determine price trend based on market data
-const determineTrend = (marketItem: any): 'rising' | 'falling' | 'stable' => {
+const determineTrend = (marketItem: MarketItem | undefined): 'rising' | 'falling' | 'stable' => {
   if (!marketItem || !marketItem.priceHistory || marketItem.priceHistory.length < 2) {
     return 'stable';
   }
@@ -187,24 +189,24 @@ const TownMap: React.FC<TownMapProps> = ({
   
   if (gameState?.market && gameState?.marketData) {
     // Group market items by town/region and extract demand info
-    const marketByTown = gameState.townRequests.reduce((acc: Record<string, string[]>, request) => {
+    const marketByTown = gameState.townRequests.reduce((acc: Record<string, string[]>, request: TownRequest) => {
       if (!acc[request.requester]) {
         acc[request.requester] = [];
       }
       acc[request.requester].push(request.item);
       return acc;
-    }, {});
+    }, {} as Record<string, string[]>);
     
     // For each town with requests, create demand entries
-    Object.entries(marketByTown).forEach(([townName, items]) => {
+    Object.entries(marketByTown).forEach(([townName, items]: [string, string[]]) => {
       // Find town ID from name (simplified mapping)
       const townId = towns.find(t => 
         t.name.toLowerCase() === townName.toLowerCase())?.id || townName.toLowerCase().replace(/\s+/g, '');
       
-      demands[townId] = items.map(itemName => {
+      demands[townId] = items.map((itemName: string) => {
         // Find corresponding market item
-        const marketItem = gameState.market.find(m => m.name === itemName);
-        const itemDemand = marketItem ? 
+        const marketItem: MarketItem | undefined = gameState.market.find((m: MarketItem) => m.name === itemName);
+        const itemDemand: number = marketItem ? 
           (gameState.marketData.demand[marketItem.id] || 50) : 50;
         
         return {
@@ -455,8 +457,8 @@ const TownMap: React.FC<TownMapProps> = ({
             {gameState && gameState.rumors && gameState.rumors.length > 0 ? (
               // Map real rumors to visual hotspots on the map
               gameState.rumors
-                .filter(rumor => rumor.verified && rumor.spread > 30)
-                .map((rumor, index) => {
+                .filter((rumor: Rumor) => rumor.verified && rumor.spread > 30)
+                .map((rumor: Rumor, index: number) => {
                   // Generate semi-random positions for the rumor hotspots
                   // In a real implementation, these might be based on the town positions or other factors
                   const baseX = 250 + (index * 50) % 300;
@@ -588,12 +590,12 @@ const TownMap: React.FC<TownMapProps> = ({
               <h3>Town Requests</h3>
               {gameState && gameState.townRequests && gameState.townRequests.length > 0 ? (
                 gameState.townRequests
-                  .filter(request => 
+                  .filter((request: TownRequest) => 
                     // Filter requests by the selected town
                     request.requester.toLowerCase() === selectedTown.name.toLowerCase() && 
                     !request.completed
                   )
-                  .map(request => (
+                  .map((request: TownRequest) => (
                     <div className="request" key={request.id}>
                       <p>{request.description}</p>
                       <div className="request-details">
