@@ -28,7 +28,7 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   plants,
   onCrossBreed,
   onClose,
-  currentSeason,
+  // currentSeason, // Unused but kept in props definition for API consistency
   currentMoonPhase,
   playerGardeningSkill
 }) => {
@@ -40,7 +40,7 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CrossBreedingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [successProbability, setSuccessProbability] = useState(0);
+  const [_successProbability, setSuccessProbability] = useState(0); // Currently unused
   const [currentStep, setCurrentStep] = useState<'selection' | 'confirmation' | 'process' | 'result'>('selection');
   const [compatibility, setCompatibility] = useState<number>(0);
   const [currentView, setCurrentView] = useState<'selectParent1' | 'selectParent2' | 'review'>('selectParent1');

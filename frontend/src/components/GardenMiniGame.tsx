@@ -33,8 +33,9 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
   moonPhase,
   weather,
   playerSkill,
-  plotId,
-  plantId
+  // Unused props but kept in props definition for API consistency
+  // plotId,
+  // plantId
 }) => {
   // Game state
   const [gameActive, setGameActive] = useState(false);
@@ -244,10 +245,10 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
       } else if (type === 'watering') {
         // For watering, technique improves with coverage patterns
         const coveredArea = targets.filter(t => t.hit).length / targets.length;
-        setTechnique(prev => Math.max(0, Math.min(1, coveredArea)));
+        setTechnique(_prev => Math.max(0, Math.min(1, coveredArea)));
       } else {
         // Default technique calculation
-        setTechnique(prev => (prev + (hitValue / 3)) / 2);
+        setTechnique(_prev => (_prev + (hitValue / 3)) / 2);
       }
     }
     
@@ -273,9 +274,9 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
     setGamePhase('result');
     
     // Calculate final metrics
-    const hitTargets = targets.filter(t => t.hit).length;
+    // const hitTargets = targets.filter(t => t.hit).length; // Not currently used
     const totalTargets = targets.length;
-    const completionRate = hitTargets / totalTargets;
+    // const completionRate = hitTargets / totalTargets; // Not currently used
     
     // Normalize score based on game type
     const normalizedScore = Math.min(1, score / (10 * totalTargets));
@@ -304,9 +305,11 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
         yieldBonus = Math.min(1, precision * 1.5); // Moderate yield boost
       } else if (type === 'protection') {
         // Protection results depend heavily on weather severity
-        const weatherSeverity = weather === 'stormy' ? 0.8 : 
-                                weather === 'windy' ? 0.5 : 
-                                weather === 'snowy' ? 0.7 : 0.3;
+        // Cast weather to string to handle all possible weather types
+        const weatherString = weather as string;
+        const weatherSeverity = weatherString === 'stormy' ? 0.8 : 
+                                weatherString === 'windy' ? 0.5 : 
+                                weatherString === 'snowy' ? 0.7 : 0.3;
         
         const protectionEffectiveness = normalizedScore;
         
@@ -323,9 +326,11 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
         qualityBonus = -1;
         yieldBonus = -0.5;
       } else if (type === 'protection') {
-        const weatherSeverity = weather === 'stormy' ? 0.8 : 
-                                weather === 'windy' ? 0.5 : 
-                                weather === 'snowy' ? 0.7 : 0.3;
+        // Cast weather to string to handle all possible weather types
+        const weatherString = weather as string;
+        const weatherSeverity = weatherString === 'stormy' ? 0.8 : 
+                                weatherString === 'windy' ? 0.5 : 
+                                weatherString === 'snowy' ? 0.7 : 0.3;
         qualityBonus = -weatherSeverity;
         yieldBonus = -weatherSeverity;
       }
@@ -347,7 +352,7 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
       if (type === 'planting') {
         message = 'The planting was hasty. The seed may struggle to take root properly.';
       } else if (type === 'harvesting') {
-        message = 'Your harvest was rough. Some of the plant's essence was lost.';
+        message = "Your harvest was rough. Some of the plant's essence was lost.";
       } else if (type === 'watering') {
         message = 'The watering was uneven. Some areas remain parched while others flood.';
       } else if (type === 'protection') {
@@ -388,9 +393,9 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
   const getInstructions = () => {
     switch (type) {
       case 'planting':
-        return 'Plant seeds with care by clicking on the glowing soil spots. Timing and precision matter for the plant's future growth.';
+        return "Plant seeds with care by clicking on the glowing soil spots. Timing and precision matter for the plant's future growth.";
       case 'harvesting':
-        return 'Harvest mature plants by clicking on the glowing essence points. Be precise to preserve the plant's valuable properties.';
+        return "Harvest mature plants by clicking on the glowing essence points. Be precise to preserve the plant's valuable properties.";
       case 'watering':
         return 'Water your garden by clicking on the dry spots. Ensure even coverage to promote healthy growth.';
       case 'protection':

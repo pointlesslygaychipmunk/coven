@@ -1,4 +1,4 @@
-import { GardenSlot, Plant, Season, MoonPhase, WeatherFate } from 'coven-shared';
+import { GardenSlot, Season, MoonPhase, WeatherFate } from 'coven-shared';
 import { MiniGameResult } from '../components/GardenMiniGame';
 
 // Define interfaces for API responses
