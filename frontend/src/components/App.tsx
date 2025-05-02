@@ -76,7 +76,8 @@ const FALLBACK_GAME_STATE: GameState = {
 
 // Main App Component
 const App: React.FC = () => {
-    const [gameState, setGameState] = useState<GameState | null>(null);
+    // Initialize with fallback state to avoid null checks and loading issues
+    const [gameState, setGameState] = useState<GameState>(FALLBACK_GAME_STATE);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [pageTransition, setPageTransition] = useState<boolean>(false);
@@ -220,23 +221,26 @@ const App: React.FC = () => {
             });
     }
 
-    // Fetch initial game state
+    // Fetch initial game state - but we already have fallback state loaded
     useEffect(() => {
-        setLoading(true);
-        
-        makeApiCall('/state')
-            .then(initialState => {
-                setGameState(initialState);
-                setError(null);
-                // Set loading to false after a short delay for visual effect
-                setTimeout(() => setLoading(false), 800);
-            })
-            .catch(err => {
-                console.error('Error fetching initial game state:', err);
-                setError('Failed to connect to the Coven server. Is it running?');
-                // Set loading to false so the error screen can show
-                setLoading(false);
-            });
+        // Simulate a loading screen for a better experience
+        setTimeout(() => {
+            // Attempt to fetch real data from API
+            makeApiCall('/state')
+                .then(initialState => {
+                    setGameState(initialState);
+                    setError(null);
+                })
+                .catch(err => {
+                    console.error('Error fetching initial game state:', err);
+                    // Using fallback data, just show a message
+                    setError('Using offline mode - backend server not available');
+                })
+                .finally(() => {
+                    // Always proceed with the game using at least fallback data
+                    setLoading(false);
+                });
+        }, 800); // Small delay for visual effect
             
         // No dependencies needed - this only runs once on component mount
     }, []);
@@ -263,14 +267,13 @@ const App: React.FC = () => {
             });
     }
 
-    // Get current player and ID safely
-    const currentPlayer = gameState?.players[gameState?.currentPlayerIndex || 0];
-    const playerId = currentPlayer?.id;
+    // Get current player and ID safely (we now always have a gameState)
+    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+    const playerId = currentPlayer.id;
 
     // --- Wrapped API Call Functions ---
     // Don't use useCallback for these functions to avoid re-rendering issues
     function plantSeed(slotId: number, seedInventoryItemId: string) {
-        if (!playerId) return;
         handleApiAction(
             '/plant', 
             'POST', 
@@ -281,7 +284,6 @@ const App: React.FC = () => {
     }
 
     function harvestPlant(slotId: number) {
-        if (!playerId) return;
         handleApiAction(
             '/harvest', 
             'POST', 
@@ -292,7 +294,6 @@ const App: React.FC = () => {
     }
 
     function waterPlants(puzzleBonus: number = 0) {
-        if (!playerId) return;
         handleApiAction(
             '/water', 
             'POST', 
@@ -303,7 +304,6 @@ const App: React.FC = () => {
     }
 
     function brewPotion(ingredientInvItemIds: string[], puzzleBonus: number = 0, recipeId?: string) {
-        if (!playerId) return;
         handleApiAction(
             '/brew', 
             'POST', 
@@ -314,7 +314,6 @@ const App: React.FC = () => {
     }
 
     function buyItem(itemId: string) {
-        if (!playerId) return;
         handleApiAction(
             '/market/buy', 
             'POST', 
@@ -325,7 +324,6 @@ const App: React.FC = () => {
     }
 
     function sellItem(inventoryItemId: string) {
-        if (!playerId) return;
         handleApiAction(
             '/market/sell', 
             'POST', 
@@ -336,7 +334,6 @@ const App: React.FC = () => {
     }
 
     function fulfillRequest(requestId: string) {
-        if (!playerId) return;
         handleApiAction(
             '/fulfill', 
             'POST', 
@@ -347,7 +344,6 @@ const App: React.FC = () => {
     }
 
     function advanceDay() {
-        if (!playerId) return;
         handleApiAction(
             '/end-turn', 
             'POST', 
@@ -358,7 +354,6 @@ const App: React.FC = () => {
     }
 
     function claimRitualReward(ritualId: string) {
-        if (!playerId) return;
         handleApiAction(
             '/ritual/claim', 
             'POST', 
@@ -416,54 +411,50 @@ const App: React.FC = () => {
         </div>
     );
 
-    // --- Error Screen --- Fantasy style
-    if (!gameState || !currentPlayer) {
-        return (
-            <div className="game-container">
-                <div className="error-screen">
-                    <div className="error-dialog">
-                        <div className="error-header">SYSTEM ERROR</div>
-                        <div className="error-content">
-                            <h1>GRIMOIRE ACCESS DENIED</h1>
-                            
-                            <div className="error-icon"></div>
-                            
-                            <p className="error-message">{error || 'FATAL ERROR: Game data initialization failed. Please restart the application.'}</p>
-                            
-                            <div className="game-dialog-buttons">
-                                <button 
-                                    className="game-button" 
-                                    onClick={() => window.location.reload()}>
-                                    RETRY
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    // Error banner - shows at the top of the screen but doesn't block app
+    const ErrorBanner = () => error && (
+        <div className="error-overlay" style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            background: 'rgba(103, 31, 31, 0.9)',
+            color: '#ffd4d4',
+            padding: '8px 12px',
+            fontSize: '14px',
+            zIndex: 9999,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+            textAlign: 'center'
+         }}>
+            {error} 
+            <button onClick={() => setError(null)} style={{
+                background: 'transparent',
+                border: '1px solid #ffd4d4',
+                color: '#ffd4d4',
+                marginLeft: '10px',
+                cursor: 'pointer',
+                padding: '2px 6px'
+            }}>×</button>
+        </div>
+    );
 
     // Handler for entering the game from the lobby
     function handleEnterGame() {
         setShowLobby(false);
-        // Initialize the game state if needed (currently not using multiplayer)
-        if (!gameState) {
-            makeApiCall('/state')
-                .then(initialState => {
-                    setGameState(initialState);
-                    setError(null);
-                })
-                .catch(err => {
-                    console.error('Error fetching game state:', err);
-                    setError('Failed to initialize game data. Please try again.');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        } else {
-            setLoading(false);
-        }
+        // Try to fetch the state, but we already have a fallback state
+        makeApiCall('/state')
+            .then(initialState => {
+                setGameState(initialState);
+                setError(null);
+            })
+            .catch(err => {
+                console.error('Error fetching game state:', err);
+                // Error message but don't affect game state - we have fallback data
+                setError('Using offline mode - backend server not available');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }
     
     // --- Main Render ---
@@ -483,28 +474,7 @@ const App: React.FC = () => {
     return (
         <MultiplayerProvider>
             <div className="game-container">
-                {/* Debug info overlay - commented out for now as it might cause rendering loops
-                <div style={{ 
-                    position: 'fixed', 
-                    top: 0, 
-                    left: 0, 
-                    background: 'rgba(0,0,0,0.8)', 
-                    color: 'white', 
-                    padding: '10px', 
-                    zIndex: 9999,
-                    fontFamily: 'monospace',
-                    fontSize: '12px'
-                }}>
-                    <div>Loading: {loading ? 'true' : 'false'}</div>
-                    <div>Show Lobby: {showLobby ? 'true' : 'false'}</div>
-                    <div>Multiplayer: {useMultiplayer ? 'true' : 'false'}</div>
-                    <div>GameState: {gameState ? 'exists' : 'null'}</div>
-                    <div>CurrentPlayer: {currentPlayer ? 'exists' : 'null'}</div>
-                    <div>Current View: {currentView}</div>
-                    <div>Error: {error || 'none'}</div>
-                    <button onClick={() => window.location.reload()}>Reload</button>
-                </div>
-                */}
+                <ErrorBanner />
 
                 {/* Force show both Lobby and Game UI for debugging */}
                 {showLobby ? (
