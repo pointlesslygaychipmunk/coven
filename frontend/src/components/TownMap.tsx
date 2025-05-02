@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './TownMap.css';
-import type { MarketItem, GameState, TownRequest, Rumor } from '../../shared/src/types';
+import type { MarketItem, GameState, TownRequest, Rumor } from '../../../shared/src/types';
 
 // Define interfaces for props and data structures
 
