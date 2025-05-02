@@ -5,11 +5,13 @@ import {
   Plant,
   GardenSlot,
   ItemCategory,
-  ItemQuality as SharedItemQuality,
+  Rarity as ItemQuality,
+  ItemType,
+  Skills,
+  InventoryItem
 } from '../../shared/src/types.js';
 
-// Type definitions missing from shared types
-type ItemQuality = SharedItemQuality;
+// Additional type definitions
 type PlantStage = 'seed' | 'seedling' | 'growing' | 'flowering' | 'mature';
 
 interface Ingredient {
