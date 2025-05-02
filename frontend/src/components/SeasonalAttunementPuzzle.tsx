@@ -333,12 +333,12 @@ const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
     onSkip();
   };
   
-  // Use a resource
-  const useResource = (resourceIndex: number) => {
+  // Apply a resource item
+  const applyResource = (resourceIndex: number) => {
     if (!gameActive || gameComplete) return;
     
     const resource = playerResources[resourceIndex];
-    let newResources = [...playerResources];
+    const newResources = [...playerResources];
     newResources.splice(resourceIndex, 1);
     setPlayerResources(newResources);
     
@@ -349,13 +349,14 @@ const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
         setMaxTurns(maxTurns + 1);
         setMessage(`Used ${resource.name}! Gained an extra turn.`);
         break;
-      case 'dewdrops':
+      case 'dewdrops': {
         // Balance water element
         const newWaterBalance = {...elementBalance, water: elementBalance.water + 2};
         setElementBalance(newWaterBalance);
         setMessage(`Used ${resource.name}! Water element strengthened.`);
         break;
-      case 'vitality':
+      }
+      case 'vitality': {
         // Balance all elements slightly
         const vitalityBalance = {...elementBalance};
         Object.keys(vitalityBalance).forEach(key => {
@@ -364,14 +365,16 @@ const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
         setElementBalance(vitalityBalance);
         setMessage(`Used ${resource.name}! All elements strengthened.`);
         break;
-      case 'fertility':
+      }
+      case 'fertility': {
         // Get another random resource
         const randomIndex = Math.floor(Math.random() * possibleResources.length);
         const newResource = {...possibleResources[randomIndex]};
         setPlayerResources([...newResources, newResource]);
         setMessage(`Used ${resource.name}! Gained ${newResource.name}.`);
         break;
-      case 'harmony':
+      }
+      case 'harmony': {
         // Perfect balance on a random element
         const elemKeys = Object.keys(elementBalance) as ElementType[];
         const randomElem = elemKeys[Math.floor(Math.random() * elemKeys.length)];
@@ -381,6 +384,7 @@ const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
         setElementBalance(harmonyBalance);
         setMessage(`Used ${resource.name}! ${elements.find(e => e.id === randomElem)?.name} element harmonized.`);
         break;
+      }
     }
   };
   
@@ -445,7 +449,7 @@ const SeasonalAttunementPuzzle: React.FC<SeasonalAttunementPuzzleProps> = ({
               <button
                 key={`resource-${index}`}
                 className="resource-item"
-                onClick={() => useResource(index)}
+                onClick={() => applyResource(index)}
                 disabled={!gameActive || gameComplete}
                 title={`${resource.name}: ${resource.bonusEffect}`}
               >

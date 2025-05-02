@@ -3,9 +3,17 @@ node_modules/
 
 # Build outputs (optional, but often good to ignore)
 **/dist/
+
+# TypeScript compiled output
+**/*.js
+**/*.js.map
 **/*.d.ts
 **/*.d.ts.map
-**/*.js.map
+
+# Exceptions (JavaScript files that should be kept)
+!run-90s-ui.js
+!vite.config.ts
+
 # Skip compiled config files
 **/vite.config.js
 **/vite.config.d.ts

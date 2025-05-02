@@ -118,8 +118,8 @@ const Journal90s: React.FC<Journal90sProps> = ({
   };
   
   // Helper to format a date string - ignores timestamp and uses game time
-  const formatDate = (_: number) => {
-    // In a real game, we'd use the timestamp
+  const formatDate = (/* timestamp: number */) => {
+    // In a real game, we'd use the timestamp (parameter commented out for linting)
     // For this demo, we'll just show the day and moon phase from game time
     return `Day ${time.dayCount}, ${time.phaseName}, ${time.season}`;
   };
@@ -154,7 +154,7 @@ const Journal90s: React.FC<Journal90sProps> = ({
           >
             <div className="entry-header">
               <div className="entry-title">{entry.title}</div>
-              <div className="entry-date">{formatDate(entry.date)}</div>
+              <div className="entry-date">{formatDate()}</div>
             </div>
             <div className="entry-preview">
               {entry.content.substring(0, 80)}...
@@ -331,7 +331,7 @@ const Journal90s: React.FC<Journal90sProps> = ({
     
     return (
       <div className={`journal-page ${journalPageEffect ? 'page-turn' : ''}`}>
-        <div className="journal-page-date">{formatDate(selectedEntry.date)}</div>
+        <div className="journal-page-date">{formatDate()}</div>
         <h3 className="journal-page-title">{selectedEntry.title}</h3>
         <div className="journal-page-content">{selectedEntry.content}</div>
         
@@ -443,7 +443,7 @@ const Journal90s: React.FC<Journal90sProps> = ({
     <div className="journal90s-container">
       <div className="journal-header">
         <h2>Witch's Journal</h2>
-        <div className="journal-date">{formatDate(Date.now())}</div>
+        <div className="journal-date">{formatDate()}</div>
       </div>
       
       <div className="journal-tabs">

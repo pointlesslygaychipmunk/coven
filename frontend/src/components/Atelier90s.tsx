@@ -952,12 +952,13 @@ const Atelier90s: React.FC<Atelier90sProps> = ({
         tooltip.innerHTML = '';
         // Create a temporary container for the content
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content.props.children.map((child: any) => {
+        tempDiv.innerHTML = content.props.children.map((child: React.ReactNode) => {
           if (typeof child === 'string') return child;
           // Basic support for simple div elements with className and text content
-          if (child?.props) {
-            const className = child.props.className || '';
-            const text = child.props.children || '';
+          if (child && typeof child === 'object' && 'props' in child) {
+            const element = child as React.ReactElement;
+            const className = element.props.className || '';
+            const text = element.props.children || '';
             return `<div class="${className}">${text}</div>`;
           }
           return '';

@@ -10,16 +10,16 @@ interface ApiResponse<T> {
 
 interface PlantResponse {
   plot: GardenSlot;
-  inventory: any[];
+  inventory: Array<{ id: string; name: string; quantity: number; type: string; category: string }>;
   experience: number;
 }
 
 interface HarvestResponse {
-  harvestedIngredients: any[];
+  harvestedIngredients: Array<{ id: string; name: string; quantity: number; quality: number; type: string; category: string }>;
   seedsObtained: number;
   experience: number;
   plot: GardenSlot;
-  inventory: any[];
+  inventory: Array<{ id: string; name: string; quantity: number; type: string; category: string }>;
 }
 
 interface WaterResponse {
@@ -37,13 +37,13 @@ interface CrossBreedingResponse {
   newVarietyId?: string;
   newVarietyName?: string;
   traitInheritance?: {
-    fromParent1: any[];
-    fromParent2: any[];
-    newMutations: any[];
+    fromParent1: Array<{ name: string; description?: string }>;
+    fromParent2: Array<{ name: string; description?: string }>;
+    newMutations: Array<{ name: string; description?: string }>;
   };
   rarityTier: number;
   message: string;
-  seeds?: any[];
+  seeds?: Array<{ id: string; name: string; quantity: number; type: string; category: string }>;
   experience?: number;
 }
 
@@ -293,7 +293,7 @@ class GardenService {
   /**
    * Get details on all available plant varieties
    */
-  async getPlantVarieties(): Promise<ApiResponse<any[]>> {
+  async getPlantVarieties(): Promise<ApiResponse<Array<{ id: string; name: string; description: string; category: string; growthTime: number; waterNeeds: number; seedYield: number; traits: string[]; seasons: Season[] }>>> {
     try {
       const response = await fetch(`${API_URL}/garden/varieties`);
 

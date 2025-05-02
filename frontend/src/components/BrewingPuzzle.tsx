@@ -19,7 +19,7 @@ interface GridCellData {
   id: string;
   symbol: string;
   color: string;
-  power: { type: string; value: any; label: string } | null;
+  power: { type: 'time' | 'move' | 'hint' | 'combo'; value: number; label: string } | null;
   activated?: boolean;
 }
 
@@ -156,11 +156,11 @@ const BrewingPuzzle: React.FC<BrewingPuzzleProps> = ({ onComplete, currentLunarP
   }, [difficulty, currentLunarPhase]);
 
   // Generate special power cell
-  const generatePowerCell = () => {
-    const powers = [
+  const generatePowerCell = (): { type: 'time' | 'move' | 'hint' | 'combo'; value: number; label: string } => {
+    const powers: Array<{ type: 'time' | 'move' | 'hint' | 'combo'; value: number; label: string }> = [
       { type: 'time', value: 5, label: '+5s' }, 
       { type: 'move', value: 2, label: '+2♟' },
-      { type: 'hint', value: true, label: '💡' }, 
+      { type: 'hint', value: 1, label: '💡' }, // Changed from true to 1 for consistency
       { type: 'combo', value: 1.5, label: 'x1.5' }
     ];
     
@@ -316,7 +316,7 @@ const BrewingPuzzle: React.FC<BrewingPuzzleProps> = ({ onComplete, currentLunarP
   };
 
   // Activate power cell effects
-  const activatePowerCell = (power: { type: string; value: any; label: string }) => {
+  const activatePowerCell = (power: { type: 'time' | 'move' | 'hint' | 'combo'; value: number; label: string }) => {
     let message = '';
     
     switch(power.type) {
@@ -519,7 +519,7 @@ const BrewingPuzzle: React.FC<BrewingPuzzleProps> = ({ onComplete, currentLunarP
     );
   };
 
-  const powerTooltip = (power: { type: string; value: any; label: string }) => {
+  const powerTooltip = (power: { type: 'time' | 'move' | 'hint' | 'combo'; value: number; label: string }) => {
     switch (power.type) {
       case 'time': return `Adds ${power.value} seconds`;
       case 'move': return `Adds ${power.value} moves`;

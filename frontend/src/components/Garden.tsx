@@ -35,7 +35,7 @@ const Garden: React.FC<GardenProps> = ({
   const [showEastEgg, setShowEastEgg] = useState<boolean>(false);
 
   // Garden whispers (tips that appear randomly)
-  const gardenWhispers = [
+  const gardenWhispers = React.useMemo(() => [
     "The moon blesses plants harvested under its full glow...",
     "A plant's quality reflects its care and the soil it grows in...",
     "Some herbs thrive in unexpected seasons...",
@@ -46,7 +46,7 @@ const Garden: React.FC<GardenProps> = ({
     "Patience is the greatest virtue of a garden witch...",
     "Harmonizing with the season unlocks potent growth.",
     "Even failed experiments can yield useful compost."
-  ];
+  ], []);
 
   // Hanbang Gardening Tips (for Easter Egg)
   const hanbangTips = [
@@ -71,7 +71,7 @@ const Garden: React.FC<GardenProps> = ({
     }, 30000);
 
     return () => clearInterval(whisperInterval);
-  }, [showWhisper, showAttunementPuzzle]);
+  }, [showWhisper, showAttunementPuzzle, gardenWhispers]);
 
   // Get available seeds from inventory
   const getAvailableSeeds = (): InventoryItem[] => {

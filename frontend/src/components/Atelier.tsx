@@ -252,8 +252,7 @@ const Atelier: React.FC<AtelierProps> = ({
     }
     // FIX: Explicitly return undefined if container not found
     return undefined;
-    // Dependency array includes cornerClicks to re-bind if needed (though unlikely needed here)
-  }, [cornerClicks]);
+  }, [cornerClicks, handleCornerClick]);
 
 
   return (

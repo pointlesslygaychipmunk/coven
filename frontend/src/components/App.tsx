@@ -13,7 +13,7 @@ import WeatherEffectsOverlay from './WeatherEffectsOverlay';
 
 // API Utility
 const API_BASE_URL = '/api';
-const apiCall = async (endpoint: string, method: string = 'GET', body?: any): Promise<GameState> => {
+const apiCall = async (endpoint: string, method: string = 'GET', body?: Record<string, unknown>): Promise<GameState> => {
   const options: RequestInit = {
     method,
     headers: { 'Content-Type': 'application/json', },
@@ -42,7 +42,8 @@ const App: React.FC = () => {
 
     // Konami Code Easter Egg state
     const konamiSequence = useRef<string[]>([]);
-    const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+    // Memoize konamiCode to avoid dependency issues in useEffect
+    const konamiCode = React.useMemo(() => ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'], []);
     const [konamiActivated, setKonamiActivated] = useState<boolean>(false);
 
     // Viewport height fix for mobile browsers
@@ -50,7 +51,7 @@ const App: React.FC = () => {
       // Fix for mobile viewport height (100vh issue)
       const setVh = () => {
         // First we get the viewport height and multiply it by 1% to get a value for a vh unit
-        let vh = window.innerHeight * 0.01;
+        const vh = window.innerHeight * 0.01;
         // Then we set the value in the --vh custom property to the root of the document
         document.documentElement.style.setProperty('--vh', `${vh}px`);
       };
@@ -103,7 +104,7 @@ const App: React.FC = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [gameState, konamiCode]);
+    }, [konamiCode, setError, setKonamiActivated]);
 
     // Moonlight Meadow Easter Egg Detection
     useEffect(() => {

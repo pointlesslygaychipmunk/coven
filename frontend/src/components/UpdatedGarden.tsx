@@ -13,7 +13,18 @@ interface GardenProps {
   onHarvest: (slotId: number, miniGameResult?: MiniGameResult) => void;
   onWater: (puzzleBonus: number, plotId?: number, miniGameResult?: MiniGameResult) => void;
   onProtect: (plotId: number, miniGameResult?: MiniGameResult) => void;
-  onCrossBreed: (plant1Id: string, plant2Id: string) => Promise<any>;
+  onCrossBreed: (plant1Id: string, plant2Id: string) => Promise<{
+    success: boolean;
+    newVarietyId?: string;
+    newVarietyName?: string;
+    traitInheritance?: {
+      fromParent1: Array<{ name: string; description?: string }>;
+      fromParent2: Array<{ name: string; description?: string }>;
+      newMutations: Array<{ name: string; description?: string }>;
+    };
+    rarityTier: number;
+    message: string;
+  }>;
   weatherFate: WeatherFate;
   season: Season;
   moonPhase: MoonPhase;

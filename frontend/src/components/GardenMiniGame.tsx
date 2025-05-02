@@ -245,10 +245,10 @@ const GardenMiniGame: React.FC<MiniGameProps> = ({
       } else if (type === 'watering') {
         // For watering, technique improves with coverage patterns
         const coveredArea = targets.filter(t => t.hit).length / targets.length;
-        setTechnique(_prev => Math.max(0, Math.min(1, coveredArea)));
+        setTechnique(() => Math.max(0, Math.min(1, coveredArea)));
       } else {
         // Default technique calculation
-        setTechnique(_prev => (_prev + (hitValue / 3)) / 2);
+        setTechnique(prev => (prev + (hitValue / 3)) / 2);
       }
     }
     

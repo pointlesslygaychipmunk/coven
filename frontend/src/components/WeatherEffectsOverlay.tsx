@@ -39,7 +39,7 @@ const WeatherEffectsOverlay: React.FC<WeatherEffectsOverlayProps> = ({
       magic_glows: 15, // Base count for magical event glows
     };
 
-    let counts = {
+    const counts = {
       rain: baseCounts.rain[intensity] || baseCounts.rain.medium,
       wind: baseCounts.wind[intensity] || baseCounts.wind.medium,
       stars: baseCounts.stars,

@@ -7,9 +7,9 @@ interface CrossBreedingResult {
   newVarietyId?: string;
   newVarietyName?: string;
   traitInheritance?: {
-    fromParent1: any[];
-    fromParent2: any[];
-    newMutations: any[];
+    fromParent1: Array<{ name: string; description?: string }>;
+    fromParent2: Array<{ name: string; description?: string }>;
+    newMutations: Array<{ name: string; description?: string }>;
   };
   rarityTier: number;
   message: string;
@@ -40,7 +40,7 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CrossBreedingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [_successProbability, setSuccessProbability] = useState(0); // Currently unused
+  const [, setSuccessProbability] = useState(0); // Success probability for internal calculations
   const [currentStep, setCurrentStep] = useState<'selection' | 'confirmation' | 'process' | 'result'>('selection');
   const [compatibility, setCompatibility] = useState<number>(0);
   const [currentView, setCurrentView] = useState<'selectParent1' | 'selectParent2' | 'review'>('selectParent1');
