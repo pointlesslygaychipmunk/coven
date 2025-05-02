@@ -513,8 +513,7 @@ const App: React.FC = () => {
                                 <MultiplayerChat />
                             )}
 
-                            {/* Error Display */}
-                            <ErrorDisplay />
+                            {/* Error is now displayed at the top level */}
 
                             {/* Moonlight Meadow Easter Egg - DOS style */}
                             {moonlightMeadowActive && (
