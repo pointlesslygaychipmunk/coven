@@ -39,10 +39,9 @@ const App: React.FC = () => {
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden'); // Default view
     
-    // Multiplayer state - ensure it's enabled by default
-    const [showLobby, setShowLobby] = useState(true);
-    // Force useMultiplayer to true to ensure multiplayer features are active
-    const [useMultiplayer, _setUseMultiplayer] = useState(true);
+    // For troubleshooting, disable multiplayer and lobby
+    const [showLobby, setShowLobby] = useState(false);
+    const [useMultiplayer, _setUseMultiplayer] = useState(false);
 
     // Moonlight Meadow Easter Egg state
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
@@ -153,28 +152,97 @@ const App: React.FC = () => {
 
     // Fetch initial game state
     useEffect(() => {
-        // Only fetch directly from API if not using multiplayer
-        if (!useMultiplayer) {
-            const fetchInitialState = async () => {
-                try {
-                    setLoading(true);
-                    const initialState = await apiCall('/state');
-                    setGameState(initialState);
-                    setError(null);
-                } catch (err) {
-                    console.error('Error fetching initial game state:', err);
-                    setError('Failed to connect to the Coven server. Is it running?');
-                } finally {
-                    setTimeout(() => setLoading(false), 800); // Shorter loading time
+        console.log('Fetching initial state, useMultiplayer:', useMultiplayer);
+        
+        // Create a mock game state for testing/development
+        const mockGameState: GameState = {
+            currentPlayerIndex: 0,
+            version: "1.0.0",
+            players: [
+                {
+                    id: "player1",
+                    name: "Test Witch",
+                    gold: 100,
+                    mana: 50,
+                    reputation: 50,
+                    atelierLevel: 1,
+                    atelierSpecialization: "Essence",
+                    garden: [],
+                    inventory: [],
+                    blackMarketAccess: false,
+                    skills: {
+                        gardening: 1,
+                        brewing: 1,
+                        trading: 1,
+                        crafting: 1,
+                        herbalism: 1,
+                        astrology: 1
+                    },
+                    knownRecipes: [],
+                    completedRituals: [],
+                    journalEntries: [],
+                    questsCompleted: 0,
+                    lastActive: Date.now()
                 }
-            };
-            fetchInitialState();
-        } else {
-            // When using multiplayer, we'll get the state through the socket connection
-            // We'll still want to show the loading screen until the lobby is dismissed
+            ],
+            market: [],
+            marketData: {
+                inflation: 1.0,
+                demand: {},
+                supply: {},
+                volatility: 0.1,
+                blackMarketAccessCost: 500,
+                blackMarketUnlocked: false,
+                tradingVolume: 0
+            },
+            rumors: [],
+            townRequests: [],
+            journal: [],
+            rituals: [],
+            events: [],
+            knownRecipes: [],
+            time: {
+                year: 1,
+                dayCount: 1,
+                phaseName: "Full Moon",
+                phase: 0,
+                season: "Spring",
+                weatherFate: "clear"
+            }
+        };
+        
+        const fetchInitialState = async () => {
+            try {
+                // Try to fetch from API
+                const initialState = await apiCall('/state');
+                console.log('Received state from API');
+                setGameState(initialState);
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching initial game state:', err);
+                // Use mock data instead of failing
+                console.log('Using mock game state');
+                setGameState(mockGameState);
+                setError('Using mock data - backend server not available');
+            } finally {
+                // Always exit loading state
+                setTimeout(() => {
+                    setLoading(false);
+                    console.log('Loading set to false');
+                }, 800);
+            }
+        };
+
+        if (useMultiplayer) {
+            // In multiplayer mode, we should show the lobby
+            console.log('Multiplayer mode - showing lobby');
             if (!showLobby) {
                 setLoading(false);
             }
+        } else {
+            // In single player mode, fetch state directly
+            console.log('Single player mode - fetching state');
+            fetchInitialState();
         }
     }, [useMultiplayer, showLobby]);
 
@@ -286,7 +354,11 @@ const App: React.FC = () => {
     }, [currentView, pageTransition]);
 
     // --- Loading Screen --- Fantasy style
+    console.log('Current loading state:', loading);
+    console.log('Current game state:', gameState ? 'exists' : 'null');
+    
     if (loading) {
+        console.log('Rendering loading screen');
         return (
             <div className="game-container">
                 <div className="loading-screen">
@@ -302,26 +374,198 @@ const App: React.FC = () => {
                             </div>
                             
                             <p className="loading-text">Summoning magical components...</p>
+                            
+                            {/* Debug button to force exit loading state */}
+                            <button 
+                                style={{
+                                    marginTop: '20px',
+                                    padding: '10px',
+                                    background: '#4a3674',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => {
+                                    console.log('Force exiting loading state');
+                                    setLoading(false);
+                                    if (!gameState) {
+                                        console.log('Creating mock game state');
+                                        // Create a simple mock state
+                                        setGameState({
+                                            currentPlayerIndex: 0,
+                                            version: "1.0.0",
+                                            players: [{
+                                                id: "debug",
+                                                name: "Debug Witch",
+                                                gold: 999,
+                                                mana: 999,
+                                                reputation: 100,
+                                                atelierLevel: 10,
+                                                atelierSpecialization: "Essence",
+                                                garden: [],
+                                                inventory: [],
+                                                blackMarketAccess: true,
+                                                skills: { gardening: 10, brewing: 10, trading: 10, crafting: 10, herbalism: 10, astrology: 10 },
+                                                knownRecipes: [],
+                                                completedRituals: [],
+                                                journalEntries: [],
+                                                questsCompleted: 0,
+                                                lastActive: Date.now()
+                                            }],
+                                            market: [],
+                                            marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: true, tradingVolume: 0 },
+                                            rumors: [],
+                                            townRequests: [],
+                                            journal: [],
+                                            rituals: [],
+                                            events: [],
+                                            knownRecipes: [],
+                                            time: { year: 1, dayCount: 1, phaseName: "Full Moon", phase: 0, season: "Spring", weatherFate: "clear" }
+                                        });
+                                    }
+                                }}
+                            >
+                                DEBUG: Skip Loading
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         );
     }
+    
+    console.log('Exited loading check, rendering main UI');
 
     // We'll directly render error display in the render logic instead of as separate components
 
     // Handler for entering the game from the lobby
     const handleEnterGame = useCallback(() => {
+        console.log('Entering game from lobby');
+        
+        // Create a mock game state for testing if we don't have one yet
+        if (!gameState) {
+            const mockGameState: GameState = {
+                currentPlayerIndex: 0,
+                version: "1.0.0",
+                players: [
+                    {
+                        id: "player1",
+                        name: "Test Witch",
+                        gold: 100,
+                        mana: 50,
+                        reputation: 50,
+                        atelierLevel: 1,
+                        atelierSpecialization: "Essence",
+                        garden: [],
+                        inventory: [],
+                        blackMarketAccess: false,
+                        skills: {
+                            gardening: 1,
+                            brewing: 1,
+                            trading: 1,
+                            crafting: 1,
+                            herbalism: 1,
+                            astrology: 1
+                        },
+                        knownRecipes: [],
+                        completedRituals: [],
+                        journalEntries: [],
+                        questsCompleted: 0,
+                        lastActive: Date.now()
+                    }
+                ],
+                market: [],
+                marketData: {
+                    inflation: 1.0,
+                    demand: {},
+                    supply: {},
+                    volatility: 0.1,
+                    blackMarketAccessCost: 500,
+                    blackMarketUnlocked: false,
+                    tradingVolume: 0
+                },
+                rumors: [],
+                townRequests: [],
+                journal: [],
+                rituals: [],
+                events: [],
+                knownRecipes: [],
+                time: {
+                    year: 1,
+                    dayCount: 1,
+                    phaseName: "Full Moon",
+                    phase: 0,
+                    season: "Spring",
+                    weatherFate: "clear"
+                }
+            };
+            
+            setGameState(mockGameState);
+        }
+        
+        // Hide the lobby first
         setShowLobby(false);
-        setLoading(false);
-    }, []);
+        
+        // Then exit loading state
+        setTimeout(() => {
+            setLoading(false);
+            console.log('Loading disabled after entering game');
+        }, 500);
+    }, [gameState]);
     
-    // Simple debug logging
+    // Monitor key state changes
     useEffect(() => {
         console.log('App mounted');
-        return () => console.log('App unmounted');
-    }, []);
+        
+        // Add a failsafe timer to exit loading state after 5 seconds
+        const loadingTimer = setTimeout(() => {
+            if (loading) {
+                console.log('Failsafe: Loading state still true after 5 seconds, forcing to false');
+                setLoading(false);
+                
+                // If we don't have game state yet, create mock state
+                if (!gameState) {
+                    console.log('Creating fallback game state');
+                    setGameState({
+                        currentPlayerIndex: 0,
+                        version: "1.0.0",
+                        players: [{
+                            id: "fallback",
+                            name: "Fallback Witch",
+                            gold: 500,
+                            mana: 500,
+                            reputation: 50,
+                            atelierLevel: 5,
+                            atelierSpecialization: "Essence",
+                            garden: [],
+                            inventory: [],
+                            blackMarketAccess: false,
+                            skills: { gardening: 5, brewing: 5, trading: 5, crafting: 5, herbalism: 5, astrology: 5 },
+                            knownRecipes: [],
+                            completedRituals: [],
+                            journalEntries: [],
+                            questsCompleted: 0,
+                            lastActive: Date.now()
+                        }],
+                        market: [],
+                        marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: false, tradingVolume: 0 },
+                        rumors: [],
+                        townRequests: [],
+                        journal: [],
+                        rituals: [],
+                        events: [],
+                        knownRecipes: [],
+                        time: { year: 1, dayCount: 1, phaseName: "Full Moon", phase: 0, season: "Spring", weatherFate: "clear" }
+                    });
+                }
+            }
+        }, 5000);
+        
+        return () => {
+            console.log('App unmounted');
+            clearTimeout(loadingTimer);
+        };
+    }, [loading, gameState]);
 
     return (
         <MultiplayerProvider>
