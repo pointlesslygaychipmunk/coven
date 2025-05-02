@@ -42,7 +42,7 @@ const App: React.FC = () => {
     // Multiplayer state - ensure it's enabled by default
     const [showLobby, setShowLobby] = useState(true);
     // Force useMultiplayer to true to ensure multiplayer features are active
-    const [useMultiplayer, _setUseMultiplayer] = useState(true);
+    const [useMultiplayer, setUseMultiplayer] = useState(false);
 
     // Moonlight Meadow Easter Egg state
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
@@ -153,30 +153,25 @@ const App: React.FC = () => {
 
     // Fetch initial game state
     useEffect(() => {
-        // Only fetch directly from API if not using multiplayer
-        if (!useMultiplayer) {
-            const fetchInitialState = async () => {
-                try {
-                    setLoading(true);
-                    const initialState = await apiCall('/state');
-                    setGameState(initialState);
-                    setError(null);
-                } catch (err) {
-                    console.error('Error fetching initial game state:', err);
-                    setError('Failed to connect to the Coven server. Is it running?');
-                } finally {
-                    setTimeout(() => setLoading(false), 800); // Shorter loading time
-                }
-            };
-            fetchInitialState();
-        } else {
-            // When using multiplayer, we'll get the state through the socket connection
-            // We'll still want to show the loading screen until the lobby is dismissed
-            if (!showLobby) {
+        const fetchInitialState = async () => {
+            try {
+                setLoading(true);
+                const initialState = await apiCall('/state');
+                setGameState(initialState);
+                setError(null);
+                // Set loading to false after a short delay for visual effect
+                setTimeout(() => setLoading(false), 800);
+            } catch (err) {
+                console.error('Error fetching initial game state:', err);
+                setError('Failed to connect to the Coven server. Is it running?');
+                // Set loading to false so the error screen can show
                 setLoading(false);
             }
-        }
-    }, [useMultiplayer, showLobby]);
+        };
+
+        // We're disabling multiplayer for now to make sure the game works
+        fetchInitialState();
+    }, []);
 
     // --- Action Handlers ---
     const handleApiAction = useCallback(async (
@@ -285,35 +280,23 @@ const App: React.FC = () => {
         }, 300); // Wait for fade-out
     }, [currentView, pageTransition]);
 
-    // --- Loading Screen --- DOS style
+    // --- Loading Screen --- Fantasy style
     if (loading) {
         return (
             <div className="game-container">
                 <div className="loading-screen">
-                    <div className="dos-loading-dialog">
-                        <div className="dos-loading-title">LOADING WITCH COVEN v1.0</div>
-                        <div className="dos-loading-content">
+                    <div className="loading-dialog">
+                        <div className="loading-header">LOADING WITCH COVEN v1.0</div>
+                        <div className="loading-content">
                             <h1>INITIALIZING MAGICAL SYSTEMS</h1>
                             
-                            {/* ASCII art cauldron */}
-                            <pre className="dos-ascii-art">
-                               .---.
-                              /     \\
-                             |       |
-                          .-/|       |\\-.
-                         /   |       |   \\
-                        /    \\       /    \\
-                       /      `---'      \\
-                      |                   |
-                      `-------------------'
-                            </pre>
+                            <div className="loading-cauldron"></div>
                             
-                            <div className="dos-loading-animation">
-                                <div className="dos-loading-bar"></div>
-                                <div className="dos-loading-percent">LOADING MAGICAL COMPONENTS...</div>
+                            <div className="loading-bar-container">
+                                <div className="loading-bar"></div>
                             </div>
                             
-                            <p className="loading-flavor-text">C:{'\\'}{'>'} LOADING WITCH.EXE...</p>
+                            <p className="loading-text">Summoning magical components...</p>
                         </div>
                     </div>
                 </div>
@@ -321,49 +304,38 @@ const App: React.FC = () => {
         );
     }
 
-    // --- Error Display - DOS style ---
+    // --- Error Display - Fantasy style ---
     const ErrorDisplay = () => error && (
         <div className="error-overlay">
-            <div className="dos-error-popup">
-                <div className="dos-error-popup-title">
+            <div className="error-popup">
+                <div className="error-popup-header">
                     ERROR
-                    <button onClick={() => setError(null)} className="error-dismiss">X</button>
+                    <button onClick={() => setError(null)} className="error-close">X</button>
                 </div>
-                <div className="dos-error-popup-content">{error}</div>
+                <div className="error-popup-content">{error}</div>
             </div>
         </div>
     );
 
-    // --- Error Screen --- DOS style
+    // --- Error Screen --- Fantasy style
     if (!gameState || !currentPlayer) {
         return (
             <div className="game-container">
                 <div className="error-screen">
-                    <div className="dos-error-dialog">
-                        <div className="dos-error-title">SYSTEM ERROR</div>
-                        <div className="dos-error-content">
-                            <h1>GRIMOIRE.DAT ACCESS DENIED</h1>
+                    <div className="error-dialog">
+                        <div className="error-header">SYSTEM ERROR</div>
+                        <div className="error-content">
+                            <h1>GRIMOIRE ACCESS DENIED</h1>
                             
-                            {/* ASCII art error symbol */}
-                            <pre className="dos-ascii-art">
-                            ▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-                            █              █
-                            █  ▄        ▄  █
-                            █   ▀▄    ▄▀   █
-                            █     ▀▀▀▀     █
-                            █     ▄▀▀▄     █
-                            █    ▄▀  ▀▄    █
-                            █              █
-                            ▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-                            </pre>
+                            <div className="error-icon"></div>
                             
-                            <p>{error || 'FATAL ERROR: Game data initialization failed. Please restart the application.'}</p>
+                            <p className="error-message">{error || 'FATAL ERROR: Game data initialization failed. Please restart the application.'}</p>
                             
-                            <div className="retry-button-container">
+                            <div className="game-dialog-buttons">
                                 <button 
-                                    className="dos-button" 
+                                    className="game-button" 
                                     onClick={() => window.location.reload()}>
-                                    RETRY [R]
+                                    RETRY
                                 </button>
                             </div>
                         </div>
@@ -376,8 +348,24 @@ const App: React.FC = () => {
     // Handler for entering the game from the lobby
     const handleEnterGame = useCallback(() => {
         setShowLobby(false);
-        setLoading(false);
-    }, []);
+        // Initialize the game state if needed (currently not using multiplayer)
+        if (!gameState) {
+            apiCall('/state')
+                .then(initialState => {
+                    setGameState(initialState);
+                    setError(null);
+                })
+                .catch(err => {
+                    console.error('Error fetching game state:', err);
+                    setError('Failed to initialize game data. Please try again.');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            setLoading(false);
+        }
+    }, [gameState]);
     
     // --- Main Render ---
     return (
