@@ -340,7 +340,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     <div className="game-window">
       {/* Game Header */}
       <div className="game-header">
-        <h1>Witch's Coven: Hanbang Mystery</h1>
+        <h1>COVEN: GLOW BRIGHTLY</h1>
       </div>
       
       {/* Main Game Content */}
