@@ -4,10 +4,12 @@ import {
   WeatherFate as WeatherCondition,
   Plant,
   GardenSlot,
-} from '../../shared/src/types';
+  ItemCategory,
+  ItemQuality as SharedItemQuality,
+} from '../../shared/src/types.js';
 
 // Type definitions missing from shared types
-type ItemQuality = 'poor' | 'common' | 'uncommon' | 'rare' | 'exceptional';
+type ItemQuality = SharedItemQuality;
 type PlantStage = 'seed' | 'seedling' | 'growing' | 'flowering' | 'mature';
 
 interface Ingredient {
@@ -29,6 +31,7 @@ interface PlantVariety {
   growthTimeDays?: number;
   preferredSeason: Season;
   baseTraits?: PlantTrait[];
+  category?: string;
   [key: string]: any;
 }
 
@@ -1270,4 +1273,1336 @@ export function calculateGardeningExperience(
   const rarityBonus = plant.geneticTraits.reduce((sum, trait) => sum + trait.rarityTier, 0) * 0.5;
   
   return Math.round(baseExperience * successMultiplier + scoreBonus + rarityBonus);
+}
+
+/**
+ * Apply fertilizer to a garden plot
+ */
+export interface FertilizerItem {
+  id: string;
+  name: string;
+  category: string;
+  quality: ItemQuality;
+  potency?: number;
+  specialEffect?: string;
+  [key: string]: any;
+}
+
+export interface FertilizeResult {
+  updatedPlot: GardenSlot;
+  effects: {
+    fertilityIncrease: number;
+    qualityBonus: number;
+    growthBonus: number;
+    specialEffect?: string;
+  };
+}
+
+export function fertilizePlot(
+  plot: GardenSlot,
+  fertilizer: FertilizerItem,
+  currentSeason: Season,
+  playerSkill: number
+): FertilizeResult {
+  // Create a deep copy of the plot
+  const updatedPlot = JSON.parse(JSON.stringify(plot)) as GardenSlot;
+  
+  // Base fertility increase depends on fertilizer quality
+  const baseQualityValue = baseQualityMap[fertilizer.quality] || 2;
+  const baseFertilityIncrease = baseQualityValue * 5;
+  
+  // Apply skill bonus
+  const skillMultiplier = 1 + (playerSkill * 0.01);
+  
+  // Apply seasonal modifier
+  const seasonalMultiplier = fertilizer.specialEffect === currentSeason ? 1.3 : 1.0;
+  
+  // Calculate final fertility increase
+  const fertilityIncrease = Math.round(baseFertilityIncrease * skillMultiplier * seasonalMultiplier);
+  
+  // Update plot fertility (cap at 100)
+  updatedPlot.fertility = Math.min(100, (updatedPlot.fertility || 0) + fertilityIncrease);
+  
+  // Calculate growth and quality bonuses for plants
+  const potencyFactor = fertilizer.potency || baseQualityValue * 0.2;
+  const qualityBonus = potencyFactor * 0.1 * seasonalMultiplier;
+  const growthBonus = potencyFactor * 0.15 * seasonalMultiplier;
+  
+  // Apply effects to plant if one exists
+  if (updatedPlot.plant) {
+    const plant = updatedPlot.plant as InteractivePlant;
+    
+    // Add growth modifier from fertilizer
+    plant.growthModifiers.push({
+      source: 'fertilizer',
+      description: `Fertilized with ${fertilizer.name}`,
+      qualityModifier: qualityBonus,
+      yieldModifier: potencyFactor * 0.2,
+      growthRateModifier: 1 + growthBonus,
+      expiresAt: Date.now() + (3 * 24 * 3600 * 1000) // 3 days
+    });
+    
+    // Slight health boost
+    plant.health = Math.min(100, plant.health + (fertilityIncrease * 0.2));
+    
+    // Apply any special effects
+    if (fertilizer.specialEffect) {
+      applyFertilizerSpecialEffect(plant, fertilizer.specialEffect, seasonalMultiplier);
+    }
+  }
+  
+  return {
+    updatedPlot,
+    effects: {
+      fertilityIncrease,
+      qualityBonus,
+      growthBonus,
+      specialEffect: fertilizer.specialEffect
+    }
+  };
+}
+
+/**
+ * Apply special effects from fertilizers
+ */
+function applyFertilizerSpecialEffect(
+  plant: InteractivePlant,
+  effect: string,
+  multiplier: number
+): void {
+  switch (effect) {
+    case 'growth_boost':
+      plant.growthModifiers.push({
+        source: 'fertilizer_special',
+        description: 'Growth-boosting nutrients',
+        qualityModifier: 0,
+        yieldModifier: 0,
+        growthRateModifier: 1.3 * multiplier,
+        expiresAt: Date.now() + (24 * 3600 * 1000) // 24 hours
+      });
+      break;
+    case 'quality_boost':
+      plant.growthModifiers.push({
+        source: 'fertilizer_special',
+        description: 'Quality-enhancing minerals',
+        qualityModifier: 0.3 * multiplier,
+        yieldModifier: 0,
+        growthRateModifier: 1,
+        expiresAt: Date.now() + (3 * 24 * 3600 * 1000) // 3 days
+      });
+      break;
+    case 'yield_boost':
+      plant.growthModifiers.push({
+        source: 'fertilizer_special',
+        description: 'Yield-increasing compounds',
+        qualityModifier: 0,
+        yieldModifier: 0.3 * multiplier,
+        growthRateModifier: 1,
+        expiresAt: Date.now() + (3 * 24 * 3600 * 1000) // 3 days
+      });
+      break;
+    // Seasonal fertilizers are handled by the seasonal multiplier in the main function
+  }
+}
+
+/**
+ * Apply seasonal attunement mini-game results to plants
+ */
+export interface SeasonalAttunementResult {
+  success: boolean;
+  score: number;
+  seasonAlignment: number;
+  elementBalance: number;
+  ritualPrecision: number;
+}
+
+export function applySeasonalAttunement(
+  plant: InteractivePlant,
+  season: Season,
+  attunementBonus: number,
+  currentMoonPhase: MoonPhase
+): InteractivePlant {
+  // Create a deep copy of the plant
+  const updatedPlant = JSON.parse(JSON.stringify(plant)) as InteractivePlant;
+  
+  // Apply attunement modifier
+  updatedPlant.growthModifiers.push({
+    source: 'seasonal_attunement',
+    description: `${season} attunement ritual`,
+    qualityModifier: attunementBonus * 0.2,
+    yieldModifier: attunementBonus * 0.2,
+    growthRateModifier: 1 + (attunementBonus * 0.3),
+    expiresAt: Date.now() + (2 * 24 * 3600 * 1000) // 2 days
+  });
+  
+  // Enhanced lunar influence during attunement
+  const lunarBoost = LUNAR_POTENCY[currentMoonPhase] * 0.5;
+  if (lunarBoost > 0.3) {
+    updatedPlant.growthModifiers.push({
+      source: 'lunar_attunement',
+      description: `${currentMoonPhase} lunar influence during attunement`,
+      qualityModifier: lunarBoost * 0.2,
+      yieldModifier: lunarBoost * 0.1,
+      growthRateModifier: 1 + (lunarBoost * 0.1),
+      expiresAt: Date.now() + (24 * 3600 * 1000) // 24 hours
+    });
+  }
+  
+  // Apply season-specific effects
+  switch (season) {
+    case 'Spring':
+      // Spring attunement boosts growth rate
+      updatedPlant.growthModifiers.push({
+        source: 'spring_attunement',
+        description: 'Spring renewal energy',
+        qualityModifier: 0.1,
+        yieldModifier: 0,
+        growthRateModifier: 1.2,
+        expiresAt: Date.now() + (3 * 24 * 3600 * 1000) // 3 days
+      });
+      break;
+    case 'Summer':
+      // Summer attunement boosts quality
+      updatedPlant.growthModifiers.push({
+        source: 'summer_attunement',
+        description: 'Summer vitality essence',
+        qualityModifier: 0.3,
+        yieldModifier: 0.1,
+        growthRateModifier: 1,
+        expiresAt: Date.now() + (3 * 24 * 3600 * 1000) // 3 days
+      });
+      break;
+    case 'Fall':
+      // Fall attunement boosts yield
+      updatedPlant.growthModifiers.push({
+        source: 'fall_attunement',
+        description: 'Fall abundance energy',
+        qualityModifier: 0.1,
+        yieldModifier: 0.3,
+        growthRateModifier: 1,
+        expiresAt: Date.now() + (3 * 24 * 3600 * 1000) // 3 days
+      });
+      break;
+    case 'Winter':
+      // Winter attunement provides preservation effect
+      updatedPlant.growthModifiers.push({
+        source: 'winter_attunement',
+        description: 'Winter preservation magic',
+        qualityModifier: 0.2,
+        yieldModifier: -0.1,
+        growthRateModifier: 0.8,
+        expiresAt: Date.now() + (5 * 24 * 3600 * 1000) // 5 days
+      });
+      break;
+  }
+  
+  // Improved health from attunement
+  updatedPlant.health = Math.min(100, updatedPlant.health + (attunementBonus * 15));
+  
+  return updatedPlant;
+}
+
+/**
+ * Upgrade a garden plot's properties
+ */
+export interface GardenPlotUpgrade {
+  level: number;
+  type: string;
+  value: number;
+  appliedAt: number;
+}
+
+export function upgradeGardenPlot(
+  plot: GardenSlot,
+  upgradeType: string,
+  player: { id: string; gardeningSkill: number; crafting?: number }
+): GardenSlot {
+  // Create a deep copy of the plot
+  const updatedPlot = JSON.parse(JSON.stringify(plot)) as GardenSlot;
+  
+  // Initialize upgrades array if it doesn't exist
+  if (!updatedPlot.upgrades) {
+    updatedPlot.upgrades = [];
+  }
+  
+  // Get current upgrade level for this type
+  const existingUpgrade = updatedPlot.upgrades.find(u => u.type === upgradeType);
+  const currentLevel = existingUpgrade ? existingUpgrade.level : 0;
+  const newLevel = currentLevel + 1;
+  
+  // Skill bonus
+  const skillBonus = ((player.gardeningSkill || 0) * 0.01) + ((player.crafting || 0) * 0.01);
+  
+  // Apply upgrade based on type
+  switch (upgradeType) {
+    case 'soil':
+      // Improve soil quality/fertility
+      const soilBonus = 10 + (newLevel * 5);
+      updatedPlot.fertility = Math.min(100, (updatedPlot.fertility || 0) + soilBonus);
+      
+      // Update or add upgrade record
+      if (existingUpgrade) {
+        existingUpgrade.level = newLevel;
+        existingUpgrade.value = soilBonus;
+        existingUpgrade.appliedAt = Date.now();
+      } else {
+        updatedPlot.upgrades.push({
+          level: newLevel,
+          type: upgradeType,
+          value: soilBonus,
+          appliedAt: Date.now()
+        });
+      }
+      break;
+      
+    case 'irrigation':
+      // Improve water retention
+      const waterRetention = 10 + (newLevel * 8);
+      updatedPlot.waterRetention = (updatedPlot.waterRetention || 0) + waterRetention;
+      
+      // Also slightly increases base moisture
+      updatedPlot.moisture = Math.min(100, (updatedPlot.moisture || 0) + (waterRetention / 2));
+      
+      if (existingUpgrade) {
+        existingUpgrade.level = newLevel;
+        existingUpgrade.value = waterRetention;
+        existingUpgrade.appliedAt = Date.now();
+      } else {
+        updatedPlot.upgrades.push({
+          level: newLevel,
+          type: upgradeType,
+          value: waterRetention,
+          appliedAt: Date.now()
+        });
+      }
+      break;
+      
+    case 'size':
+      // Increase plot size/capacity
+      const sizeIncrease = 0.5 + (newLevel * 0.25);
+      updatedPlot.size = (updatedPlot.size || 1) + sizeIncrease;
+      updatedPlot.capacity = Math.floor((updatedPlot.capacity || 1) + sizeIncrease);
+      
+      if (existingUpgrade) {
+        existingUpgrade.level = newLevel;
+        existingUpgrade.value = sizeIncrease;
+        existingUpgrade.appliedAt = Date.now();
+      } else {
+        updatedPlot.upgrades.push({
+          level: newLevel,
+          type: upgradeType,
+          value: sizeIncrease,
+          appliedAt: Date.now()
+        });
+      }
+      break;
+      
+    case 'specialization':
+      // Specialize plot for a specific plant type
+      // Value of 0-1 represents specialization strength
+      const specializationBonus = 0.2 + (newLevel * 0.1) + skillBonus;
+      
+      if (!updatedPlot.specialization) {
+        updatedPlot.specialization = {
+          type: 'herb', // Default specialization
+          bonus: specializationBonus
+        };
+      } else {
+        updatedPlot.specialization.bonus = specializationBonus;
+      }
+      
+      if (existingUpgrade) {
+        existingUpgrade.level = newLevel;
+        existingUpgrade.value = specializationBonus;
+        existingUpgrade.appliedAt = Date.now();
+      } else {
+        updatedPlot.upgrades.push({
+          level: newLevel,
+          type: upgradeType,
+          value: specializationBonus,
+          appliedAt: Date.now()
+        });
+      }
+      break;
+  }
+  
+  // Update overall plot level
+  updatedPlot.level = (updatedPlot.level || 0) + 1;
+  
+  return updatedPlot;
+}
+
+/**
+ * Analyze cross-breeding compatibility between two plants
+ */
+export interface BreedingCompatibility {
+  score: number;
+  reasons: string[];
+  potentialTraits: string[];
+  strongestTraits: PlantTrait[];
+  recommendedPhase?: MoonPhase;
+  recommendedSeason?: Season;
+}
+
+export function analyzeCrossBreedingCompatibility(
+  plant1: InteractivePlant,
+  plant2: InteractivePlant,
+  player: { id: string; gardeningSkill: number; breedingExperience: number },
+  currentSeason: Season,
+  currentMoonPhase: MoonPhase
+): BreedingCompatibility {
+  // Base compatibility (0-1)
+  let compatibilityScore = 0.5;
+  const reasons: string[] = [];
+  const potentialTraits: string[] = [];
+  
+  // Check if same variety (reduces compatibility)
+  if (plant1.varietyId === plant2.varietyId) {
+    compatibilityScore -= 0.2;
+    reasons.push("Same variety plants have lower mutation chance");
+  } else {
+    compatibilityScore += 0.1;
+    reasons.push("Different varieties have better cross-breeding potential");
+  }
+  
+  // Check plant categories
+  const category1 = plant1.category || 'unknown';
+  const category2 = plant2.category || 'unknown';
+  
+  if (category1 === category2) {
+    compatibilityScore += 0.2;
+    reasons.push(`Both plants are ${category1}s, increasing compatibility`);
+  } else {
+    // Some combinations work better than others
+    const goodPairs = [
+      ['herb', 'flower'],
+      ['root', 'herb'],
+      ['mushroom', 'root']
+    ];
+    
+    const isPairGood = goodPairs.some(pair => 
+      (pair[0] === category1 && pair[1] === category2) || 
+      (pair[0] === category2 && pair[1] === category1)
+    );
+    
+    if (isPairGood) {
+      compatibilityScore += 0.15;
+      reasons.push(`${category1} and ${category2} complement each other well`);
+    } else {
+      compatibilityScore -= 0.1;
+      reasons.push(`${category1} and ${category2} have lower cross-breeding synergy`);
+    }
+  }
+  
+  // Check maturity
+  if (!plant1.mature || !plant2.mature) {
+    compatibilityScore = 0;
+    reasons.push("Both plants must be mature for cross-breeding");
+    return {
+      score: 0,
+      reasons,
+      potentialTraits: [],
+      strongestTraits: []
+    };
+  }
+  
+  // Check health
+  const avgHealth = (plant1.health + plant2.health) / 2;
+  if (avgHealth < 50) {
+    compatibilityScore -= 0.3;
+    reasons.push("Low plant health reduces cross-breeding success chance");
+  } else if (avgHealth > 80) {
+    compatibilityScore += 0.1;
+    reasons.push("High plant health improves cross-breeding potential");
+  }
+  
+  // Find common and unique traits
+  const p1Traits = plant1.geneticTraits.map(t => t.name);
+  const p2Traits = plant2.geneticTraits.map(t => t.name);
+  
+  const commonTraits = p1Traits.filter(t => p2Traits.includes(t));
+  const uniqueP1Traits = p1Traits.filter(t => !p2Traits.includes(t));
+  const uniqueP2Traits = p2Traits.filter(t => !p1Traits.includes(t));
+  
+  // Common traits improve compatibility
+  if (commonTraits.length > 0) {
+    compatibilityScore += 0.05 * commonTraits.length;
+    reasons.push(`Plants share ${commonTraits.length} common traits`);
+    
+    // Common traits are likely to be inherited
+    commonTraits.forEach(trait => {
+      potentialTraits.push(`${trait} (Strong inheritance potential)`);
+    });
+  }
+  
+  // Find potential traits that could be inherited
+  uniqueP1Traits.forEach(trait => {
+    const traitObj = plant1.geneticTraits.find(t => t.name === trait);
+    if (traitObj && traitObj.dominant) {
+      potentialTraits.push(`${trait} (From first plant, dominant)`);
+    } else {
+      potentialTraits.push(`${trait} (From first plant)`);
+    }
+  });
+  
+  uniqueP2Traits.forEach(trait => {
+    const traitObj = plant2.geneticTraits.find(t => t.name === trait);
+    if (traitObj && traitObj.dominant) {
+      potentialTraits.push(`${trait} (From second plant, dominant)`);
+    } else {
+      potentialTraits.push(`${trait} (From second plant)`);
+    }
+  });
+  
+  // Check for potential new traits based on combined properties
+  if (player.breedingExperience > 10) {
+    const possibleNewTraits = [
+      'Harmonious',
+      'Resonant',
+      'Adaptive',
+      'Vibrant',
+      'Luminescent'
+    ];
+    
+    // Higher breeding experience reveals potential mutations
+    const revealCount = Math.min(
+      possibleNewTraits.length,
+      Math.floor(player.breedingExperience / 30) + 1
+    );
+    
+    for (let i = 0; i < revealCount; i++) {
+      potentialTraits.push(`${possibleNewTraits[i]} (Possible mutation, rare)`);
+    }
+  }
+  
+  // Find strongest traits that could influence offspring
+  const allTraits = [...plant1.geneticTraits, ...plant2.geneticTraits];
+  const sortedTraits = allTraits.sort((a, b) => {
+    // Prioritize dominant and rare traits
+    const aDominance = (a.dominant ? 2 : 0) + a.rarityTier;
+    const bDominance = (b.dominant ? 2 : 0) + b.rarityTier;
+    return bDominance - aDominance;
+  });
+  
+  const strongestTraits = sortedTraits.slice(0, 3);
+  
+  // Check seasonal compatibility
+  let recommendedSeason: Season | undefined;
+  if (currentSeason === 'Spring') {
+    compatibilityScore += 0.1;
+    reasons.push("Spring increases breeding success rate");
+  } else if (currentSeason === 'Winter') {
+    compatibilityScore -= 0.1;
+    reasons.push("Winter reduces breeding success rate");
+    recommendedSeason = 'Spring';
+  }
+  
+  // Check lunar phase compatibility
+  let recommendedPhase: MoonPhase | undefined;
+  if (currentMoonPhase === 'Full Moon') {
+    compatibilityScore += 0.2;
+    reasons.push("Full Moon greatly enhances breeding potential");
+  } else if (currentMoonPhase === 'New Moon') {
+    compatibilityScore -= 0.1;
+    reasons.push("New Moon reduces breeding success rate");
+    recommendedPhase = 'Full Moon';
+  } else if (currentMoonPhase === 'Waxing Gibbous' || currentMoonPhase === 'Waning Gibbous') {
+    compatibilityScore += 0.1;
+    reasons.push("Gibbous moon phases improve breeding potential");
+  }
+  
+  // Apply player skill bonus
+  const skillBonus = (player.gardeningSkill * 0.003) + (player.breedingExperience * 0.005);
+  compatibilityScore += skillBonus;
+  
+  if (skillBonus > 0.1) {
+    reasons.push("Your experience improves cross-breeding success chance");
+  }
+  
+  // Ensure score is between 0 and 1
+  compatibilityScore = Math.max(0, Math.min(1, compatibilityScore));
+  
+  return {
+    score: compatibilityScore,
+    reasons,
+    potentialTraits,
+    strongestTraits,
+    recommendedPhase,
+    recommendedSeason
+  };
+}
+
+/**
+ * Create Hanbang skincare ingredient from plant ingredient
+ */
+export interface HanbangIngredient {
+  id: string;
+  name: string;
+  type: string;
+  category: string;
+  quality: ItemQuality;
+  effectivenessScore: number;
+  primaryEffect: string;
+  secondaryEffects: string[];
+  skinType: string;
+  skinConcern: string;
+  potency: number;
+  moonPhase: MoonPhase;
+  season: Season;
+  sourceIngredient: string;
+  harvestedAt: number;
+  processedAt: number;
+  [key: string]: any;
+}
+
+export function createHanbangIngredient(
+  ingredient: any,
+  player: { 
+    id: string; 
+    gardeningSkill: number;
+    alchemySkill: number;
+    hanbangKnowledge: number 
+  },
+  targetSkinType: string,
+  targetSkinConcern: string,
+  ritualQuality: number,
+  moonPhase: MoonPhase,
+  season: Season
+): HanbangIngredient {
+  // Base effectiveness calculation
+  const baseQualityValue = baseQualityMap[ingredient.quality as ItemQuality] || 2;
+  const baseEffectiveness = baseQualityValue * 15;
+  
+  // Apply player skill modifiers
+  const skillModifier = 1 + 
+    (player.hanbangKnowledge * 0.02) + 
+    (player.alchemySkill * 0.01) + 
+    (player.gardeningSkill * 0.005);
+  
+  // Apply ritual quality modifier
+  const ritualModifier = 0.5 + (ritualQuality * 0.8);
+  
+  // Apply lunar phase modifier
+  const lunarModifier = LUNAR_POTENCY[moonPhase];
+  
+  // Apply seasonal modifier
+  const seasonalModifier = season === 'Spring' || season === 'Summer' ? 1.2 : 1.0;
+  
+  // Calculate final effectiveness
+  const effectivenessScore = baseEffectiveness * 
+    skillModifier * 
+    ritualModifier * 
+    lunarModifier * 
+    seasonalModifier;
+  
+  // Determine ingredient effects based on category
+  let primaryEffect = '';
+  const secondaryEffects: string[] = [];
+  const category = ingredient.category || 'unknown';
+  
+  // Map categories to effects
+  const effectMap: Record<string, { primary: string; secondary: string[] }> = {
+    'herb': { 
+      primary: 'soothing', 
+      secondary: ['calming', 'purifying'] 
+    },
+    'flower': { 
+      primary: 'brightening', 
+      secondary: ['anti-aging', 'fragrance'] 
+    },
+    'root': { 
+      primary: 'nourishing', 
+      secondary: ['firming', 'balancing'] 
+    },
+    'mushroom': { 
+      primary: 'hydrating', 
+      secondary: ['revitalizing', 'clarifying'] 
+    },
+    'berry': { 
+      primary: 'antioxidant', 
+      secondary: ['protecting', 'plumping'] 
+    }
+  };
+  
+  // Set primary and secondary effects
+  if (effectMap[category]) {
+    primaryEffect = effectMap[category].primary;
+    
+    // Higher ritual quality unlocks more secondary effects
+    const numSecondaryEffects = ritualQuality > 0.7 ? 2 : 
+                               ritualQuality > 0.4 ? 1 : 0;
+    
+    for (let i = 0; i < numSecondaryEffects && i < effectMap[category].secondary.length; i++) {
+      secondaryEffects.push(effectMap[category].secondary[i]);
+    }
+  } else {
+    // Default effects for unknown categories
+    primaryEffect = 'beneficial';
+    if (ritualQuality > 0.5) {
+      secondaryEffects.push('gentle');
+    }
+  }
+  
+  // Calculate potency (1-10 scale)
+  const potency = Math.min(10, Math.max(1, Math.round(effectivenessScore / 10)));
+  
+  // Generate name
+  const qualityPrefix = ritualQuality > 0.8 ? 'Premium' : 
+                       ritualQuality > 0.5 ? 'Quality' : '';
+  const baseIngredientName = ingredient.name.replace('Harvested ', '');
+  const hanbangName = `${qualityPrefix} ${baseIngredientName} Hanbang Extract`.trim();
+  
+  return {
+    id: `hanbang_${ingredient.id}_${Date.now()}`,
+    name: hanbangName,
+    type: 'hanbang_ingredient',
+    category: 'skincare',
+    quality: ingredient.quality,
+    effectivenessScore,
+    primaryEffect,
+    secondaryEffects,
+    skinType: targetSkinType,
+    skinConcern: targetSkinConcern,
+    potency,
+    moonPhase,
+    season,
+    sourceIngredient: ingredient.id,
+    harvestedAt: ingredient.harvestedAt || Date.now() - (24 * 3600 * 1000),
+    processedAt: Date.now(),
+    description: `A ${primaryEffect} skincare extract created from ${baseIngredientName}, 
+    especially effective for ${targetSkinConcern} concerns with ${targetSkinType} skin.`
+  };
+}
+
+/**
+ * Apply lunar and seasonal modifiers to hanbang ingredients
+ */
+export function applyHanbangIngredientModifiers(
+  ingredient: HanbangIngredient,
+  currentMoonPhase: MoonPhase,
+  currentSeason: Season
+): HanbangIngredient {
+  // Create a deep copy of the ingredient
+  const modifiedIngredient = JSON.parse(JSON.stringify(ingredient)) as HanbangIngredient;
+  
+  // Check for moon phase resonance effects
+  if (ingredient.moonPhase === currentMoonPhase) {
+    // Ingredient was processed during the same moon phase being used now
+    modifiedIngredient.effectivenessScore *= 1.3;
+    modifiedIngredient.potency = Math.min(10, Math.round(modifiedIngredient.potency * 1.2));
+    
+    if (!modifiedIngredient.activeModifiers) modifiedIngredient.activeModifiers = [];
+    modifiedIngredient.activeModifiers.push({
+      type: 'lunar_resonance',
+      description: `Moon phase resonance: ${currentMoonPhase}`,
+      effectBonus: 30,
+      expiresAt: Date.now() + (8 * 3600 * 1000) // 8 hours
+    });
+  }
+  
+  // Check for seasonal resonance effects
+  if (ingredient.season === currentSeason) {
+    // Ingredient was processed during the same season being used now
+    modifiedIngredient.effectivenessScore *= 1.2;
+    
+    if (!modifiedIngredient.activeModifiers) modifiedIngredient.activeModifiers = [];
+    modifiedIngredient.activeModifiers.push({
+      type: 'seasonal_resonance',
+      description: `Seasonal energy alignment: ${currentSeason}`,
+      effectBonus: 20,
+      expiresAt: null // Lasts as long as the season
+    });
+  }
+  
+  // Special combinations for enhanced effects
+  if (ingredient.moonPhase === 'Full Moon' && ingredient.primaryEffect === 'brightening') {
+    if (!modifiedIngredient.specialProperties) modifiedIngredient.specialProperties = [];
+    modifiedIngredient.specialProperties.push('Luminous');
+    
+    if (!modifiedIngredient.secondaryEffects.includes('illuminating')) {
+      modifiedIngredient.secondaryEffects.push('illuminating');
+    }
+  }
+  
+  if (ingredient.season === 'Spring' && ingredient.primaryEffect === 'hydrating') {
+    if (!modifiedIngredient.specialProperties) modifiedIngredient.specialProperties = [];
+    modifiedIngredient.specialProperties.push('Moisture-Locking');
+    
+    if (!modifiedIngredient.secondaryEffects.includes('long-lasting')) {
+      modifiedIngredient.secondaryEffects.push('long-lasting');
+    }
+  }
+  
+  return modifiedIngredient;
+}
+
+/**
+ * Create garden structures like greenhouses, shade cloths, etc.
+ */
+export interface GardenStructure {
+  id: string;
+  type: string;
+  name: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  protection: number;
+  weatherResistance: string[];
+  durability: number;
+  effects: {
+    growthModifier: number;
+    qualityModifier: number;
+    yieldModifier: number;
+    weatherProtection: number;
+  };
+  createdAt: number;
+  level: number;
+}
+
+export function setupGardenStructure(
+  structureType: string,
+  position: { x: number; y: number },
+  size: { width: number; height: number },
+  craftingSkill: number
+): GardenStructure {
+  // Base properties by structure type
+  const baseProperties: Record<string, any> = {
+    'greenhouse': {
+      name: 'Greenhouse',
+      protection: 0.8,
+      weatherResistance: ['rain', 'wind', 'cold', 'heat'],
+      durability: 100,
+      effects: {
+        growthModifier: 1.3,
+        qualityModifier: 0.2,
+        yieldModifier: 0.1,
+        weatherProtection: 0.8
+      }
+    },
+    'shade_cloth': {
+      name: 'Shade Cloth',
+      protection: 0.5,
+      weatherResistance: ['heat', 'light'],
+      durability: 60,
+      effects: {
+        growthModifier: 1.1,
+        qualityModifier: 0.1,
+        yieldModifier: 0,
+        weatherProtection: 0.4
+      }
+    },
+    'irrigation': {
+      name: 'Irrigation System',
+      protection: 0.3,
+      weatherResistance: ['drought'],
+      durability: 80,
+      effects: {
+        growthModifier: 1.2,
+        qualityModifier: 0,
+        yieldModifier: 0.2,
+        weatherProtection: 0.2
+      }
+    },
+    'windbreak': {
+      name: 'Windbreak',
+      protection: 0.6,
+      weatherResistance: ['wind', 'storm'],
+      durability: 70,
+      effects: {
+        growthModifier: 1.1,
+        qualityModifier: 0.1,
+        yieldModifier: 0.1,
+        weatherProtection: 0.6
+      }
+    },
+    'trellis': {
+      name: 'Trellis System',
+      protection: 0.2,
+      weatherResistance: ['wind'],
+      durability: 90,
+      effects: {
+        growthModifier: 1.2,
+        qualityModifier: 0.2,
+        yieldModifier: 0.3,
+        weatherProtection: 0.1
+      }
+    }
+  };
+  
+  // Default to greenhouse if type not found
+  const baseProps = baseProperties[structureType] || baseProperties['greenhouse'];
+  
+  // Apply crafting skill bonus
+  const skillModifier = 1 + (craftingSkill * 0.01);
+  
+  // Create structure object
+  const structure: GardenStructure = {
+    id: `structure_${structureType}_${Date.now()}`,
+    type: structureType,
+    name: baseProps.name,
+    position,
+    size,
+    protection: baseProps.protection * skillModifier,
+    weatherResistance: baseProps.weatherResistance,
+    durability: Math.round(baseProps.durability * skillModifier),
+    effects: {
+      growthModifier: baseProps.effects.growthModifier,
+      qualityModifier: baseProps.effects.qualityModifier * skillModifier,
+      yieldModifier: baseProps.effects.yieldModifier * skillModifier,
+      weatherProtection: baseProps.effects.weatherProtection * skillModifier
+    },
+    createdAt: Date.now(),
+    level: 1
+  };
+  
+  return structure;
+}
+
+/**
+ * Generate weather forecast for garden planning
+ */
+export interface WeatherForecast {
+  days: WeatherPrediction[];
+  reliability: number;
+  warnings: string[];
+}
+
+export interface WeatherPrediction {
+  day: number;
+  weather: WeatherCondition;
+  intensity: number;
+  effect: string;
+  recommendation: string;
+}
+
+export function getWeatherForecastForGarden(
+  playerId: string,
+  days: number,
+  currentSeason: Season,
+  currentMoonPhase: MoonPhase
+): WeatherForecast {
+  // Maximum days to forecast
+  const maxDays = Math.min(7, days);
+  
+  // Generate reliability based on moon phase
+  let reliability = 0.8;
+  if (currentMoonPhase === 'Full Moon') {
+    reliability = 0.9;
+  } else if (currentMoonPhase === 'New Moon') {
+    reliability = 0.7;
+  }
+  
+  // Season-specific common weather patterns
+  const seasonWeather: Record<Season, WeatherCondition[]> = {
+    'Spring': ['rainy', 'cloudy', 'clear', 'windy'],
+    'Summer': ['sunny', 'clear', 'dry', 'stormy'],
+    'Fall': ['windy', 'rainy', 'cloudy', 'foggy'],
+    'Winter': ['snowy', 'cloudy', 'clear', 'foggy']
+  };
+  
+  // Generate forecasts
+  const forecast: WeatherPrediction[] = [];
+  let previousWeather: WeatherCondition | null = null;
+  
+  for (let i = 0; i < maxDays; i++) {
+    // Higher chance of continuing same weather for 1-2 days
+    let weather: WeatherCondition;
+    
+    if (previousWeather && Math.random() < 0.4 && i < 2) {
+      weather = previousWeather;
+    } else {
+      // Pick from season-appropriate weather
+      const seasonalOptions = seasonWeather[currentSeason];
+      weather = seasonalOptions[Math.floor(Math.random() * seasonalOptions.length)];
+      
+      // Small chance of unusual weather
+      if (Math.random() < 0.1) {
+        const allWeather = Object.values(WEATHER_EFFECT_MULTIPLIERS);
+        weather = allWeather[Math.floor(Math.random() * allWeather.length)];
+      }
+    }
+    
+    // Weather intensity (0.1-1.0)
+    const intensity = 0.3 + (Math.random() * 0.7);
+    
+    // Generate recommendation
+    let recommendation = '';
+    let effect = '';
+    
+    switch(weather) {
+      case 'rainy':
+        effect = "Increases plant growth speed but may damage delicate flowering plants";
+        recommendation = intensity > 0.7 ? "Use protective coverings for delicate plants" : "Good day for planting, no need to water";
+        break;
+      case 'sunny':
+      case 'dry':
+        effect = "Increases quality for sun-loving plants, but may cause water stress";
+        recommendation = "Water plants thoroughly in the morning";
+        break;
+      case 'stormy':
+        effect = "High risk of damage to all plants";
+        recommendation = "Apply weather protection to all valuable plants";
+        break;
+      case 'windy':
+        effect = "May damage tall or flowering plants";
+        recommendation = "Use windbreaks or protective structures";
+        break;
+      case 'snowy':
+        effect = "Slows growth but can protect roots from freezing";
+        recommendation = "Check greenhouse heating if applicable";
+        break;
+      case 'cloudy':
+        effect = "Moderate growing conditions for most plants";
+        recommendation = "Good day for transplanting or garden maintenance";
+        break;
+      case 'foggy':
+        effect = "Increases moisture, good for young seedlings";
+        recommendation = "Monitor for fungal issues on susceptible plants";
+        break;
+      default:
+        effect = "Normal growing conditions";
+        recommendation = "Routine garden maintenance";
+    }
+    
+    forecast.push({
+      day: i + 1,
+      weather,
+      intensity,
+      effect,
+      recommendation
+    });
+    
+    previousWeather = weather;
+  }
+  
+  // Generate warnings based on forecast
+  const warnings: string[] = [];
+  
+  // Check for severe weather patterns
+  const severeWeatherDays = forecast.filter(f => 
+    (f.weather === 'stormy' || f.weather === 'snowy') && f.intensity > 0.6
+  );
+  
+  if (severeWeatherDays.length > 0) {
+    warnings.push(`Severe weather expected on day(s): ${severeWeatherDays.map(d => d.day).join(', ')}`);
+  }
+  
+  // Check for drought conditions
+  const dryDays = forecast.filter(f => f.weather === 'dry' || f.weather === 'sunny');
+  if (dryDays.length >= 3) {
+    warnings.push('Extended dry period expected - prepare irrigation');
+  }
+  
+  // Check for optimal planting conditions
+  const goodPlantingDays = forecast.filter(f => 
+    (f.weather === 'rainy' || f.weather === 'cloudy') && f.intensity < 0.7
+  );
+  
+  if (goodPlantingDays.length > 0) {
+    warnings.push(`Favorable planting conditions on day(s): ${goodPlantingDays.map(d => d.day).join(', ')}`);
+  }
+  
+  return {
+    days: forecast,
+    reliability,
+    warnings
+  };
+}
+
+/**
+ * Process weather events and their effects on garden
+ */
+export interface WeatherEventResult {
+  updatedGarden: GardenSlot[];
+  affectedPlots: number;
+  damagedPlants: number;
+  improvedPlants: number;
+  message: string;
+}
+
+export function processWeatherEvent(
+  player: { id: string; gardeningSkill: number; weatherProofing: number },
+  garden: GardenSlot[],
+  weatherType: string,
+  intensity: number,
+  playerResponse: string,
+  structures: GardenStructure[]
+): WeatherEventResult {
+  // Create a deep copy of the garden
+  const updatedGarden = JSON.parse(JSON.stringify(garden)) as GardenSlot[];
+  
+  // Track statistics
+  let affectedPlots = 0;
+  let damagedPlants = 0;
+  let improvedPlants = 0;
+  
+  // Player skill reduces damage
+  const skillReduction = (player.gardeningSkill * 0.005) + (player.weatherProofing * 0.01);
+  
+  // Process each plot in the garden
+  updatedGarden.forEach(plot => {
+    // Check if plot is protected by structures
+    let structureProtection = 0;
+    
+    // Find applicable structures that cover this plot
+    const protectingStructures = structures.filter(structure => {
+      if (!plot.position) return false;
+      
+      return (
+        plot.position.x >= structure.position.x && 
+        plot.position.x < structure.position.x + structure.size.width &&
+        plot.position.y >= structure.position.y && 
+        plot.position.y < structure.position.y + structure.size.height
+      );
+    });
+    
+    // Calculate total protection from structures
+    protectingStructures.forEach(structure => {
+      // Check if structure protects against this weather type
+      if (structure.weatherResistance.includes(weatherType)) {
+        structureProtection += structure.protection;
+      } else {
+        structureProtection += structure.protection * 0.3; // Partial protection
+      }
+    });
+    
+    // Cap protection at 0.9 (90%)
+    structureProtection = Math.min(0.9, structureProtection);
+    
+    // Calculate total damage reduction
+    const playerResponseProtection = playerResponse === 'protect' ? 0.5 : 0;
+    const totalProtection = Math.min(0.95, structureProtection + skillReduction + playerResponseProtection);
+    
+    // Calculate actual intensity after protection
+    const effectiveIntensity = intensity * (1 - totalProtection);
+    
+    // Skip empty plots
+    if (!plot.plant) return;
+    
+    // Process plant on the plot
+    const plant = plot.plant as InteractivePlant;
+    affectedPlots++;
+    
+    // Process different weather effects
+    switch (weatherType) {
+      case 'rain':
+        // Increase water level
+        plant.waterLevel = Math.min(100, plant.waterLevel + (30 * effectiveIntensity));
+        
+        // Can improve or damage plants depending on intensity
+        if (effectiveIntensity > 0.7) {
+          // Heavy rain can damage flowering plants
+          if (plant.currentStage === 'flowering') {
+            plant.health -= 10 * (effectiveIntensity - 0.5);
+            damagedPlants++;
+            
+            // Add a negative modifier
+            plant.growthModifiers.push({
+              source: 'weather_rain',
+              description: 'Heavy rain damage to flowers',
+              qualityModifier: -0.1 * effectiveIntensity,
+              yieldModifier: -0.2 * effectiveIntensity,
+              growthRateModifier: 0.9,
+              expiresAt: Date.now() + (24 * 3600 * 1000) // 24 hours
+            });
+          } else {
+            // Other stages benefit from rain
+            plant.health = Math.min(100, plant.health + (5 * effectiveIntensity));
+            improvedPlants++;
+            
+            // Add a positive modifier
+            plant.growthModifiers.push({
+              source: 'weather_rain',
+              description: 'Rain-nourished growth',
+              qualityModifier: 0.05 * effectiveIntensity,
+              yieldModifier: 0.1 * effectiveIntensity,
+              growthRateModifier: 1.1 * effectiveIntensity,
+              expiresAt: Date.now() + (12 * 3600 * 1000) // 12 hours
+            });
+          }
+        } else {
+          // Light rain benefits all plants
+          plant.health = Math.min(100, plant.health + (3 * effectiveIntensity));
+          improvedPlants++;
+          
+          // Add a mild positive modifier
+          plant.growthModifiers.push({
+            source: 'weather_rain',
+            description: 'Gentle rain boost',
+            qualityModifier: 0.03 * effectiveIntensity,
+            yieldModifier: 0.05 * effectiveIntensity,
+            growthRateModifier: 1.05 * effectiveIntensity,
+            expiresAt: Date.now() + (12 * 3600 * 1000) // 12 hours
+          });
+        }
+        break;
+        
+      case 'storm':
+        // Heavy damage to all plants
+        const stormDamage = 20 * effectiveIntensity;
+        plant.health -= stormDamage;
+        plant.waterLevel = Math.min(100, plant.waterLevel + (50 * effectiveIntensity));
+        damagedPlants++;
+        
+        // Add negative modifier
+        plant.growthModifiers.push({
+          source: 'weather_storm',
+          description: 'Storm damage',
+          qualityModifier: -0.2 * effectiveIntensity,
+          yieldModifier: -0.3 * effectiveIntensity,
+          growthRateModifier: 0.8,
+          expiresAt: Date.now() + (48 * 3600 * 1000) // 48 hours
+        });
+        break;
+        
+      case 'drought':
+      case 'heat_wave':
+        // Reduce water level
+        plant.waterLevel = Math.max(0, plant.waterLevel - (20 * effectiveIntensity));
+        
+        // Damage if water level gets too low
+        if (plant.waterLevel < 20) {
+          plant.health -= 15 * effectiveIntensity;
+          damagedPlants++;
+          
+          // Add negative modifier
+          plant.growthModifiers.push({
+            source: 'weather_drought',
+            description: 'Drought stress',
+            qualityModifier: -0.15 * effectiveIntensity,
+            yieldModifier: -0.2 * effectiveIntensity,
+            growthRateModifier: 0.85,
+            expiresAt: Date.now() + (24 * 3600 * 1000) // 24 hours
+          });
+        } else {
+          // Some plants thrive in heat if well-watered
+          if (plant.geneticTraits.some(t => t.name === 'Hardy' || t.name === 'Drought-Resistant')) {
+            plant.health = Math.min(100, plant.health + (3 * effectiveIntensity));
+            improvedPlants++;
+            
+            // Add positive modifier for heat-loving plants
+            plant.growthModifiers.push({
+              source: 'weather_heat',
+              description: 'Heat adaptation bonus',
+              qualityModifier: 0.1 * effectiveIntensity,
+              yieldModifier: 0.05 * effectiveIntensity,
+              growthRateModifier: 1.05,
+              expiresAt: Date.now() + (12 * 3600 * 1000) // 12 hours
+            });
+          }
+        }
+        break;
+        
+      case 'frost':
+        // Cold damage to plants
+        const frostDamage = 25 * effectiveIntensity;
+        plant.health -= frostDamage;
+        damagedPlants++;
+        
+        // Add negative modifier
+        plant.growthModifiers.push({
+          source: 'weather_frost',
+          description: 'Frost damage',
+          qualityModifier: -0.1 * effectiveIntensity,
+          yieldModifier: -0.25 * effectiveIntensity,
+          growthRateModifier: 0.7,
+          expiresAt: Date.now() + (36 * 3600 * 1000) // 36 hours
+        });
+        break;
+        
+      case 'fog':
+        // Increases moisture slightly
+        plant.waterLevel = Math.min(100, plant.waterLevel + (10 * effectiveIntensity));
+        
+        // Some plants benefit from fog
+        if (plant.geneticTraits.some(t => t.name === 'Adaptive' || t.name === 'Moisture-Loving')) {
+          plant.health = Math.min(100, plant.health + (5 * effectiveIntensity));
+          improvedPlants++;
+          
+          // Add positive modifier
+          plant.growthModifiers.push({
+            source: 'weather_fog',
+            description: 'Fog moisture boost',
+            qualityModifier: 0.1 * effectiveIntensity,
+            yieldModifier: 0.05 * effectiveIntensity,
+            growthRateModifier: 1.1 * effectiveIntensity,
+            expiresAt: Date.now() + (8 * 3600 * 1000) // 8 hours
+          });
+        }
+        break;
+        
+      case 'hail':
+        // Physical damage to plants
+        const hailDamage = 30 * effectiveIntensity;
+        plant.health -= hailDamage;
+        damagedPlants++;
+        
+        // More damage to flowering and mature plants
+        if (plant.currentStage === 'flowering' || plant.currentStage === 'mature') {
+          plant.health -= 10 * effectiveIntensity;
+          
+          // Add negative modifier
+          plant.growthModifiers.push({
+            source: 'weather_hail',
+            description: 'Severe hail damage',
+            qualityModifier: -0.3 * effectiveIntensity,
+            yieldModifier: -0.4 * effectiveIntensity,
+            growthRateModifier: 0.7,
+            expiresAt: Date.now() + (72 * 3600 * 1000) // 72 hours
+          });
+        } else {
+          // Add negative modifier for younger plants
+          plant.growthModifiers.push({
+            source: 'weather_hail',
+            description: 'Hail damage',
+            qualityModifier: -0.2 * effectiveIntensity,
+            yieldModifier: -0.2 * effectiveIntensity,
+            growthRateModifier: 0.8,
+            expiresAt: Date.now() + (48 * 3600 * 1000) // 48 hours
+          });
+        }
+        break;
+        
+      default:
+        // Default mild weather has small positive effect
+        plant.health = Math.min(100, plant.health + 2);
+        improvedPlants++;
+    }
+    
+    // Check for plant death
+    if (plant.health <= 0) {
+      plot.plant = null;
+    }
+    
+    // Player response can provide additional effects
+    if (playerResponse === 'water' && (weatherType === 'drought' || weatherType === 'heat_wave')) {
+      // Watering during drought is very beneficial
+      if (plot.plant) {
+        (plot.plant as InteractivePlant).waterLevel = Math.min(100, (plot.plant as InteractivePlant).waterLevel + 50);
+        (plot.plant as InteractivePlant).health = Math.min(100, (plot.plant as InteractivePlant).health + 10);
+      }
+    }
+  });
+  
+  // Create result message
+  let message = `${weatherType.charAt(0).toUpperCase() + weatherType.slice(1)} weather affected ${affectedPlots} garden plots.`;
+  
+  if (damagedPlants > 0) {
+    message += ` ${damagedPlants} plants were damaged.`;
+  }
+  
+  if (improvedPlants > 0) {
+    message += ` ${improvedPlants} plants benefited from the conditions.`;
+  }
+  
+  if (playerResponse !== 'none') {
+    message += ` Your ${playerResponse} response helped mitigate effects.`;
+  }
+  
+  return {
+    updatedGarden,
+    affectedPlots,
+    damagedPlants,
+    improvedPlants,
+    message
+  };
 }

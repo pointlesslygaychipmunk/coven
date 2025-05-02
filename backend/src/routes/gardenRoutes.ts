@@ -1,7 +1,10 @@
 import express from 'express';
 import { playPlantingMiniGame, plantNewInteractivePlant, playHarvestingMiniGame, harvestPlant, 
          playWateringMiniGame, applyWateringResults, playWeatherProtectionMiniGame, 
-         applyWeatherProtection, crossBreedPlants, updatePlantGrowth } from '../interactiveGarden';
+         applyWeatherProtection, crossBreedPlants, updatePlantGrowth,
+         fertilizePlot, applySeasonalAttunement, upgradeGardenPlot, analyzeCrossBreedingCompatibility,
+         applyHanbangIngredientModifiers, createHanbangIngredient, setupGardenStructure,
+         getWeatherForecastForGarden, processWeatherEvent } from '../interactiveGarden.js';
 import { GameHandler } from '../gameHandler.js';
 
 const router = express.Router();
@@ -833,6 +836,55 @@ router.get('/varieties', (req, res) => {
         baseQuality: 3,
         baseYield: 2,
         description: 'A medicinal mushroom with balancing properties.'
+      },
+      // Hanbang-specific plants
+      {
+        id: 'herb_centella',
+        name: 'Centella Asiatica',
+        category: 'herb',
+        preferredSeason: 'Summer',
+        growthTimeDays: 4,
+        baseQuality: 4,
+        baseYield: 2,
+        skincare: true,
+        skincareBenefits: ['healing', 'anti-inflammatory'],
+        description: 'A healing herb commonly used in Korean skincare for its skin-soothing properties.'
+      },
+      {
+        id: 'root_licorice',
+        name: 'Licorice Root',
+        category: 'root',
+        preferredSeason: 'Fall',
+        growthTimeDays: 5,
+        baseQuality: 3,
+        baseYield: 2,
+        skincare: true,
+        skincareBenefits: ['brightening', 'soothing'],
+        description: 'A root with powerful brightening and soothing properties for skincare.'
+      },
+      {
+        id: 'herb_green_tea',
+        name: 'Green Tea',
+        category: 'herb',
+        preferredSeason: 'Spring',
+        growthTimeDays: 3,
+        baseQuality: 3,
+        baseYield: 3,
+        skincare: true,
+        skincareBenefits: ['antioxidant', 'anti-aging'],
+        description: 'Rich in antioxidants that protect against free radical damage and aging.'
+      },
+      {
+        id: 'flower_chrysanthemum',
+        name: 'Chrysanthemum',
+        category: 'flower',
+        preferredSeason: 'Fall',
+        growthTimeDays: 4,
+        baseQuality: 3,
+        baseYield: 2,
+        skincare: true,
+        skincareBenefits: ['calming', 'cooling'],
+        description: 'A flower that provides cooling and calming effects for sensitive skin.'
       }
     ];
     
@@ -840,6 +892,639 @@ router.get('/varieties', (req, res) => {
   } catch (error) {
     console.error('Error getting plant varieties:', error);
     return res.status(500).json({ message: 'Failed to get plant varieties' });
+  }
+});
+
+/**
+ * Get garden weather forecast for planning
+ * GET /api/garden/weather-forecast/:playerId
+ */
+router.get('/weather-forecast/:playerId', (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const { days = 3 } = req.query;
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // Get weather forecast data
+    const forecast = getWeatherForecastForGarden(
+      playerId,
+      parseInt(days as string, 10) || 3,
+      gameState.time.season,
+      gameState.time.phaseName
+    );
+    
+    // Update player's meteorology skill for checking the forecast
+    const experienceGained = 1;
+    if (!player.skills) player.skills = {};
+    player.skills.meteorology = (player.skills.meteorology || 0) + experienceGained;
+    updatePlayer(player);
+    
+    return res.json({
+      forecast,
+      season: gameState.time.season,
+      currentWeather: gameState.time.weatherFate,
+      experience: experienceGained
+    });
+  } catch (error) {
+    console.error('Error getting weather forecast:', error);
+    return res.status(500).json({ message: 'Failed to get weather forecast' });
+  }
+});
+
+/**
+ * Process seasonal attunement mini-game results
+ * POST /api/garden/seasonal-attunement
+ */
+router.post('/seasonal-attunement', (req, res) => {
+  try {
+    const { playerId, miniGameResult, currentSeason } = req.body;
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    // Process mini-game result or create default
+    const gameResult = miniGameResult || {
+      success: true,
+      score: 0.6,
+      seasonAlignment: 0.7,
+      elementBalance: 0.5,
+      ritualPrecision: 0.6
+    };
+    
+    // Apply seasonal attunement effects to all plants
+    const attunementBonus = gameResult.success ? 
+      (gameResult.score + gameResult.seasonAlignment + gameResult.elementBalance + gameResult.ritualPrecision) / 4 : 
+      0.1;
+    
+    const season = currentSeason || gameState.time.season;
+    
+    // Apply seasonal effects to all garden plots
+    const updatedPlots = player.garden.map((plot: any) => {
+      if (!plot.plant) return plot;
+      
+      // Apply seasonal attunement to the plant
+      const updatedPlant = applySeasonalAttunement(
+        plot.plant,
+        season,
+        attunementBonus,
+        gameState.time.phaseName
+      );
+      
+      return {
+        ...plot,
+        plant: updatedPlant,
+        // Seasonal attunement also improves soil quality
+        fertility: Math.min(100, plot.fertility + Math.floor(attunementBonus * 10))
+      };
+    });
+    
+    // Update player's garden
+    player.garden = updatedPlots;
+    
+    // Calculate experience 
+    const experienceGained = gameResult.success ? 
+      Math.floor(10 + (attunementBonus * 20)) : 5;
+    
+    // Update player skills
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
+    player.skills.rituals = (player.skills.rituals || 0) + Math.floor(experienceGained / 2);
+    
+    // Add seasonal attunement buff to player
+    if (!player.buffs) player.buffs = [];
+    player.buffs.push({
+      id: `seasonal_attunement_${Date.now()}`,
+      name: `${season} Attunement`,
+      description: `Your garden is attuned to the energy of ${season}, improving growth and quality.`,
+      duration: 24 * 3600 * 1000, // 24 hours
+      expiresAt: Date.now() + (24 * 3600 * 1000),
+      effects: {
+        gardenQualityBonus: attunementBonus * 0.2,
+        gardenYieldBonus: attunementBonus * 0.2,
+        weatherResistance: attunementBonus * 0.3
+      }
+    });
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      plots: updatedPlots,
+      attunementBonus,
+      experience: experienceGained,
+      buffs: player.buffs
+    });
+  } catch (error) {
+    console.error('Error applying seasonal attunement:', error);
+    return res.status(500).json({ message: 'Failed to apply seasonal attunement' });
+  }
+});
+
+/**
+ * Add garden structure (greenhouse, shade structure, etc)
+ * POST /api/garden/structures
+ */
+router.post('/structures', (req, res) => {
+  try {
+    const { playerId, structureType, position, size } = req.body;
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // Ensure garden structures array exists
+    if (!player.gardenStructures || !Array.isArray(player.gardenStructures)) {
+      player.gardenStructures = [];
+    }
+    
+    // Validate the structure type
+    const validStructureTypes = ['greenhouse', 'shade_cloth', 'irrigation', 'windbreak', 'trellis'];
+    if (!validStructureTypes.includes(structureType)) {
+      return res.status(400).json({ message: 'Invalid structure type' });
+    }
+    
+    // Create the new structure
+    const newStructure = setupGardenStructure(
+      structureType,
+      position,
+      size,
+      player.skills?.crafting || 0
+    );
+    
+    // Add structure to player data
+    player.gardenStructures.push(newStructure);
+    
+    // Apply effects to affected plots
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    // Find plots that are covered by this structure
+    const affectedPlots = player.garden.map((plot: any) => {
+      // Check if this plot is in the area of the structure
+      // This is a simplified check - in a real implementation, this would be more complex
+      if (
+        plot.position && 
+        plot.position.x >= position.x && 
+        plot.position.x < position.x + size.width &&
+        plot.position.y >= position.y && 
+        plot.position.y < position.y + size.height
+      ) {
+        return {
+          ...plot,
+          protectedBy: [...(plot.protectedBy || []), newStructure.id],
+          // Apply structure effects to the plot
+          weatherProtection: (plot.weatherProtection || 0) + newStructure.protection
+        };
+      }
+      return plot;
+    });
+    
+    // Update player's garden
+    player.garden = affectedPlots;
+    
+    // Calculate experience 
+    const experienceGained = 15;
+    
+    // Update player skills
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
+    player.skills.crafting = (player.skills.crafting || 0) + Math.floor(experienceGained / 2);
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      structure: newStructure,
+      affectedPlots: affectedPlots.filter((plot: any) => plot.protectedBy?.includes(newStructure.id)),
+      experience: experienceGained
+    });
+  } catch (error) {
+    console.error('Error adding garden structure:', error);
+    return res.status(500).json({ message: 'Failed to add garden structure' });
+  }
+});
+
+/**
+ * Apply fertilizer to a garden plot
+ * POST /api/garden/fertilize
+ */
+router.post('/fertilize', (req, res) => {
+  try {
+    const { playerId, plotId, fertilizerId } = req.body;
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    if (!player.inventory || !Array.isArray(player.inventory)) {
+      player.inventory = [];
+    }
+    
+    // Find the plot
+    const plotIndex = player.garden.findIndex((p: any) => p.id === plotId);
+    if (plotIndex === -1) {
+      return res.status(404).json({ message: 'Plot not found' });
+    }
+    
+    // Find the fertilizer in inventory
+    const fertilizerIndex = player.inventory.findIndex((item: any) => item.id === fertilizerId && item.category === 'fertilizer');
+    if (fertilizerIndex === -1 || player.inventory[fertilizerIndex].quantity <= 0) {
+      return res.status(400).json({ message: 'Fertilizer not found in inventory' });
+    }
+    
+    const plot = player.garden[plotIndex];
+    const fertilizer = player.inventory[fertilizerIndex];
+    
+    // Apply fertilizer to the plot
+    const fertilizeResult = fertilizePlot(
+      plot,
+      fertilizer,
+      gameState.time.season,
+      player.skills?.gardening || 0
+    );
+    
+    // Update the plot
+    player.garden[plotIndex] = fertilizeResult.updatedPlot;
+    
+    // Remove fertilizer from inventory
+    if (fertilizer.quantity <= 1) {
+      player.inventory.splice(fertilizerIndex, 1);
+    } else {
+      player.inventory[fertilizerIndex].quantity -= 1;
+    }
+    
+    // Calculate experience
+    const experienceGained = 4;
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      plot: fertilizeResult.updatedPlot,
+      effects: fertilizeResult.effects,
+      experience: experienceGained,
+      inventory: player.inventory
+    });
+  } catch (error) {
+    console.error('Error applying fertilizer:', error);
+    return res.status(500).json({ message: 'Failed to apply fertilizer' });
+  }
+});
+
+/**
+ * Analyze cross-breeding compatibility between plants
+ * GET /api/garden/compatibility/:playerId/:plant1Id/:plant2Id
+ */
+router.get('/compatibility/:playerId/:plant1Id/:plant2Id', (req, res) => {
+  try {
+    const { playerId, plant1Id, plant2Id } = req.params;
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    // Find both plants in the garden
+    const plant1Plot = player.garden.find((plot: any) => plot.plant && plot.plant.id === plant1Id);
+    const plant2Plot = player.garden.find((plot: any) => plot.plant && plot.plant.id === plant2Id);
+    
+    if (!plant1Plot || !plant1Plot.plant || !plant2Plot || !plant2Plot.plant) {
+      return res.status(400).json({ message: 'One or both plants not found' });
+    }
+    
+    // Check if plants are mature (only mature plants can be analyzed, but immaturity doesn't prevent analysis)
+    const bothMature = plant1Plot.plant.mature && plant2Plot.plant.mature;
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0,
+      breedingExperience: player.skills?.breeding || 0 
+    };
+    
+    // Analyze cross-breeding compatibility
+    const compatibility = analyzeCrossBreedingCompatibility(
+      plant1Plot.plant,
+      plant2Plot.plant,
+      playerData,
+      gameState.time.season,
+      gameState.time.phaseName
+    );
+    
+    // Add some experience for analyzing
+    const experienceGained = 2;
+    if (!player.skills) player.skills = {};
+    player.skills.breeding = (player.skills.breeding || 0) + experienceGained;
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      compatibility,
+      bothMature,
+      canCrossBreed: bothMature && compatibility.score > 0.3,
+      potentialTraits: compatibility.potentialTraits,
+      strongestTraits: compatibility.strongestTraits,
+      experience: experienceGained
+    });
+  } catch (error) {
+    console.error('Error analyzing cross-breeding compatibility:', error);
+    return res.status(500).json({ message: 'Failed to analyze compatibility' });
+  }
+});
+
+/**
+ * Create hanbang skincare ingredient from harvested plant
+ * POST /api/garden/create-hanbang
+ */
+router.post('/create-hanbang', (req, res) => {
+  try {
+    const { playerId, ingredientId, targetSkinType, targetSkinConcern, ritualQuality } = req.body;
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // For compatibility with existing code
+    if (!player.inventory || !Array.isArray(player.inventory)) {
+      player.inventory = [];
+    }
+    
+    // Find the ingredient in inventory
+    const ingredientIndex = player.inventory.findIndex((item: any) => item.id === ingredientId && item.type === 'ingredient');
+    if (ingredientIndex === -1 || player.inventory[ingredientIndex].quantity <= 0) {
+      return res.status(400).json({ message: 'Ingredient not found in inventory' });
+    }
+    
+    const ingredient = player.inventory[ingredientIndex];
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0,
+      alchemySkill: player.skills?.alchemy || 0,
+      hanbangKnowledge: player.skills?.hanbang || 0
+    };
+    
+    // Apply Hanbang processing to create skincare ingredient
+    const ritualSuccess = ritualQuality > 0.4;
+    const hanbangIngredient = createHanbangIngredient(
+      ingredient,
+      playerData,
+      targetSkinType,
+      targetSkinConcern,
+      ritualQuality,
+      gameState.time.phaseName,
+      gameState.time.season
+    );
+    
+    // Apply any hanbang-specific modifiers based on lunar phase and season
+    const modifiedIngredient = applyHanbangIngredientModifiers(
+      hanbangIngredient,
+      gameState.time.phaseName,
+      gameState.time.season
+    );
+    
+    // Remove original ingredient from inventory
+    if (ingredient.quantity <= 1) {
+      player.inventory.splice(ingredientIndex, 1);
+    } else {
+      player.inventory[ingredientIndex].quantity -= 1;
+    }
+    
+    // Add new hanbang ingredient to inventory
+    player.inventory.push(modifiedIngredient);
+    
+    // Calculate experience based on success and quality
+    let experienceGained = 5;
+    if (ritualSuccess) {
+      experienceGained += Math.floor(10 * ritualQuality);
+    }
+    
+    // Update player skills
+    if (!player.skills) player.skills = {};
+    player.skills.hanbang = (player.skills.hanbang || 0) + experienceGained;
+    player.skills.alchemy = (player.skills.alchemy || 0) + Math.floor(experienceGained / 2);
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      hanbangIngredient: modifiedIngredient,
+      success: ritualSuccess,
+      effectivenessScore: modifiedIngredient.effectivenessScore,
+      primaryEffect: modifiedIngredient.primaryEffect,
+      secondaryEffects: modifiedIngredient.secondaryEffects,
+      experience: experienceGained,
+      inventory: player.inventory
+    });
+  } catch (error) {
+    console.error('Error creating hanbang ingredient:', error);
+    return res.status(500).json({ message: 'Failed to create hanbang ingredient' });
+  }
+});
+
+/**
+ * Upgrade a garden plot
+ * POST /api/garden/upgrade-plot
+ */
+router.post('/upgrade-plot', (req, res) => {
+  try {
+    const { playerId, plotId, upgradeType } = req.body;
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    // Find the plot
+    const plotIndex = player.garden.findIndex((p: any) => p.id === plotId);
+    if (plotIndex === -1) {
+      return res.status(404).json({ message: 'Plot not found' });
+    }
+    
+    const plot = player.garden[plotIndex];
+    
+    // Validate upgrade type
+    const validUpgradeTypes = ['soil', 'size', 'irrigation', 'specialization'];
+    if (!validUpgradeTypes.includes(upgradeType)) {
+      return res.status(400).json({ message: 'Invalid upgrade type' });
+    }
+    
+    // Check if the plot has a plant (can't upgrade plots with plants)
+    if (plot.plant) {
+      return res.status(400).json({ message: 'Cannot upgrade a plot with a plant. Harvest it first.' });
+    }
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0,
+      crafting: player.skills?.crafting || 0
+    };
+    
+    // Perform the upgrade
+    const upgradedPlot = upgradeGardenPlot(
+      plot,
+      upgradeType,
+      playerData
+    );
+    
+    // Calculate upgrade cost (in real implementation, deduct resources)
+    const upgradeCost = {
+      coins: 100 + (upgradedPlot.level * 50),
+      materials: upgradeType === 'soil' ? 'compost' : upgradeType === 'irrigation' ? 'pipes' : 'lumber'
+    };
+    
+    // Update player's garden with upgraded plot
+    player.garden[plotIndex] = upgradedPlot;
+    
+    // Calculate experience
+    const experienceGained = 5 + (upgradedPlot.level * 3);
+    if (!player.skills) player.skills = {};
+    player.skills.gardening = (player.skills.gardening || 0) + experienceGained;
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      plot: upgradedPlot,
+      cost: upgradeCost,
+      upgradedStats: upgradedPlot.upgrades,
+      experience: experienceGained
+    });
+  } catch (error) {
+    console.error('Error upgrading plot:', error);
+    return res.status(500).json({ message: 'Failed to upgrade plot' });
+  }
+});
+
+/**
+ * Process a weather event affecting the garden
+ * POST /api/garden/weather-event
+ */
+router.post('/weather-event', (req, res) => {
+  try {
+    const { playerId, weatherType, intensity, playerResponse } = req.body;
+    
+    // Get game state for context
+    const gameState = gameHandler.getState();
+    
+    // Get player and validate request
+    const player = getPlayerById(playerId);
+    if (!player) {
+      return res.status(404).json({ message: 'Player not found' });
+    }
+    
+    // For compatibility with existing code
+    if (!player.garden || !Array.isArray(player.garden)) {
+      player.garden = [];
+    }
+    
+    // Validate weather type
+    const validWeatherTypes = ['rain', 'storm', 'drought', 'heat_wave', 'frost', 'fog', 'hail'];
+    if (!validWeatherTypes.includes(weatherType)) {
+      return res.status(400).json({ message: 'Invalid weather type' });
+    }
+    
+    // Validate intensity
+    const validatedIntensity = Math.max(0, Math.min(1, intensity || 0.5));
+    
+    // Combine player data for our functions
+    const playerData = { 
+      id: player.id, 
+      gardeningSkill: player.skills?.gardening || 0,
+      weatherProofing: player.skills?.weatherProofing || 0
+    };
+    
+    // Process the weather event
+    const weatherResult = processWeatherEvent(
+      playerData,
+      player.garden,
+      weatherType,
+      validatedIntensity,
+      playerResponse || 'none',
+      player.gardenStructures || []
+    );
+    
+    // Update garden with weather effects
+    player.garden = weatherResult.updatedGarden;
+    
+    // Calculate experience
+    const experienceGained = Math.floor(5 + (validatedIntensity * 10));
+    if (!player.skills) player.skills = {};
+    player.skills.weatherProofing = (player.skills.weatherProofing || 0) + experienceGained;
+    
+    // Save player state
+    updatePlayer(player);
+    
+    return res.json({
+      weatherType,
+      intensity: validatedIntensity,
+      affectedPlots: weatherResult.affectedPlots,
+      damagedPlants: weatherResult.damagedPlants,
+      improvedPlants: weatherResult.improvedPlants, // Some weather can improve certain plants
+      garden: weatherResult.updatedGarden,
+      experience: experienceGained,
+      message: weatherResult.message
+    });
+  } catch (error) {
+    console.error('Error processing weather event:', error);
+    return res.status(500).json({ message: 'Failed to process weather event' });
   }
 });
 
