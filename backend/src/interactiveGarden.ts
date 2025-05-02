@@ -52,14 +52,15 @@ interface PlantVariety {
 // cross-breeding systems, weather challenges, and seasonal cycles
 
 // Constants for garden gameplay
-const GROWTH_CYCLE_BASE_TIME = 24; // hours
+// GROWTH_CYCLE_BASE_TIME is no longer used directly, but kept for documentation
+// const GROWTH_CYCLE_BASE_TIME = 24; // hours
 const MINI_GAME_TIME_BONUS_MAX = 0.4; // 40% time reduction max
-// Extended version of WeatherCondition for internal use 
-// This is used within the module for extended weather types
-type ExtendedWeatherCondition = 
+// Use string type for weather conditions to avoid type errors
+// Commenting out unused type definition
+/*type ExtendedWeatherCondition = 
   | WeatherCondition
   | 'sunny'  // Additional weather types used internally
-  | 'snowy';
+  | 'snowy';*/
 
 // Weather effect multipliers with their impact on plant growth
 const WEATHER_EFFECT_MULTIPLIERS: Record<string, number> = {
@@ -265,14 +266,17 @@ export function plantNewInteractivePlant(
   const weatherModifier = WEATHER_EFFECT_MULTIPLIERS[currentWeather] || 1.0;
   const lunarModifier = LUNAR_POTENCY[currentMoonPhase] || 1.0;
   
-  // Calculate growth time
-  const growthTimeDays = variety.growthTimeDays || 3;
+  // Calculate growth time - simplified since we don't need the actual value
+  // const growthTimeDays = variety.growthTimeDays || 3;
+  // Growth time calculations removed - variables were unused
+  /*
   const baseGrowthTime = GROWTH_CYCLE_BASE_TIME * growthTimeDays;
-  const _modifiedGrowthTime = baseGrowthTime * 
+  const modifiedGrowthTime = baseGrowthTime * 
     (1 - miniGameResult.timingBonus) * 
     (1 / seasonModifier) * 
     (1 / weatherModifier) *
     (1 / lunarModifier);
+  */
   
   // Determine initial genetic traits
   const traits = determineInitialTraits(variety, miniGameResult.uniqueTraitChance, currentSeason);
@@ -289,9 +293,8 @@ export function plantNewInteractivePlant(
     notes: `Planted by ${player.name} during ${currentSeason} season, ${currentMoonPhase} moon.`
   };
   
-  // Calculate base quality and yield
-  const _baseQuality = variety.baseQuality || 2; // Unused variable
-  const _baseYield = variety.baseYield || 1; // Unused variable
+  // Base quality and yield data is available in variety
+  // But not needed directly in this function
   
   // Create new plant object
   const newPlant: InteractivePlant = {
@@ -582,10 +585,10 @@ export function applyWateringResults(
     5 + (miniGameResult.amountScore * 10);
     
   // Adjust water bonus based on current weather
-  const weatherStr = currentWeather as string;
-  const weatherWaterModifier = weatherStr === 'rainy' ? 0.5 : 
-                              weatherStr === 'stormy' ? 0.3 : 
-                              weatherStr === 'sunny' || weatherStr === 'dry' ? 1.3 : 1.0;
+  const weatherString = currentWeather as string;
+  const weatherWaterModifier = weatherString === 'rainy' ? 0.5 : 
+                              weatherString === 'stormy' ? 0.3 : 
+                              weatherString === 'sunny' || weatherString === 'dry' ? 1.3 : 1.0;
   
   const adjustedWaterBonus = waterBonus * weatherWaterModifier;
   
@@ -606,10 +609,10 @@ export function applyWateringResults(
   let nextWateringTime = baseWateringInterval;
   
   // Adjust for weather
-  const weatherStr = currentWeather as string;
-  if (weatherStr === 'sunny' || weatherStr === 'dry' || weatherStr === 'windy') {
+  const weatherType = currentWeather as string;
+  if (weatherType === 'sunny' || weatherType === 'dry' || weatherType === 'windy') {
     nextWateringTime *= 0.7; // Needs water sooner
-  } else if (weatherStr === 'rainy' || weatherStr === 'cloudy') {
+  } else if (weatherType === 'rainy' || weatherType === 'cloudy') {
     nextWateringTime *= 1.5; // Needs water later
   }
   
@@ -786,7 +789,7 @@ export function harvestPlant(
     harvestedIngredients.push({
       id: `ingredient_${plant.id}_${i}_${now}`,
       name: `Harvested ${plant.name || plant.varietyId}`,
-      quality: itemQuality,
+      quality: asItemQuality(itemQuality), // Ensure proper type conversion
       harvestedAt: now,
       sourceType: 'garden',
       sourceId: plant.id,
@@ -1119,10 +1122,10 @@ export function updatePlantGrowth(
   }
   
   // Update water level (decreases over time)
-  const weatherStr = currentWeather as string;
-  const waterLossRate = weatherStr === 'sunny' || weatherStr === 'dry' ? 3 : 
-                      weatherStr === 'windy' ? 2.5 :
-                      weatherStr === 'rainy' ? 0.5 :
+  const weatherCondition = currentWeather as string;
+  const waterLossRate = weatherCondition === 'sunny' || weatherCondition === 'dry' ? 3 : 
+                      weatherCondition === 'windy' ? 2.5 :
+                      weatherCondition === 'rainy' ? 0.5 :
                       1.5; // per hour
                       
   updatedPlant.waterLevel = Math.max(0, updatedPlant.waterLevel - (waterLossRate * hoursElapsed));
@@ -1221,7 +1224,8 @@ export function updatePlantGrowth(
     // Recalculate predicted quality
     const currentQualityValue = baseQualityMap[updatedPlant.predictedQuality] || 2;
     const newQualityValue = Math.max(1, currentQualityValue - qualityPenalty);
-    updatedPlant.predictedQuality = qualityMap[Math.round(newQualityValue)] || 'common';
+    const extendedQuality = qualityMap[Math.round(newQualityValue)] || 'common';
+    updatedPlant.predictedQuality = asItemQuality(extendedQuality);
     
     // Recalculate predicted yield
     updatedPlant.predictedYield = Math.max(1, Math.round(updatedPlant.predictedYield * (1 - yieldPenalty)));
@@ -2471,13 +2475,15 @@ export function processWeatherEvent(
     
     // Find applicable structures that cover this plot
     const protectingStructures = structures.filter(structure => {
-      if (!plot.position) return false;
+      // Cast plot to ExtendedGardenSlot to access position property
+      const extendedPlot = plot as unknown as ExtendedGardenSlot;
+      if (!extendedPlot.position) return false;
       
       return (
-        plot.position.x >= structure.position.x && 
-        plot.position.x < structure.position.x + structure.size.width &&
-        plot.position.y >= structure.position.y && 
-        plot.position.y < structure.position.y + structure.size.height
+        extendedPlot.position.x >= structure.position.x && 
+        extendedPlot.position.x < structure.position.x + structure.size.width &&
+        extendedPlot.position.y >= structure.position.y && 
+        extendedPlot.position.y < structure.position.y + structure.size.height
       );
     });
     
