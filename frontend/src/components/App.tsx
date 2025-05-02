@@ -559,17 +559,19 @@ const App: React.FC = () => {
         };
     }, [loading, gameState]);
 
-    // Stable references to functions to prevent unnecessary renders
-    const renderOptimizedEffect = useCallback((weatherType: WeatherFate, intensity: string, phase: string, season: Season) => {
+    // Memoized weather overlay component to prevent re-renders
+    const weatherOverlay = useMemo(() => {
+        if (!gameState) return null;
+        
         return (
             <WeatherEffectsOverlay
-                weatherType={weatherType}
-                intensity={intensity as 'light' | 'medium' | 'heavy'}
-                timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(phase) ? 'night' : 'day'}
-                season={season}
+                weatherType={gameState.time.weatherFate}
+                intensity="medium"
+                timeOfDay={["New Moon", "Waning Crescent", "Last Quarter", "Waning Gibbous", "Full Moon"].includes(gameState.time.phaseName) ? 'night' : 'day'}
+                season={gameState.time.season as Season}
             />
         );
-    }, []);
+    }, [gameState?.time?.weatherFate, gameState?.time?.phaseName, gameState?.time?.season]);
 
     // Memoize the menu bar to prevent re-renders
     const MenuBar = useMemo(() => (
@@ -641,13 +643,8 @@ const App: React.FC = () => {
                             {/* Optimized menu bar */}
                             {MenuBar}
                             
-                            {/* Weather Effects Overlay - Optimized */}
-                            {gameState && renderOptimizedEffect(
-                                gameState.time.weatherFate,
-                                "medium",
-                                gameState.time.phaseName,
-                                gameState.time.season as Season
-                            )}
+                            {/* Weather Effects Overlay - Memoized */}
+                            {weatherOverlay}
 
                             {/* Main content area */}
                             {gameState && currentPlayer ? (
