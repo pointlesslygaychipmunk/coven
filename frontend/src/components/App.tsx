@@ -194,77 +194,82 @@ const App: React.FC = () => {
       }
     }, [gameState, moonlightMeadowActive]);
 
-    // API utility function inside the component (safe to use React hooks)
-    const apiCall = useCallback(async (endpoint: string, method: string = 'GET', body?: Record<string, unknown>): Promise<GameState> => {
+    // API utility function (not a hook, just a plain function to avoid re-render issues)
+    function makeApiCall(endpoint: string, method: string = 'GET', body?: Record<string, unknown>): Promise<GameState> {
         const options: RequestInit = {
             method,
             headers: { 'Content-Type': 'application/json', },
         };
         if (body) { options.body = JSON.stringify(body); }
-        try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-            const responseData = await response.json();
-            if (!response.ok) {
-                console.error("API Error Response:", responseData);
-                throw new Error(responseData.error || `API call failed: ${response.statusText}`);
-            }
-            return responseData as GameState;
-        } catch (error) {
-            console.error("API Call Error:", error);
-            // Use fallback game state when API fails
-            return FALLBACK_GAME_STATE;
-        }
-    }, []);
+        
+        return fetch(`${API_BASE_URL}${endpoint}`, options)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        console.error("API Error Response:", errorData);
+                        throw new Error(errorData.error || `API call failed: ${response.statusText}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => responseData as GameState)
+            .catch(error => {
+                console.error("API Call Error:", error);
+                // Use fallback game state when API fails
+                return {...FALLBACK_GAME_STATE}; // Return a new copy to avoid mutations
+            });
+    }
 
     // Fetch initial game state
     useEffect(() => {
-        const fetchInitialState = async () => {
-            try {
-                setLoading(true);
-                const initialState = await apiCall('/state');
+        setLoading(true);
+        
+        makeApiCall('/state')
+            .then(initialState => {
                 setGameState(initialState);
                 setError(null);
                 // Set loading to false after a short delay for visual effect
                 setTimeout(() => setLoading(false), 800);
-            } catch (err) {
+            })
+            .catch(err => {
                 console.error('Error fetching initial game state:', err);
                 setError('Failed to connect to the Coven server. Is it running?');
                 // Set loading to false so the error screen can show
                 setLoading(false);
-            }
-        };
-
-        // We're disabling multiplayer for now to make sure the game works
-        fetchInitialState();
-    }, [apiCall, setLoading, setGameState, setError]);
+            });
+            
+        // No dependencies needed - this only runs once on component mount
+    }, []);
 
     // --- Action Handlers ---
-    const handleApiAction = useCallback(async (
+    // Don't use useCallback to avoid dependency issues
+    function handleApiAction(
         endpoint: string,
         method: string = 'POST',
         body?: Record<string, unknown>,
         successMessage?: string,
         errorMessagePrefix?: string
-    ) => {
-        try {
-            const newState = await apiCall(endpoint, method, body);
-            setGameState(newState); // Update state with the result from the API
-            setError(null); // Clear previous errors
-            if (successMessage) console.log(`[Action Success] ${successMessage}`);
-        } catch (err) {
-            const message = (err instanceof Error) ? err.message : 'An unknown error occurred';
-            console.error(errorMessagePrefix || 'Action failed:', err);
-            setError(`${errorMessagePrefix || 'Error'}: ${message}`);
-        }
-    }, [apiCall]);
+    ) {
+        makeApiCall(endpoint, method, body)
+            .then(newState => {
+                setGameState(newState); // Update state with the result from the API
+                setError(null); // Clear previous errors
+                if (successMessage) console.log(`[Action Success] ${successMessage}`);
+            })
+            .catch(err => {
+                const message = (err instanceof Error) ? err.message : 'An unknown error occurred';
+                console.error(errorMessagePrefix || 'Action failed:', err);
+                setError(`${errorMessagePrefix || 'Error'}: ${message}`);
+            });
+    }
 
     // Get current player and ID safely
     const currentPlayer = gameState?.players[gameState?.currentPlayerIndex || 0];
     const playerId = currentPlayer?.id;
 
     // --- Wrapped API Call Functions ---
-    // Use useCallback for stable function references passed as props
-    const plantSeed = useCallback((slotId: number, seedInventoryItemId: string) => {
+    // Don't use useCallback for these functions to avoid re-rendering issues
+    function plantSeed(slotId: number, seedInventoryItemId: string) {
         if (!playerId) return;
         handleApiAction(
             '/plant', 
@@ -273,9 +278,9 @@ const App: React.FC = () => {
             `Planted seed in slot ${slotId + 1}`, 
             `Planting failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const harvestPlant = useCallback((slotId: number) => {
+    function harvestPlant(slotId: number) {
         if (!playerId) return;
         handleApiAction(
             '/harvest', 
@@ -284,9 +289,9 @@ const App: React.FC = () => {
             `Harvested from slot ${slotId + 1}`, 
             `Harvest failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const waterPlants = useCallback((puzzleBonus: number = 0) => {
+    function waterPlants(puzzleBonus: number = 0) {
         if (!playerId) return;
         handleApiAction(
             '/water', 
@@ -295,9 +300,9 @@ const App: React.FC = () => {
             `Attuned garden energies (Bonus: ${puzzleBonus}%)`, 
             `Attunement failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const brewPotion = useCallback((ingredientInvItemIds: string[], puzzleBonus: number = 0, recipeId?: string) => {
+    function brewPotion(ingredientInvItemIds: string[], puzzleBonus: number = 0, recipeId?: string) {
         if (!playerId) return;
         handleApiAction(
             '/brew', 
@@ -306,9 +311,9 @@ const App: React.FC = () => {
             `Brew attempt (Bonus: ${puzzleBonus}%)${recipeId ? ` using recipe ${recipeId}` : ''}`, 
             `Brewing failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const buyItem = useCallback((itemId: string) => {
+    function buyItem(itemId: string) {
         if (!playerId) return;
         handleApiAction(
             '/market/buy', 
@@ -317,9 +322,9 @@ const App: React.FC = () => {
             `Purchased ${itemId}`, 
             `Purchase failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const sellItem = useCallback((inventoryItemId: string) => {
+    function sellItem(inventoryItemId: string) {
         if (!playerId) return;
         handleApiAction(
             '/market/sell', 
@@ -328,9 +333,9 @@ const App: React.FC = () => {
             `Sold item ${inventoryItemId}`, 
             `Sell failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const fulfillRequest = useCallback((requestId: string) => {
+    function fulfillRequest(requestId: string) {
         if (!playerId) return;
         handleApiAction(
             '/fulfill', 
@@ -339,9 +344,9 @@ const App: React.FC = () => {
             `Fulfilled request ${requestId}`, 
             `Fulfillment failed`
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const advanceDay = useCallback(() => {
+    function advanceDay() {
         if (!playerId) return;
         handleApiAction(
             '/end-turn', 
@@ -350,9 +355,9 @@ const App: React.FC = () => {
             'Advanced to next phase', 
             'Failed to end turn'
         );
-    }, [playerId, handleApiAction]);
+    }
 
-    const claimRitualReward = useCallback((ritualId: string) => {
+    function claimRitualReward(ritualId: string) {
         if (!playerId) return;
         handleApiAction(
             '/ritual/claim', 
@@ -361,10 +366,10 @@ const App: React.FC = () => {
             `Claimed reward for ${ritualId}`, 
             'Failed to claim reward'
         );
-    }, [playerId, handleApiAction]);
+    }
 
     // Handle location change with page transition
-    const handleChangeLocation = useCallback((location: string) => {
+    function handleChangeLocation(location: string) {
         if (location === currentView || pageTransition) return;
         setPageTransition(true);
         setTimeout(() => {
@@ -372,7 +377,7 @@ const App: React.FC = () => {
             // End transition *after* view potentially changes content
             setTimeout(() => setPageTransition(false), 150); // Shorter fade-in time
         }, 300); // Wait for fade-out
-    }, [currentView, pageTransition]);
+    }
 
     // --- Loading Screen --- Fantasy style
     if (loading) {
@@ -440,11 +445,11 @@ const App: React.FC = () => {
     }
 
     // Handler for entering the game from the lobby
-    const handleEnterGame = useCallback(() => {
+    function handleEnterGame() {
         setShowLobby(false);
         // Initialize the game state if needed (currently not using multiplayer)
         if (!gameState) {
-            apiCall('/state')
+            makeApiCall('/state')
                 .then(initialState => {
                     setGameState(initialState);
                     setError(null);
@@ -459,7 +464,7 @@ const App: React.FC = () => {
         } else {
             setLoading(false);
         }
-    }, [gameState, apiCall, setShowLobby, setGameState, setError, setLoading]);
+    }
     
     // --- Main Render ---
     // Add debug info in useEffect to avoid re-renders
