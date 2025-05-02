@@ -5,9 +5,8 @@ import { playPlantingMiniGame, plantNewInteractivePlant, playHarvestingMiniGame,
          fertilizePlot, applySeasonalAttunement, analyzeCrossBreedingCompatibility,
          applyHanbangIngredientModifiers, createHanbangIngredient, setupGardenStructure,
          getWeatherForecastForGarden, processWeatherEvent, InteractivePlant,
-         PlantTrait, GrowthModifier, PlantCareAction,
-         GardenStructure } from '../interactiveGarden';
-import { GameHandler } from '../gameHandler';
+         GardenStructure } from '../interactiveGarden.js';
+import { GameHandler } from '../gameHandler.js';
 
 // Import types from shared directory
 import { Season, MoonPhase, Player, GardenSlot, InventoryItem, ItemType, ItemCategory, Rarity as ItemQuality, Skills, Plant } from 'coven-shared';
@@ -18,12 +17,13 @@ import { Season, MoonPhase, Player, GardenSlot, InventoryItem, ItemType, ItemCat
 // Define types that extend existing types in shared
 // Define extended Skills interface for additional skill types
 interface ExtendedSkills extends Skills {
-  weatherProofing?: number;
-  meteorology?: number;
-  breeding?: number;
-  hanbang?: number;
-  alchemy?: number;
-  rituals?: number;
+  [key: string]: number; // Allow indexing with string keys for all skills
+  weatherProofing: number;
+  meteorology: number;
+  breeding: number;
+  hanbang: number;
+  alchemy: number;
+  rituals: number;
 }
 
 // Define FertilizerItem interface to match what's expected

@@ -1,5 +1,5 @@
-import { AtelierSpecialization, Season, MoonPhase, ItemCategory, Skills } from "coven-shared";
-import { CraftableProduct } from "./craftPointsSystem";
+import { Season, MoonPhase, ItemCategory, Skills } from "coven-shared";
+import { CraftableProduct } from "./craftPointsSystem.js";
 
 // Enhanced specialization system with strategic upgrade paths
 
@@ -86,7 +86,9 @@ export type Effect =
   | { type: "craftPointDiscount", value: number }
   | { type: "unlockRecipes", recipes: string[] }
   | { type: "activeTechnique", effect: string, value: number, duration: number }
-  | { type: "uniqueProperty", property: string, description: string };
+  | { type: "uniqueProperty", property: string, description: string }
+  | { type: "yieldBonus", value: number }
+  | { type: "craftingSpeedBonus", value: number };
 
 // Player's specialization status and progress
 export interface SpecializationStatus {
@@ -991,7 +993,7 @@ export function calculateCraftingBonuses(
 export function applyActiveTechnique(
   techniqueId: string,
   techniqueLevel: number,
-  playerId: string
+  _playerId: string // Unused parameter
 ): {
   success: boolean;
   activeDuration: number;
@@ -1357,7 +1359,7 @@ export function applySpecializationBonusesToProduct(
 
 // Select a specialization
 export function selectSpecialization(
-  playerId: string,
+  _playerId: string, // Unused parameter
   specialization: EnhancedSpecialization
 ): SpecializationStatus {
   return initializeSpecialization(specialization);

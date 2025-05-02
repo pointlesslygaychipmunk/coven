@@ -1,5 +1,5 @@
-import { Season, MoonPhase, WeatherFate, InventoryItem, Player } from "coven-shared";
-import { CraftableProduct } from "./craftPointsSystem";
+import { Season, MoonPhase, InventoryItem } from "coven-shared";
+import { CraftableProduct } from "./craftPointsSystem.js";
 
 // Town specialization types for diverse network
 export enum TownSpecialization {
@@ -728,7 +728,7 @@ function generateOrderDescription(town: Town, difficulty: number, season: Season
   return `A ${difficulty > 3 ? 'challenging' : 'standard'} request from ${town.name} during ${season}.`;
 }
 
-function generateNpcName(town: Town): string {
+function generateNpcName(_town: Town): string {
   // Would connect to an NPC database in a full implementation
   const firstNames = ["Eliza", "Joon", "Mei", "Ravi", "Sora", "Tomas", "Zhen"];
   const lastNames = ["Park", "Kim", "Song", "Chen", "Wei", "Tanaka", "Shah"];
@@ -798,7 +798,7 @@ function calculateOrderRewards(town: Town, difficulty: number, season: Season): 
   return rewards;
 }
 
-function isSeasonal(difficulty: number, season: Season): boolean {
+function isSeasonal(difficulty: number, _season: Season): boolean {
   // Higher difficulty orders are more likely to be seasonal
   return difficulty >= 3 && Math.random() < 0.6;
 }
@@ -901,7 +901,7 @@ export function getReputationBenefits(reputation: number): TownReputationBenefit
 // Generate town event
 export function generateTownEvent(
   townId: string,
-  currentSeason: Season
+  _currentSeason: Season
 ): TownEvent {
   const town = TOWNS.find(t => t.id === townId);
   if (!town) throw new Error(`Town with ID ${townId} not found`);
@@ -969,7 +969,7 @@ export function generateTownEvent(
 // Process player delivery to town
 export function processDelivery(
   playerId: string,
-  playerName: string,
+  _playerName: string,
   townId: string,
   product: CraftableProduct,
   quantity: number,

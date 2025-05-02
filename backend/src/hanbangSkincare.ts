@@ -1,4 +1,4 @@
-import { Season, MoonPhase, ItemCategory, Skills } from "coven-shared";
+import { Season, MoonPhase, ItemCategory } from "coven-shared";
 import { CraftableProduct } from "./craftPointsSystem.js";
 import { EnhancedSpecialization } from "./atelierSpecializationSystem.js";
 
@@ -692,7 +692,7 @@ export function createSkincareProduct(
   ingredientIds: string[],
   ingredientQualities: number[],
   producerId: string,
-  producerName: string,
+  _producerName: string,
   specialization: EnhancedSpecialization,
   qualityBonus: number,
   seasonalBonus: number,

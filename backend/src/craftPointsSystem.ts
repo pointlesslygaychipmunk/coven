@@ -1,4 +1,4 @@
-import { Player, Season, MoonPhase, InventoryItem, TownRequest, Skills } from "coven-shared";
+import { Player, Season, MoonPhase } from "coven-shared";
 
 // Primary Craft Points system for game progression and scoring
 export interface CraftPointsData {
@@ -240,20 +240,20 @@ export function spendCraftPoints(
 }
 
 // Weekly and seasonal CP calculations
-export function calculateWeeklyBonuses(playerId: string): number {
+export function calculateWeeklyBonuses(_playerId: string): number {
   // Implementation to calculate end-of-week CP bonuses
   // Based on achievements, consistency, town relationships
   return 0; // Bonus amount
 }
 
-export function calculateSeasonalBonuses(playerId: string, season: Season): number {
+export function calculateSeasonalBonuses(_playerId: string, _season: Season): number {
   // Implementation to calculate end-of-season CP bonuses
   // Major bonus opportunity, factoring in seasonal specialties
   return 0; // Bonus amount
 }
 
 // Initialize a new player's craft points
-export function initializePlayerCraftPoints(playerId: string): CraftPointsData {
+export function initializePlayerCraftPoints(_playerId: string): CraftPointsData {
   return {
     totalEarned: 0,
     currentBalance: 0,
@@ -274,8 +274,8 @@ export function initializePlayerCraftPoints(playerId: string): CraftPointsData {
 
 // Get spending options available to a player
 export function getAvailableSpendingOptions(
-  player: Player,
-  craftPoints: CraftPointsData
+  _player: Player,
+  _craftPoints: CraftPointsData
 ): SpendingOption[] {
   // Implementation to return all spending options available to player
   // Filtered by prerequisites, player level, specialization
@@ -284,8 +284,8 @@ export function getAvailableSpendingOptions(
 
 // Analyze CP earning patterns for player
 export function analyzeCraftPointsPerformance(
-  playerId: string, 
-  timeframe: 'week' | 'month' | 'season' | 'allTime'
+  _playerId: string, 
+  _timeframe: 'week' | 'month' | 'season' | 'allTime'
 ): {
   totalEarned: number,
   bestSource: string,
@@ -306,9 +306,9 @@ export function analyzeCraftPointsPerformance(
 
 // Generate leaderboards based on CP
 export function getLeaderboard(
-  timeframe: 'weekly' | 'seasonal' | 'allTime',
-  specializationFilter?: string,
-  limit: number = 10
+  _timeframe: 'weekly' | 'seasonal' | 'allTime',
+  _specializationFilter?: string,
+  _limit: number = 10
 ): { playerId: string, playerName: string, craftPoints: number }[] {
   // Implementation to generate CP leaderboards
   return []; // Leaderboard data

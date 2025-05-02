@@ -6,9 +6,6 @@ import {
   GardenSlot,
   ItemCategory,
   Rarity as ItemQuality,
-  ItemType,
-  Skills,
-  InventoryItem
 } from 'coven-shared';
 
 // Additional type definitions
@@ -46,10 +43,11 @@ interface PlantVariety {
 const GROWTH_CYCLE_BASE_TIME = 24; // hours
 const MINI_GAME_TIME_BONUS_MAX = 0.4; // 40% time reduction max
 // Extended version of WeatherCondition for internal use 
+// This is used within the module for extended weather types
 type ExtendedWeatherCondition = 
   | WeatherCondition
-  | 'sunny'  // Additional weather types used internally
-  | 'snowy';
+  | 'sunny' as string  // Additional weather types used internally
+  | 'snowy' as string;
 
 // Weather effect multipliers with their impact on plant growth
 const WEATHER_EFFECT_MULTIPLIERS: Record<string, number> = {
@@ -195,7 +193,7 @@ export interface CrossBreedingResult {
 export function playPlantingMiniGame(
   player: { id: string; gardeningSkill: number },
   plot: GardenSlot,
-  varietyId: string,
+  _varietyId: string, // Unused parameter
   playScore: { timing: number; precision: number; pattern: number }
 ): PlantingMiniGame {
   // Calculate base success chance based on player skill and plot condition
@@ -258,7 +256,7 @@ export function plantNewInteractivePlant(
   // Calculate growth time
   const growthTimeDays = variety.growthTimeDays || 3;
   const baseGrowthTime = GROWTH_CYCLE_BASE_TIME * growthTimeDays;
-  const modifiedGrowthTime = baseGrowthTime * 
+  const _modifiedGrowthTime = baseGrowthTime * 
     (1 - miniGameResult.timingBonus) * 
     (1 / seasonModifier) * 
     (1 / weatherModifier) *
@@ -280,8 +278,8 @@ export function plantNewInteractivePlant(
   };
   
   // Calculate base quality and yield
-  const baseQuality = variety.baseQuality || 2;
-  const baseYield = variety.baseYield || 1;
+  const _baseQuality = variety.baseQuality || 2; // Unused variable
+  const _baseYield = variety.baseYield || 1; // Unused variable
   
   // Create new plant object
   const newPlant: InteractivePlant = {
@@ -1526,6 +1524,7 @@ export interface GardenPlotUpgrade {
 export interface ExtendedGardenSlot extends GardenSlot {
   upgrades: GardenPlotUpgrade[];
   level: number;
+  position?: { x: number; y: number };
   waterRetention?: number;
   size?: number;
   capacity?: number;
@@ -1654,7 +1653,7 @@ export function upgradeGardenPlot(
   updatedPlot.level = (updatedPlot.level || 0) + 1;
   
   // Extract only the standard GardenSlot properties for the return
-  const standardPlot: GardenSlot = {
+  const _standardPlot: GardenSlot = {
     id: updatedPlot.id,
     plant: updatedPlot.plant,
     fertility: updatedPlot.fertility,
