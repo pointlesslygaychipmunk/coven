@@ -8,6 +8,18 @@ import {
   Rarity as ItemQuality,
 } from 'coven-shared';
 
+// Extend ItemQuality with additional values for internal use only
+// Note: The real ItemQuality seems to include 'legendary', but not 'poor' or 'exceptional'
+type ExtendedItemQuality = ItemQuality | 'poor' | 'exceptional';
+
+// Cast function to safely convert ExtendedItemQuality to ItemQuality
+function asItemQuality(quality: ExtendedItemQuality): ItemQuality {
+  // Map non-standard qualities to standard ones
+  if (quality === 'poor') return 'common';
+  if (quality === 'exceptional') return 'legendary';
+  return quality;
+}
+
 // Additional type definitions
 type PlantStage = 'seed' | 'seedling' | 'growing' | 'flowering' | 'mature';
 
@@ -46,8 +58,8 @@ const MINI_GAME_TIME_BONUS_MAX = 0.4; // 40% time reduction max
 // This is used within the module for extended weather types
 type ExtendedWeatherCondition = 
   | WeatherCondition
-  | 'sunny' as string  // Additional weather types used internally
-  | 'snowy' as string;
+  | 'sunny'  // Additional weather types used internally
+  | 'snowy';
 
 // Weather effect multipliers with their impact on plant growth
 const WEATHER_EFFECT_MULTIPLIERS: Record<string, number> = {
@@ -357,7 +369,7 @@ function calculatePredictedQuality(
   const qualityValue = Math.max(1, Math.min(5, baseQuality + miniGameBonus + traitBonus));
   
   // Convert to ItemQuality enum
-  const qualityMap: Record<number, ItemQuality> = {
+  const qualityMap: Record<number, ExtendedItemQuality> = {
     1: 'poor',
     2: 'common',
     3: 'uncommon',
@@ -365,7 +377,8 @@ function calculatePredictedQuality(
     5: 'exceptional'
   };
   
-  return qualityMap[Math.round(qualityValue)] || 'common';
+  const extendedQuality = qualityMap[Math.round(qualityValue)] || 'common';
+  return asItemQuality(extendedQuality);
 }
 
 /**
@@ -569,9 +582,10 @@ export function applyWateringResults(
     5 + (miniGameResult.amountScore * 10);
     
   // Adjust water bonus based on current weather
-  const weatherWaterModifier = currentWeather === 'rainy' ? 0.5 : 
-                              currentWeather === 'stormy' ? 0.3 : 
-                              currentWeather === 'sunny' || currentWeather === 'dry' ? 1.3 : 1.0;
+  const weatherStr = currentWeather as string;
+  const weatherWaterModifier = weatherStr === 'rainy' ? 0.5 : 
+                              weatherStr === 'stormy' ? 0.3 : 
+                              weatherStr === 'sunny' || weatherStr === 'dry' ? 1.3 : 1.0;
   
   const adjustedWaterBonus = waterBonus * weatherWaterModifier;
   
@@ -592,9 +606,10 @@ export function applyWateringResults(
   let nextWateringTime = baseWateringInterval;
   
   // Adjust for weather
-  if (currentWeather === 'sunny' || currentWeather === 'dry' || currentWeather === 'windy') {
+  const weatherStr = currentWeather as string;
+  if (weatherStr === 'sunny' || weatherStr === 'dry' || weatherStr === 'windy') {
     nextWateringTime *= 0.7; // Needs water sooner
-  } else if (currentWeather === 'rainy' || currentWeather === 'cloudy') {
+  } else if (weatherStr === 'rainy' || weatherStr === 'cloudy') {
     nextWateringTime *= 1.5; // Needs water later
   }
   
@@ -713,12 +728,13 @@ export function harvestPlant(
   }
   
   // Calculate base yield and quality
-  const baseQualityMap: Record<ItemQuality, number> = {
+  const baseQualityMap: Record<string, number> = {
     'poor': 1,
     'common': 2,
     'uncommon': 3,
     'rare': 4,
-    'exceptional': 5
+    'exceptional': 5,
+    'legendary': 5 // Add legendary with same value as exceptional
   };
   const baseQuality = baseQualityMap[plant.predictedQuality] || 2;
   const baseYield = plant.predictedYield;
@@ -740,14 +756,15 @@ export function harvestPlant(
   ));
   
   // Map quality score back to ItemQuality enum
-  const qualityMap: Record<number, ItemQuality> = {
+  const qualityMap: Record<number, ExtendedItemQuality> = {
     1: 'poor',
     2: 'common',
     3: 'uncommon',
     4: 'rare',
     5: 'exceptional'
   };
-  const finalQuality = qualityMap[Math.round(finalQualityScore)] || 'common';
+  const extendedQuality = qualityMap[Math.round(finalQualityScore)] || 'common';
+  const finalQuality = asItemQuality(extendedQuality);
   
   // Calculate final yield
   const finalYield = Math.max(1, Math.round(baseYield * yieldModifier));
@@ -805,7 +822,7 @@ export function harvestPlant(
  */
 export function playWeatherProtectionMiniGame(
   player: { id: string; gardeningSkill: number },
-  plant: InteractivePlant,
+  _plant: InteractivePlant, // Unused parameter
   weatherEvent: string, // Allow any weather condition string including extended types
   playScore: { reactionTime: number; coverage: number; reinforcement: number }
 ): WeatherProtectionMiniGame {
@@ -926,7 +943,7 @@ export function crossBreedPlants(
   plant1: InteractivePlant, 
   plant2: InteractivePlant,
   player: { id: string; gardeningSkill: number },
-  currentSeason: Season,
+  _currentSeason: Season, // Unused parameter
   currentMoonPhase: MoonPhase
 ): CrossBreedingResult {
   // Check if cross-breeding is possible
@@ -1102,9 +1119,10 @@ export function updatePlantGrowth(
   }
   
   // Update water level (decreases over time)
-  const waterLossRate = currentWeather === 'sunny' || currentWeather === 'dry' ? 3 : 
-                      currentWeather === 'windy' ? 2.5 :
-                      currentWeather === 'rainy' ? 0.5 :
+  const weatherStr = currentWeather as string;
+  const waterLossRate = weatherStr === 'sunny' || weatherStr === 'dry' ? 3 : 
+                      weatherStr === 'windy' ? 2.5 :
+                      weatherStr === 'rainy' ? 0.5 :
                       1.5; // per hour
                       
   updatedPlant.waterLevel = Math.max(0, updatedPlant.waterLevel - (waterLossRate * hoursElapsed));
@@ -1216,15 +1234,16 @@ export function updatePlantGrowth(
 }
 
 // Helper functions
-const baseQualityMap: Record<ItemQuality, number> = {
+const baseQualityMap: Record<string, number> = {
   'poor': 1,
   'common': 2,
   'uncommon': 3,
   'rare': 4,
-  'exceptional': 5
+  'exceptional': 5,
+  'legendary': 5 // Add legendary with same value as exceptional
 };
 
-const qualityMap: Record<number, ItemQuality> = {
+const qualityMap: Record<number, ExtendedItemQuality> = {
   1: 'poor',
   2: 'common',
   3: 'uncommon',
@@ -1652,15 +1671,8 @@ export function upgradeGardenPlot(
   // Update overall plot level
   updatedPlot.level = (updatedPlot.level || 0) + 1;
   
-  // Extract only the standard GardenSlot properties for the return
-  const _standardPlot: GardenSlot = {
-    id: updatedPlot.id,
-    plant: updatedPlot.plant,
-    fertility: updatedPlot.fertility,
-    moisture: updatedPlot.moisture,
-    sunlight: updatedPlot.sunlight,
-    isUnlocked: updatedPlot.isUnlocked
-  };
+  // These properties are returned as part of the updatedPlot
+  // No need to create a separate standardPlot object
   
   // Include the extended properties as part of the return via type assertion
   // This allows the extended properties to be accessible but maintains type compatibility
@@ -2213,7 +2225,7 @@ export interface WeatherPrediction {
 }
 
 export function getWeatherForecastForGarden(
-  playerId: string,
+  _playerId: string, // Unused parameter
   days: number,
   currentSeason: Season,
   currentMoonPhase: MoonPhase

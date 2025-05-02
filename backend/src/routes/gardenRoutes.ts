@@ -110,7 +110,7 @@ interface ExtendedPlayer extends Player {
   gardenStructures: GardenStructure[];
 }
 
-const router = express.Router();
+const router: express.Router = express.Router();
 const gameHandler = new GameHandler();
 
 // Helper function to get player by ID

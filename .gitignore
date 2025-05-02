@@ -20,3 +20,4 @@ yarn-error.log*
 
 # Claude Code files
 CLAUDE.md
+**/.claude/settings.local.json
