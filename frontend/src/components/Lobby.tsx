@@ -84,17 +84,17 @@ const Lobby: React.FC<LobbyProps> = ({ onEnterGame }) => {
         <div className="lobby-main">
           {/* ASCII art logo */}
           <pre className="dos-ascii-logo">
-         ___ ___ _____ ___ ___ 
-        |  _| . |     | -_|   |
-        |___|___|_|_|_|___|_|_|
-             WITCH NETWORK
+  ___ ___ _____ ___ ___ 
+ |  _| . |     | -_|   |
+ |___|___|_|_|_|___|_|_|
+      WITCH NETWORK
           </pre>
           
           <h1 className="lobby-title">Welcome to the Coven</h1>
           <p className="lobby-subtitle">Enter your witch name to connect</p>
           
           <div className="connection-status">
-            <div className={`status-indicator ${isConnected ? 'connected' : 'connecting'}`}></div>
+            <div className={`status-indicator ${isConnected ? 'connected' : ''}`}></div>
             <span className="status-text">{getConnectionStatus()}</span>
           </div>
           
@@ -141,6 +141,11 @@ const Lobby: React.FC<LobbyProps> = ({ onEnterGame }) => {
       <div className="corner-decoration top-right"></div>
       <div className="corner-decoration bottom-left"></div>
       <div className="corner-decoration bottom-right"></div>
+      
+      {/* Debug button */}
+      <button className="debug-skip" onClick={onEnterGame}>
+        Skip Lobby (Debug)
+      </button>
     </div>
   );
 };

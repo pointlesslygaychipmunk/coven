@@ -40,7 +40,7 @@ const App: React.FC = () => {
     const [currentView, setCurrentView] = useState<string>('garden'); // Default view
     
     // Multiplayer state - temporarily disabled for debugging
-    const [showLobby, setShowLobby] = useState(true);
+    const [showLobby, setShowLobby] = useState(false);
     // Set multiplayer to false to simplify debugging
     const [useMultiplayer] = useState(false);
 
@@ -368,11 +368,44 @@ const App: React.FC = () => {
     }, [gameState]);
     
     // --- Main Render ---
+    // Add debug info
+    console.log('App State:', { 
+        loading, 
+        showLobby, 
+        useMultiplayer, 
+        hasGameState: !!gameState, 
+        hasCurrentPlayer: !!(gameState && currentPlayer),
+        currentView,
+        errorState: error
+    });
+
     return (
         <MultiplayerProvider>
             <div className="game-container">
-                {/* Show the lobby if we're in that state */}
-                {showLobby && useMultiplayer ? (
+                {/* Debug info overlay */}
+                <div style={{ 
+                    position: 'fixed', 
+                    top: 0, 
+                    left: 0, 
+                    background: 'rgba(0,0,0,0.8)', 
+                    color: 'white', 
+                    padding: '10px', 
+                    zIndex: 9999,
+                    fontFamily: 'monospace',
+                    fontSize: '12px'
+                }}>
+                    <div>Loading: {loading ? 'true' : 'false'}</div>
+                    <div>Show Lobby: {showLobby ? 'true' : 'false'}</div>
+                    <div>Multiplayer: {useMultiplayer ? 'true' : 'false'}</div>
+                    <div>GameState: {gameState ? 'exists' : 'null'}</div>
+                    <div>CurrentPlayer: {currentPlayer ? 'exists' : 'null'}</div>
+                    <div>Current View: {currentView}</div>
+                    <div>Error: {error || 'none'}</div>
+                    <button onClick={() => window.location.reload()}>Reload</button>
+                </div>
+
+                {/* Force show both Lobby and Game UI for debugging */}
+                {showLobby ? (
                     <Lobby onEnterGame={handleEnterGame} />
                 ) : (
                     <>
@@ -432,7 +465,7 @@ const App: React.FC = () => {
                             )}
 
                             {/* Main content area */}
-                            {gameState && currentPlayer && (
+                            {gameState && currentPlayer ? (
                                 <main className={`game-content ${pageTransition ? 'page-transition' : ''}`}>
                                     <div className="view-container">
                                         {/* Online players display */}
@@ -496,6 +529,13 @@ const App: React.FC = () => {
                                         )}
                                     </div>
                                 </main>
+                            ) : (
+                                <div className="view-container" style={{ padding: '20px', color: 'white' }}>
+                                    <h2>Waiting for game state...</h2>
+                                    <p>The game is trying to connect to the backend. If you see this message for more than a few seconds, there may be an issue with the backend server.</p>
+                                    <p>Error: {error || 'No error message'}</p>
+                                    <button className="game-button" onClick={() => window.location.reload()}>Refresh Page</button>
+                                </div>
                             )}
 
                             {/* Fantasy-style status bar */}

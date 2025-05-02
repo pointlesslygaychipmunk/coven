@@ -1,315 +1,293 @@
+/* Lobby.css - Fantasy-style multiplayer lobby */
+
 .lobby-container {
-  position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: var(--font-dos);
+  position: relative;
+  background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
-  overflow: hidden;
-  background-color: var(--color-bg-primary);
+  font-family: var(--font-ui);
+  padding: 20px;
 }
 
 .lobby-backdrop {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--color-bg-primary);
-  background-image: 
-    repeating-linear-gradient(0deg, 
-      rgba(0, 0, 0, 0.1) 0px, 
-      rgba(0, 0, 0, 0.1) 1px, 
-      transparent 1px, 
-      transparent 2px);
-  z-index: -1;
-}
-
-.lobby-content {
-  position: relative;
-  width: 90%;
-  max-width: 600px;
-  background-color: var(--color-bg-window);
-  border: 2px solid var(--color-border-active);
-  padding: 0;
-  box-shadow: 0 0 30px var(--color-shadow);
-  z-index: 1;
+  inset: 0;
+  background-color: #0e0b1a;
+  z-index: 0;
   overflow: hidden;
 }
 
-.lobby-header {
-  height: 24px;
-  background-color: var(--color-button-bg);
-  color: var(--color-text-highlight);
-  font-family: var(--font-dos);
-  font-size: 16px;
+.lobby-backdrop::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 25% 15%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(2px 2px at 75% 30%, white, transparent),
+    radial-gradient(1px 1px at 25% 85%, white, transparent),
+    radial-gradient(1.5px 1.5px at 60% 75%, white, transparent);
+  background-size: 150px 150px;
+  animation: twinkleStars 8s infinite alternate;
+}
+
+.lobby-content {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--color-bg-window);
+  border-width: 8px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom right, #8c78c7, #403667) 1;
+  box-shadow: 0 0 30px var(--color-shadow);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 2px solid var(--color-border-active);
-  text-transform: uppercase;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1;
   position: relative;
 }
 
-.lobby-title {
+.lobby-header {
+  background-color: var(--color-bg-header);
+  color: var(--color-text-header);
+  padding: 10px 20px;
   font-size: 24px;
-  margin: 16px 0;
-  color: var(--color-text-highlight);
-  text-transform: uppercase;
-}
-
-.lobby-subtitle {
-  font-size: 16px;
-  margin-bottom: 24px;
-  color: var(--color-text-secondary);
+  text-align: center;
+  border-bottom: 2px solid var(--color-border-gold);
+  font-family: var(--font-display);
+  text-shadow: 0 0 10px var(--color-magic-glow);
 }
 
 .lobby-main {
-  padding: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.dos-ascii-logo {
+  font-family: monospace;
+  white-space: pre;
   text-align: center;
+  color: var(--color-text-gold);
+  margin-bottom: 20px;
+}
+
+.lobby-title {
+  font-size: 32px;
+  color: var(--color-text-gold);
+  margin: 0;
+  font-family: var(--font-display);
+  text-shadow: 0 0 10px var(--color-magic-glow);
+}
+
+.lobby-subtitle {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 .connection-status {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 8px;
-  background-color: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border-inactive);
-  padding: 8px;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .status-indicator {
-  width: 16px;
-  height: 16px;
-  background-color: var(--color-dos-red);
-  animation: statusBlink 1.5s infinite;
-}
-
-.status-indicator.connecting {
-  background-color: var(--color-dos-yellow);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--color-text-error);
 }
 
 .status-indicator.connected {
-  background-color: var(--color-dos-bright-green);
-  animation: none;
+  background-color: var(--color-text-success);
 }
 
 .status-text {
   font-size: 16px;
-  font-family: var(--font-dos);
-  color: var(--color-text-primary);
 }
 
 .join-form {
+  width: 100%;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-  width: 100%;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 .name-input {
-  padding: 8px;
-  font-size: 16px;
-  font-family: var(--font-dos);
   background-color: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border-inactive);
+  border: 2px solid var(--color-border-medium);
   color: var(--color-text-primary);
+  padding: 10px 15px;
+  font-size: 18px;
   width: 100%;
+  font-family: var(--font-body);
 }
 
 .name-input:focus {
   outline: none;
   border-color: var(--color-border-active);
-}
-
-.name-input::placeholder {
-  color: var(--color-text-secondary);
+  box-shadow: 0 0 8px var(--color-magic-glow);
 }
 
 .join-button {
-  padding: 8px;
-  font-size: 16px;
-  font-family: var(--font-dos);
   background-color: var(--color-button-bg);
-  border: 2px outset var(--color-border-inactive);
+  border: 2px solid var(--color-border-medium);
   color: var(--color-text-primary);
+  padding: 10px 20px;
+  font-size: 18px;
   cursor: pointer;
-  transition: all 0.1s ease;
-  text-transform: uppercase;
+  font-family: var(--font-ui);
+  transition: all 0.2s ease;
 }
 
-.join-button:hover {
-  background-color: var(--color-button-active);
+.join-button:hover:not(:disabled) {
+  background-color: var(--color-button-hover);
   color: var(--color-text-highlight);
+  border-color: var(--color-border-light);
+  box-shadow: 0 0 8px var(--color-magic-glow);
 }
 
-.join-button:active {
-  border-style: inset;
-  transform: translateY(1px);
+.join-button:active:not(:disabled) {
+  transform: translateY(2px);
 }
 
 .join-button:disabled {
-  background-color: var(--color-dos-dark-gray);
-  color: var(--color-dos-light-gray);
-  border-color: var(--color-dos-dark-gray);
+  background-color: var(--color-button-disabled);
+  color: var(--color-text-secondary);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .players-online {
+  width: 100%;
+  margin-top: 20px;
+  border: 1px solid var(--color-border-medium);
+  padding: 15px;
   background-color: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border-inactive);
-  padding: 8px;
-  margin-bottom: 24px;
-  text-align: left;
 }
 
 .players-online h3 {
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: var(--color-text-highlight);
-  text-transform: uppercase;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--color-border-inactive);
+  color: var(--color-text-gold);
+  margin-top: 0;
+  border-bottom: 1px solid var(--color-border-medium);
+  padding-bottom: 8px;
 }
 
 .players-list {
   list-style: none;
   padding: 0;
-  max-height: 150px;
-  overflow-y: auto;
+  margin: 10px 0 0 0;
 }
 
 .player-item {
-  padding: 4px 0;
-  font-family: var(--font-dos);
-  display: flex;
-  align-items: center;
-}
-
-.player-item:before {
-  content: "►";
-  margin-right: 8px;
-  color: var(--color-dos-bright-cyan);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--color-border-dark);
 }
 
 .player-name {
-  font-size: 16px;
   color: var(--color-text-primary);
 }
 
 .lobby-footer {
-  font-family: var(--font-dos);
-  font-size: 16px;
+  border-top: 2px solid var(--color-border-medium);
+  padding: 10px;
+  text-align: center;
   color: var(--color-text-secondary);
-  background-color: var(--color-bg-tertiary);
-  padding: 8px;
-  border-top: 2px solid var(--color-border-inactive);
-  animation: blinkText 3s infinite;
+  font-size: 16px;
+  background-color: var(--color-bg-menu);
 }
 
-/* DOS style corner decorations */
 .corner-decoration {
   position: absolute;
-  font-family: var(--font-dos);
-  font-size: 16px;
-  line-height: 1;
-  color: var(--color-border-active);
+  width: 50px;
+  height: 50px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M0,0 L50,0 L50,10 L10,10 L10,50 L0,50 Z" fill="%237a5ebd" /></svg>');
   z-index: 2;
-  white-space: pre;
 }
 
 .corner-decoration.top-left {
-  top: 6px;
-  left: 6px;
-}
-
-.corner-decoration.top-left::before {
-  content: "╔═╗\n║ ║\n╚═╝";
+  top: 0;
+  left: 0;
 }
 
 .corner-decoration.top-right {
-  top: 6px;
-  right: 6px;
-}
-
-.corner-decoration.top-right::before {
-  content: "╔═╗\n║ ║\n╚═╝";
+  top: 0;
+  right: 0;
+  transform: rotate(90deg);
 }
 
 .corner-decoration.bottom-left {
-  bottom: 6px;
-  left: 6px;
-}
-
-.corner-decoration.bottom-left::before {
-  content: "╔═╗\n║ ║\n╚═╝";
+  bottom: 0;
+  left: 0;
+  transform: rotate(-90deg);
 }
 
 .corner-decoration.bottom-right {
-  bottom: 6px;
-  right: 6px;
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
 }
 
-.corner-decoration.bottom-right::before {
-  content: "╔═╗\n║ ║\n╚═╝";
+/* Skip button for debugging */
+.debug-skip {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: var(--color-button-bg);
+  border: 2px solid var(--color-border-medium);
+  color: var(--color-text-primary);
+  padding: 8px 15px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  z-index: 10;
 }
 
-/* DOS style ASCII art */
-.dos-ascii-logo {
-  font-family: var(--font-dos);
-  font-size: 14px;
-  line-height: 1;
-  color: var(--color-witch-purple);
-  white-space: pre;
-  margin: 16px auto;
-  display: inline-block;
-  text-align: left;
-}
-
-/* Animations */
-@keyframes statusBlink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0.5; }
-}
-
-@keyframes blinkText {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0.7; }
-}
-
-/* Responsiveness */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .lobby-content {
-    width: 95%;
+    max-width: 90%;
+    border-width: 6px;
   }
   
-  .lobby-title {
+  .lobby-header {
     font-size: 20px;
+    padding: 8px 15px;
   }
   
   .lobby-main {
-    padding: 16px;
+    padding: 20px;
+  }
+  
+  .lobby-title {
+    font-size: 28px;
   }
 }
 
 @media (max-width: 480px) {
+  .lobby-content {
+    max-width: 95%;
+    border-width: 4px;
+  }
+  
+  .lobby-main {
+    padding: 15px;
+  }
+  
   .lobby-title {
-    font-size: 18px;
+    font-size: 24px;
   }
   
-  .lobby-subtitle {
-    font-size: 14px;
-  }
-  
-  .name-input, 
-  .join-button,
-  .status-text,
-  .player-name {
-    font-size: 14px;
+  .join-form {
+    max-width: 100%;
   }
 }
