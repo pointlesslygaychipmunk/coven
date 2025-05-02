@@ -775,7 +775,7 @@ const SimpleApp: React.FC = () => {
           weatherFate: (gameState as any).weatherControl?.active 
             ? (gameState as any).weatherControl.weather 
             : getRandomWeather() as any,
-        },
+        }
         // Reset weather control after using it
         weatherControl: (gameState as any).weatherControl?.active 
           ? { active: false, weather: null } 
@@ -1607,7 +1607,7 @@ const SimpleApp: React.FC = () => {
                       description: "Crystallized moonlight captured during a ritual."
                     }
                   ]
-                }
+                }]
               },
               {
                 id: "ritual-2",
@@ -1646,7 +1646,7 @@ const SimpleApp: React.FC = () => {
                       description: "A wisp of pure shadow that tingles to the touch."
                     }
                   ]
-                }
+                }]
               },
               {
                 id: "ritual-3",
@@ -1686,8 +1686,8 @@ const SimpleApp: React.FC = () => {
                       }]
                     }
                   ]
-                }
-              },,
+                }]
+              }
             ],
             events: [],
             knownRecipes: [],
