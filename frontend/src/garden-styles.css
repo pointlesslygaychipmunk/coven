@@ -1,0 +1,305 @@
+/* Garden and other view styles to enhance the SimpleApp */
+
+/* Generic styles for all views */
+.view-container {
+  padding: 20px;
+  color: #e2dbff;
+}
+
+.highlight {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+h2 {
+  margin-top: 0;
+  color: #b6a5ff;
+  border-bottom: 1px solid #695e9e;
+  padding-bottom: 10px;
+  font-family: 'Avenir Next', 'Helvetica Neue', sans-serif;
+}
+
+h3 {
+  color: #c1b3ff;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 8px 16px;
+  background-color: #4a3674;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background-color: #643b68;
+}
+
+button:disabled {
+  background-color: #392b57;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Garden View */
+.garden-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.garden-plot {
+  background-color: #1f1a35;
+  border-radius: 6px;
+  padding: 15px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #392b57;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.garden-plot:hover {
+  border-color: #695e9e;
+  transform: translateY(-2px);
+}
+
+.plant-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.plant-name {
+  font-weight: bold;
+  color: #b6a5ff;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+.plant-stats {
+  font-size: 0.9em;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #c8c2e0;
+}
+
+.empty-plot {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #392b57;
+  color: #695e9e;
+  border-radius: 4px;
+}
+
+.plot-info {
+  margin-top: 10px;
+  font-size: 0.8em;
+  color: #a399cc;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #392b57;
+  padding-top: 8px;
+}
+
+.empty-garden {
+  text-align: center;
+  padding: 30px;
+  background-color: #1f1a35;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+
+/* Brewing View */
+.brewing-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.brewing-intro {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.ingredient-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.ingredient-item {
+  background-color: #1f1a35;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #392b57;
+}
+
+.item-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #c1b3ff;
+}
+
+.item-quantity {
+  font-size: 0.8em;
+  color: #a399cc;
+}
+
+/* Market View */
+.market-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.market-intro {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.market-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .market-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+.market-section {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.market-items, .inventory-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.market-item, .inventory-item {
+  background-color: #2a2440;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #392b57;
+}
+
+.item-price {
+  color: #ffd700;
+  margin: 5px 0 10px;
+  font-weight: bold;
+}
+
+.buy-button, .sell-button {
+  margin-top: auto;
+  font-size: 0.9em;
+}
+
+/* Atelier View */
+.atelier-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.atelier-intro {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.crafting-area {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+/* Journal View */
+.journal-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.journal-section {
+  background-color: #1f1a35;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.calendar-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.calendar-item {
+  flex: 1;
+  min-width: 150px;
+  background-color: #2a2440;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.calendar-label {
+  color: #a399cc;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+
+.calendar-value {
+  color: #c1b3ff;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.rumor-list {
+  margin-top: 15px;
+}
+
+.rumor-item {
+  background-color: #2a2440;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.rumor-source {
+  color: #a399cc;
+  font-style: italic;
+  text-align: right;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
