@@ -27,19 +27,39 @@ export function unlockRitualQuest(state: GameState, questId: string): boolean {
     const questTemplate = RITUAL_QUESTS.find(q => q.id === questId);
     if (!questTemplate || state.rituals.some((r: RitualQuest) => r.id === questId)) return false; // Added type
     const newQuest: RitualQuest = JSON.parse(JSON.stringify(questTemplate));
-    newQuest.unlocked = true; newQuest.stepsCompleted = 0; newQuest.steps.forEach((step: RitualQuestStep) => step.completed = false); // Added type
+    newQuest.unlocked = true; newQuest.stepsCompleted = 0; 
+    if (newQuest.steps) {
+        newQuest.steps.forEach((step: RitualQuestStep) => step.completed = false);
+    } else {
+        // Initialize steps if they don't exist
+        newQuest.steps = [];
+    } // Added type and null check
     state.rituals.push(newQuest); addQuestJournalEntry(state, `New ritual available: "${newQuest.name}"`, 4);
     console.log(`[QuestSystem] Unlocked: ${questId}`); return true;
 }
 
 // Check quest completion conditions based on player actions
 export function checkQuestStepCompletion( state: GameState, player: Player, actionType: string, actionDetails: any ): void {
-    const activeRituals = state.rituals.filter((ritual: RitualQuest) => ritual.unlocked && !player.completedRituals.includes(ritual.id) && ritual.stepsCompleted < ritual.totalSteps ); // Added type
+    const activeRituals = state.rituals.filter((ritual: RitualQuest) => 
+        ritual.unlocked === true && 
+        !player.completedRituals.includes(ritual.id) && 
+        typeof ritual.stepsCompleted === 'number' && 
+        typeof ritual.totalSteps === 'number' && 
+        ritual.stepsCompleted < ritual.totalSteps
+    ); // Added type and null checks
     if (activeRituals.length === 0) return; const currentPhase = state.time.phaseName; const currentSeason = state.time.season;
     activeRituals.forEach((ritual: RitualQuest) => { // Added type
         if (ritual.requiredSeason && ritual.requiredSeason !== currentSeason) return; if (ritual.requiredMoonPhase && ritual.requiredMoonPhase !== currentPhase) return;
-        const currentStepIndex = ritual.stepsCompleted; if (currentStepIndex >= ritual.steps.length) return;
-        const step = ritual.steps[currentStepIndex]; if (step.completed) return; let stepCompleted = false;
+        // Safety check for undefined stepsCompleted
+        const currentStepIndex = typeof ritual.stepsCompleted === 'number' ? ritual.stepsCompleted : 0;
+        
+        // Check if steps exist and are in bounds
+        if (!ritual.steps || !Array.isArray(ritual.steps) || currentStepIndex >= ritual.steps.length) return;
+        
+        const step = ritual.steps[currentStepIndex]; 
+        if (!step || step.completed) return; 
+        
+        let stepCompleted = false;
         switch (step.description) {
             case "Brew a Moon Glow Serum": stepCompleted = (actionType === 'brew' && actionDetails.potionName === "Moon Glow Serum"); break;
             case "Brew a Moon Glow Serum during the Full Moon": stepCompleted = (actionType === 'brew' && actionDetails.potionName === "Moon Glow Serum" && currentPhase === "Full Moon"); break;
@@ -50,7 +70,23 @@ export function checkQuestStepCompletion( state: GameState, player: Player, acti
             case "Plant 3 different seeds during Spring": if (actionType === 'plant' && currentSeason === "Spring") { console.warn("[Quest] Step needs tracking."); } break;
             default: break;
         }
-        if (stepCompleted) { step.completed = true; step.completedDate = `${currentPhase}, ${currentSeason} Y${state.time.year}`; ritual.stepsCompleted++; addQuestJournalEntry(state, `Ritual progress: "${ritual.name}" step completed!`, 4); if (ritual.stepsCompleted >= ritual.totalSteps) addQuestJournalEntry(state, `Ritual complete: "${ritual.name}"!`, 5); }
+        if (stepCompleted) { 
+            step.completed = true; 
+            step.completedDate = `${currentPhase}, ${currentSeason} Y${state.time.year}`; 
+            
+            // Make sure stepsCompleted is initialized before incrementing
+            if (typeof ritual.stepsCompleted !== 'number') {
+                ritual.stepsCompleted = 0;
+            }
+            ritual.stepsCompleted++; 
+            
+            addQuestJournalEntry(state, `Ritual progress: "${ritual.name}" step completed!`, 4); 
+            
+            // Check if all steps are completed
+            if (typeof ritual.totalSteps === 'number' && ritual.stepsCompleted >= ritual.totalSteps) {
+                addQuestJournalEntry(state, `Ritual complete: "${ritual.name}"!`, 5);
+            }
+        }
     });
 }
 
@@ -73,7 +109,21 @@ export const isRitualClaimed = (player: Player, ritualId: string): boolean => pl
 // Function to claim rewards
 export function claimRitualRewards(state: GameState, player: Player, ritualId: string): boolean {
     const ritualIndex = state.rituals.findIndex((r: RitualQuest) => r.id === ritualId); if (ritualIndex === -1) return false; // Added type
-    const ritual = state.rituals[ritualIndex]; if (ritual.stepsCompleted < ritual.totalSteps) { addQuestJournalEntry(state, `Cannot claim rewards yet.`, 2); return false; } if (isRitualClaimed(player, ritualId)) { addQuestJournalEntry(state, `Already claimed rewards.`, 1); return false; }
+    const ritual = state.rituals[ritualIndex]; 
+    
+    // Check if quest is complete
+    if (typeof ritual.stepsCompleted !== 'number' || 
+        typeof ritual.totalSteps !== 'number' || 
+        ritual.stepsCompleted < ritual.totalSteps) { 
+        addQuestJournalEntry(state, `Cannot claim rewards yet.`, 2); 
+        return false; 
+    } 
+    
+    // Check if already claimed
+    if (isRitualClaimed(player, ritualId)) { 
+        addQuestJournalEntry(state, `Already claimed rewards.`, 1); 
+        return false; 
+    }
     player.completedRituals.push(ritualId); addQuestJournalEntry(state, `Rewards claimed for "${ritual.name}"!`, 5);
     ritual.rewards.forEach((reward: RitualReward) => { // Added type
         try { switch (reward.type) {
