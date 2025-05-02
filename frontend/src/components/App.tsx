@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import { GameState, Season, InventoryItem, GardenSlot } from 'coven-shared';
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
@@ -14,79 +14,35 @@ import Lobby from './Lobby';
 import MultiplayerChat from './MultiplayerChat';
 import OnlinePlayers from './OnlinePlayers';
 
-// API Utility constants
+// API Utility
 const API_BASE_URL = '/api';
-
-// Dummy game state for development/debugging when API fails
-const FALLBACK_GAME_STATE: GameState = {
-  currentPlayerIndex: 0,
-  version: "1.0.0",
-  players: [
-    {
-      id: "player1",
-      name: "Test Witch",
-      gold: 100,
-      mana: 50,
-      reputation: 50,
-      atelierLevel: 1,
-      atelierSpecialization: "Essence", // Fixed to match AtelierSpecialization type
-      garden: [],
-      inventory: [],
-      blackMarketAccess: false,
-      skills: {
-        gardening: 1,
-        brewing: 1,
-        trading: 1,
-        crafting: 1,
-        herbalism: 1,
-        astrology: 1
-      },
-      knownRecipes: [],
-      completedRituals: [],
-      journalEntries: [],
-      questsCompleted: 0,
-      lastActive: Date.now()
-    }
-  ],
-  market: [],
-  marketData: {
-    inflation: 1.0,
-    demand: {},
-    supply: {},
-    volatility: 0.1,
-    blackMarketAccessCost: 500,
-    blackMarketUnlocked: false,
-    tradingVolume: 0
-  },
-  rumors: [],
-  townRequests: [],
-  journal: [],
-  rituals: [],
-  events: [],
-  knownRecipes: [],
-  time: {
-    year: 1,
-    dayCount: 1,
-    phaseName: "Full Moon",
-    phase: 0,
-    season: "Spring",
-    weatherFate: "clear" // Fixed to match WeatherFate type (lowercase)
+const apiCall = async (endpoint: string, method: string = 'GET', body?: Record<string, unknown>): Promise<GameState> => {
+  const options: RequestInit = {
+    method,
+    headers: { 'Content-Type': 'application/json', },
+  };
+  if (body) { options.body = JSON.stringify(body); }
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  const responseData = await response.json();
+  if (!response.ok) {
+    console.error("API Error Response:", responseData);
+    throw new Error(responseData.error || `API call failed: ${response.statusText}`);
   }
+  return responseData as GameState;
 };
 
 // Main App Component
 const App: React.FC = () => {
-    // Initialize with fallback state to avoid null checks and loading issues
-    const [gameState, setGameState] = useState<GameState>(FALLBACK_GAME_STATE);
+    const [gameState, setGameState] = useState<GameState | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [pageTransition, setPageTransition] = useState<boolean>(false);
     const [currentView, setCurrentView] = useState<string>('garden'); // Default view
     
-    // Multiplayer state - temporarily disabled for debugging
-    const [showLobby, setShowLobby] = useState(false);
-    // Set multiplayer to false to simplify debugging
-    const [useMultiplayer] = useState(false);
+    // Multiplayer state - ensure it's enabled by default
+    const [showLobby, setShowLobby] = useState(true);
+    // Force useMultiplayer to true to ensure multiplayer features are active
+    const [useMultiplayer, _setUseMultiplayer] = useState(true);
 
     // Moonlight Meadow Easter Egg state
     const [moonlightMeadowActive, setMoonlightMeadowActive] = useState<boolean>(false);
@@ -195,176 +151,131 @@ const App: React.FC = () => {
       }
     }, [gameState, moonlightMeadowActive]);
 
-    // API utility function (not a hook, just a plain function to avoid re-render issues)
-    function makeApiCall(endpoint: string, method: string = 'GET', body?: Record<string, unknown>): Promise<GameState> {
-        const options: RequestInit = {
-            method,
-            headers: { 'Content-Type': 'application/json', },
-        };
-        if (body) { options.body = JSON.stringify(body); }
-        
-        return fetch(`${API_BASE_URL}${endpoint}`, options)
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        console.error("API Error Response:", errorData);
-                        throw new Error(errorData.error || `API call failed: ${response.statusText}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(responseData => responseData as GameState)
-            .catch(error => {
-                console.error("API Call Error:", error);
-                // Use fallback game state when API fails
-                return {...FALLBACK_GAME_STATE}; // Return a new copy to avoid mutations
-            });
-    }
-
-    // Fetch initial game state - but we already have fallback state loaded
+    // Fetch initial game state
     useEffect(() => {
-        // Simulate a loading screen for a better experience
-        setTimeout(() => {
-            // Attempt to fetch real data from API
-            makeApiCall('/state')
-                .then(initialState => {
+        // Only fetch directly from API if not using multiplayer
+        if (!useMultiplayer) {
+            const fetchInitialState = async () => {
+                try {
+                    setLoading(true);
+                    const initialState = await apiCall('/state');
                     setGameState(initialState);
                     setError(null);
-                })
-                .catch(err => {
+                } catch (err) {
                     console.error('Error fetching initial game state:', err);
-                    // Using fallback data, just show a message
-                    setError('Using offline mode - backend server not available');
-                })
-                .finally(() => {
-                    // Always proceed with the game using at least fallback data
-                    setLoading(false);
-                });
-        }, 800); // Small delay for visual effect
-            
-        // No dependencies needed - this only runs once on component mount
-    }, []);
+                    setError('Failed to connect to the Coven server. Is it running?');
+                } finally {
+                    setTimeout(() => setLoading(false), 800); // Shorter loading time
+                }
+            };
+            fetchInitialState();
+        } else {
+            // When using multiplayer, we'll get the state through the socket connection
+            // We'll still want to show the loading screen until the lobby is dismissed
+            if (!showLobby) {
+                setLoading(false);
+            }
+        }
+    }, [useMultiplayer, showLobby]);
 
     // --- Action Handlers ---
-    // Don't use useCallback to avoid dependency issues
-    function handleApiAction(
-        endpoint: string,
-        method: string = 'POST',
-        body?: Record<string, unknown>,
+    const handleApiAction = useCallback(async (
+        actionPromise: Promise<GameState>,
         successMessage?: string,
         errorMessagePrefix?: string
-    ) {
-        makeApiCall(endpoint, method, body)
-            .then(newState => {
-                setGameState(newState); // Update state with the result from the API
-                setError(null); // Clear previous errors
-                if (successMessage) console.log(`[Action Success] ${successMessage}`);
-            })
-            .catch(err => {
-                const message = (err instanceof Error) ? err.message : 'An unknown error occurred';
-                console.error(errorMessagePrefix || 'Action failed:', err);
-                setError(`${errorMessagePrefix || 'Error'}: ${message}`);
-            });
-    }
+    ) => {
+        try {
+            const newState = await actionPromise;
+            setGameState(newState); // Update state with the result from the API
+            setError(null); // Clear previous errors
+            if (successMessage) console.log(`[Action Success] ${successMessage}`);
+        } catch (err) {
+            const message = (err instanceof Error) ? err.message : 'An unknown error occurred';
+            console.error(errorMessagePrefix || 'Action failed:', err);
+            setError(`${errorMessagePrefix || 'Error'}: ${message}`);
+        }
+    }, []);
 
-    // Get current player and ID safely (we now always have a gameState)
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const playerId = currentPlayer.id;
+    // Get current player and ID safely
+    const currentPlayer = gameState?.players[gameState?.currentPlayerIndex || 0];
+    const playerId = currentPlayer?.id;
 
     // --- Wrapped API Call Functions ---
-    // Don't use useCallback for these functions to avoid re-rendering issues
-    function plantSeed(slotId: number, seedInventoryItemId: string) {
+    // Use useCallback for stable function references passed as props
+    const plantSeed = useCallback((slotId: number, seedInventoryItemId: string) => {
+        if (!playerId) return;
         handleApiAction(
-            '/plant', 
-            'POST', 
-            { playerId, slotId, seedItemId: seedInventoryItemId },
-            `Planted seed in slot ${slotId + 1}`, 
-            `Planting failed`
+            apiCall('/plant', 'POST', { playerId, slotId, seedItemId: seedInventoryItemId }),
+            `Planted seed in slot ${slotId + 1}`, `Planting failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function harvestPlant(slotId: number) {
+    const harvestPlant = useCallback((slotId: number) => {
+        if (!playerId) return;
         handleApiAction(
-            '/harvest', 
-            'POST', 
-            { playerId, slotId },
-            `Harvested from slot ${slotId + 1}`, 
-            `Harvest failed`
+            apiCall('/harvest', 'POST', { playerId, slotId }),
+            `Harvested from slot ${slotId + 1}`, `Harvest failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function waterPlants(puzzleBonus: number = 0) {
+    const waterPlants = useCallback((puzzleBonus: number = 0) => {
+        if (!playerId) return;
         handleApiAction(
-            '/water', 
-            'POST', 
-            { playerId, puzzleBonus },
-            `Attuned garden energies (Bonus: ${puzzleBonus}%)`, 
-            `Attunement failed`
+            apiCall('/water', 'POST', { playerId, puzzleBonus }),
+            `Attuned garden energies (Bonus: ${puzzleBonus}%)`, `Attunement failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function brewPotion(ingredientInvItemIds: string[], puzzleBonus: number = 0, recipeId?: string) {
+    const brewPotion = useCallback((ingredientInvItemIds: string[], puzzleBonus: number = 0, recipeId?: string) => {
+        if (!playerId) return;
         handleApiAction(
-            '/brew', 
-            'POST', 
-            { playerId, ingredientInvItemIds, puzzleBonus },
-            `Brew attempt (Bonus: ${puzzleBonus}%)${recipeId ? ` using recipe ${recipeId}` : ''}`, 
-            `Brewing failed`
+            apiCall('/brew', 'POST', { playerId, ingredientInvItemIds, puzzleBonus }),
+            `Brew attempt (Bonus: ${puzzleBonus}%)${recipeId ? ` using recipe ${recipeId}` : ''}`, `Brewing failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function buyItem(itemId: string) {
+    const buyItem = useCallback((itemId: string) => {
+        if (!playerId) return;
         handleApiAction(
-            '/market/buy', 
-            'POST', 
-            { playerId, itemId },
-            `Purchased ${itemId}`, 
-            `Purchase failed`
+            apiCall('/market/buy', 'POST', { playerId, itemId }),
+            `Purchased ${itemId}`, `Purchase failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function sellItem(inventoryItemId: string) {
+    const sellItem = useCallback((inventoryItemId: string) => {
+        if (!playerId) return;
         handleApiAction(
-            '/market/sell', 
-            'POST', 
-            { playerId, itemId: inventoryItemId },
-            `Sold item ${inventoryItemId}`, 
-            `Sell failed`
+            apiCall('/market/sell', 'POST', { playerId, itemId: inventoryItemId }),
+            `Sold item ${inventoryItemId}`, `Sell failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function fulfillRequest(requestId: string) {
+    const fulfillRequest = useCallback((requestId: string) => {
+        if (!playerId) return;
         handleApiAction(
-            '/fulfill', 
-            'POST', 
-            { playerId, requestId },
-            `Fulfilled request ${requestId}`, 
-            `Fulfillment failed`
+            apiCall('/fulfill', 'POST', { playerId, requestId }),
+            `Fulfilled request ${requestId}`, `Fulfillment failed`
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function advanceDay() {
+    const advanceDay = useCallback(() => {
+        if (!playerId) return;
         handleApiAction(
-            '/end-turn', 
-            'POST', 
-            { playerId },
-            'Advanced to next phase', 
-            'Failed to end turn'
+            apiCall('/end-turn', 'POST', { playerId }),
+            'Advanced to next phase', 'Failed to end turn'
         );
-    }
+    }, [playerId, handleApiAction]);
 
-    function claimRitualReward(ritualId: string) {
+    const claimRitualReward = useCallback((ritualId: string) => {
+        if (!playerId) return;
         handleApiAction(
-            '/ritual/claim', 
-            'POST', 
-            { playerId, ritualId },
-            `Claimed reward for ${ritualId}`, 
-            'Failed to claim reward'
+            apiCall('/ritual/claim', 'POST', { playerId, ritualId }),
+            `Claimed reward for ${ritualId}`, 'Failed to claim reward'
         );
-    }
+    }, [playerId, handleApiAction]);
 
     // Handle location change with page transition
-    function handleChangeLocation(location: string) {
+    const handleChangeLocation = useCallback((location: string) => {
         if (location === currentView || pageTransition) return;
         setPageTransition(true);
         setTimeout(() => {
@@ -372,7 +283,7 @@ const App: React.FC = () => {
             // End transition *after* view potentially changes content
             setTimeout(() => setPageTransition(false), 150); // Shorter fade-in time
         }, 300); // Wait for fade-out
-    }
+    }, [currentView, pageTransition]);
 
     // --- Loading Screen --- Fantasy style
     if (loading) {
@@ -398,85 +309,36 @@ const App: React.FC = () => {
         );
     }
 
-    // --- Error Display - Fantasy style ---
-    const ErrorDisplay = () => error && (
-        <div className="error-overlay">
-            <div className="error-popup">
-                <div className="error-popup-header">
-                    ERROR
-                    <button onClick={() => setError(null)} className="error-close">X</button>
-                </div>
-                <div className="error-popup-content">{error}</div>
-            </div>
-        </div>
-    );
-
-    // Error banner - shows at the top of the screen but doesn't block app
-    const ErrorBanner = () => error && (
-        <div className="error-overlay" style={{ 
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            background: 'rgba(103, 31, 31, 0.9)',
-            color: '#ffd4d4',
-            padding: '8px 12px',
-            fontSize: '14px',
-            zIndex: 9999,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-            textAlign: 'center'
-         }}>
-            {error} 
-            <button onClick={() => setError(null)} style={{
-                background: 'transparent',
-                border: '1px solid #ffd4d4',
-                color: '#ffd4d4',
-                marginLeft: '10px',
-                cursor: 'pointer',
-                padding: '2px 6px'
-            }}>×</button>
-        </div>
-    );
+    // We'll directly render error display in the render logic instead of as separate components
 
     // Handler for entering the game from the lobby
-    function handleEnterGame() {
+    const handleEnterGame = useCallback(() => {
         setShowLobby(false);
-        // Try to fetch the state, but we already have a fallback state
-        makeApiCall('/state')
-            .then(initialState => {
-                setGameState(initialState);
-                setError(null);
-            })
-            .catch(err => {
-                console.error('Error fetching game state:', err);
-                // Error message but don't affect game state - we have fallback data
-                setError('Using offline mode - backend server not available');
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }
+        setLoading(false);
+    }, []);
     
-    // --- Main Render ---
-    // Add debug info in useEffect to avoid re-renders
+    // Simple debug logging
     useEffect(() => {
-        console.log('App State:', { 
-            loading, 
-            showLobby, 
-            useMultiplayer, 
-            hasGameState: !!gameState, 
-            hasCurrentPlayer: !!(gameState && currentPlayer),
-            currentView,
-            errorState: error
-        });
-    }, [loading, showLobby, useMultiplayer, gameState, currentPlayer, currentView, error]);
+        console.log('App mounted');
+        return () => console.log('App unmounted');
+    }, []);
 
     return (
         <MultiplayerProvider>
             <div className="game-container">
-                <ErrorBanner />
+                {/* Show error as an overlay if present */}
+                {error && (
+                    <div className="error-overlay">
+                        <div className="error-popup">
+                            <div className="error-popup-header">
+                                ERROR
+                                <button onClick={() => setError(null)} className="error-close">X</button>
+                            </div>
+                            <div className="error-popup-content">{error}</div>
+                        </div>
+                    </div>
+                )}
 
-                {/* Force show both Lobby and Game UI for debugging */}
                 {showLobby ? (
                     <Lobby onEnterGame={handleEnterGame} />
                 ) : (
