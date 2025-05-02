@@ -1,10 +1,14 @@
 // frontend/src/index.tsx
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'; // Required for JSX transform
 import ReactDOM from 'react-dom/client';
-// Import our simple troubleshooting app
+// Import our simple troubleshooting apps - with both JSX and non-JSX versions for fallback
 import SimpleApp from './components/SimpleApp';
+// Fallback that doesn't use JSX in case there are JSX transform issues
+import NoJsxApp from './components/NoJsxApp';
 import './index.css'; // Import global styles
+
+// Explicitly use React to satisfy TypeScript
+const jsx = React.createElement('div', null, 'This is JSX');
 
 // Unregister any existing service workers to fix "Frame with ID 0 was removed" errors
 // This is a common issue when service workers aren't properly maintained
@@ -39,15 +43,27 @@ try {
   console.log('Creating React root');
   const root = ReactDOM.createRoot(rootElement);
 
-  // Render the simplified app for troubleshooting
-  console.log('Rendering SimpleApp for troubleshooting');
-  setTimeout(() => {
+  // Try to render using JSX first
+  console.log('First trying JSX version (SimpleApp)');
+  try {
     root.render(
-      // Disabling StrictMode which can cause double rendering during development
       <SimpleApp />
     );
-    console.log('Render call completed');
-  }, 100); // Small delay to ensure DOM is ready
+    console.log('JSX render attempt completed');
+  } catch (jsxError) {
+    // If JSX fails, fall back to non-JSX version
+    console.error('JSX rendering failed, trying non-JSX fallback', jsxError);
+    try {
+      // Try the non-JSX version
+      root.render(
+        React.createElement(NoJsxApp, null)
+      );
+      console.log('Non-JSX render attempt completed');
+    } catch (fallbackError) {
+      console.error('Both rendering approaches failed', fallbackError);
+      throw fallbackError; // Let the outer catch handle this
+    }
+  }
 } catch (error) {
   console.error('Failed to render React component:', error);
   rootElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #ff857b; font-family: sans-serif;">' +
