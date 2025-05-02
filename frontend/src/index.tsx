@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom/client';
 import * as React from 'react';
 import App from './components/App';
 import { renderMinimalApp } from './minimal';
+import { renderFallbackApp } from './fallback';
 import './index.css';
 
 // Set up error tracking for React rendering errors
@@ -61,6 +62,25 @@ function renderMainApp() {
     assertNonNull(rootElement);
     const root = ReactDOM.createRoot(rootElement);
     
+    // Add global error handler for React errors that happen during rendering
+    window.addEventListener('error', function(event) {
+      console.error('Global error caught:', event.error);
+      if (event.error && event.error.message && 
+          (event.error.message.includes('Maximum update') || 
+           event.error.message.includes('Too many re-renders'))) {
+        console.error('Detected render loop, switching to fallback...');
+        // Remove the current render and try fallback
+        setTimeout(() => {
+          try {
+            renderFallbackApp();
+          } catch (e) {
+            console.error('Failed to render fallback, last resort is minimal:', e);
+            renderMinimalApp();
+          }
+        }, 100);
+      }
+    });
+    
     // Use StrictMode only in debug mode
     if (debugMode) {
       console.log('Using React StrictMode (debug mode)');
@@ -77,16 +97,31 @@ function renderMainApp() {
     return true;
   } catch (error) {
     console.error('Fatal error rendering main App:', error);
-    // Fall back to minimal app on error
-    return renderMinimalApp();
+    // Try fallback first
+    if (!renderFallbackApp()) {
+      // If fallback fails, go to minimal as last resort
+      return renderMinimalApp();
+    }
+    return true;
   }
 }
 
-// Render minimal app if in minimal mode, otherwise try main app
-if (minimalMode) {
+// Check for fallback mode parameter
+const fallbackMode = urlParams.get('fallback') === 'true';
+
+// Render appropriate version based on URL parameters
+if (fallbackMode) {
+  console.log('Starting in fallback mode');
+  renderFallbackApp();
+} else if (minimalMode) {
   console.log('Starting in minimal mode');
   renderMinimalApp();
 } else {
   console.log('Starting in normal mode');
-  renderMainApp();
+  try {
+    renderMainApp();
+  } catch (err) {
+    console.error('Critical failure in main app render, trying fallback:', err);
+    renderFallbackApp();
+  }
 }
