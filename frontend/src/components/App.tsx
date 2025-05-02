@@ -36,31 +36,57 @@ const apiCall = React.useCallback(async (endpoint: string, method: string = 'GET
     // Return a dummy game state for development/debugging
     return {
       currentPlayerIndex: 0,
+      version: "1.0.0",
       players: [
         {
           id: "player1",
           name: "Test Witch",
           gold: 100,
+          mana: 50,
           reputation: 50,
           atelierLevel: 1,
-          atelierSpecialization: "Potions",
+          atelierSpecialization: "Essence", // Fixed to match AtelierSpecialization type
           garden: [],
           inventory: [],
-          blackMarketAccess: false
+          blackMarketAccess: false,
+          skills: {
+            gardening: 1,
+            brewing: 1,
+            trading: 1,
+            crafting: 1,
+            herbalism: 1,
+            astrology: 1
+          },
+          knownRecipes: [],
+          completedRituals: [],
+          journalEntries: [],
+          questsCompleted: 0,
+          lastActive: Date.now()
         }
       ],
       market: [],
+      marketData: {
+        inflation: 1.0,
+        demand: {},
+        supply: {},
+        volatility: 0.1,
+        blackMarketAccessCost: 500,
+        blackMarketUnlocked: false,
+        tradingVolume: 0
+      },
       rumors: [],
       townRequests: [],
       journal: [],
       rituals: [],
+      events: [],
       knownRecipes: [],
       time: {
+        year: 1,
         dayCount: 1,
         phaseName: "Full Moon",
         phase: 0,
         season: "Spring",
-        weatherFate: "Clear"
+        weatherFate: "clear" // Fixed to match WeatherFate type (lowercase)
       }
     };
   }
