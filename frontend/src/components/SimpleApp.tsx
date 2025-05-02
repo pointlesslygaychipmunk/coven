@@ -1,7 +1,10 @@
 import React, { useState } from 'react'; // React import needed for JSX
 
 // Explicitly use React to satisfy TypeScript
-const element = React.createElement('div', null, 'Using React explicitly');
+// Using underscore prefix to indicate intentionally unused variable
+const _element = React.createElement('div', null, 'Using React explicitly');
+// Disable TS error for unused variable
+// @ts-ignore
 // Adding a console.log to debug import issues
 console.log('SimpleApp component is being loaded');
 

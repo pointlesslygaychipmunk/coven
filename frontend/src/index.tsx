@@ -4,11 +4,14 @@ import ReactDOM from 'react-dom/client';
 // Import our simple troubleshooting apps - with both JSX and non-JSX versions for fallback
 import SimpleApp from './components/SimpleApp';
 // Fallback that doesn't use JSX in case there are JSX transform issues
-import NoJsxApp from './components/NoJsxApp';
+// Use .js extension explicitly for TypeScript to find it
+import NoJsxApp from './components/NoJsxApp.js';
 import './index.css'; // Import global styles
 
 // Explicitly use React to satisfy TypeScript
-const jsx = React.createElement('div', null, 'This is JSX');
+// Using underscore prefix to indicate intentionally unused variable
+const _jsx = React.createElement('div', null, 'This is JSX');
+// @ts-ignore - this is just to make TypeScript recognize React import
 
 // Unregister any existing service workers to fix "Frame with ID 0 was removed" errors
 // This is a common issue when service workers aren't properly maintained

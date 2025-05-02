@@ -14,7 +14,31 @@
     <meta name="description" content="A Hanbang-inspired skincare witch simulation game."> <!-- Added description -->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Initial content to show before React loads -->
+      <div style="display: flex; height: 100vh; justify-content: center; align-items: center; color: #e2dbff; font-family: sans-serif;">
+        <p>Loading Witch Coven...</p>
+      </div>
+    </div>
+    
+    <!-- Fallback script in case React doesn't load -->
+    <script>
+      // Redirect to fallback page if app doesn't load within 10 seconds
+      const fallbackTimer = setTimeout(() => {
+        console.error('App failed to load within timeout period, redirecting to fallback');
+        // Check if page is still showing initial loading content
+        const root = document.getElementById('root');
+        if (root && root.innerHTML.includes('Loading Witch Coven')) {
+          window.location.href = '/fallback.html';
+        }
+      }, 10000);
+      
+      // Clear the timer if the page loads successfully
+      window.addEventListener('load', () => {
+        clearTimeout(fallbackTimer);
+      });
+    </script>
+    
     <!-- Vite automatically handles script injection -->
     <script type="module" src="/src/index.tsx"></script>
   </body>
