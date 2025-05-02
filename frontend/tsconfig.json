@@ -15,7 +15,6 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "suppressImplicitAnyIndexErrors": true,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
