@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { GameState, Season, MoonPhase } from 'coven-shared';
+import { GameState, Season, MoonPhase, Plant } from 'coven-shared';
+
+// Fallback type definition in case import fails
+// This ensures type safety even if the shared types aren't fully available
+type PlantType = Plant | {
+  id: string;
+  name: string;
+  growth: number;
+  maxGrowth: number;
+  health: number;
+  mature: boolean;
+  category?: string;
+  moonBlessed?: boolean;
+  mutations?: string[];
+  [key: string]: any;
+};
 import './App.css';
 import '../garden-styles.css';
 import '../inventory-modal.css';
@@ -3485,12 +3500,12 @@ const SimpleApp: React.FC = () => {
         <CrossBreedingInterface
           plants={gameState.players[gameState.currentPlayerIndex].garden
             .filter(plot => plot.plant && plot.plant.mature)
-            .map(plot => plot.plant!)}
+            .map(plot => plot.plant as PlantType)}
           onCrossBreed={handleCrossBreed}
           onClose={() => setShowCrossBreeding(false)}
           currentSeason={gameState.time.season as Season}
-          currentMoonPhase={gameState.time.phaseName}
-          playerGardeningSkill={gameState.players[gameState.currentPlayerIndex].skills.gardening}
+          currentMoonPhase={gameState.time.phaseName as MoonPhase}
+          playerGardeningSkill={Number(gameState.players[gameState.currentPlayerIndex].skills?.gardening || 0)}
         />
       )}
     </div>

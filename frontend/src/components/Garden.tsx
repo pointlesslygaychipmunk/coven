@@ -21,6 +21,7 @@ const Garden: React.FC<GardenProps> = ({
   onPlant,
   onHarvest,
   onWater,
+  onCrossBreed,
   weatherFate = 'normal',
   season = 'Spring'
 }) => {

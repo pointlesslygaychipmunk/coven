@@ -374,14 +374,17 @@ const App: React.FC = () => {
             });
             
             // For successful API call, create a simplified result object
-            // This handles potential undefined crossBreedingResult property gracefully
+            // We need to handle the API response structure - it may have a nested crossBreedingResult object
+            // or have the result fields directly in the response
+            const crossBreedingData = result.crossBreedingResult || result;
+            
             const crossBreedResult = {
-                success: result.success ?? false,
-                newVarietyId: result.newVarietyId ?? undefined,
-                newVarietyName: result.newVarietyName ?? undefined,
-                traitInheritance: result.traitInheritance ?? undefined,
-                rarityTier: result.rarityTier ?? 0,
-                message: result.message ?? "Cross-breeding completed"
+                success: crossBreedingData.success ?? false,
+                newVarietyId: crossBreedingData.newVarietyId,
+                newVarietyName: crossBreedingData.newVarietyName,
+                traitInheritance: crossBreedingData.traitInheritance,
+                rarityTier: crossBreedingData.rarityTier ?? 0,
+                message: crossBreedingData.message ?? "Cross-breeding completed"
             };
             
             // Update game state with the new state from the API
