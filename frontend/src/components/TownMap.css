@@ -1,603 +1,549 @@
-/* TownMap.css - Matches the 90s DOS Fantasy Game Aesthetic */
+/* TownMap.css */
+/* Main county map component styling with DOS-inspired 90's aesthetic */
 
 .town-map-container {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   width: 100%;
-  height: 100%;
-  font-family: 'VT323', 'Courier New', monospace;
-  color: #3a2f1d;
-  overflow: hidden;
-  position: relative;
-  /* Default background - pixelated grid pattern */
-  background-color: #2b333e;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%232b333e"/><rect x="0" y="0" width="8" height="8" fill="%23212a33"/><rect x="8" y="8" width="8" height="8" fill="%23212a33"/></svg>');
-  
-  /* Add scanlines for CRT effect */
-  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  color: #eceff4;
+  background-color: #2e3440;
+  border: 2px solid #4c566a;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
-/* Scanlines overlay for DOS CRT monitor effect */
-.town-map-container::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.1),
-    rgba(0, 0, 0, 0.1) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0.4;
-}
-
-/* Town map header with ornaments */
 .town-map-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 5px 10px;
-  height: 32px; /* Fixed height for more authentic DOS look */
-  background-color: #6d5940; /* Darker and more muted */
-  
-  /* Pixelated gradient for header */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="32" viewBox="0 0 100 32"><rect width="100" height="32" fill="%236d5940"/><rect width="100" height="1" fill="%238b7250" y="0"/><rect width="100" height="1" fill="%238b7250" y="1"/><rect width="100" height="1" fill="%235c4830" y="30"/><rect width="100" height="1" fill="%23483920" y="31"/></svg>');
-  
-  color: #f4e9d5;
-  margin-bottom: 5px;
-  position: relative;
-  text-shadow: 1px 1px 0 #000000; /* Sharper pixel shadow */
-  
-  /* Double-border effect for DOS look */
-  border-bottom: 2px solid #483920;
-  box-shadow: 0 1px 0 #8b7250;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #4c566a;
 }
 
-/* Add subtle pixel texture to header */
-.town-map-header::before {
-  content: "";
+.town-map-header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: #ebcb8b;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.map-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  font-size: 14px;
+}
+
+/* Filter controls */
+.town-map-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+  padding: 5px;
+  background: #3b4252;
+  border: 1px solid #4c566a;
+}
+
+.town-map-filters button {
+  background-color: #4c566a;
+  color: #e5e9f0;
+  border: 1px solid #434c5e;
+  padding: 3px 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.town-map-filters button.active {
+  background-color: #5e81ac;
+  border-color: #88c0d0;
+}
+
+.town-map-filters button:hover {
+  background-color: #5e81ac;
+}
+
+.town-map-filters label {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  font-size: 12px;
+}
+
+.town-map-filters input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+/* Main map area */
+.town-map {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background-image: 
+    linear-gradient(rgba(46, 52, 64, 0.7), rgba(46, 52, 64, 0.7)),
+    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFElEQVQYlWP8//8/AwwwMsIZFAIAWJMV0U0sECQAAAAASUVORK5CYII=');
+  background-repeat: repeat;
+  border: 1px solid #4c566a;
+  margin-bottom: 10px;
+}
+
+/* Town markers and trade routes */
+.trade-routes {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect x="0" y="0" width="1" height="1" fill="%238b7250" opacity="0.1"/><rect x="2" y="2" width="1" height="1" fill="%238b7250" opacity="0.1"/></svg>');
   pointer-events: none;
-  opacity: 0.5;
+  z-index: 1;
 }
 
-.town-map-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: normal; 
-  letter-spacing: 2px;
-  flex: 1;
-  text-align: center;
-  text-transform: uppercase;
+@keyframes flowAnimation {
+  0%, 100% { stroke-dashoffset: 0; }
+  50% { stroke-dashoffset: 20; }
 }
 
-/* Pixelated ornaments for DOS aesthetic */
-.scroll-ornament {
-  width: 16px;
-  height: 16px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  position: relative;
-}
-
-.scroll-ornament.left {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="none"/><path d="M0 0h4v4h4v4h4v4h4v4H0z" fill="%238b7250"/><path d="M1 1h3v3h3v3h3v3h3v3H1z" fill="%236d5940"/></svg>');
-  margin-right: 8px;
-}
-
-.scroll-ornament.right {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="none"/><path d="M16 0h-4v4h-4v4h-4v4h-4v4h16z" fill="%238b7250"/><path d="M15 1h-3v3h-3v3h-3v3h-3v3h12z" fill="%236d5940"/></svg>');
-  margin-left: 8px;
-}
-
-/* Main content area */
-.town-map-content {
-  display: flex;
-  flex: 1;
-  gap: 12px;
-  padding: 0 12px 12px 12px;
-  overflow: hidden;
-}
-
-/* Town map area */
-.town-map {
-  flex: 3;
-  position: relative;
-  padding: 8px;
-  background-color: #483920; /* Darker border color */
-  border: 0; /* Remove traditional border */
-  
-  /* Pixelated DOS-style border */
-  box-shadow: 
-    inset 1px 1px 0 #6d5940,
-    inset -1px -1px 0 #2c2418,
-    0 0 0 2px #3a2e1a;
-    
-  image-rendering: pixelated;
-  overflow: hidden;
-}
-
-/* Map background with parchment texture */
-.map-background {
-  position: absolute;
-  inset: 0;
-  background-color: #e8dbc2;
-  
-  /* Pixelated parchment/map pattern - stylized for DOS graphics */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23e8dbc2"/><rect x="0" y="0" width="1" height="1" fill="%23d8cbb2" opacity="0.5"/><rect x="8" y="8" width="1" height="1" fill="%23d8cbb2" opacity="0.5"/><rect x="4" y="4" width="1" height="1" fill="%23d8cbb2" opacity="0.5"/><rect x="12" y="12" width="1" height="1" fill="%23d8cbb2" opacity="0.5"/></svg>');
-  
-  opacity: 1.0;
-  z-index: 0;
-  
-  /* Tilted grid pattern for map lines effect */
-  background-size: 20px 20px;
-  background-position: center;
-  
-  /* Add subtle map-like grid lines */
-  box-shadow: 
-    inset 0 0 0 3px #d8cbb2, 
-    inset 0 0 40px rgba(165, 142, 106, 0.2);
-}
-
-/* Add decorative map elements */
-.map-background::before {
-  content: '';
+.town-markers {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    /* Compass rose - top right */
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="%23a58e6a" stroke-width="0.5"/><path d="M16 4v24M4 16h24M10 10l12 12M10 22l12-12" stroke="%23a58e6a" stroke-width="0.5"/><circle cx="16" cy="16" r="2" fill="%23a58e6a"/></svg>'),
-    /* Town borders - simplified for DOS graphics */
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path d="M20,20 L180,20 L180,180 L20,180 Z" fill="none" stroke="%23a58e6a" stroke-width="1" stroke-dasharray="4,2"/></svg>');
-  background-position: calc(100% - 20px) 20px, center center;
-  background-repeat: no-repeat;
-  opacity: 0.7;
-  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
 }
 
-/* Location markers styling */
-.location-marker {
+.town-marker {
   position: absolute;
-  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: transform 0.2s, filter 0.2s;
-  /* No transition for true DOS feel */
-  /* transition: none; */
-}
-
-.location-marker.hover {
-  transform: translate(-50%, -50%) scale(1.2);
-  z-index: 11;
-}
-
-.marker-icon {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background-color: #f4e9d5;
-  border: 2px solid #6d5940;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px #000, 2px 2px 4px rgba(0, 0, 0, 0.5);
-  font-size: 16px;
-  margin-bottom: 4px;
+  transform: translate(-50%, -50%);
+  transition: all 0.2s ease;
+  z-index: 3;
 }
 
-/* Make locked locations appear dimmed */
-.location-marker.locked .marker-icon {
-  background-color: #a8a090;
-  opacity: 0.7;
-  border-color: #483920;
+.town-marker:hover {
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* Special styling for different location types */
-.location-marker.shop .marker-icon {
-  background-color: #f0d0b0;
+.town-icon {
+  font-size: 14px;
+  font-weight: bold;
+  color: #2e3440;
 }
 
-.location-marker.guild .marker-icon {
-  background-color: #d0c0f0;
-}
-
-.location-marker.tavern .marker-icon {
-  background-color: #f0c090;
-}
-
-.location-marker.residence .marker-icon {
-  background-color: #c0e0d0;
-}
-
-.location-marker.craftsman .marker-icon {
-  background-color: #c0d0f0;
-}
-
-.location-marker.garden .marker-icon {
-  background-color: #c0f0c0;
-}
-
-.location-marker.temple .marker-icon {
-  background-color: #e0d0f0;
-}
-
-.location-marker.market .marker-icon {
-  background-color: #f0e080;
-}
-
-.marker-name {
+.town-label {
+  position: absolute;
+  bottom: -20px;
+  width: max-content;
   font-size: 11px;
-  text-shadow: 
-    -1px -1px 0 #fff, 
-    1px -1px 0 #fff,
-    -1px 1px 0 #fff,
-    1px 1px 0 #fff;
-  color: #3a2f1d;
-  text-align: center;
-  max-width: 80px;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(46, 52, 64, 0.8);
   padding: 2px 4px;
-  border: 1px solid #a58e6a;
+  border-radius: 2px;
   white-space: nowrap;
 }
 
-/* Location info dialog styling */
-.location-info {
+.demand-indicators {
   position: absolute;
-  width: 300px;
-  min-height: 120px;
-  background-color: #f4e9d5;
-  border: 0;
-  z-index: 100;
-  box-shadow: 
-    0 0 0 2px #483920,
-    4px 4px 0 #000000,
-    inset 1px 1px 0 #fff,
-    inset -1px -1px 0 #c8b59e;
+  top: -5px;
+  right: -5px;
   display: flex;
-  flex-direction: column;
+  gap: 2px;
 }
 
-.info-header {
+.demand-indicator {
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border-radius: 50%;
+  color: #2e3440;
+  font-weight: bold;
+}
+
+.trade-opportunity {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; r: 6; }
+  50% { opacity: 1; r: 8; }
+}
+
+/* Town tooltip */
+.town-tooltip {
+  position: absolute;
+  z-index: 10;
+  background-color: #3b4252;
+  border: 1px solid #4c566a;
+  padding: 8px;
+  width: 200px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.town-tooltip h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  color: #ebcb8b;
+  border-bottom: 1px solid #4c566a;
+  padding-bottom: 3px;
+}
+
+.town-tooltip p {
+  margin: 0 0 8px 0;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.town-tooltip-demands h4 {
+  margin: 5px 0;
+  font-size: 12px;
+  color: #88c0d0;
+}
+
+.town-tooltip-demands ul {
+  margin: 0;
+  padding-left: 15px;
+  font-size: 11px;
+}
+
+/* Rumor visualization */
+.rumor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.rumor-hotspot {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+}
+
+.rumor-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: rgba(191, 97, 106, 0.2);
+  transform: translate(-50%, -50%);
+  animation: rumorPulse 3s infinite;
+}
+
+.rumor-tooltip {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background-color: rgba(59, 66, 82, 0.95);
+  border: 1px solid #4c566a;
+  border-radius: 4px;
+  padding: 8px 12px;
+  width: 200px;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rumor-hotspot:hover .rumor-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rumor-tooltip p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #e5e9f0;
+}
+
+@keyframes rumorPulse {
+  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+/* Town detail panel */
+.town-detail-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 500px;
+  background-color: #3b4252;
+  border: 2px solid #4c566a;
+  z-index: 20;
+  box-shadow: 0 0 15px rgba(0,0,0,0.7);
+}
+
+.town-detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 10px;
-  background-color: #6d5940;
-  color: #f4e9d5;
-  text-shadow: 1px 1px 0 #000000;
+  padding: 8px 10px;
+  background-color: #4c566a;
 }
 
-.info-header h3 {
+.town-detail-header h2 {
   margin: 0;
-  font-size: 16px;
-  font-weight: normal; 
-  text-transform: uppercase;
+  font-size: 18px;
+  color: #eceff4;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #f4e9d5;
-  font-size: 24px;
-  line-height: 1;
-  padding: 0;
+  color: #eceff4;
+  font-size: 18px;
   cursor: pointer;
 }
 
-.info-content {
+.town-detail-content {
   padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-.locked-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #f8e0c0;
-  padding: 8px;
-  border: 1px solid #c8b59e;
-}
-
-.lock-icon {
-  font-size: 16px;
-}
-
-.visit-button {
-  align-self: center;
+.town-image-placeholder {
+  height: 100px;
+  background-color: #434c5e;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px; /* Fixed height for consistent DOS aesthetic */
-  padding: 0 20px;
-  margin: 4px 0;
-  background-color: #6d5940;
-  
-  /* Pixelated gradient background */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="28" viewBox="0 0 100 28"><rect width="100" height="28" fill="%236d5940"/><rect width="100" height="1" fill="%238b7250" y="0"/><rect width="100" height="1" fill="%235c4830" y="27"/></svg>');
-  
-  color: #e0d0b0;
-  border: 0; /* Remove traditional border */
-  border-radius: 0;
-  font-family: 'VT323', 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: normal; /* DOS fonts weren't usually bold */
-  cursor: pointer;
   position: relative;
-  text-shadow: 1px 1px 0 #000000; /* Sharper pixel shadow */
-  letter-spacing: 1px;
-  
-  /* Pixelated border effect using box-shadow */
-  box-shadow: 
-    2px 2px 0 0 #483920,
-    inset 1px 1px 0 0 #8b7250, 
-    inset -1px -1px 0 0 #483920;
 }
 
-/* Add pixelated highlight at top */
-.visit-button::before {
-  content: '';
+.town-specialization {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: linear-gradient(to bottom, 
-              rgba(255, 255, 255, 0.2) 0%, 
-              rgba(255, 255, 255, 0.2) 10%, 
-              transparent 10.1%, 
-              transparent 100%);
+  bottom: 0;
+  right: 0;
+  background-color: rgba(46, 52, 64, 0.8);
+  padding: 3px 6px;
+  font-size: 12px;
+  color: #88c0d0;
 }
 
-.visit-button:hover {
-  background-color: #7c6850;
-  color: #f0e0c0;
-}
-
-.visit-button:active {
-  background-color: #5c4830;
-  transform: translate(2px, 2px);
-  box-shadow: 
-    0 0 0 0 #483920,
-    inset 1px 1px 0 0 #483920, 
-    inset -1px -1px 0 0 #8b7250;
-}
-
-/* Town map sidebar */
-.town-map-sidebar {
-  flex: 2;
+.town-metrics {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 280px;
-  position: relative;
+  gap: 8px;
+  margin: 15px 0;
 }
 
-/* Player stats panel */
-.player-stats {
+.metric {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  background-color: #c0ae90;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%23c0ae90"/><rect x="0" y="0" width="1" height="1" fill="%23b5a385" opacity="0.5"/><rect x="2" y="2" width="1" height="1" fill="%23b5a385" opacity="0.5"/></svg>');
-  border: 0;
-  box-shadow: 
-    inset 1px 1px 0 #d0bea0,
-    inset -1px -1px 0 #a59880,
-    0 0 0 2px #6d5940;
+  align-items: center;
+  gap: 10px;
 }
 
-.reputation-display, .gold-display {
-  background-color: #e8dbc2;
-  padding: 8px;
-  border: 2px solid #a58e6a;
+.metric-label {
+  min-width: 100px;
+  font-size: 12px;
+  color: #d8dee9;
 }
 
-.reputation-display h3, .gold-display h3, .town-crier h3, .town-legend h3 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  text-align: center;
-  text-transform: uppercase;
-  color: #483920;
-  border-bottom: 1px solid #c8b59e;
-  padding-bottom: 4px;
+.metric-value {
+  font-size: 12px;
+  color: #ebcb8b;
 }
 
 .reputation-bar {
-  height: 16px;
-  background-color: #483920;
-  border: 0;
+  height: 10px;
+  width: 150px;
+  background-color: #434c5e;
+  border-radius: 5px;
   overflow: hidden;
-  position: relative;
-  margin-bottom: 4px;
-  
-  /* Pixelated inset border for DOS look */
-  box-shadow: 
-    inset 1px 1px 0 #2c2418,
-    inset -1px -1px 0 #6d5940;
 }
 
-.reputation-fill {
+.reputation-filled {
   height: 100%;
-  background-color: #7a4ea0;
-  
-  /* Pixelated pattern */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%237a4ea0"/><rect x="0" y="0" width="4" height="4" fill="%23694590"/><rect x="4" y="4" width="4" height="4" fill="%23694590"/></svg>');
-  
-  transition: none; /* Immediate feedback for DOS aesthetic */
+  background-color: #5e81ac;
 }
 
-.reputation-value, .gold-value {
+.town-resources {
+  margin: 15px 0;
+}
+
+.town-resources h3 {
   font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  color: #483920;
+  margin: 0 0 10px 0;
+  color: #88c0d0;
+  border-bottom: 1px solid #4c566a;
+  padding-bottom: 3px;
 }
 
-.gold-value {
-  font-size: 20px;
-  color: #8e5a00;
-}
-
-/* Town crier panel */
-.town-crier {
-  padding: 12px;
-  background-color: #c0ae90;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%23c0ae90"/><rect x="0" y="0" width="1" height="1" fill="%23b5a385" opacity="0.5"/><rect x="2" y="2" width="1" height="1" fill="%23b5a385" opacity="0.5"/></svg>');
-  border: 0;
-  box-shadow: 
-    inset 1px 1px 0 #d0bea0,
-    inset -1px -1px 0 #a59880,
-    0 0 0 2px #6d5940;
-}
-
-.town-tip {
-  font-style: italic;
-  font-size: 14px;
-  color: #483920;
-  padding: 8px;
-  background-color: #e8dbc2;
-  border: 2px solid #a58e6a;
-  text-align: center;
-}
-
-/* Town legend panel */
-.town-legend {
-  padding: 12px;
-  background-color: #c0ae90;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%23c0ae90"/><rect x="0" y="0" width="1" height="1" fill="%23b5a385" opacity="0.5"/><rect x="2" y="2" width="1" height="1" fill="%23b5a385" opacity="0.5"/></svg>');
-  border: 0;
-  box-shadow: 
-    inset 1px 1px 0 #d0bea0,
-    inset -1px -1px 0 #a59880,
-    0 0 0 2px #6d5940;
-}
-
-.legend-items {
+.resources-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.resource-column h4 {
+  font-size: 14px;
+  margin: 0 0 5px 0;
+  color: #a3be8c;
+}
+
+.resource-column ul {
+  margin: 0;
+  padding-left: 15px;
+  font-size: 12px;
+}
+
+.demand-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.trend.rising {
+  color: #a3be8c;
+}
+
+.trend.falling {
+  color: #bf616a;
+}
+
+.town-requests {
+  margin: 15px 0;
+}
+
+.town-requests h3 {
+  font-size: 16px;
+  margin: 0 0 10px 0;
+  color: #88c0d0;
+  border-bottom: 1px solid #4c566a;
+  padding-bottom: 3px;
+}
+
+.request {
   padding: 8px;
-  background-color: #e8dbc2;
-  border: 2px solid #a58e6a;
+  background-color: #434c5e;
+  margin-bottom: 8px;
+  border-left: 3px solid #ebcb8b;
+}
+
+.request p {
+  margin: 0 0 5px 0;
+  font-size: 12px;
+}
+
+.request-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.fulfill-button {
+  background-color: #5e81ac;
+  color: #eceff4;
+  border: none;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
+.fulfill-button:hover {
+  background-color: #81a1c1;
+}
+
+.town-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.town-actions button {
+  background-color: #4c566a;
+  color: #eceff4;
+  border: 1px solid #434c5e;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  flex-grow: 1;
+}
+
+.town-actions .travel-button {
+  background-color: #5e81ac;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.town-actions button:hover {
+  background-color: #5e81ac;
+}
+
+/* Map legend */
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 15px;
+  padding: 8px;
+  background-color: #3b4252;
+  border-top: 1px solid #4c566a;
+  font-size: 11px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
-.legend-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid #6d5940;
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-line {
+  width: 20px;
+  border-top: 2px solid #6a3;
+}
+
+.legend-circle {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  font-size: 12px;
-}
-
-.legend-icon.shop {
-  background-color: #f0d0b0;
-}
-
-.legend-icon.guild {
-  background-color: #d0c0f0;
-}
-
-.legend-icon.tavern {
-  background-color: #f0c090;
-}
-
-.legend-icon.residence {
-  background-color: #c0e0d0;
-}
-
-.legend-icon.craftsman {
-  background-color: #c0d0f0;
-}
-
-.legend-icon.garden {
-  background-color: #c0f0c0;
-}
-
-.legend-icon.temple {
-  background-color: #e0d0f0;
-}
-
-.legend-icon.market {
-  background-color: #f0e080;
-}
-
-.legend-icon.locked {
-  background-color: #a8a090;
-  opacity: 0.7;
-}
-
-.legend-text {
-  font-size: 12px;
-  color: #483920;
+  background-color: #ebcb8b;
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
-  .town-map-content {
-    flex-direction: column;
+@media (max-width: 600px) {
+  .town-map-container {
+    padding: 5px;
   }
   
-  .town-map-sidebar {
-    max-width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
+  .town-detail-panel {
+    width: 95%;
   }
   
-  .player-stats, .town-crier, .town-legend {
-    flex: 1;
-    min-width: 240px;
-  }
-  
-  .town-map {
-    min-height: 300px;
-  }
-}
-
-@media (max-width: 480px) {
-  .town-map-header {
-    flex-direction: column;
-    height: auto;
-    padding: 10px;
-  }
-  
-  .town-map-sidebar {
-    flex-direction: column;
-  }
-  
-  .location-info {
-    width: calc(100% - 20px);
-    left: 10px !important;
-    right: 10px !important;
+  .resources-grid {
+    grid-template-columns: 1fr;
+    gap: 5px;
   }
 }

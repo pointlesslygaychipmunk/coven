@@ -3202,8 +3202,14 @@ const SimpleApp: React.FC = () => {
             {view === 'townMap' && (
               <div className="town-map-view">
                 <TownMap
-                  playerReputation={currentPlayer.reputation} 
-                  playerGold={currentPlayer.gold}
+                  gameState={gameState}
+                  onNavigateToTown={(townId) => console.log(`Navigate to town: ${townId}`)}
+                  onFulfillRequest={(requestId) => {
+                    const request = gameState.townRequests.find(req => req.id === requestId);
+                    if (request) {
+                      console.log(`Fulfill request: ${request.description}`);
+                    }
+                  }}
                   onNavigateToMarket={() => setView('market')}
                   onNavigateToGarden={() => setView('garden')}
                   onNavigateToAtelier={() => setView('atelier')}
