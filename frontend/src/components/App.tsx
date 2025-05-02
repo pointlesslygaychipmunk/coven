@@ -374,9 +374,9 @@ const App: React.FC = () => {
             });
             
             // For successful API call, create a simplified result object
-            // We need to handle the API response structure - it may have a nested crossBreedingResult object
-            // or have the result fields directly in the response
-            const crossBreedingData = result.crossBreedingResult || result;
+            // We need to handle the API response structure - the result might directly contain the data we need
+            // Use type assertion to handle the property access
+            const crossBreedingData = (result as any).crossBreedingResult || result;
             
             const crossBreedResult = {
                 success: crossBreedingData.success ?? false,

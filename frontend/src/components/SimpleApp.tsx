@@ -4,7 +4,7 @@ import { GameState, Season, MoonPhase, Plant } from 'coven-shared';
 
 // Fallback type definition in case import fails
 // This ensures type safety even if the shared types aren't fully available
-type PlantType = Plant | {
+type PlantType = {
   id: string;
   name: string;
   growth: number;
@@ -14,6 +14,8 @@ type PlantType = Plant | {
   category?: string;
   moonBlessed?: boolean;
   mutations?: string[];
+  watered: boolean;
+  age: number;
   [key: string]: any;
 };
 import './App.css';
@@ -738,7 +740,8 @@ const SimpleApp: React.FC = () => {
             rewardGold,
             rewardInfluence,
             difficulty,
-            description: `I need ${quantity} ${item} for my work.`
+            description: `I need ${quantity} ${item} for my work.`,
+            completed: false
           };
         }
         return null;
@@ -769,14 +772,14 @@ const SimpleApp: React.FC = () => {
           phase: (gameState.time.phase + 1) % 8,
           phaseName: getNextMoonPhase(gameState.time.phaseName),
           // Weather - use controlled weather if active, otherwise random
-          weatherFate: gameState.weatherControl?.active 
-            ? gameState.weatherControl.weather 
+          weatherFate: (gameState as any).weatherControl?.active 
+            ? (gameState as any).weatherControl.weather 
             : getRandomWeather() as any,
         },
         // Reset weather control after using it
-        weatherControl: gameState.weatherControl?.active 
+        weatherControl: (gameState as any).weatherControl?.active 
           ? { active: false, weather: null } 
-          : gameState.weatherControl,
+          : (gameState as any).weatherControl,
         townRequests: updatedRequests
       };
       
@@ -927,10 +930,10 @@ const SimpleApp: React.FC = () => {
                     ...plot,
                     plant: {
                       ...plot.plant,
-                      growth: Math.min(plot.plant.maxGrowth, plot.plant.growth + spell.effects.growthBoost),
-                      health: Math.min(100, plot.plant.health + spell.effects.healthBoost),
+                      growth: Math.min(plot.plant.maxGrowth, plot.plant.growth + ((spell.effects as any)?.growthBoost || 0)),
+                      health: Math.min(100, plot.plant.health + ((spell.effects as any)?.healthBoost || 0)),
                       // If growth reached max, set mature to true
-                      mature: plot.plant.growth + spell.effects.growthBoost >= plot.plant.maxGrowth ? true : plot.plant.mature
+                      mature: plot.plant.growth + ((spell.effects as any)?.growthBoost || 0) >= plot.plant.maxGrowth ? true : plot.plant.mature
                     }
                   };
                 }
@@ -959,7 +962,7 @@ const SimpleApp: React.FC = () => {
                 
                 updatedGarden[plotIndex] = {
                   ...plot,
-                  fertility: Math.min(100, plot.fertility + spell.effects.fertilityBoost)
+                  fertility: Math.min(100, plot.fertility + ((spell.effects as any)?.fertilityBoost || 0))
                 };
                 
                 updatedPlayer = {
@@ -979,7 +982,7 @@ const SimpleApp: React.FC = () => {
               // Update all plots' moisture
               const updatedGarden = updatedPlayer.garden.map(plot => ({
                 ...plot,
-                moisture: Math.min(100, plot.moisture + spell.effects.moistureBoost)
+                moisture: Math.min(100, plot.moisture + ((spell.effects as any)?.moistureBoost || 0))
               }));
               
               updatedPlayer = {
@@ -1092,32 +1095,32 @@ const SimpleApp: React.FC = () => {
       }
       
       // Check if ritual has moon phase requirements
-      if (ritual.moonPhaseRequirement && 
-          ritual.moonPhaseRequirement !== gameState.time.phaseName) {
-        setErrorMessage(`This ritual requires the ${ritual.moonPhaseRequirement} moon phase!`);
+      if ((ritual as any).moonPhaseRequirement && 
+          (ritual as any).moonPhaseRequirement !== gameState.time.phaseName) {
+        setErrorMessage(`This ritual requires the ${(ritual as any).moonPhaseRequirement} moon phase!`);
         return;
       }
       
       // Check if ritual has season requirements
-      if (ritual.seasonRequirement && 
-          ritual.seasonRequirement !== gameState.time.season) {
-        setErrorMessage(`This ritual requires the ${ritual.seasonRequirement} season!`);
+      if ((ritual as any).seasonRequirement && 
+          (ritual as any).seasonRequirement !== gameState.time.season) {
+        setErrorMessage(`This ritual requires the ${(ritual as any).seasonRequirement} season!`);
         return;
       }
       
       // Calculate ritual success chance
-      let successChance = ritual.baseSuccessChance || 70;
+      let successChance = (ritual as any).baseSuccessChance || 70;
       
       // Adjust for player skills
-      if (ritual.skillAffinity === 'astrology') {
+      if ((ritual as any).skillAffinity === 'astrology') {
         successChance += player.skills.astrology * 5;
-      } else if (ritual.skillAffinity === 'herbalism') {
+      } else if ((ritual as any).skillAffinity === 'herbalism') {
         successChance += player.skills.herbalism * 5;
       }
       
       // Adjust for moon phase
-      if (ritual.moonPhaseRequirement && 
-          ritual.moonPhaseRequirement === gameState.time.phaseName) {
+      if ((ritual as any).moonPhaseRequirement && 
+          (ritual as any).moonPhaseRequirement === gameState.time.phaseName) {
         successChance += 20;
       }
       
@@ -1156,21 +1159,21 @@ const SimpleApp: React.FC = () => {
         };
         
         // Apply ritual rewards
-        if (ritual.rewards?.mana) {
-          updatedPlayer.mana += ritual.rewards.mana;
+        if ((ritual.rewards as any)?.mana) {
+          updatedPlayer.mana += (ritual.rewards as any).mana;
         }
         
-        if (ritual.rewards?.reputation) {
-          updatedPlayer.reputation += ritual.rewards.reputation;
+        if ((ritual.rewards as any)?.reputation) {
+          updatedPlayer.reputation += (ritual.rewards as any).reputation;
         }
         
-        if (ritual.rewards?.gold) {
-          updatedPlayer.gold += ritual.rewards.gold;
+        if ((ritual.rewards as any)?.gold) {
+          updatedPlayer.gold += (ritual.rewards as any).gold;
         }
         
         // Add any reward items
-        if (ritual.rewards?.items?.length) {
-          for (const rewardItem of ritual.rewards.items) {
+        if ((ritual.rewards as any)?.items?.length) {
+          for (const rewardItem of (ritual.rewards as any).items) {
             const newItem = {
               id: `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
               baseId: rewardItem.id,
@@ -1188,11 +1191,11 @@ const SimpleApp: React.FC = () => {
         }
         
         // Unlock any new rituals
-        if (ritual.rewards?.unlocksRituals?.length) {
+        if ((ritual.rewards as any)?.unlocksRituals?.length) {
           const newRituals = [
             ...(gameState.rituals || []),
-            ...ritual.rewards.unlocksRituals.filter(
-              r => !(gameState.rituals || []).some(existing => existing.id === r.id)
+            ...(ritual.rewards as any).unlocksRituals.filter(
+              (r: any) => !(gameState.rituals || []).some(existing => existing.id === r.id)
             )
           ];
           
@@ -1267,7 +1270,7 @@ const SimpleApp: React.FC = () => {
       const player = gameState.players[gameState.currentPlayerIndex];
       
       // Initialize skill experience if it doesn't exist
-      const skillExperience = player.skillExperience || {
+      const skillExperience = (player as any).skillExperience || {
         gardening: 0,
         brewing: 0,
         trading: 0,
@@ -1515,7 +1518,7 @@ const SimpleApp: React.FC = () => {
               ],
               blackMarketAccess: false,
               skills: { gardening: 1, brewing: 1, trading: 1, crafting: 1, herbalism: 1, astrology: 1 },
-              skillExperience: { gardening: 50, brewing: 30, trading: 20, crafting: 40, herbalism: 60, astrology: 25 },
+              skillExperience: { gardening: 50, brewing: 30, trading: 20, crafting: 40, herbalism: 60, astrology: 25 } as any,
               knownRecipes: [],
               completedRituals: [],
               journalEntries: [],
@@ -1583,9 +1586,16 @@ const SimpleApp: React.FC = () => {
                   { name: "Moonleaf", quantity: 1 },
                   { name: "Clear Quartz", quantity: 1 }
                 ],
-                rewards: {
-                  mana: 20,
-                  reputation: 5,
+                rewards: [{
+                  type: 'resource',
+                  resource: 'mana',
+                  amount: 20
+                }, {
+                  type: 'resource',
+                  resource: 'reputation',
+                  amount: 5
+                }, {
+                  type: 'items',
                   items: [
                     { 
                       id: "lunar-essence",
@@ -1675,7 +1685,8 @@ const SimpleApp: React.FC = () => {
                 rewardGold: 30,
                 rewardInfluence: 5,
                 difficulty: 1,
-                description: "I need Moonleaf for a healing salve."
+                description: "I need Moonleaf for a healing salve.",
+                completed: false
               },
               {
                 id: "request-2",
@@ -1685,7 +1696,8 @@ const SimpleApp: React.FC = () => {
                 rewardGold: 25,
                 rewardInfluence: 3,
                 difficulty: 2,
-                description: "Need a sleeping draught for night patrols."
+                description: "Need a sleeping draught for night patrols.",
+                completed: false
               },
               {
                 id: "request-3",
@@ -1695,7 +1707,8 @@ const SimpleApp: React.FC = () => {
                 rewardGold: 40,
                 rewardInfluence: 8,
                 difficulty: 3,
-                description: "Researching crystal energies. Bring a quality specimen."
+                description: "Researching crystal energies. Bring a quality specimen.",
+                completed: false
               }
             ]
           });
@@ -2211,22 +2224,22 @@ const SimpleApp: React.FC = () => {
                             
                             {/* Spell Effects */}
                             <div className="spell-effects">
-                              {spell.effects.growthBoost && (
-                                <div className="spell-effect">Growth: +{spell.effects.growthBoost}</div>
+                              {(spell.effects as any)?.growthBoost && (
+                                <div className="spell-effect">Growth: +{(spell.effects as any).growthBoost}</div>
                               )}
-                              {spell.effects.healthBoost && (
-                                <div className="spell-effect">Health: +{spell.effects.healthBoost}</div>
+                              {(spell.effects as any)?.healthBoost && (
+                                <div className="spell-effect">Health: +{(spell.effects as any).healthBoost}</div>
                               )}
-                              {spell.effects.fertilityBoost && (
-                                <div className="spell-effect">Fertility: +{spell.effects.fertilityBoost}</div>
+                              {(spell.effects as any)?.fertilityBoost && (
+                                <div className="spell-effect">Fertility: +{(spell.effects as any).fertilityBoost}</div>
                               )}
-                              {spell.effects.moistureBoost && (
-                                <div className="spell-effect">Moisture: +{spell.effects.moistureBoost}</div>
+                              {(spell.effects as any)?.moistureBoost && (
+                                <div className="spell-effect">Moisture: +{(spell.effects as any).moistureBoost}</div>
                               )}
-                              {spell.effects.qualityBoost && (
-                                <div className="spell-effect">Quality: +{spell.effects.qualityBoost}</div>
+                              {(spell.effects as any)?.qualityBoost && (
+                                <div className="spell-effect">Quality: +{(spell.effects as any).qualityBoost}</div>
                               )}
-                              {spell.effects.weatherControl && (
+                              {(spell.effects as any)?.weatherControl && (
                                 <div className="spell-effect special">Weather Control</div>
                               )}
                             </div>
@@ -2677,7 +2690,7 @@ const SimpleApp: React.FC = () => {
                                 // Select ingredient for brewing
                                 setSelectedItem(item.id);
                                 setShowInventoryModal(true);
-                                setActiveAction('brew');
+                                setActiveAction('brew' as any);
                               }}
                             >
                               <div className="ingredient-image">
@@ -2765,7 +2778,7 @@ const SimpleApp: React.FC = () => {
                                 ).filter(item => item.quantity > 0);
                                 
                                 // Add the potion
-                                updatedInventory.push(newPotion);
+                                updatedInventory.push(newPotion as any);
                                 
                                 // Update the player
                                 const updatedPlayer = {
@@ -3071,7 +3084,7 @@ const SimpleApp: React.FC = () => {
                               ).filter(item => item.quantity > 0);
                               
                               // Add the crafted item
-                              updatedInventory.push(craftedItem);
+                              updatedInventory.push(craftedItem as any);
                               
                               // Update the player
                               const updatedPlayer = {
@@ -3196,7 +3209,7 @@ const SimpleApp: React.FC = () => {
                   <div className="skills-grid">
                     {Object.entries(currentPlayer.skills).map(([skill, level]) => {
                       // Get experience for this skill
-                      const exp = currentPlayer.skillExperience?.[skill as keyof typeof currentPlayer.skillExperience] || 0;
+                      const exp = (currentPlayer as any).skillExperience?.[skill] || 0;
                       const nextLevelExp = skillExperienceNeeded(level);
                       const expPercentage = Math.min(100, Math.floor((exp / nextLevelExp) * 100));
                       
@@ -3500,7 +3513,17 @@ const SimpleApp: React.FC = () => {
         <CrossBreedingInterface
           plants={gameState.players[gameState.currentPlayerIndex].garden
             .filter(plot => plot.plant && plot.plant.mature)
-            .map(plot => plot.plant as PlantType)}
+            .map(plot => ({
+              ...plot.plant,
+              id: plot.plant.id,
+              name: plot.plant.name,
+              growth: plot.plant.growth,
+              maxGrowth: plot.plant.maxGrowth,
+              health: plot.plant.health,
+              mature: plot.plant.mature,
+              watered: plot.plant.watered || false, 
+              age: plot.plant.age || 0,
+            } as any))}
           onCrossBreed={handleCrossBreed}
           onClose={() => setShowCrossBreeding(false)}
           currentSeason={gameState.time.season as Season}
