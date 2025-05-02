@@ -1,52 +1,56 @@
-/* App.css - 90s DOS Game Style with Improved UI/UX */
+/* App.css - Cozy 90s Fantasy Game Inspired by Civ, Master of Magic, and Ultima */
 
 /* Global variables */
 :root {
-  /* Classic DOS color palette */
-  --color-dos-black: #000000;
-  --color-dos-blue: #0000aa;
-  --color-dos-green: #00aa00;
-  --color-dos-cyan: #00aaaa;
-  --color-dos-red: #aa0000;
-  --color-dos-magenta: #aa00aa;
-  --color-dos-brown: #aa5500;
-  --color-dos-light-gray: #aaaaaa;
-  --color-dos-dark-gray: #555555;
-  --color-dos-bright-blue: #5555ff;
-  --color-dos-bright-green: #55ff55;
-  --color-dos-bright-cyan: #55ffff;
-  --color-dos-bright-red: #ff5555;
-  --color-dos-bright-magenta: #ff55ff;
-  --color-dos-yellow: #ffff55;
-  --color-dos-white: #ffffff;
+  /* Classic 90s fantasy game palette */
+  --color-bg-primary: #27224a;
+  --color-bg-secondary: #1f1a38;
+  --color-bg-tertiary: #342d62;
+  --color-bg-window: #2a2545;
+  --color-bg-menu: #33265a;
+  --color-bg-header: #291970;
   
-  /* Magical witch theme accents */
-  --color-witch-purple: #6a0dad;
-  --color-witch-teal: #008080;
-  --color-witch-moon: #c8c8e8;
-  --color-witch-potion: #8a2be2;
+  /* Border colors */
+  --color-border-light: #a09adf;
+  --color-border-medium: #695e9e;
+  --color-border-dark: #34306d;
+  --color-border-gold: #e3b053;
+  --color-border-active: #c6a6e0;
   
-  /* UI elements */
-  --color-bg-primary: #000088;
-  --color-bg-secondary: #000044;
-  --color-bg-tertiary: #000022;
-  --color-bg-window: #000066;
-  --color-border-active: var(--color-dos-bright-cyan);
-  --color-border-inactive: var(--color-dos-blue);
-  --color-text-primary: var(--color-dos-bright-cyan);
-  --color-text-secondary: var(--color-dos-light-gray);
-  --color-text-highlight: var(--color-dos-yellow);
-  --color-button-bg: var(--color-dos-blue);
-  --color-button-active: var(--color-dos-bright-blue);
-  --color-shadow: rgba(0, 0, 0, 0.7);
+  /* Text colors */
+  --color-text-primary: #e2dbff;
+  --color-text-secondary: #a39cc5;
+  --color-text-header: #ffebc8;
+  --color-text-gold: #ffda85;
+  --color-text-highlight: #ffbb00;
+  --color-text-error: #ff857b;
+  --color-text-success: #91eb9e;
   
-  --vh: 1vh; /* Mobile viewport height fix */
+  /* Button colors */
+  --color-button-bg: #4a3674;
+  --color-button-active: #7952b8;
+  --color-button-hover: #644b99;
+  --color-button-disabled: #433755;
+
+  /* Special effects */
+  --color-magic-glow: rgba(149, 117, 205, 0.3);
+  --color-shadow: rgba(0, 0, 0, 0.5);
   
-  /* Fonts */
-  --font-dos: 'DOS', 'Perfect DOS VGA 437', 'Fixedsys', monospace;
-  --font-ui: 'DOS', 'Perfect DOS VGA 437', 'Fixedsys', monospace;
-  --font-heading: 'DOS', 'Perfect DOS VGA 437', 'Fixedsys', monospace;
+  /* Font families */
+  --font-display: 'Fondamento', 'Times New Roman', serif;
+  --font-ui: 'VT323', 'Courier New', monospace;
+  --font-body: 'Overlock', 'Courier New', monospace;
+  
+  /* Viewport height fix */
+  --vh: 1vh;
+  
+  /* Decorative elements */
+  --border-fancy: 12px;
+  --border-simple: 6px;
 }
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Fondamento&family=Overlock:wght@400;700&family=VT323&display=swap');
 
 /* Base styles */
 * {
@@ -55,17 +59,9 @@
   padding: 0;
 }
 
-/* Use web-safe monospace fonts as fallbacks for DOS-style font */
-@font-face {
-  font-family: 'DOS';
-  src: local('Courier New'), local('Courier'), local('monospace');
-  font-weight: normal;
-  font-style: normal;
-}
-
 body {
-  font-family: var(--font-dos);
-  background-color: var(--color-dos-black);
+  font-family: var(--font-body);
+  background-color: #000;
   color: var(--color-text-primary);
   overflow: hidden;
   margin: 0;
@@ -73,48 +69,49 @@ body {
   line-height: 1.2;
 }
 
-/* Game container - fills viewport */
+/* Game container */
 .game-container {
   width: 100vw;
   height: 100vh;
-  height: calc(var(--vh, 1vh) * 100); /* Fix for mobile viewports */
+  height: calc(var(--vh, 1vh) * 100);
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--color-dos-black);
+  background-color: #000;
   overflow: hidden;
   position: relative;
-  font-family: var(--font-dos);
 }
 
-/* Background texture - DOS style */
+/* Starry background effect */
 .game-backdrop {
   position: absolute;
   inset: 0;
-  background-color: var(--color-bg-primary);
-  opacity: 1;
+  background-color: #0e0b1a;
   z-index: 0;
   overflow: hidden;
 }
 
-.game-backdrop::after {
-  content: "";
+.game-backdrop::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-image: 
-    repeating-linear-gradient(0deg, 
-      rgba(0, 0, 0, 0.1) 0px, 
-      rgba(0, 0, 0, 0.1) 1px, 
-      transparent 1px, 
-      transparent 2px);
-  opacity: 0.4;
-  pointer-events: none;
+    radial-gradient(1px 1px at 25% 15%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(2px 2px at 75% 30%, white, transparent),
+    radial-gradient(1px 1px at 25% 85%, white, transparent),
+    radial-gradient(1.5px 1.5px at 60% 75%, white, transparent);
+  background-size: 150px 150px;
+  animation: twinkleStars 8s infinite alternate;
 }
 
-/* Main game frame - DOS window style */
+@keyframes twinkleStars {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* Main game frame - 90s fantasy RPG style */
 .game-frame {
   position: relative;
   width: 100%;
@@ -125,46 +122,75 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg-window);
-  border: 2px solid var(--color-border-active);
+  background-color: var(--color-bg-primary);
+  border-width: 12px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom, #7a5ebd, #2a214c) 1;
   box-shadow: 0 0 30px var(--color-shadow);
   z-index: 1;
-  image-rendering: pixelated;
 }
 
-.dos-window-title {
-  height: 24px;
-  background-color: var(--color-button-bg);
-  color: var(--color-text-highlight);
-  font-family: var(--font-dos);
-  font-size: 16px;
+/* Ornate title bar design */
+.game-title-bar {
+  height: 40px;
+  background-color: var(--color-bg-header);
+  color: var(--color-text-header);
+  font-family: var(--font-display);
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 2px solid var(--color-border-active);
-  text-transform: uppercase;
+  border-bottom: 2px solid var(--color-border-gold);
+  text-shadow: 0 0 10px var(--color-magic-glow);
   position: relative;
+  z-index: 10;
 }
 
-.dos-window-title::before {
-  content: "════════════ THE WITCH COVEN ════════════";
-  position: absolute;
-  font-family: var(--font-dos);
-  white-space: pre;
-  top: 2px;
+.game-title-bar::before,
+.game-title-bar::after {
+  content: '✦';
+  margin: 0 12px;
+  color: var(--color-text-gold);
 }
 
-.dos-window-statusbar {
-  height: 24px;
-  background-color: var(--color-button-bg);
-  color: var(--color-text-secondary);
-  font-family: var(--font-dos);
-  font-size: 16px;
+/* Beautiful menu bar */
+.game-menu-bar {
+  display: flex;
+  background-color: var(--color-bg-menu);
+  height: 36px;
+  border-bottom: 2px solid var(--color-border-medium);
+  z-index: 9;
+}
+
+.game-menu-item {
+  padding: 0 16px;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  border-top: 2px solid var(--color-border-active);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  font-family: var(--font-ui);
+  font-size: 20px;
+}
+
+.game-menu-item:hover {
+  background-color: var(--color-button-hover);
+  color: var(--color-text-gold);
+}
+
+.game-menu-item.active {
+  background-color: var(--color-button-active);
+  color: var(--color-text-gold);
+}
+
+.game-menu-key {
+  display: inline-block;
+  padding: 0 4px;
+  margin-right: 4px;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-highlight);
+  border: 1px solid var(--color-border-light);
 }
 
 /* Main content area */
@@ -175,9 +201,6 @@ body {
   overflow: hidden;
   transition: opacity 0.3s ease;
   background-color: var(--color-bg-secondary);
-  font-family: var(--font-dos);
-  color: var(--color-text-primary);
-  font-size: 16px;
   display: flex;
   flex-direction: column;
 }
@@ -186,154 +209,204 @@ body {
   opacity: 0;
 }
 
-/* View container - holds the current view component */
+/* View container */
 .view-container {
   width: 100%;
   height: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 5;
   overflow: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-dos-dark-gray) var(--color-bg-secondary);
+  scrollbar-color: var(--color-border-medium) var(--color-bg-secondary);
   padding: 16px;
 }
 
-/* New DOS style menu bar */
-.dos-menu-bar {
-  display: flex;
-  background-color: var(--color-dos-blue);
-  height: 24px;
-  border-bottom: 2px solid var(--color-border-active);
-}
-
-.dos-menu-item {
-  padding: 0 16px;
-  color: var(--color-dos-white);
+/* Status bar */
+.game-status-bar {
+  height: 30px;
+  background-color: var(--color-bg-menu);
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: 18px;
   display: flex;
   align-items: center;
-  cursor: pointer;
-  position: relative;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-top: 2px solid var(--color-border-medium);
+  z-index: 8;
 }
 
-.dos-menu-item:hover {
-  background-color: var(--color-dos-bright-blue);
+.status-item {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
 }
 
-.dos-menu-item.active {
-  background-color: var(--color-dos-bright-blue);
+.status-icon {
+  margin-right: 6px;
+  font-size: 18px;
+  color: var(--color-text-gold);
 }
 
-/* DOS style panels */
-.dos-panel {
-  border: 2px solid var(--color-border-active);
+.status-value {
+  color: var(--color-text-highlight);
+  font-weight: bold;
+}
+
+/* Fancy panels */
+.game-panel {
   background-color: var(--color-bg-window);
+  border-width: 8px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom right, #8c78c7, #403667) 1;
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 8px var(--color-shadow);
 }
 
-.dos-panel-title {
-  background-color: var(--color-button-bg);
-  color: var(--color-text-highlight);
-  padding: 4px 8px;
+.game-panel-header {
+  background-color: var(--color-bg-header);
+  color: var(--color-text-header);
+  padding: 8px 12px;
   text-transform: uppercase;
-  font-weight: bold;
-  border-bottom: 2px solid var(--color-border-active);
+  font-family: var(--font-display);
+  font-size: 20px;
+  border-bottom: 2px solid var(--color-border-gold);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.dos-panel-content {
-  padding: 8px;
+.game-panel-content {
+  padding: 12px;
   color: var(--color-text-primary);
 }
 
-/* DOS style buttons */
-.dos-button {
+/* Glowing buttons */
+.game-button {
   background-color: var(--color-button-bg);
-  border: 2px outset var(--color-border-inactive);
+  border: 2px solid var(--color-border-medium);
   color: var(--color-text-primary);
-  font-family: var(--font-dos);
-  font-size: 16px;
-  padding: 4px 12px;
-  text-transform: uppercase;
+  font-family: var(--font-ui);
+  font-size: 18px;
+  padding: 6px 16px;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.2s ease;
   display: inline-block;
   text-align: center;
   min-width: 120px;
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 0 2px var(--color-magic-glow);
 }
 
-.dos-button:hover {
-  background-color: var(--color-button-active);
+.game-button:hover {
+  background-color: var(--color-button-hover);
   color: var(--color-text-highlight);
+  border-color: var(--color-border-light);
+  box-shadow: 0 0 8px var(--color-magic-glow);
 }
 
-.dos-button:active {
-  border-style: inset;
-  transform: translateY(1px);
+.game-button:active {
+  transform: translateY(2px);
 }
 
-.dos-button:disabled {
-  background-color: var(--color-dos-dark-gray);
-  color: var(--color-dos-light-gray);
-  border-color: var(--color-dos-dark-gray);
+.game-button:disabled {
+  background-color: var(--color-button-disabled);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-dark);
+  text-shadow: none;
   cursor: not-allowed;
 }
 
-/* ASCII box drawing characters for borders */
-.dos-border {
-  font-family: var(--font-dos);
-  line-height: 1;
-  white-space: pre;
-  color: var(--color-border-active);
-}
-
-.dos-border-h {
-  display: block;
-  width: 100%;
-  height: 1px;
-  overflow: hidden;
-  background-color: var(--color-border-active);
-  margin: 8px 0;
-}
-
-.dos-border-v {
-  display: inline-block;
-  width: 1px;
-  height: 100%;
-  background-color: var(--color-border-active);
-  margin: 0 8px;
-}
-
-/* Corner decorations - DOS style */
-.corner-decoration {
+.game-button::after {
+  content: '';
   position: absolute;
-  font-family: var(--font-dos);
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  transition: left 1s;
+}
+
+.game-button:hover::after {
+  left: 100%;
+}
+
+/* Form inputs */
+.game-input {
+  background-color: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border-medium);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1;
-  white-space: pre;
-  color: var(--color-border-active);
-  z-index: 10;
-  pointer-events: none;
+  padding: 8px 12px;
+  width: 100%;
+  transition: all 0.2s ease;
 }
 
-.corner-decoration.top-left {
-  top: 40px;
-  left: 10px;
+.game-input:focus {
+  outline: none;
+  border-color: var(--color-border-active);
+  box-shadow: 0 0 8px var(--color-magic-glow);
 }
 
-.corner-decoration.top-right {
-  top: 40px;
-  right: 10px;
+.game-input::placeholder {
+  color: var(--color-text-secondary);
 }
 
-.corner-decoration.bottom-left {
-  bottom: 40px;
-  left: 10px;
+.game-input:disabled {
+  background-color: var(--color-button-disabled);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
 }
 
-.corner-decoration.bottom-right {
-  bottom: 40px;
-  right: 10px;
+/* Dialog boxes */
+.game-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: var(--color-bg-window);
+  border-width: 8px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom right, #8c78c7, #403667) 1;
+  min-width: 400px;
+  max-width: 80%;
+  box-shadow: 0 0 30px var(--color-shadow);
+}
+
+.game-dialog-header {
+  background-color: var(--color-bg-header);
+  color: var(--color-text-header);
+  font-family: var(--font-display);
+  font-size: 22px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-border-gold);
+}
+
+.game-dialog-content {
+  padding: 20px;
+  color: var(--color-text-primary);
+}
+
+.game-dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  border-top: 2px solid var(--color-border-medium);
 }
 
 /* Loading screen */
@@ -343,102 +416,118 @@ body {
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-secondary);
   position: relative;
   z-index: 100;
-  font-family: var(--font-dos);
+  font-family: var(--font-ui);
 }
 
-/* DOS style loading dialog */
-.dos-loading-dialog {
+.loading-dialog {
   width: 80%;
   max-width: 600px;
-  border: 2px solid var(--color-border-active);
   background-color: var(--color-bg-window);
-  box-shadow: 0 10px 20px var(--color-shadow);
+  border-width: 12px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom right, #8c78c7, #403667) 1;
+  box-shadow: 0 10px 30px var(--color-shadow);
   overflow: hidden;
   position: relative;
 }
 
-.dos-loading-title {
-  height: 24px;
-  background-color: var(--color-button-bg);
-  color: var(--color-text-highlight);
-  font-size: 16px;
-  padding: 4px 8px;
-  text-transform: uppercase;
-  font-weight: bold;
-  text-align: center;
-  border-bottom: 2px solid var(--color-border-active);
+.loading-header {
+  height: 40px;
+  background-color: var(--color-bg-header);
+  color: var(--color-text-header);
+  font-family: var(--font-display);
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--color-border-gold);
+  text-shadow: 0 0 10px var(--color-magic-glow);
 }
 
-.dos-loading-content {
-  padding: 20px;
+.loading-content {
+  padding: 30px;
   text-align: center;
   color: var(--color-text-primary);
 }
 
-.dos-loading-dialog h1 {
-  color: var(--color-text-highlight);
-  font-size: 20px;
-  margin-bottom: 20px;
-  text-transform: uppercase;
+.loading-content h1 {
+  color: var(--color-text-gold);
+  font-size: 28px;
+  margin-bottom: 30px;
+  font-family: var(--font-display);
+  text-shadow: 0 0 10px var(--color-magic-glow);
 }
 
-.loading-flavor-text {
-  color: var(--color-text-secondary);
-  margin-top: 20px;
-  font-size: 16px;
+.loading-cauldron {
+  margin: 30px auto;
+  width: 150px;
+  height: 150px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%235d4593" /><circle cx="50" cy="50" r="35" fill="%234a3674" /><path d="M30,40 Q50,20 70,40" stroke="%23e3b053" stroke-width="3" fill="none" /></svg>');
+  background-size: contain;
+  animation: float 3s infinite alternate ease-in-out;
 }
 
-/* DOS style loading animation */
-.dos-loading-animation {
-  display: block;
+@keyframes float {
+  0% { transform: translateY(-5px) rotate(-2deg); }
+  100% { transform: translateY(5px) rotate(2deg); }
+}
+
+.loading-bar-container {
   width: 100%;
-  height: 24px;
+  height: 25px;
   background-color: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border-inactive);
-  margin: 20px auto;
+  border: 2px solid var(--color-border-medium);
+  margin: 30px auto;
   position: relative;
-  overflow: hidden;
 }
 
-.dos-loading-bar {
+.loading-bar {
   height: 100%;
-  background-color: var(--color-dos-bright-cyan);
+  background: linear-gradient(to right, #4a3674, #7952b8);
   width: 0%;
-  animation: loadingBar 3s infinite;
+  animation: loadProgress 3s infinite;
+  background-size: 30px 30px;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  animation: 
+    loadProgress 3s infinite,
+    moveStripes 1s linear infinite;
 }
 
-.dos-loading-percent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  text-align: center;
-  line-height: 20px;
-  color: var(--color-text-highlight);
-  mix-blend-mode: difference;
-}
-
-@keyframes loadingBar {
+@keyframes loadProgress {
   0% { width: 0%; }
-  25% { width: 30%; }
-  50% { width: 60%; }
-  75% { width: 80%; }
+  50% { width: 70%; }
   90% { width: 95%; }
   100% { width: 100%; }
 }
 
-/* ASCII art */
-.dos-ascii-art {
-  margin: 20px auto;
-  font-family: var(--font-dos);
-  white-space: pre;
-  line-height: 1;
-  color: var(--color-dos-bright-magenta);
-  display: inline-block;
-  text-align: left;
+@keyframes moveStripes {
+  0% { background-position: 0 0; }
+  100% { background-position: 30px 0; }
+}
+
+.loading-text {
+  color: var(--color-text-secondary);
+  font-size: 20px;
+  margin-top: 20px;
+  font-family: var(--font-ui);
+  animation: pulseText 2s infinite;
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* Error screen */
@@ -448,54 +537,67 @@ body {
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-secondary);
   position: relative;
   z-index: 100;
-  font-family: var(--font-dos);
+  font-family: var(--font-ui);
 }
 
-.dos-error-dialog {
+.error-dialog {
   width: 80%;
   max-width: 600px;
-  border: 2px solid var(--color-dos-bright-red);
   background-color: var(--color-bg-window);
-  box-shadow: 0 10px 20px var(--color-shadow);
+  border-width: 12px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom right, #a85c5c, #671f1f) 1;
+  box-shadow: 0 10px 30px var(--color-shadow);
   overflow: hidden;
 }
 
-.dos-error-title {
-  height: 24px;
-  background-color: var(--color-dos-red);
-  color: var(--color-dos-white);
-  font-size: 16px;
-  padding: 4px 8px;
-  text-transform: uppercase;
-  font-weight: bold;
+.error-header {
+  height: 40px;
+  background-color: #5c1717;
+  color: #ffd4d4;
+  font-family: var(--font-display);
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid #cf7e58;
+}
+
+.error-content {
+  padding: 30px;
   text-align: center;
-  border-bottom: 2px solid var(--color-dos-bright-red);
 }
 
-.dos-error-content {
-  padding: 20px;
-  text-align: center;
+.error-content h1 {
+  color: var(--color-text-error);
+  font-size: 28px;
+  margin-bottom: 30px;
+  font-family: var(--font-display);
+  text-shadow: 0 0 10px rgba(255, 133, 123, 0.3);
 }
 
-.dos-error-dialog h1 {
-  color: var(--color-dos-bright-red);
-  font-size: 20px;
-  margin-bottom: 20px;
-  text-transform: uppercase;
+.error-icon {
+  margin: 20px auto;
+  width: 100px;
+  height: 100px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23671f1f" /><path d="M30,30 L70,70 M70,30 L30,70" stroke="%23ffd4d4" stroke-width="8" /></svg>');
+  background-size: contain;
+  animation: pulse 2s infinite alternate;
 }
 
-.dos-error-dialog p {
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
+
+.error-message {
   color: var(--color-text-primary);
-  margin-bottom: 20px;
+  font-size: 18px;
   line-height: 1.4;
-}
-
-.retry-button-container {
-  margin-top: 20px;
-  text-align: center;
+  margin-bottom: 30px;
 }
 
 /* Error overlay */
@@ -507,46 +609,51 @@ body {
   max-width: 400px;
 }
 
-.dos-error-popup {
-  border: 2px solid var(--color-dos-bright-red);
+.error-popup {
   background-color: var(--color-bg-window);
+  border-width: 8px;
+  border-style: solid;
+  border-image: linear-gradient(to bottom right, #a85c5c, #671f1f) 1;
   animation: slideInError 0.3s ease-out forwards;
   overflow: hidden;
+  box-shadow: 0 6px 16px var(--color-shadow);
 }
 
-.dos-error-popup-title {
-  height: 24px;
-  background-color: var(--color-dos-red);
-  color: var(--color-dos-white);
-  font-size: 16px;
-  padding: 4px 8px;
+.error-popup-header {
+  height: 32px;
+  background-color: #5c1717;
+  color: #ffd4d4;
+  font-family: var(--font-display);
+  font-size: 18px;
+  padding: 4px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid var(--color-dos-bright-red);
+  border-bottom: 2px solid #cf7e58;
 }
 
-.dos-error-popup-content {
-  padding: 12px;
+.error-popup-content {
+  padding: 12px 16px;
   color: var(--color-text-primary);
+  font-size: 16px;
 }
 
-.error-dismiss {
-  background-color: var(--color-bg-window);
-  border: 1px solid var(--color-dos-white);
-  color: var(--color-dos-white);
-  width: 20px;
-  height: 18px;
-  font-size: 14px;
+.error-close {
+  background-color: transparent;
+  border: 1px solid #ffd4d4;
+  color: #ffd4d4;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
+  transition: all 0.2s ease;
 }
 
-.error-dismiss:hover {
-  background-color: var(--color-dos-bright-red);
+.error-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 @keyframes slideInError {
@@ -554,27 +661,32 @@ body {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* Moonlight Meadow Easter Egg - DOS style */
+/* Moonlight Meadow Easter Egg - 90s Fantasy Style */
 .moonlight-meadow {
   position: absolute;
   inset: 0;
   z-index: 900;
-  background-color: var(--color-bg-tertiary);
+  background-color: rgba(23, 19, 46, 0.85);
   cursor: pointer;
   overflow: hidden;
-  border: 2px solid var(--color-border-active);
+  background-image: radial-gradient(
+    circle at center,
+    rgba(149, 125, 214, 0.4) 0%,
+    rgba(41, 36, 77, 0.9) 70%
+  );
 }
 
 .moonlight-overlay {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(100, 100, 200, 0.1) 0px,
-    rgba(100, 100, 200, 0.1) 2px,
-    rgba(100, 100, 220, 0.2) 2px,
-    rgba(100, 100, 220, 0.2) 4px
-  );
+  background-image: 
+    radial-gradient(1px 1px at 25% 15%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(2px 2px at 75% 30%, white, transparent),
+    radial-gradient(1px 1px at 25% 85%, white, transparent),
+    radial-gradient(1.5px 1.5px at 60% 75%, white, transparent);
+  background-size: 150px 150px;
+  animation: twinkleStars 8s infinite alternate;
 }
 
 .moon-glow {
@@ -584,34 +696,33 @@ body {
   transform: translateX(-50%);
   width: 150px;
   height: 150px;
-  background-color: var(--color-witch-moon);
-  border-radius: 0;
-  animation: moonPulse 4s infinite alternate;
+  background: radial-gradient(
+    circle, 
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(200, 200, 255, 0.5) 40%, 
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: moonGlow 8s infinite alternate;
+  box-shadow: 0 0 30px rgba(180, 180, 255, 0.6);
 }
 
-/* ASCII moon */
-.moon-glow::after {
-  content: "   ████████   \n ██        ██ \n██          ██\n██    ██    ██\n██  ██████  ██\n██    ██    ██\n██          ██\n ██        ██ \n   ████████   ";
-  position: absolute;
-  white-space: pre;
-  font-family: var(--font-dos);
-  line-height: 1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--color-dos-white);
+@keyframes moonGlow {
+  0% { transform: translateX(-50%) scale(1); opacity: 0.7; filter: blur(4px); }
+  50% { transform: translateX(-50%) scale(1.1); opacity: 0.9; filter: blur(6px); }
+  100% { transform: translateX(-50%) scale(1); opacity: 0.7; filter: blur(4px); }
 }
 
 .meadow-spirit {
   position: absolute;
-  font-family: var(--font-dos);
-  font-size: 10px;
-  color: var(--color-dos-bright-cyan);
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.7);
   animation: spiritFloat 10s infinite alternate;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .meadow-spirit::after {
-  content: "★";
+  content: "✧";
 }
 
 .moonlight-message {
@@ -620,210 +731,113 @@ body {
   left: 0;
   right: 0;
   text-align: center;
-  color: var(--color-dos-white);
-  font-size: 16px;
-  font-family: var(--font-dos);
-  text-transform: uppercase;
-  animation: blinkText 1.5s infinite;
-}
-
-@keyframes moonPulse {
-  0% { background-color: #a0a0c0; }
-  100% { background-color: #c8c8e8; }
+  color: var(--color-text-gold);
+  font-size: 28px;
+  font-family: var(--font-display);
+  text-shadow: 0 0 15px rgba(255, 218, 133, 0.7);
+  animation: messageGlow 4s infinite alternate;
 }
 
 @keyframes spiritFloat {
-  0% { transform: translate(0, 0); opacity: 0.6; }
-  25% { transform: translate(20px, -15px); opacity: 1; }
-  50% { transform: translate(10px, -30px); opacity: 0.6; }
-  75% { transform: translate(-10px, -15px); opacity: 1; }
-  100% { transform: translate(0, 0); opacity: 0.6; }
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+  25% { transform: translate(20px, -15px) rotate(90deg); opacity: 1; }
+  50% { transform: translate(10px, -30px) rotate(180deg); opacity: 0.6; }
+  75% { transform: translate(-10px, -15px) rotate(270deg); opacity: 1; }
+  100% { transform: translate(0, 0) rotate(360deg); opacity: 0.6; }
 }
 
-@keyframes blinkText {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+@keyframes messageGlow {
+  0% { text-shadow: 0 0 15px rgba(255, 218, 133, 0.5); }
+  100% { text-shadow: 0 0 25px rgba(255, 218, 133, 1); }
 }
 
-/* DOS style particles */
-.ambient-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 999;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
 
-.particle {
-  position: absolute;
-  font-family: var(--font-dos);
-  font-size: 12px;
-  color: var(--color-dos-bright-cyan);
-  animation: moveParticle 15s linear infinite;
+::-webkit-scrollbar-track {
+  background: var(--color-bg-tertiary);
 }
 
-.particle::after {
-  content: "■";
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-medium);
+  border: 3px solid var(--color-bg-tertiary);
+  border-radius: 10px;
 }
 
-@keyframes moveParticle {
-  0% { transform: translate(0, 0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translate(var(--move-x, 100px), var(--move-y, -100px)); opacity: 0; }
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-light);
 }
 
-/* Konami code activation - DOS style */
-.konami-activation {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  border: 2px solid var(--color-dos-yellow);
-  background-color: var(--color-bg-window);
-  padding: 20px;
-  text-align: center;
-  animation: blinkBorder 0.5s infinite alternate;
-}
-
-.activation-text {
-  color: var(--color-dos-yellow);
-  font-weight: bold;
-  font-size: 16px;
-  text-transform: uppercase;
-  font-family: var(--font-dos);
-  white-space: nowrap;
-}
-
-@keyframes blinkBorder {
-  0% { border-color: var(--color-dos-yellow); }
-  100% { border-color: var(--color-dos-bright-yellow); }
-}
-
-/* Form inputs - DOS style */
-.dos-input {
-  background-color: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border-inactive);
-  color: var(--color-text-primary);
-  font-family: var(--font-dos);
-  font-size: 16px;
-  padding: 4px 8px;
-  width: 100%;
-}
-
-.dos-input:focus {
-  outline: none;
-  border-color: var(--color-border-active);
-}
-
-.dos-input:disabled {
-  background-color: var(--color-dos-dark-gray);
-  color: var(--color-dos-light-gray);
-  cursor: not-allowed;
-}
-
-/* Dialog boxes - DOS style */
-.dos-dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  border: 2px solid var(--color-border-active);
-  background-color: var(--color-bg-window);
-  min-width: 300px;
-  max-width: 80%;
-}
-
-.dos-dialog-title {
-  background-color: var(--color-button-bg);
-  color: var(--color-text-highlight);
-  font-family: var(--font-dos);
-  font-size: 16px;
-  padding: 4px 8px;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--color-border-active);
-}
-
-.dos-dialog-content {
-  padding: 16px;
-  color: var(--color-text-primary);
-}
-
-.dos-dialog-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  padding: 16px;
-  border-top: 2px solid var(--color-border-inactive);
-}
-
-/* Text styles */
-.dos-text-primary {
-  color: var(--color-text-primary);
-}
-
-.dos-text-secondary {
-  color: var(--color-text-secondary);
-}
-
-.dos-text-highlight {
-  color: var(--color-text-highlight);
-}
-
-.dos-text-error {
-  color: var(--color-dos-bright-red);
-}
-
-.dos-text-success {
-  color: var(--color-dos-bright-green);
-}
-
-/* Media queries for responsive layout */
+/* Media queries */
 @media (max-width: 768px) {
   .game-frame {
-    border-width: 1px;
+    border-width: 8px;
   }
   
-  .dos-window-title, 
-  .dos-window-statusbar {
-    font-size: 14px;
+  .game-title-bar, .loading-header, .error-header {
+    font-size: 20px;
+    height: 36px;
   }
   
-  .dos-loading-dialog,
-  .dos-error-dialog {
+  .game-menu-item {
+    padding: 0 10px;
+    font-size: 18px;
+  }
+  
+  .game-panel-header {
+    font-size: 18px;
+  }
+  
+  .loading-content h1, .error-content h1 {
+    font-size: 24px;
+  }
+  
+  .loading-dialog, .error-dialog {
     width: 90%;
-  }
-  
-  .dos-button {
-    min-width: 100px;
-    font-size: 14px;
   }
 }
 
 @media (max-width: 480px) {
-  .dos-button {
-    min-width: 80px;
-    font-size: 12px;
-    padding: 4px 8px;
+  .game-frame {
+    border-width: 6px;
   }
   
-  .dos-panel-title {
+  .game-menu-bar {
+    overflow-x: auto;
+    height: 32px;
+  }
+  
+  .game-menu-item {
+    padding: 0 8px;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  
+  .game-button {
+    font-size: 16px;
+    padding: 6px 12px;
+    min-width: 100px;
+  }
+  
+  .game-status-bar {
     font-size: 14px;
+    padding: 0 8px;
+    height: 28px;
+    overflow-x: auto;
+  }
+  
+  .status-item {
+    margin-right: 10px;
+    white-space: nowrap;
   }
   
   .error-overlay {
-    max-width: 280px;
-    right: 10px;
-    top: 10px;
-  }
-  
-  .dos-menu-item {
-    padding: 0 8px;
-    font-size: 14px;
+    max-width: 100%;
+    right: 0;
+    left: 0;
+    margin: 0 10px;
   }
 }

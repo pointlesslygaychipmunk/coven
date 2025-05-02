@@ -1,7 +1,7 @@
 // frontend/src/index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App90s from './components/App90s'; // Using the 90s fantasy UI as primary
+import App from './components/App'; // Using our updated 90s game UI
 import './index.css'; // Import global styles
 
 const rootElement = document.getElementById('root');
@@ -18,9 +18,9 @@ if (!rootElement) {
 // Create the React root
 const root = ReactDOM.createRoot(rootElement);
 
-// Render the App90s component as our primary UI
+// Render the App component with our cozy 90s game UI
 root.render(
   <React.StrictMode>
-    <App90s />
+    <App />
   </React.StrictMode>
 );

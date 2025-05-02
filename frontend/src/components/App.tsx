@@ -390,46 +390,46 @@ const App: React.FC = () => {
                     <>
                         <div className="game-backdrop"></div>
                         <div className="game-frame">
-                            {/* DOS style window title bar */}
-                            <div className="dos-window-title">THE WITCH COVEN v1.0</div>
+                            {/* Fantasy-style title bar */}
+                            <div className="game-title-bar">The Witch Coven</div>
                             
-                            {/* DOS style menu bar */}
-                            <div className="dos-menu-bar">
+                            {/* Fancy menu bar */}
+                            <div className="game-menu-bar">
                                 <div 
-                                    className={`dos-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
+                                    className={`game-menu-item ${currentView === 'garden' ? 'active' : ''}`} 
                                     onClick={() => handleChangeLocation('garden')}
                                 >
-                                    [G]arden
+                                    <span className="game-menu-key">G</span>arden
                                 </div>
                                 <div 
-                                    className={`dos-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
+                                    className={`game-menu-item ${currentView === 'brewing' ? 'active' : ''}`} 
                                     onClick={() => handleChangeLocation('brewing')}
                                 >
-                                    [B]rewing
+                                    <span className="game-menu-key">B</span>rewing
                                 </div>
                                 <div 
-                                    className={`dos-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
+                                    className={`game-menu-item ${currentView === 'atelier' ? 'active' : ''}`} 
                                     onClick={() => handleChangeLocation('atelier')}
                                 >
-                                    [A]telier
+                                    <span className="game-menu-key">A</span>telier
                                 </div>
                                 <div 
-                                    className={`dos-menu-item ${currentView === 'market' ? 'active' : ''}`} 
+                                    className={`game-menu-item ${currentView === 'market' ? 'active' : ''}`} 
                                     onClick={() => handleChangeLocation('market')}
                                 >
-                                    [M]arket
+                                    <span className="game-menu-key">M</span>arket
                                 </div>
                                 <div 
-                                    className={`dos-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
+                                    className={`game-menu-item ${currentView === 'journal' ? 'active' : ''}`} 
                                     onClick={() => handleChangeLocation('journal')}
                                 >
-                                    [J]ournal
+                                    <span className="game-menu-key">J</span>ournal
                                 </div>
                                 <div 
-                                    className="dos-menu-item"
+                                    className="game-menu-item"
                                     onClick={advanceDay}
                                 >
-                                    [E]nd Day
+                                    <span className="game-menu-key">E</span>nd Day
                                 </div>
                             </div>
                             
@@ -510,16 +510,39 @@ const App: React.FC = () => {
                                 </main>
                             )}
 
-                            {/* DOS style status bar */}
+                            {/* Fantasy-style status bar */}
                             {gameState && currentPlayer && (
-                                <div className="dos-window-statusbar">
-                                    <div>Witch: {currentPlayer.name}</div>
-                                    <div>Gold: {currentPlayer.gold}G</div>
-                                    <div>Day: {gameState.time.dayCount}</div>
-                                    <div>Moon: {gameState.time.phaseName}</div>
-                                    <div>Rep: {currentPlayer.reputation}</div>
-                                    <div>Lvl: {currentPlayer.atelierLevel}</div>
-                                    {useMultiplayer && <div>Players: Online</div>}
+                                <div className="game-status-bar">
+                                    <div className="status-item">
+                                        <span className="status-icon">✧</span> 
+                                        <span>{currentPlayer.name}</span>
+                                    </div>
+                                    <div className="status-item">
+                                        <span className="status-icon">⛁</span>
+                                        <span className="status-value">{currentPlayer.gold}</span> Gold
+                                    </div>
+                                    <div className="status-item">
+                                        <span className="status-icon">☀</span>
+                                        <span className="status-value">{gameState.time.dayCount}</span>
+                                    </div>
+                                    <div className="status-item">
+                                        <span className="status-icon">☾</span>
+                                        <span>{gameState.time.phaseName}</span>
+                                    </div>
+                                    <div className="status-item">
+                                        <span className="status-icon">★</span>
+                                        <span className="status-value">{currentPlayer.reputation}</span>
+                                    </div>
+                                    <div className="status-item">
+                                        <span className="status-icon">⚗</span>
+                                        <span className="status-value">{currentPlayer.atelierLevel}</span>
+                                    </div>
+                                    {useMultiplayer && (
+                                        <div className="status-item">
+                                            <span className="status-icon">👤</span>
+                                            <span>Online</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
