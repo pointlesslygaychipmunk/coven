@@ -9,7 +9,7 @@ import {
   ItemType,
   Skills,
   InventoryItem
-} from '../../shared/src/types.js';
+} from 'coven-shared';
 
 // Additional type definitions
 type PlantStage = 'seed' | 'seedling' | 'growing' | 'flowering' | 'mature';
@@ -45,15 +45,22 @@ interface PlantVariety {
 // Constants for garden gameplay
 const GROWTH_CYCLE_BASE_TIME = 24; // hours
 const MINI_GAME_TIME_BONUS_MAX = 0.4; // 40% time reduction max
-const WEATHER_EFFECT_MULTIPLIERS: Record<WeatherCondition, number> = {
+// Extended version of WeatherCondition for internal use 
+type ExtendedWeatherCondition = 
+  | WeatherCondition
+  | 'sunny'  // Additional weather types used internally
+  | 'snowy';
+
+// Weather effect multipliers with their impact on plant growth
+const WEATHER_EFFECT_MULTIPLIERS: Record<string, number> = {
   clear: 1.0,
   cloudy: 0.9,
   rainy: 1.3,
   stormy: 0.7,
-  snowy: 0.5,
+  snowy: 0.5, // Extended weather type
   windy: 0.8,
   foggy: 0.85,
-  sunny: 1.2,
+  sunny: 1.2, // Extended weather type
   normal: 1.0,
   dry: 0.8
 };
@@ -553,7 +560,7 @@ export function playWateringMiniGame(
 export function applyWateringResults(
   plant: InteractivePlant,
   miniGameResult: WateringMiniGame,
-  currentWeather: WeatherCondition
+  currentWeather: string // Allow any weather condition string including extended types
 ): InteractivePlant {
   // Create a deep copy of the plant
   const updatedPlant = JSON.parse(JSON.stringify(plant)) as InteractivePlant;
@@ -801,7 +808,7 @@ export function harvestPlant(
 export function playWeatherProtectionMiniGame(
   player: { id: string; gardeningSkill: number },
   plant: InteractivePlant,
-  weatherEvent: WeatherCondition,
+  weatherEvent: string, // Allow any weather condition string including extended types
   playScore: { reactionTime: number; coverage: number; reinforcement: number }
 ): WeatherProtectionMiniGame {
   // Calculate base damage potential from weather
@@ -852,7 +859,7 @@ export function playWeatherProtectionMiniGame(
 export function applyWeatherProtection(
   plant: InteractivePlant,
   miniGameResult: WeatherProtectionMiniGame,
-  weatherEvent: WeatherCondition
+  weatherEvent: string // Allow any weather condition string including extended types
 ): InteractivePlant {
   // Create a deep copy of the plant
   const updatedPlant = JSON.parse(JSON.stringify(plant)) as InteractivePlant;
@@ -1332,7 +1339,8 @@ export function fertilizePlot(
   
   // Apply effects to plant if one exists
   if (updatedPlot.plant) {
-    const plant = updatedPlot.plant as InteractivePlant;
+    // Convert standard Plant to InteractivePlant for compatibility
+    const plant = convertToInteractivePlant(updatedPlot.plant, updatedPlot.id.toString());
     
     // Add growth modifier from fertilizer
     plant.growthModifiers.push({
@@ -1514,13 +1522,27 @@ export interface GardenPlotUpgrade {
   appliedAt: number;
 }
 
+// Define an extended garden slot that includes all upgradeable properties
+export interface ExtendedGardenSlot extends GardenSlot {
+  upgrades: GardenPlotUpgrade[];
+  level: number;
+  waterRetention?: number;
+  size?: number;
+  capacity?: number;
+  specialization?: {
+    type: string;
+    bonus: number;
+    affinity?: string[];
+  };
+}
+
 export function upgradeGardenPlot(
   plot: GardenSlot,
   upgradeType: string,
   player: { id: string; gardeningSkill: number; crafting?: number }
 ): GardenSlot {
-  // Create a deep copy of the plot
-  const updatedPlot = JSON.parse(JSON.stringify(plot)) as GardenSlot;
+  // Create a deep copy of the plot and cast to our extended type
+  const updatedPlot = JSON.parse(JSON.stringify(plot)) as ExtendedGardenSlot;
   
   // Initialize upgrades array if it doesn't exist
   if (!updatedPlot.upgrades) {
@@ -1631,7 +1653,19 @@ export function upgradeGardenPlot(
   // Update overall plot level
   updatedPlot.level = (updatedPlot.level || 0) + 1;
   
-  return updatedPlot;
+  // Extract only the standard GardenSlot properties for the return
+  const standardPlot: GardenSlot = {
+    id: updatedPlot.id,
+    plant: updatedPlot.plant,
+    fertility: updatedPlot.fertility,
+    moisture: updatedPlot.moisture,
+    sunlight: updatedPlot.sunlight,
+    isUnlocked: updatedPlot.isUnlocked
+  };
+  
+  // Include the extended properties as part of the return via type assertion
+  // This allows the extended properties to be accessible but maintains type compatibility
+  return updatedPlot as unknown as GardenSlot;
 }
 
 /**
@@ -2050,6 +2084,9 @@ export interface GardenStructure {
   protection: number;
   weatherResistance: string[];
   durability: number;
+  maxDurability?: number; // Optional but used in some places
+  buildDate?: number; // Alias for createdAt in some contexts
+  buildQuality?: number; // Optional construction quality
   effects: {
     growthModifier: number;
     qualityModifier: number;
@@ -2170,7 +2207,7 @@ export interface WeatherForecast {
 
 export interface WeatherPrediction {
   day: number;
-  weather: WeatherCondition;
+  weather: string; // Using string to support extended weather types
   intensity: number;
   effect: string;
   recommendation: string;
@@ -2194,7 +2231,7 @@ export function getWeatherForecastForGarden(
   }
   
   // Season-specific common weather patterns
-  const seasonWeather: Record<Season, WeatherCondition[]> = {
+  const seasonWeather: Record<Season, string[]> = {
     'Spring': ['rainy', 'cloudy', 'clear', 'windy'],
     'Summer': ['sunny', 'clear', 'dry', 'stormy'],
     'Fall': ['windy', 'rainy', 'cloudy', 'foggy'],
@@ -2203,11 +2240,11 @@ export function getWeatherForecastForGarden(
   
   // Generate forecasts
   const forecast: WeatherPrediction[] = [];
-  let previousWeather: WeatherCondition | null = null;
+  let previousWeather: string | null = null;
   
   for (let i = 0; i < maxDays; i++) {
     // Higher chance of continuing same weather for 1-2 days
-    let weather: WeatherCondition;
+    let weather: string;
     
     if (previousWeather && Math.random() < 0.4 && i < 2) {
       weather = previousWeather;
@@ -2218,7 +2255,7 @@ export function getWeatherForecastForGarden(
       
       // Small chance of unusual weather
       if (Math.random() < 0.1) {
-        const allWeather = Object.values(WEATHER_EFFECT_MULTIPLIERS);
+        const allWeather = Object.keys(WEATHER_EFFECT_MULTIPLIERS);
         weather = allWeather[Math.floor(Math.random() * allWeather.length)];
       }
     }
@@ -2311,6 +2348,82 @@ export function getWeatherForecastForGarden(
 }
 
 /**
+ * Utility function to convert a Plant to an InteractivePlant
+ * This standardizes the conversion process throughout the codebase
+ */
+export function convertToInteractivePlant(plant: Plant, plotId: string | number): InteractivePlant {
+  if (!plant) return null as any;
+  
+  // Extract variety ID from plant ID (format: type_name_uniqueID)
+  const varietyId = plant.id.split('_')[0] || plant.id;
+  
+  return {
+    // Base plant properties
+    id: plant.id,
+    name: plant.name,
+    category: plant.category,
+    health: plant.health,
+    moonBlessed: plant.moonBlessed,
+    seasonalModifier: plant.seasonalModifier,
+    growth: plant.growth,
+    maxGrowth: plant.maxGrowth,
+    age: plant.age,
+    mature: plant.mature,
+    
+    // InteractivePlant specific properties
+    varietyId: varietyId,
+    plotId: String(plotId),
+    currentStage: plant.mature ? 'mature' : (plant.growth > (plant.maxGrowth / 2) ? 'growing' : 'seedling'),
+    growthProgress: plant.growth / plant.maxGrowth * 100,
+    waterLevel: plant.watered ? 75 : 25,
+    nextActionTime: Date.now(),
+    predictedQuality: (plant.qualityModifier && plant.qualityModifier > 1.5) ? 'rare' : 
+                     (plant.qualityModifier && plant.qualityModifier > 1) ? 'uncommon' : 'common',
+    predictedYield: 1,
+    geneticTraits: plant.mutations ? plant.mutations.map((m: string) => ({
+      id: `trait_${m}`,
+      name: m,
+      description: `A trait that affects ${m}`,
+      effect: m,
+      qualityModifier: 0.1,
+      yieldModifier: 0.1,
+      growthTimeModifier: 1,
+      rarityTier: 1,
+      dominant: false
+    })) : [],
+    growthModifiers: [],
+    lastInteraction: Date.now(),
+    createdAt: Date.now(),
+    careHistory: []
+  };
+}
+
+/**
+ * Utility function to convert an InteractivePlant back to a Plant
+ */
+export function convertToPlant(interactivePlant: InteractivePlant): Plant {
+  if (!interactivePlant) return null as any;
+  
+  return {
+    id: interactivePlant.id,
+    name: interactivePlant.name || `${interactivePlant.varietyId} Plant`,
+    category: interactivePlant.category as ItemCategory,
+    imagePath: undefined, // Not tracked in InteractivePlant
+    growth: interactivePlant.growth || interactivePlant.growthProgress || 0,
+    maxGrowth: interactivePlant.maxGrowth || 100,
+    seasonalModifier: interactivePlant.seasonalModifier,
+    watered: interactivePlant.waterLevel > 30, // Consider watered if level > 30
+    health: interactivePlant.health,
+    age: interactivePlant.age || 0,
+    mature: interactivePlant.mature || interactivePlant.currentStage === 'mature',
+    moonBlessed: interactivePlant.moonBlessed,
+    deathChance: 0, // Default value
+    mutations: interactivePlant.geneticTraits?.map(trait => trait.name) || [],
+    qualityModifier: interactivePlant.geneticTraits?.reduce((sum, trait) => sum + trait.qualityModifier, 0) || 0
+  };
+}
+
+/**
  * Process weather events and their effects on garden
  */
 export interface WeatherEventResult {
@@ -2380,8 +2493,8 @@ export function processWeatherEvent(
     // Skip empty plots
     if (!plot.plant) return;
     
-    // Process plant on the plot
-    const plant = plot.plant as InteractivePlant;
+    // Process plant on the plot - convert Plant to InteractivePlant
+    const plant = convertToInteractivePlant(plot.plant, plot.id);
     affectedPlots++;
     
     // Process different weather effects
@@ -2573,14 +2686,21 @@ export function processWeatherEvent(
     // Check for plant death
     if (plant.health <= 0) {
       plot.plant = null;
+    } else {
+      // Update the plot's plant with the modified interactive plant
+      plot.plant = convertToPlant(plant);
     }
     
     // Player response can provide additional effects
     if (playerResponse === 'water' && (weatherType === 'drought' || weatherType === 'heat_wave')) {
       // Watering during drought is very beneficial
       if (plot.plant) {
-        (plot.plant as InteractivePlant).waterLevel = Math.min(100, (plot.plant as InteractivePlant).waterLevel + 50);
-        (plot.plant as InteractivePlant).health = Math.min(100, (plot.plant as InteractivePlant).health + 10);
+        // Convert standard Plant to InteractivePlant
+        const interactivePlant = convertToInteractivePlant(plot.plant, plot.id);
+        interactivePlant.waterLevel = Math.min(100, interactivePlant.waterLevel + 50);
+        interactivePlant.health = Math.min(100, interactivePlant.health + 10);
+        // Convert back to Plant
+        plot.plant = convertToPlant(interactivePlant);
       }
     }
   });

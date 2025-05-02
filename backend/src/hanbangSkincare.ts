@@ -1,6 +1,6 @@
 import { Season, MoonPhase, ItemCategory, Skills } from "coven-shared";
-import { CraftableProduct } from "./craftPointsSystem";
-import { EnhancedSpecialization } from "./atelierSpecializationSystem";
+import { CraftableProduct } from "./craftPointsSystem.js";
+import { EnhancedSpecialization } from "./atelierSpecializationSystem.js";
 
 // Hanbang-inspired skincare product system
 // Based on traditional Korean herbal medicine principles
@@ -369,7 +369,7 @@ export const HANBANG_INGREDIENTS: HanbangIngredient[] = [
     potencyModifiers: {
       preparation: ["Raw", "Fermented", "Aged"],
       combinations: ["ginseng", "cinnamon", "royal jelly"],
-      moonPhase: ["Waxing Moon"]
+      moonPhase: ["Waxing Crescent", "Waxing Gibbous"]
     },
     contraindications: ["May cause reactions in those with bee allergies"]
   },
@@ -416,7 +416,7 @@ export const HANBANG_INGREDIENTS: HanbangIngredient[] = [
     name: "Pearl Powder",
     koreanName: "진주가루 (Jinjugaru)",
     description: "Luminous powder that brightens and clarifies while delivering minerals to the skin.",
-    category: "mineral",
+    category: "crystal", // Using crystal as a valid ItemCategory replacement for mineral
     rarity: "rare",
     skincareFocus: [SkincareFocus.BRIGHTENING, SkincareFocus.FIRMING],
     keyBenefits: ["Brightens complexion", "Supports collagen", "Gently exfoliates"],
