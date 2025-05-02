@@ -1,5 +1,8 @@
 /* App.css - Cozy 90s Fantasy Game Inspired by Civ, Master of Magic, and Ultima */
 
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Fondamento&family=Overlock:wght@400;700&family=VT323&display=swap');
+
 /* Global variables */
 :root {
   /* Classic 90s fantasy game palette */
@@ -48,9 +51,6 @@
   --border-fancy: 12px;
   --border-simple: 6px;
 }
-
-/* Font imports */
-@import url('https://fonts.googleapis.com/css2?family=Fondamento&family=Overlock:wght@400;700&family=VT323&display=swap');
 
 /* Base styles */
 * {
