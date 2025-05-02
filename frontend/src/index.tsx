@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom/client';
 import * as React from 'react';
 import App from './components/App';
 import { renderMinimalApp } from './minimal';
-import { renderFallbackApp } from './fallback';
+import { renderStandaloneApp } from './standalone';
 import './index.css';
 
 // Set up error tracking for React rendering errors
@@ -17,9 +17,9 @@ console.error = function(...args) {
        args[0].includes('Minified React error #310'))) {
     console.warn('Infinite render loop detected!');
     
-    // Automatically redirect to emergency page as last resort
-    console.warn('Redirecting to emergency HTML page due to render loop...');
-    window.location.href = '/emergency.html';
+    // Automatically redirect to standalone mode as last resort
+    console.warn('Redirecting to standalone mode due to render loop...');
+    window.location.href = '/?standalone=true';
     return;
   }
   
@@ -66,9 +66,9 @@ function renderMainApp() {
           (event.error.message.includes('Maximum update') || 
            event.error.message.includes('Too many re-renders') ||
            event.error.message.includes('React error #310'))) {
-        console.error('Detected render loop, going to emergency page...');
-        // Go to emergency.html which is a plain HTML page with no React
-        window.location.href = '/emergency.html';
+        console.error('Detected render loop, switching to standalone mode...');
+        // Go to standalone mode which is a simplified React app
+        window.location.href = '/?standalone=true';
       }
     });
     
@@ -88,22 +88,22 @@ function renderMainApp() {
     return true;
   } catch (error) {
     console.error('Fatal error rendering main App:', error);
-    // Try fallback first
-    if (!renderFallbackApp()) {
-      // If fallback fails, go to minimal as last resort
+    // Try standalone mode first
+    if (!renderStandaloneApp()) {
+      // If standalone mode fails, go to minimal as last resort
       return renderMinimalApp();
     }
     return true;
   }
 }
 
-// Check for fallback mode parameter
-const fallbackMode = urlParams.get('fallback') === 'true';
+// Check mode parameters
+const standaloneMode = urlParams.get('standalone') === 'true';
 
 // Render appropriate version based on URL parameters
-if (fallbackMode) {
-  console.log('Starting in fallback mode');
-  renderFallbackApp();
+if (standaloneMode) {
+  console.log('Starting in standalone mode');
+  renderStandaloneApp();
 } else if (minimalMode) {
   console.log('Starting in minimal mode');
   renderMinimalApp();
@@ -112,7 +112,7 @@ if (fallbackMode) {
   try {
     renderMainApp();
   } catch (err) {
-    console.error('Critical failure in main app render, trying fallback:', err);
-    renderFallbackApp();
+    console.error('Critical failure in main app render, trying standalone mode:', err);
+    renderStandaloneApp();
   }
 }
