@@ -27,7 +27,34 @@ function applyPackagingDesignToProduct(product: Product, design: PackagingDesign
   return {
     ...product,
     id: `${product.id}_pkg_${Date.now()}`,
-    packaging: design,
+    // Make sure to include all required properties for PackageType
+    packaging: {
+      id: design.id || `design_${Date.now()}`,
+      name: design.name || 'Package Design',
+      // Ensure required properties are set properly
+      colors: {
+        base: design.colors?.base || '#8b6b3d',
+        accent: design.colors?.accent || '#f9f3e6'
+      },
+      qualityScore: (design as any).qualityScore || 50,
+      // Material and design style need name and icon
+      material: {
+        ...(design.material || {}),
+        name: (design.material as any)?.name || 'Default Material',
+        icon: (design.material as any)?.icon || '📦'
+      },
+      designStyle: {
+        ...(design.designStyle || {}),
+        name: (design.designStyle as any)?.name || 'Default Style',
+        icon: (design.designStyle as any)?.icon || '🎨'
+      },
+      // Other properties
+      specialEffect: design.specialEffect,
+      specialEffects: design.specialEffects || [],
+      packagingType: design.packagingType || 'bottle',
+      labelStyle: design.labelStyle || 'printed'
+    },
+    // Enhanced product properties
     enhancedValue: product.value * 1.25, // 25% boost as a default
     potencyBoost: 10,
     marketAppeal: 50,
@@ -41,10 +68,46 @@ function toBackendPackaging(design: PackagingDesign, creatorId: string): any {
   return {
     id: design.id,
     name: design.name,
-    material: design.material?.materialType || 'glass',
-    designStyle: design.designStyle?.designStyle || 'elegant',
-    specialEffects: design.specialEffect ? [design.specialEffect.effectType] : [],
-    // Other properties...
+    // For material, use a string (like 'glass') if available, or fall back to material object
+    material: typeof design.material === 'string' ? design.material :
+      (design.material as any)?.materialType || 'glass',
+    
+    // For designStyle, use a string (like 'elegant') if available, or fall back to designStyle object
+    designStyle: typeof design.designStyle === 'string' ? design.designStyle :
+      (design.designStyle as any)?.designStyle || 'elegant',
+    
+    // Special effects handling
+    specialEffects: design.specialEffect ? 
+      [(design.specialEffect as any)?.effectType || 'shimmer'] : 
+      (design.specialEffects || []),
+    
+    // Add other required properties
+    materialQuality: 'fine',
+    packagingType: design.packagingType || 'bottle',
+    labelStyle: design.labelStyle || 'printed',
+    colorScheme: [
+      design.colors?.base || '#8b6b3d', 
+      design.colors?.accent || '#f9f3e6'
+    ],
+    elementalAffinity: 'Earth',
+    designElements: ['motif'],
+    creatorId: creatorId,
+    
+    // Add bonuses
+    bonuses: {
+      marketValue: 50,
+      potency: 25,
+      attractiveness: 75,
+      durability: 80,
+      prestige: 60
+    },
+    
+    // Add other required fields
+    designName: design.name,
+    rarity: 'uncommon',
+    lore: '',
+    imagePath: '',
+    creationDate: Date.now()
   };
 }
 

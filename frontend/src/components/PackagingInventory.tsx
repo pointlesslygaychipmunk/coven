@@ -10,15 +10,32 @@ import {
 } from 'coven-shared';
 
 // Type definition to handle both frontend and backend packaging formats
-type CompatibleDesign = PackagingDesign & {
+// Define a more flexible type that can accommodate both frontend and backend formats
+interface CompatibleDesign {
+  id: string;
+  name: string;
+  
+  // Properties for compatibility with both PackagingDesign and ProductPackaging
+  material: any; // Support both Material and PackagingMaterial
+  designStyle: any; // Support both DesignStyle and backend DesignStyle
+  
+  // Optional properties used by frontend
   qualityScore?: number;
   colors?: {
     base?: string;
     accent?: string;
   };
-  specialEffects?: string[];
-  specialEffect?: SpecialEffect;
-  brand?: Brand;
+  specialEffects?: any[]; // Can be string[] or PackagingEffect[]
+  specialEffect?: any; // SpecialEffect or other format
+  brand?: any; // Brand or BrandIdentity
+  
+  // Other optional properties
+  packagingType?: string;
+  labelStyle?: string;
+  creationDate?: number;
+  
+  // Allow any additional properties
+  [key: string]: any;
 };
 import PackagingDesigner from './PackagingDesigner';
 import PackagedProduct from './PackagedProduct';
@@ -98,21 +115,31 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
   const getPackagedProduct = (product: Product) => {
     // First check if the product already has packaging
     if (product.packaging) {
-      // Convert to compatible design explicitly by copying known properties
+      // Create a flexible compatible design that adapts to any packaging format
       const packageDesign: CompatibleDesign = {
         id: product.packaging.id || `design_${Date.now()}`,
         name: product.packaging.name || 'Package Design',
-        material: product.packaging.material,
-        designStyle: product.packaging.designStyle,
+        
+        // Material can be either a string or Material object
+        material: product.packaging.material || {},
+        
+        // DesignStyle can be either a string or DesignStyle object
+        designStyle: product.packaging.designStyle || {},
+        
         // Handle properties that might be missing in the backend format
         colors: {
           base: (product.packaging as any).colors?.base || '#8b6b3d',
           accent: (product.packaging as any).colors?.accent || '#f9f3e6'
         },
+        
+        // Other properties with defaults
         qualityScore: (product.packaging as any).qualityScore || 50,
         specialEffects: (product.packaging as any).specialEffects || [],
-        specialEffect: (product.packaging as any).specialEffect,
-        brand: (product.packaging as any).brand
+        specialEffect: (product.packaging as any).specialEffect || null,
+        brand: (product.packaging as any).brand || null,
+        packagingType: (product.packaging as any).packagingType || 'bottle',
+        labelStyle: (product.packaging as any).labelStyle || 'printed',
+        creationDate: (product.packaging as any).creationDate || Date.now()
       };
       return packageDesign;
     }
@@ -479,12 +506,35 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
                       <PackagedProduct 
                         product={product}
                         packaging={{
-                          ...packageDesign,
-                          // Ensure required properties for PackageType interface
-                          colors: packageDesign.colors || { base: '#8b6b3d', accent: '#f9f3e6' },
-                          qualityScore: packageDesign.qualityScore || 50,
-                          material: packageDesign.material || { name: 'Default Material', icon: '📦' },
-                          designStyle: packageDesign.designStyle || { name: 'Default Style', icon: '🎨' }
+                          id: packageDesign?.id || `design_${Date.now()}`,
+                          name: packageDesign?.name || 'Package Design',
+                          // Add required properties directly rather than spreading
+                          colors: {
+                            base: packageDesign?.colors?.base || '#8b6b3d',
+                            accent: packageDesign?.colors?.accent || '#f9f3e6'
+                          },
+                          qualityScore: packageDesign?.qualityScore || 50,
+                          // Add material with proper icon/name properties
+                          material: {
+                            ...(packageDesign?.material || {}),
+                            name: packageDesign?.material?.name || 'Default Material',
+                            icon: packageDesign?.material?.icon || '📦'
+                          },
+                          // Add designStyle with proper icon/name properties
+                          designStyle: {
+                            ...(packageDesign?.designStyle || {}),
+                            name: packageDesign?.designStyle?.name || 'Default Style',
+                            icon: packageDesign?.designStyle?.icon || '🎨'
+                          },
+                          // Copy any special effects
+                          specialEffect: packageDesign?.specialEffect,
+                          specialEffects: packageDesign?.specialEffects || [],
+                          // Copy any brand information
+                          brand: packageDesign?.brand,
+                          // Copy other properties
+                          packagingType: packageDesign?.packagingType,
+                          labelStyle: packageDesign?.labelStyle,
+                          creationDate: packageDesign?.creationDate
                         }}
                         showDetails={true}
                       />

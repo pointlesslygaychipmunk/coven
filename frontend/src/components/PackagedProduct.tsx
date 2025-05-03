@@ -103,7 +103,7 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
         return "Special Effect";
       }
       // If it's an object, try to get its name
-      if (typeof effectType === 'object' && 'name' in effectType) {
+      if (effectType && typeof effectType === 'object' && 'name' in effectType) {
         return effectType.name;
       }
       // Otherwise format the string
