@@ -47,6 +47,9 @@ export default defineConfig({
       include: [/shared/, /node_modules/], // Regex to include files from shared and node_modules
     },
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "src/index90s.tsx"),
+      },
       // Optional: Configure Rollup further if needed
     }
   },
