@@ -98,7 +98,23 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
   const getPackagedProduct = (product: Product) => {
     // First check if the product already has packaging
     if (product.packaging) {
-      return product.packaging as CompatibleDesign;
+      // Convert to compatible design explicitly by copying known properties
+      const packageDesign: CompatibleDesign = {
+        id: product.packaging.id || `design_${Date.now()}`,
+        name: product.packaging.name || 'Package Design',
+        material: product.packaging.material,
+        designStyle: product.packaging.designStyle,
+        // Handle properties that might be missing in the backend format
+        colors: {
+          base: (product.packaging as any).colors?.base || '#8b6b3d',
+          accent: (product.packaging as any).colors?.accent || '#f9f3e6'
+        },
+        qualityScore: (product.packaging as any).qualityScore || 50,
+        specialEffects: (product.packaging as any).specialEffects || [],
+        specialEffect: (product.packaging as any).specialEffect,
+        brand: (product.packaging as any).brand
+      };
+      return packageDesign;
     }
     
     // This is a simulation - in a real implementation, the packaging 
@@ -222,18 +238,18 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
             {filteredBrands.length > 0 ? (
               filteredBrands.map(brand => (
                 <div key={brand.id} className="inventory-item brand-item">
-                  <div className="item-icon">{brand.icon}</div>
+                  <div className="item-icon">{brand.icon || '🏷️'}</div>
                   <div className="item-details">
                     <div className="item-name">{brand.name}</div>
                     <div className="item-description">{brand.description}</div>
                     <div className="item-properties">
                       <span className="property">
                         <span className="property-label">Reputation:</span> 
-                        <span className="property-value">{brand.reputation}/10</span>
+                        <span className="property-value">{brand.reputation || 5}/10</span>
                       </span>
                       <span className="property">
                         <span className="property-label">Recognition:</span> 
-                        <span className="property-value">{brand.recognition}/10</span>
+                        <span className="property-value">{brand.recognition || 5}/10</span>
                       </span>
                     </div>
                   </div>
@@ -462,7 +478,14 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
                     <>
                       <PackagedProduct 
                         product={product}
-                        packaging={packageDesign}
+                        packaging={{
+                          ...packageDesign,
+                          // Ensure required properties for PackageType interface
+                          colors: packageDesign.colors || { base: '#8b6b3d', accent: '#f9f3e6' },
+                          qualityScore: packageDesign.qualityScore || 50,
+                          material: packageDesign.material || { name: 'Default Material', icon: '📦' },
+                          designStyle: packageDesign.designStyle || { name: 'Default Style', icon: '🎨' }
+                        }}
                         showDetails={true}
                       />
                       

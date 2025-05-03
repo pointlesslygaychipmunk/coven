@@ -567,7 +567,7 @@ const PackagingDesigner: React.FC<PackagingDesignerProps> = ({
               <div className="preview-effect">{selectedEffect.icon || '✨'}</div>
             )}
             {selectedBrand && (
-              <div className="preview-brand">{selectedBrand.icon || '🏷️'}</div>
+              <div className="preview-brand">{selectedBrand?.icon || '🏷️'}</div>
             )}
             <div className="preview-package-type" title={packagingType}>
               {getPackagingTypeEmoji(packagingType)}

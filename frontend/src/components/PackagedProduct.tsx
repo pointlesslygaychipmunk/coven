@@ -98,8 +98,12 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
       
       // Just use the specialEffects array
       const effectType = packaging.specialEffects[0];
+      // If we have an effect but it's null, return a generic message
+      if (!effectType) {
+        return "Special Effect";
+      }
       // If it's an object, try to get its name
-      if (typeof effectType === 'object' && effectType !== null && 'name' in effectType) {
+      if (typeof effectType === 'object' && 'name' in effectType) {
         return effectType.name;
       }
       // Otherwise format the string
