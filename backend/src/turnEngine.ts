@@ -2,7 +2,7 @@
 // Handles advancing the game state by one lunar phase (and possibly season/year)
 // Manages weather changes, plant growth, and time progression
 
-import { GameState, Season, WeatherFate, MoonPhase, Plant, GardenSlot, GameTime, JournalEntry, Player } from "coven-shared";
+import { GameState, Season, WeatherFate, MoonPhase, Plant, GardenSlot, GameTime, JournalEntry, Player, getPlantName } from "coven-shared";
 import { calculateGrowthModifier, getIngredientData, getGrowthStageDescription, Ingredient } from "./ingredients.js"; // Make sure Ingredient is imported if needed elsewhere
 
 // Ordered arrays for moon phases and seasons - Exported for use elsewhere
@@ -37,10 +37,11 @@ function applyGrowthAndWeather( plant: Plant, slot: GardenSlot, weather: Weather
     if (!plant) return { didGrow: false, didWither: false, becameMature: false, messages: [] };
 
     // Ensure plantData is correctly typed or handled if undefined
-    const plantData = getIngredientData(plant.name) as Ingredient | undefined; // Explicit cast/check
+    const plantName = getPlantName(plant);
+    const plantData = getIngredientData(plantName) as Ingredient | undefined; // Explicit cast/check
     if (!plantData) {
-        console.error(`[TurnEngine] Missing ingredient data for plant: ${plant.name}`);
-        return { didGrow: false, didWither: false, becameMature: false, messages: [`Error: Missing data for ${plant.name}`] };
+        console.error(`[TurnEngine] Missing ingredient data for plant: ${plantName}`);
+        return { didGrow: false, didWither: false, becameMature: false, messages: [`Error: Missing data for ${plantName}`] };
     }
 
     const result = { didGrow: false, didWither: false, becameMature: false, messages: [] as string[] };
@@ -110,10 +111,11 @@ function applyGrowthAndWeather( plant: Plant, slot: GardenSlot, weather: Weather
 
 
     // Wither chance
-    plant.deathChance = Math.max(0, Math.min(1, (25 - plant.health) / 25)); // Higher chance below 25 health
-    if (plant.health <= 0 || (plant.health < 10 && Math.random() < plant.deathChance * 2) || (plant.health < 25 && Math.random() < plant.deathChance)) {
+    // Calculate deathChance based on health - not stored in the new Plant type
+    const deathChance = Math.max(0, Math.min(1, (25 - plant.health) / 25)); // Higher chance below 25 health
+    if (plant.health <= 0 || (plant.health < 10 && Math.random() < deathChance * 2) || (plant.health < 25 && Math.random() < deathChance)) {
         result.didWither = true;
-        result.messages.push(`💀 ${plant.name} withered!`);
+        result.messages.push(`💀 ${plantName} withered!`);
         return result;
     }
 
@@ -138,16 +140,16 @@ function applyGrowthAndWeather( plant: Plant, slot: GardenSlot, weather: Weather
             plant.mature = true;
             plant.growth = maxGrowth; // Cap growth
             result.becameMature = true;
-            result.messages.push(`✨ ${plant.name} is now mature and ready for harvest!`);
+            result.messages.push(`✨ ${plantName} is now mature and ready for harvest!`);
         } else {
              // Only add growth stage message if not mature yet
-             result.messages.push(getGrowthStageDescription(plant.name, plant.growth, maxGrowth));
+             result.messages.push(getGrowthStageDescription(plantName, plant.growth, maxGrowth));
         }
     } else if (!plant.mature && plant.health <= 30) {
         result.messages.push(`❤️ Too unhealthy to grow.`);
     } else if (plant.mature) {
         // Add message for mature plants? Maybe not necessary every turn.
-        // result.messages.push(`${plant.name} is mature.`);
+        // result.messages.push(`${plantName} is mature.`);
     }
 
     return result;

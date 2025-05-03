@@ -1,4 +1,4 @@
-import { Season, MoonPhase, InventoryItem } from "coven-shared";
+import { Season, MoonPhase, InventoryItem, createDefaultInventoryItem } from "coven-shared";
 import { CraftableProduct } from "./craftPointsSystem.js";
 
 // Town specialization types for diverse network
@@ -618,7 +618,7 @@ function generateAvailableResources(town: Town, currentSeason: Season): Inventor
     for (let i = 0; i < itemCount; i++) {
       // TODO: Generate specific items based on focus and town specialization
       // This is a simplified placeholder
-      resources.push({
+      resources.push(createDefaultInventoryItem({
         id: `${town.id}_${focus}_${i}`,
         baseId: focus,
         name: `${capitalize(town.name)} ${capitalize(focus)}`,
@@ -627,14 +627,14 @@ function generateAvailableResources(town: Town, currentSeason: Season): Inventor
         quantity: Math.floor(Math.random() * 10) + 5,
         value: town.market.basePrices[focus] || 50,
         quality: Math.floor(Math.random() * 30) + 50 // 50-80 quality
-      });
+      }));
     }
   });
   
   // Add seasonal specialties
   const seasonalItems = town.market.seasonalProductionBonus[currentSeason] || [];
   seasonalItems.forEach(item => {
-    resources.push({
+    resources.push(createDefaultInventoryItem({
       id: `${town.id}_seasonal_${item}`,
       baseId: item,
       name: `Seasonal ${capitalize(item)}`,
@@ -643,14 +643,14 @@ function generateAvailableResources(town: Town, currentSeason: Season): Inventor
       quantity: Math.floor(Math.random() * 5) + 1, // Rare, low quantity
       value: (town.market.basePrices[item] || 100) * 1.5, // Premium for seasonal
       quality: Math.floor(Math.random() * 20) + 70 // 70-90 quality
-    });
+    }));
   });
   
   // Add unique resources (very limited)
   town.uniqueResources.forEach(unique => {
     // 30% chance for each unique resource to be available
     if (Math.random() < 0.3) {
-      resources.push({
+      resources.push(createDefaultInventoryItem({
         id: `${town.id}_unique_${unique}`,
         baseId: unique,
         name: capitalize(unique),
@@ -659,7 +659,7 @@ function generateAvailableResources(town: Town, currentSeason: Season): Inventor
         quantity: 1, // Very limited
         value: 300 + Math.floor(Math.random() * 200), // Expensive
         quality: Math.floor(Math.random() * 10) + 90 // 90-100 quality
-      });
+      }));
     }
   });
   

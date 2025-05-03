@@ -3,7 +3,16 @@
 // base prices, rumor impacts, and seasonal fluctuations.
 
 // Use package name import
-import { GameState, MarketItem, Season, MoonPhase, ItemCategory, ItemType, Rumor } from "coven-shared";
+import { 
+    GameState, 
+    MarketItem, 
+    Season, 
+    MoonPhase, 
+    ItemCategory, 
+    ItemType, 
+    Rumor,
+    createDefaultMarketItem
+} from "coven-shared";
 import { getItemData } from "./items.js"; // Access base item data
 
 const BASE_DEMAND = 50;
@@ -113,7 +122,19 @@ function applyMoonPhaseEffects(state: GameState): void {
         if (!state.market.some((item: MarketItem) => item.id === itemId)) {
             const itemData = getItemData(itemId); if (itemData) {
                 let startingPrice = itemData.value || 10; if (effect?.priceEffects) { const catMult = effect.priceEffects[itemData.category ?? 'misc'] ?? 1.0; const typeMult = effect.priceEffects[itemData.type] ?? 1.0; startingPrice = Math.round(startingPrice * (catMult !== 1.0 ? catMult : typeMult)); }
-                const newItem: MarketItem = { id: itemData.id, name: itemData.name, type: itemData.type, category: itemData.category || 'misc', price: Math.max(1, startingPrice), basePrice: itemData.value || 10, description: itemData.description || "A phase-specific item.", rarity: itemData.rarity || 'uncommon', priceHistory: [Math.max(1, startingPrice)], lastPriceChange: state.time.dayCount };
+                // Use the compatibility layer to create a properly formatted MarketItem 
+                const newItem = createDefaultMarketItem({
+                    id: itemData.id,
+                    name: itemData.name,
+                    type: itemData.type,
+                    category: itemData.category || 'misc',
+                    price: Math.max(1, startingPrice),
+                    basePrice: itemData.value || 10,
+                    description: itemData.description || "A phase-specific item.",
+                    rarity: itemData.rarity || 'uncommon',
+                    priceHistory: [Math.max(1, startingPrice)],
+                    lastPriceChange: state.time.dayCount
+                });
                 state.market.push(newItem); ensureMarketData(state, newItem.name); factors.push(`${newItem.name} available.`);
             }
         }

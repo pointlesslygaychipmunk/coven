@@ -4,7 +4,11 @@
 import {
     Player, InventoryItem, Plant, MoonPhase, Season, JournalEntry,
     Skills, Item, AtelierSpecialization, BasicRecipeInfo,
-    GameState, GardenSlot // Removed unused imports
+    GameState, // Using these types directly
+    createDefaultInventoryItem,
+    createDefaultPlayer,
+    createDefaultGardenSlot,
+    getPlantName
 } from "coven-shared";
 
 import { processTurn, MoonPhases, Seasons } from "./turnEngine.js";
@@ -51,8 +55,8 @@ export function addItemToInventory(
         // const newAverageQuality = Math.round((currentTotalQuality + addedTotalQuality) / totalQuantity);
         // existingStack.quality = Math.min(100, Math.max(0, newAverageQuality));
     } else {
-        // Create new stack
-        const newInventoryItem: InventoryItem = {
+        // Create new stack using compatibility layer
+        const newInventoryItem = createDefaultInventoryItem({
             id: `${itemToAdd.id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`, // Unique inventory instance ID
             baseId: itemToAdd.id, // Link back to base item definition
             name: itemToAdd.name,
@@ -64,11 +68,12 @@ export function addItemToInventory(
             rarity: itemToAdd.rarity || 'common', // Ensure rarity exists
             description: itemToAdd.description,
             imagePath: itemToAdd.imagePath,
-            // Optional metadata
-            harvestedDuring: currentPhase,
-            harvestedSeason: currentSeason,
             bookmarked: false // Default bookmark status
-        };
+        });
+        
+        // Set optional metadata
+        if (currentPhase) (newInventoryItem as any).harvestedDuring = currentPhase;
+        if (currentSeason) (newInventoryItem as any).harvestedSeason = currentSeason;
         player.inventory.push(newInventoryItem);
     }
     console.log(`[Inventory] Added ${quantity}x ${itemToAdd.name} (Q: ${quality ?? 'N/A'}) to ${player.name}. Current total: ${player.inventory.find(i => i.name === itemToAdd.name)?.quantity}`);
@@ -258,7 +263,8 @@ export class GameEngine {
          specializationId = 'Essence';
      }
 
-     const newPlayer: Player = {
+     // Use compatibility layer to create player with all required new fields
+     const newPlayer = createDefaultPlayer({
          id: id,
          name: name,
          gold: 100,
@@ -269,25 +275,30 @@ export class GameEngine {
          skills: { gardening: 1, brewing: 1, trading: 1, crafting: 1, herbalism: 1, astrology: 1 }, // Base skills at 1
          inventory: [],
          garden: [], // Initialize garden plots below
-         knownRecipes: [], // Start empty, populated later
          completedRituals: [],
          journalEntries: [], // Player-specific journal (unused for now)
          questsCompleted: 0,
          daysSurvived: 0,
          blackMarketAccess: false,
          lastActive: 0 // Track last active turn
-     };
+     });
 
      // Initialize garden plots
      const numSlots = 9; // Total potential plots
-     newPlayer.garden = Array.from({ length: numSlots }, (_, idx): GardenSlot => ({ // Explicitly type return value
-         id: idx,
-         plant: null,
-         fertility: 70 + Math.floor(Math.random() * 21) - 10, // 60-80
-         sunlight: 60 + Math.floor(Math.random() * 21) - 10, // 50-70
-         moisture: 50 + Math.floor(Math.random() * 21) - 10, // 40-60
-         isUnlocked: idx < STARTING_GARDEN_SLOTS // Unlock initial slots
-     }));
+     newPlayer.garden = []; // Clear existing garden created by createDefaultPlayer
+     
+     // Create properly formatted garden slots with the compatibility layer
+     for (let idx = 0; idx < numSlots; idx++) {
+         const gardenSlot = createDefaultGardenSlot({
+             id: idx,
+             plant: null,
+             fertility: 70 + Math.floor(Math.random() * 21) - 10, // 60-80
+             sunlight: 60 + Math.floor(Math.random() * 21) - 10, // 50-70
+             moisture: 50 + Math.floor(Math.random() * 21) - 10, // 40-60
+             isUnlocked: idx < STARTING_GARDEN_SLOTS // Unlock initial slots
+         });
+         newPlayer.garden.push(gardenSlot);
+     }
 
      this.giveStarterItems(newPlayer, specializationId); // Give starting items based on spec
      console.log(`Created player ${name} (ID: ${id}), Specialization: ${specializationId}.`);
@@ -390,17 +401,18 @@ export class GameEngine {
 
          const newPlant: Plant = {
              id:`plant-${slotId}-${Date.now()}`,
-             name: plantData.name,
-             category: plantData.category,
+             tarotCardId: `${plantData.category}_${plantData.name.toLowerCase().replace(/\s+/g, '_')}`,
              growth: 0,
              maxGrowth: plantData.growthTime,
              watered: false, // This flag is no longer used by turnEngine for watering
              health: Math.max(10, Math.min(100, initialHealth)), // Ensure health is within bounds
              age: 0,
              mature: false,
-             moonBlessed: ["Full Moon", "New Moon"].includes(this.state.time.phaseName), // Check specific phases
-             seasonalModifier: this.calculateSeasonalModifier(plantData, this.state.time.season),
-             deathChance: 0 // Initial death chance
+             qualityModifier: 50,
+             moonBlessing: ["Full Moon", "New Moon"].includes(this.state.time.phaseName) ? 75 : 25,
+             seasonalResonance: this.calculateSeasonalModifier(plantData, this.state.time.season) * 100,
+             elementalHarmony: 50,
+             growthStage: 'seed'
          };
 
          slot.plant = newPlant;
@@ -415,7 +427,7 @@ export class GameEngine {
          if (xpResult.levelUp) this.addJournal(`${player.name} gardening reached level ${xpResult.newLevel}!`, 'skill', 4);
 
          let journalText = `Planted ${plantData.name} seed (Q:${seedQuality}%) in plot ${slotId + 1}.`;
-         if (newPlant.moonBlessed) journalText += " The moon's influence feels strong.";
+         if (newPlant.moonBlessing > 50) journalText += " The moon's influence feels strong.";
          this.addJournal(journalText, 'garden', 3);
 
          // Check quest completion
@@ -487,9 +499,10 @@ export class GameEngine {
         }
 
         const plant = slot.plant;
-        const plantData = getIngredientById(plant.name); // Use helper
+        const plantName = getPlantName(plant);
+        const plantData = getIngredientById(plantName); // Use helper
         if (!plantData) {
-            this.addJournal(`Cannot identify harvested plant: ${plant.name}!`, 'error', 4);
+            this.addJournal(`Cannot identify harvested plant: ${plantName}!`, 'error', 4);
             slot.plant = null; // Clear the broken plant
             return false;
         }
@@ -529,7 +542,7 @@ export class GameEngine {
         else if (finalHarvestQuality >= 60) qualityText = "good";
         else if (finalHarvestQuality < 40) qualityText = "poor";
 
-        this.addJournal(`Harvested ${yieldAmount} ${plant.name} (${qualityText} Q:${finalHarvestQuality}%) from plot ${slotId + 1}.`, 'garden', 3);
+        this.addJournal(`Harvested ${yieldAmount} ${plantName} (${qualityText} Q:${finalHarvestQuality}%) from plot ${slotId + 1}.`, 'garden', 3);
         if (specBonus.bonusMultiplier > 1.0) this.addJournal(`(${player.atelierSpecialization} bonus!)`, 'garden', 2);
         // Optionally list bonus factors
         // (harvestInfo.bonusFactors || []).forEach(factor => this.addJournal(` - ${factor}`, 'garden', 1));
@@ -540,7 +553,7 @@ export class GameEngine {
 
         // Check quest completion
         checkQuestStepCompletion(this.state, player, 'harvest', {
-            plantName: plant.name,
+            plantName: plantName,
             quality: finalHarvestQuality,
             quantity: yieldAmount
         });

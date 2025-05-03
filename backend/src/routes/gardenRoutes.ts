@@ -9,7 +9,7 @@ import { playPlantingMiniGame, plantNewInteractivePlant, playHarvestingMiniGame,
 import { GameHandler } from '../gameHandler.js';
 
 // Import types from shared directory
-import { Season, MoonPhase, Player, GardenSlot, InventoryItem, ItemType, ItemCategory, Rarity as ItemQuality, Skills, Plant } from 'coven-shared';
+import { Season, MoonPhase, Player, GardenSlot, InventoryItem, ItemType, ItemCategory, Rarity as ItemQuality, Skills, Plant, getPlantName, toLegacyPlant, createDefaultGardenSlot } from 'coven-shared';
                     
 // Type definitions and interfaces
 // =================================
@@ -147,11 +147,11 @@ export const convertPlantToInteractivePlant = (plant: Plant, plotId: string | nu
   return {
     // Base plant properties
     id: plant.id,
-    name: plant.name,
-    category: plant.category,
+    name: getPlantName(plant),
+    category: plant.tarotCardId.split('_')[0], // Extract category from tarotCardId
     health: plant.health,
-    moonBlessed: plant.moonBlessed,
-    seasonalModifier: plant.seasonalModifier,
+    moonBlessed: plant.moonBlessing > 50, // Convert numeric blessing to boolean
+    seasonalModifier: plant.seasonalResonance / 100,
     growth: plant.growth,
     maxGrowth: plant.maxGrowth,
     age: plant.age,
@@ -193,22 +193,25 @@ export const convertPlantToInteractivePlant = (plant: Plant, plotId: string | nu
 export const convertInteractivePlantToPlant = (interactivePlant: InteractivePlant): Plant => {
   if (!interactivePlant) return null as any;
   
+  const plantName = interactivePlant.name || `${interactivePlant.varietyId} Plant`;
+  const tarotCardId = `${interactivePlant.category}_${plantName.toLowerCase().replace(/\s+/g, '_')}`;
+  
   return {
     id: interactivePlant.id,
-    name: interactivePlant.name || `${interactivePlant.varietyId} Plant`,
-    category: interactivePlant.category as ItemCategory,
-    imagePath: undefined, // Not tracked in InteractivePlant
+    tarotCardId: tarotCardId,
     growth: interactivePlant.growth || interactivePlant.growthProgress || 0,
     maxGrowth: interactivePlant.maxGrowth || 100,
-    seasonalModifier: interactivePlant.seasonalModifier,
+    seasonalResonance: (interactivePlant.seasonalModifier || 0.5) * 100,
     watered: interactivePlant.waterLevel > 30, // Consider watered if level > 30
     health: interactivePlant.health,
     age: interactivePlant.age || 0,
     mature: interactivePlant.mature || interactivePlant.currentStage === 'mature',
-    moonBlessed: interactivePlant.moonBlessed,
-    deathChance: 0, // Default value
+    moonBlessing: interactivePlant.moonBlessed ? 75 : 25,
+    elementalHarmony: 50,
+    qualityModifier: 50,
+    growthStage: interactivePlant.currentStage as 'seed' | 'sprout' | 'growing' | 'mature' | 'blooming' | 'dying' || 'growing',
     mutations: interactivePlant.geneticTraits?.map(trait => trait.name) || [],
-    qualityModifier: interactivePlant.geneticTraits?.reduce((sum, trait) => sum + trait.qualityModifier, 0) || 0
+    specialTraits: []
   };
 };
 
@@ -497,12 +500,12 @@ router.post('/harvest', (req, res) => {
         baseId: plot.plant!.id.split('_')[0],
         name: ingredient.name,
         type: 'ingredient' as ItemType,
-        category: (plot.plant!.category || 'herb') as ItemCategory,
+        category: (plot.plant!.tarotCardId?.split('_')[0] || 'herb') as ItemCategory,
         quantity: 1,
         quality: ingredient.quality,
         harvestedDuring: currentMoonPhase || gameState.time.phaseName,
         harvestedSeason: currentSeason || gameState.time.season,
-        description: `A ${ingredient.quality} quality ${plot.plant!.name} harvested under a ${currentMoonPhase || gameState.time.phaseName}.`
+        description: `A ${ingredient.quality} quality ${getPlantName(plot.plant!)} harvested under a ${currentMoonPhase || gameState.time.phaseName}.`
       };
       
       // Proper type conversion
@@ -512,16 +515,17 @@ router.post('/harvest', (req, res) => {
     // Add seeds to player inventory if any were obtained
     const seeds = [];
     if (harvestResult.seedsObtained > 0) {
+      const plantName = getPlantName(plot.plant);
       seeds.push({
         id: `seed_${plot.plant.id}_${Date.now()}`,
         baseId: `seed_${plot.plant.id.split('_')[0]}`,
-        name: `${plot.plant.name} Seed`,
+        name: `${plantName} Seed`,
         type: 'seed' as ItemType,
         category: 'seed' as ItemCategory,
         quantity: harvestResult.seedsObtained,
         harvestedDuring: currentMoonPhase || gameState.time.phaseName,
         harvestedSeason: currentSeason || gameState.time.season,
-        description: `Seeds harvested from a ${plot.plant.name}.`
+        description: `Seeds harvested from a ${plantName}.`
       } as InventoryItem);
     }
     
@@ -958,7 +962,7 @@ router.post('/cross-breed', (_req, res) => {
         quality: result.rarityTier,
         harvestedDuring: currentMoonPhase || gameState.time.phaseName,
         harvestedSeason: currentSeason || gameState.time.season,
-        description: `Seeds from a newly cross-bred variety created from ${plant1Plot.plant.name} and ${plant2Plot.plant.name}.`
+        description: `Seeds from a newly cross-bred variety created from ${getPlantName(plant1Plot.plant)} and ${getPlantName(plant2Plot.plant)}.`
       } as InventoryItem);
       
       // Add seeds to player inventory
@@ -1927,14 +1931,22 @@ router.post('/upgrade-plot', (req, res) => {
     
     // Update player's garden with upgraded plot
     // Convert the extended plot to a standard GardenSlot with necessary properties
-    const standardPlot: GardenSlot = {
+    // Use createDefaultGardenSlot from the compatibility layer to create a complete GardenSlot
+    // If extendedPlot.plant exists, we need to convert it to a PlantLegacy for compatibility
+    const legacyPlant = extendedPlot.plant ? 
+      ('tarotCardId' in extendedPlot.plant ? 
+        toLegacyPlant(extendedPlot.plant as Plant) : 
+        extendedPlot.plant as any) : 
+      null;
+      
+    const standardPlot = createDefaultGardenSlot({
       id: extendedPlot.id,
-      plant: extendedPlot.plant,
+      plant: legacyPlant,
       fertility: extendedPlot.fertility,
       moisture: extendedPlot.moisture,
       sunlight: extendedPlot.sunlight,
       isUnlocked: extendedPlot.isUnlocked
-    };
+    });
     
     player.garden[plotIndex] = standardPlot;
     

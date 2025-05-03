@@ -4,8 +4,8 @@ import {
   WeatherFate as WeatherCondition,
   Plant,
   GardenSlot,
-  ItemCategory,
   Rarity as ItemQuality,
+  getPlantName // Import only what we use
 } from 'coven-shared';
 
 // Extend ItemQuality with additional values for internal use only
@@ -786,9 +786,15 @@ export function harvestPlant(
     const itemQuality = qualityMap[Math.round(itemQualityScore)] || finalQuality;
     
     // Create ingredient with traits from plant
+    // Check if plant is a new Plant type with tarotCardId or a legacy plant type with name
+    // Using type assertion to handle both types 
+    const castedPlant = plant as any; // Cast to any to avoid type errors
+    const plantName = 'tarotCardId' in castedPlant ? 
+      getPlantName(castedPlant) : 
+      (castedPlant.name || castedPlant.varietyId || 'Unknown Plant');
     harvestedIngredients.push({
       id: `ingredient_${plant.id}_${i}_${now}`,
-      name: `Harvested ${plant.name || plant.varietyId}`,
+      name: `Harvested ${plantName}`,
       quality: asItemQuality(itemQuality), // Ensure proper type conversion
       harvestedAt: now,
       sourceType: 'garden',
@@ -2375,11 +2381,11 @@ export function convertToInteractivePlant(plant: Plant, plotId: string | number)
   return {
     // Base plant properties
     id: plant.id,
-    name: plant.name,
-    category: plant.category,
+    name: getPlantName(plant),
+    category: plant.tarotCardId.split('_')[0], // Extract category from tarotCardId
     health: plant.health,
-    moonBlessed: plant.moonBlessed,
-    seasonalModifier: plant.seasonalModifier,
+    moonBlessed: plant.moonBlessing > 50, // Convert numeric blessing to boolean
+    seasonalModifier: plant.seasonalResonance / 100,
     growth: plant.growth,
     maxGrowth: plant.maxGrowth,
     age: plant.age,
@@ -2419,22 +2425,25 @@ export function convertToInteractivePlant(plant: Plant, plotId: string | number)
 export function convertToPlant(interactivePlant: InteractivePlant): Plant {
   if (!interactivePlant) return null as any;
   
+  const plantName = interactivePlant.name || `${interactivePlant.varietyId} Plant`;
+  const tarotCardId = `${interactivePlant.category}_${plantName.toLowerCase().replace(/\s+/g, '_')}`;
+  
   return {
     id: interactivePlant.id,
-    name: interactivePlant.name || `${interactivePlant.varietyId} Plant`,
-    category: interactivePlant.category as ItemCategory,
-    imagePath: undefined, // Not tracked in InteractivePlant
+    tarotCardId: tarotCardId,
     growth: interactivePlant.growth || interactivePlant.growthProgress || 0,
     maxGrowth: interactivePlant.maxGrowth || 100,
-    seasonalModifier: interactivePlant.seasonalModifier,
     watered: interactivePlant.waterLevel > 30, // Consider watered if level > 30
     health: interactivePlant.health,
     age: interactivePlant.age || 0,
     mature: interactivePlant.mature || interactivePlant.currentStage === 'mature',
-    moonBlessed: interactivePlant.moonBlessed,
-    deathChance: 0, // Default value
+    moonBlessing: interactivePlant.moonBlessed ? 75 : 25,
+    seasonalResonance: (interactivePlant.seasonalModifier || 0.5) * 100,
+    elementalHarmony: 50,
+    qualityModifier: interactivePlant.geneticTraits?.reduce((sum, trait) => sum + trait.qualityModifier, 0) || 50,
+    growthStage: interactivePlant.currentStage as 'seed' | 'sprout' | 'growing' | 'mature' | 'blooming' | 'dying' || 'growing',
     mutations: interactivePlant.geneticTraits?.map(trait => trait.name) || [],
-    qualityModifier: interactivePlant.geneticTraits?.reduce((sum, trait) => sum + trait.qualityModifier, 0) || 0
+    specialTraits: []
   };
 }
 
