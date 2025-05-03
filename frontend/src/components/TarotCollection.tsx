@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TarotCard, InventoryItem, ElementType, Season, MoonPhase } from 'coven-shared';
-import { findCardById } from 'coven-shared/src/tarotCards';
+import { findCardById } from 'coven-shared';
 import './TarotCollection.css';
 
 interface TarotCollectionProps {

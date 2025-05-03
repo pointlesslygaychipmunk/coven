@@ -18,9 +18,9 @@ import {
   generateProductName,
   generateProductDescription,
   calculateBrewingTime
-} from 'coven-shared/src/brewingMethods';
+} from 'coven-shared';
 import LunarPhaseIcon from './LunarPhaseIcon';
-import { findCardById } from 'coven-shared/src/tarotCards';
+import { findCardById } from 'coven-shared';
 
 // Interface for brewing results 
 interface BrewingResult {

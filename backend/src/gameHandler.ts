@@ -4,6 +4,7 @@
 // FIXED: Import GameEngine class correctly
 import { GameEngine } from "./gameEngine.js";
 import { GameState, MoonPhase, Season, Skills } from "coven-shared";
+import { CardPosition } from "coven-shared";
 
 // GameHandler: Connects the server's API endpoints to the game engine
 export class GameHandler {
@@ -32,6 +33,32 @@ export class GameHandler {
     endTurn(playerId: string): GameState { this.engine.endTurn(playerId); return this.engine.getState(); }
     saveGame(): string { return this.engine.saveGame(); }
     loadGame(saveData: string): boolean { return this.engine.loadGame(saveData); }
+    
+    // Ritual system methods
+    performRitual(
+        playerId: string, 
+        ritualId: string, 
+        cardPlacements: Record<CardPosition, string | null>
+    ): {
+        success: boolean;
+        power: number;
+        successChance: number;
+        effects?: Record<string, any>;
+        message: string;
+        state: GameState;
+    } {
+        const result = this.engine.performRitual(playerId, ritualId, cardPlacements);
+        return {
+            ...result,
+            state: this.engine.getState()
+        };
+    }
+    
+    claimRitualRewards(playerId: string, ritualId: string, ritualPower: number): GameState {
+        const success = this.engine.claimRitualRewards(playerId, ritualId, ritualPower);
+        if (!success) console.warn(`[GH] Failed to claim ritual rewards for ${ritualId}`);
+        return this.engine.getState();
+    }
 
     // Debug methods
     debugSetMoonPhase(phaseName: MoonPhase): GameState { this.engine.debugSetMoonPhase(phaseName); return this.engine.getState(); }

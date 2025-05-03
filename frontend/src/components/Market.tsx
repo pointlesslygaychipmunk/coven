@@ -8,7 +8,7 @@ import {
   TarotCard, 
   ElementType 
 } from 'coven-shared';
-import { findCardById } from 'coven-shared/src/tarotCards';
+import { findCardById } from 'coven-shared';
 
 // Define custom type for price trend animation
 type TrendType = 'up' | 'down' | 'stable';

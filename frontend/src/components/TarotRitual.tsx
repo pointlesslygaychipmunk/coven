@@ -9,8 +9,8 @@ import {
   evaluateCardForPosition,
   calculateRitualPower,
   calculateRitualSuccess
-} from 'coven-shared/src/ritualSystem';
-import { findCardById } from 'coven-shared/src/tarotCards';
+} from 'coven-shared';
+import { findCardById } from 'coven-shared';
 
 // Props for the TarotRitual component
 interface TarotRitualProps {
@@ -72,6 +72,7 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
   const [ritualCompleted, setRitualCompleted] = useState<boolean>(false);
   const [ritualMessages, setRitualMessages] = useState<string[]>([]);
   const [showCardSelection, setShowCardSelection] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   
   // Get cards for each position
   const getCardForPosition = (position: CardPosition): TarotCard | null => {
@@ -491,6 +492,244 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
     );
   };
   
+  // Handle drag start for card selection
+  const handleDragStart = (e: React.DragEvent, cardId: string) => {
+    e.dataTransfer.setData("cardId", cardId);
+    e.dataTransfer.effectAllowed = 'move';
+    setIsDragging(true);
+    
+    // Create a custom drag image if needed
+    const dragImage = document.createElement('div');
+    dragImage.className = 'custom-drag-image';
+    dragImage.textContent = 'Card';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 25, 25);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+  };
+  
+  // Handle drag over for card position
+  const handleDragOver = (e: React.DragEvent, position: CardPosition) => {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+  };
+  
+  // Handle drag leave for card position
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove('drag-over');
+  };
+  
+  // Handle drop for card position
+  const handleDrop = (e: React.DragEvent, position: CardPosition) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    setIsDragging(false);
+    
+    const cardId = e.dataTransfer.getData("cardId");
+    if (!cardId) return;
+    
+    // Check if card is already used in another position
+    const isCardUsed = Object.entries(selectedCards).some(
+      ([pos, id]) => id === cardId && pos !== position
+    );
+    
+    if (isCardUsed) {
+      addRitualMessage("This card is already placed in another position");
+      return;
+    }
+    
+    // Place the card
+    setSelectedCards(prev => ({
+      ...prev,
+      [position]: cardId
+    }));
+    
+    // Add a message about card placement
+    const inventoryItem = playerInventory.find(item => item.id === cardId);
+    if (inventoryItem && inventoryItem.tarotCardId) {
+      const card = findCardById(inventoryItem.tarotCardId);
+      if (card) {
+        addRitualMessage(`Placed ${card.name} in the ${position} position`);
+      }
+    }
+  };
+  
+  // Handle drag end to reset state
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+  
+  // Create connection lines between positions
+  const createConnectorLines = () => {
+    if (!selectedRitual) return null;
+    
+    const requiredPositions = selectedRitual.requirements.map(req => req.position);
+    const filledPositions = Object.entries(selectedCards)
+      .filter(([pos, cardId]) => cardId !== null && requiredPositions.includes(pos as CardPosition))
+      .map(([pos]) => pos as CardPosition);
+    
+    if (filledPositions.length < 2) return null;
+    
+    // Always connect to center if it exists and is filled
+    const hasCenter = filledPositions.includes('center');
+    
+    // Calculate connector lines
+    const connectors = [];
+    
+    // Position coordinates lookup (percentages)
+    const posCoords = {
+      'center': { x: 50, y: 50 },
+      'north': { x: 50, y: 10 },
+      'east': { x: 90, y: 50 },
+      'south': { x: 50, y: 90 },
+      'west': { x: 10, y: 50 },
+      'northeast': { x: 80, y: 20 },
+      'southeast': { x: 80, y: 80 },
+      'southwest': { x: 20, y: 80 },
+      'northwest': { x: 20, y: 20 }
+    };
+    
+    for (let i = 0; i < filledPositions.length; i++) {
+      for (let j = i + 1; j < filledPositions.length; j++) {
+        // Skip if not connecting to center and we have center
+        if (hasCenter && 
+            filledPositions[i] !== 'center' && 
+            filledPositions[j] !== 'center') {
+          continue;
+        }
+        
+        const pos1 = filledPositions[i];
+        const pos2 = filledPositions[j];
+        
+        const start = posCoords[pos1];
+        const end = posCoords[pos2];
+        
+        // Calculate angle and length
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        connectors.push(
+          <div
+            key={`${pos1}-${pos2}`}
+            className={`connector-line ${ritualInProgress ? 'active' : ''}`}
+            style={{
+              left: `${start.x}%`,
+              top: `${start.y}%`,
+              width: `${length}%`,
+              transform: `rotate(${angle}deg)`
+            }}
+          />
+        );
+      }
+    }
+    
+    return <div className="connector-lines">{connectors}</div>;
+  };
+  
+  // Create energy beams between cards when ritual is active
+  const createEnergyBeams = () => {
+    if (!selectedRitual || !ritualInProgress) return null;
+    
+    const requiredPositions = selectedRitual.requirements.map(req => req.position);
+    const filledPositions = Object.entries(selectedCards)
+      .filter(([pos, cardId]) => cardId !== null && requiredPositions.includes(pos as CardPosition))
+      .map(([pos]) => pos as CardPosition);
+    
+    // Position coordinates lookup (percentages)
+    const posCoords = {
+      'center': { x: 50, y: 50 },
+      'north': { x: 50, y: 10 },
+      'east': { x: 90, y: 50 },
+      'south': { x: 50, y: 90 },
+      'west': { x: 10, y: 50 },
+      'northeast': { x: 80, y: 20 },
+      'southeast': { x: 80, y: 80 },
+      'southwest': { x: 20, y: 80 },
+      'northwest': { x: 20, y: 20 }
+    };
+    
+    // Always connect to center if it exists
+    const hasCenter = filledPositions.includes('center');
+    const beams = [];
+    
+    for (let i = 0; i < filledPositions.length; i++) {
+      for (let j = i + 1; j < filledPositions.length; j++) {
+        // If we have center, only connect to center
+        if (hasCenter && 
+            filledPositions[i] !== 'center' && 
+            filledPositions[j] !== 'center') {
+          continue;
+        }
+        
+        const pos1 = filledPositions[i];
+        const pos2 = filledPositions[j];
+        
+        const start = posCoords[pos1];
+        const end = posCoords[pos2];
+        
+        // Calculate angle and length
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        beams.push(
+          <div
+            key={`beam-${pos1}-${pos2}`}
+            className="energy-beam active"
+            style={{
+              left: `${start.x}%`,
+              top: `${start.y}%`,
+              width: `${length}%`,
+              transform: `rotate(${angle}deg)`
+            }}
+          />
+        );
+      }
+    }
+    
+    return beams;
+  };
+  
+  // Create energy particles
+  const createEnergyParticles = () => {
+    if (!ritualInProgress) return null;
+    
+    const particles = [];
+    for (let i = 0; i < 30; i++) {
+      // Random starting position, always near center
+      const startX = 45 + Math.random() * 10; // 45-55%
+      const startY = 45 + Math.random() * 10; // 45-55%
+      
+      // Random ending position (anywhere in circle)
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 20 + Math.random() * 30; // 20-50% from center
+      const endX = 50 + Math.cos(angle) * distance;
+      const endY = 50 + Math.sin(angle) * distance;
+      
+      // Animation duration and delay
+      const duration = 2 + Math.random() * 3; // 2-5s
+      const delay = Math.random() * 2; // 0-2s
+      
+      particles.push(
+        <div
+          key={`particle-${i}`}
+          className="particle"
+          style={{
+            left: `${startX}%`,
+            top: `${startY}%`,
+            '--tx': `${endX - startX}%`,
+            '--ty': `${endY - startY}%`,
+            animation: `particle-float ${duration}s ${delay}s infinite`
+          } as React.CSSProperties}
+        />
+      );
+    }
+    
+    return <div className={`energy-particles ${ritualInProgress ? 'active' : ''}`}>{particles}</div>;
+  };
+
   // Render ritual circle with card positions
   const renderRitualCircle = () => {
     if (!selectedRitual) return null;
@@ -499,7 +738,16 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
     const requiredPositions = selectedRitual.requirements.map(req => req.position);
     
     return (
-      <div className={`ritual-circle ${ritualInProgress ? 'active' : ''}`}>
+      <div className={`ritual-circle ${ritualInProgress ? 'active' : ''} ${isDragging ? 'dragging' : ''}`}>
+        {/* Connection lines between positions */}
+        {createConnectorLines()}
+        
+        {/* Energy beams during ritual */}
+        {createEnergyBeams()}
+        
+        {/* Energy particles */}
+        {createEnergyParticles()}
+        
         {/* Card positions */}
         {Object.entries(ritualCards).map(([position, card]) => {
           const pos = position as CardPosition;
@@ -512,38 +760,6 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
             req => req.position === pos
           );
           
-          // Calculate position coordinates
-          let coordinates = {};
-          switch (pos) {
-            case 'center':
-              coordinates = { top: '50%', left: '50%' };
-              break;
-            case 'north':
-              coordinates = { top: '10%', left: '50%' };
-              break;
-            case 'east':
-              coordinates = { top: '50%', left: '90%' };
-              break;
-            case 'south':
-              coordinates = { top: '90%', left: '50%' };
-              break;
-            case 'west':
-              coordinates = { top: '50%', left: '10%' };
-              break;
-            case 'northeast':
-              coordinates = { top: '20%', left: '80%' };
-              break;
-            case 'southeast':
-              coordinates = { top: '80%', left: '80%' };
-              break;
-            case 'southwest':
-              coordinates = { top: '80%', left: '20%' };
-              break;
-            case 'northwest':
-              coordinates = { top: '20%', left: '20%' };
-              break;
-          }
-          
           // Calculate score if a card is placed
           const score = card ? getScoreForPosition(pos) : 0;
           const scoreClass = getScoreColorClass(score);
@@ -552,8 +768,10 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
             <div
               key={position}
               className={`ritual-position ${pos} ${card ? 'filled' : 'empty'} ${activePosition === pos ? 'active' : ''} ${scoreClass}`}
-              style={coordinates}
               onClick={() => !ritualInProgress && handleSelectPosition(pos)}
+              onDragOver={(e) => !ritualInProgress && handleDragOver(e, pos)}
+              onDragLeave={(e) => !ritualInProgress && handleDragLeave(e)}
+              onDrop={(e) => !ritualInProgress && handleDrop(e, pos)}
             >
               {card ? (
                 <div className="placed-card">
@@ -589,6 +807,7 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
                       {requirement.minimumRank && (
                         <div className="req-rank">Rank {requirement.minimumRank}+</div>
                       )}
+                      <div className="drag-hint">Drag card here</div>
                     </div>
                   )}
                 </div>
@@ -669,6 +888,10 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
       <div className="card-selection-overlay">
         <div className="card-selection-panel">
           <h3>Select a Card for {activePosition.charAt(0).toUpperCase() + activePosition.slice(1)} Position</h3>
+          <div className="drag-drop-tip">
+            <span className="tip-icon">💡</span> 
+            TIP: You can click a card to select it, or drag cards to positions on the ritual circle
+          </div>
           
           {requirement && (
             <div className="position-requirements">
@@ -705,6 +928,9 @@ const TarotRitual: React.FC<TarotRitualProps> = ({
                   key={inventoryItem.id}
                   className={`selectable-card ${scoreClass} ${isUsed ? 'used' : ''}`}
                   onClick={() => !isUsed && handleSelectCard(inventoryItem.id)}
+                  draggable={!isUsed}
+                  onDragStart={(e) => !isUsed && handleDragStart(e, inventoryItem.id)}
+                  onDragEnd={handleDragEnd}
                 >
                   <div className={`card-frame element-${tarotCard.element.toLowerCase()}`}>
                     <div className="card-image" style={{ 

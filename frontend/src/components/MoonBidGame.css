@@ -1,0 +1,1045 @@
+.moon-bid-game {
+  display: flex;
+  flex-direction: column;
+  background-color: #0f172a;
+  border-radius: 8px;
+  padding: 20px;
+  color: #e2e8f0;
+  font-family: 'Courier New', monospace;
+  height: 100%;
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.moon-bid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
+}
+
+.moon-phase-display, .season-display {
+  display: flex;
+  align-items: center;
+  background-color: #1e293b;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.phase-icon, .season-icon {
+  margin-right: 8px;
+  font-size: 1.2em;
+}
+
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Game setup screen */
+.game-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 20px;
+}
+
+/* Deck selection section */
+.deck-selection {
+  width: 100%;
+  max-width: 600px;
+  background-color: #1e293b;
+  border: 2px solid #334155;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.deck-selection h3 {
+  color: #8b5cf6;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.selected-deck-display {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.deck-info {
+  display: flex;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.deck-art {
+  width: 100px;
+  height: 100px;
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  margin-right: 15px;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.deck-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.deck-details h4 {
+  font-weight: bold;
+  color: #e2e8f0;
+  margin-bottom: 5px;
+  font-size: 1.1em;
+}
+
+.deck-details p {
+  color: #94a3b8;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.deck-stats {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.deck-stat {
+  display: flex;
+  justify-content: space-between;
+}
+
+.deck-stat span:first-child {
+  color: #94a3b8;
+}
+
+.deck-stat span:last-child {
+  color: #e2e8f0;
+  font-weight: bold;
+}
+
+.deck-stat span.aligned {
+  color: #8b5cf6;
+}
+
+.no-deck-selected {
+  background-color: #0f172a;
+  border: 1px dashed #334155;
+  border-radius: 4px;
+  padding: 30px 15px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.manage-decks-button {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  align-self: center;
+}
+
+.manage-decks-button:hover {
+  background-color: #7c3aed;
+}
+
+/* Game modes section */
+.game-mode-selection {
+  width: 100%;
+  max-width: 600px;
+}
+
+.game-mode-selection h3 {
+  color: #8b5cf6;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.game-modes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+.game-mode-option {
+  background-color: #1e293b;
+  padding: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.game-mode-option:hover {
+  background-color: #334155;
+  transform: translateY(-3px);
+}
+
+.game-mode-option.selected {
+  border: 2px solid #8b5cf6;
+  background-color: #334155;
+}
+
+.game-mode-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 1.1em;
+}
+
+.game-mode-description {
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+/* Cosmic influences section */
+.cosmic-influences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 10px;
+}
+
+.cosmic-influence {
+  flex: 1;
+  min-width: 280px;
+  background-color: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.cosmic-influence h3 {
+  color: #e2e8f0;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.moon-phase-icon, .season-icon {
+  font-size: 1.4em;
+}
+
+.moon-influence h3 {
+  color: #8b5cf6;
+}
+
+.season-influence h3 {
+  color: #f59e0b;
+}
+
+.cosmic-influence p {
+  color: #94a3b8;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.special-rule {
+  font-style: italic;
+  border-left: 3px solid #475569;
+  padding-left: 10px;
+  margin-top: 8px;
+}
+
+/* Setup actions */
+.setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.start-game-button, .rules-button, .cancel-button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.start-game-button {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.start-game-button:hover {
+  background-color: #7c3aed;
+}
+
+.start-game-button:disabled {
+  background-color: #6b46c1;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rules-button {
+  background-color: #334155;
+  color: white;
+}
+
+.rules-button:hover {
+  background-color: #475569;
+}
+
+.cancel-button {
+  background-color: #ef4444;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #dc2626;
+}
+
+/* Mode options */
+.mode-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+.mode-option {
+  background-color: #1e293b;
+  padding: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.mode-option:hover {
+  background-color: #334155;
+  transform: translateY(-3px);
+}
+
+.mode-option.selected {
+  border-color: #8b5cf6;
+  background-color: #334155;
+}
+
+.mode-option h4 {
+  font-weight: bold;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+}
+
+.mode-option p {
+  color: #94a3b8;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.mode-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+  color: #64748b;
+  border-top: 1px solid #334155;
+  padding-top: 8px;
+}
+
+/* Game description */
+.game-description {
+  text-align: center;
+  color: #94a3b8;
+  max-width: 600px;
+  margin-bottom: 20px;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cosmic-influences {
+    flex-direction: column;
+  }
+  
+  .mode-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .deck-info {
+    flex-direction: column;
+  }
+  
+  .deck-art {
+    width: 80px;
+    height: 80px;
+    margin-right: 0;
+    margin-bottom: 10px;
+    align-self: center;
+  }
+}
+
+/* Bidding phase */
+.bidding-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.bid-instructions {
+  text-align: center;
+  color: #94a3b8;
+  max-width: 600px;
+}
+
+.bid-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.bid-value {
+  font-size: 1.5em;
+  min-width: 40px;
+  text-align: center;
+}
+
+.bid-btn {
+  background-color: #334155;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.bid-btn:hover {
+  background-color: #475569;
+}
+
+.place-bid-btn {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.place-bid-btn:hover {
+  background-color: #7c3aed;
+}
+
+.player-hands {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-name {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.player-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 0.9em;
+}
+
+.player-bid, .tricks-won {
+  background-color: #1e293b;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* Cards */
+.hand {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  min-height: 120px;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 80px;
+  height: 120px;
+  background-color: #1e293b;
+  border-radius: 8px;
+  position: relative;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card.selected {
+  box-shadow: 0 0 0 2px #8b5cf6;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.card-top, .card-bottom {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-value {
+  font-weight: bold;
+}
+
+.card-suit {
+  font-size: 1.2em;
+}
+
+.card-power {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8em;
+}
+
+.card-back {
+  background: linear-gradient(45deg, #7e22ce, #2563eb);
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+}
+
+/* Play area */
+.play-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  min-height: 140px;
+  position: relative;
+}
+
+.active-trick {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  background-color: rgba(30, 41, 59, 0.7);
+  border-radius: 8px;
+  min-width: 300px;
+  min-height: 140px;
+  justify-content: center;
+  align-items: center;
+}
+
+.trick-card {
+  position: relative;
+}
+
+.trick-card.winning {
+  box-shadow: 0 0 10px #fbbf24;
+}
+
+.player-indicator {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1e293b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
+.trick-status {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+/* Game info section */
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+.effect-display {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.effect-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.effect-icon {
+  font-size: 1.2em;
+}
+
+/* Scoring phase */
+.scoring-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.scoring-header {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.winners-display {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #fbbf24;
+}
+
+.player-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.player-score-card {
+  background-color: #1e293b;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-score-name {
+  font-weight: bold;
+}
+
+.player-score-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.player-score-bid {
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+.player-score-tricks {
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+.player-score-total {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.player-rewards {
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #fbbf24;
+}
+
+.play-again-btn {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.play-again-btn:hover {
+  background-color: #7c3aed;
+}
+
+/* Animations */
+@keyframes cardDeal {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+.hand .card {
+  animation: cardDeal 0.3s ease forwards;
+  animation-delay: calc(var(--index) * 0.1s);
+  opacity: 0;
+}
+
+@keyframes trickWin {
+  0%, 100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.trick-card.winning {
+  animation: trickWin 0.5s ease;
+}
+
+/* Rules modal */
+.rules-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.rules-modal {
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  background-color: #0f172a;
+  border: 2px solid #334155;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rules-modal h2 {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  padding: 15px 20px;
+  margin: 0;
+  border-bottom: 2px solid #334155;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.rules-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.rule-section {
+  margin-bottom: 25px;
+}
+
+.rule-section h3 {
+  color: #8b5cf6;
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 1.2em;
+}
+
+.rule-section ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+
+.rule-section li {
+  margin-bottom: 8px;
+}
+
+.rule-section p {
+  color: #94a3b8;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.special-powers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.power-item {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.power-symbol {
+  font-size: 1.2em;
+  color: #8b5cf6;
+}
+
+.power-name {
+  font-weight: bold;
+  color: #e2e8f0;
+}
+
+.power-description {
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+.close-rules-button {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 15px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  align-self: flex-end;
+  transition: background-color 0.3s ease;
+}
+
+.close-rules-button:hover {
+  background-color: #7c3aed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .moon-bid-game {
+    padding: 10px;
+  }
+  
+  .game-modes {
+    grid-template-columns: 1fr;
+  }
+  
+  .card {
+    width: 60px;
+    height: 90px;
+  }
+  
+  .player-stats {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .active-trick {
+    flex-wrap: wrap;
+  }
+  
+  .rules-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .special-powers-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* AI Thinking indicator */
+.ai-thinking {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(30, 41, 59, 0.8);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.thinking-dots {
+  display: flex;
+}
+
+.thinking-dot {
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: thinking 1.4s infinite ease-in-out;
+}
+
+.thinking-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.thinking-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinking {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Effects overlay */
+.effects-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.moon-particles {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: floatParticle 8s linear infinite;
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(100%) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px);
+    opacity: 0;
+  }
+}
+
+.seasonal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.seasonal-overlay.spring {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0) 70%);
+}
+
+.seasonal-overlay.summer {
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, rgba(249, 115, 22, 0) 70%);
+}
+
+.seasonal-overlay.fall {
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.1) 0%, rgba(217, 119, 6, 0) 70%);
+}
+
+.seasonal-overlay.winter {
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0) 70%);
+}

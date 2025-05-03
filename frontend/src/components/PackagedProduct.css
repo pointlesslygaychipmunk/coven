@@ -1,0 +1,261 @@
+.packaged-product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.packaged-product:hover {
+  transform: translateY(-5px);
+}
+
+/* Size variations */
+.packaged-product.small .package-container {
+  width: 80px;
+  height: 100px;
+}
+
+.packaged-product.medium .package-container {
+  width: 120px;
+  height: 150px;
+}
+
+.packaged-product.large .package-container {
+  width: 160px;
+  height: 200px;
+}
+
+.package-container {
+  border: 5px solid;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Rarity effects */
+.packaged-product.basic .package-container {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.packaged-product.standard .package-container {
+  box-shadow: 0 3px 6px rgba(139, 107, 61, 0.3);
+}
+
+.packaged-product.quality .package-container {
+  box-shadow: 0 4px 8px rgba(74, 148, 81, 0.4);
+}
+
+.packaged-product.premium .package-container {
+  box-shadow: 0 5px 10px rgba(74, 120, 197, 0.5);
+}
+
+.packaged-product.masterpiece .package-container {
+  box-shadow: 0 8px 16px rgba(156, 39, 176, 0.6);
+  animation: shimmerEffect 2s infinite alternate;
+}
+
+@keyframes shimmerEffect {
+  0% {
+    box-shadow: 0 8px 16px rgba(156, 39, 176, 0.6);
+  }
+  25% {
+    box-shadow: 0 8px 16px rgba(214, 41, 118, 0.6);
+  }
+  50% {
+    box-shadow: 0 8px 16px rgba(250, 126, 30, 0.6);
+  }
+  75% {
+    box-shadow: 0 8px 16px rgba(254, 218, 117, 0.6);
+  }
+  100% {
+    box-shadow: 0 8px 16px rgba(156, 39, 176, 0.6);
+  }
+}
+
+.package-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  position: relative;
+}
+
+.product-icon {
+  font-size: 2rem;
+  margin-bottom: 5px;
+  z-index: 2;
+}
+
+.small .product-icon {
+  font-size: 1.5rem;
+}
+
+.large .product-icon {
+  font-size: 2.5rem;
+}
+
+.packaging-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.material-element,
+.design-element,
+.effect-element {
+  font-size: 1.8rem;
+  position: absolute;
+}
+
+.material-element {
+  top: 5px;
+  left: 5px;
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+.design-element {
+  opacity: 0.3;
+  font-size: 4rem;
+  transform: rotate(-15deg);
+}
+
+.effect-element {
+  bottom: 5px;
+  right: 5px;
+  font-size: 1.2rem;
+  animation: pulseEffect 2s infinite alternate;
+}
+
+@keyframes pulseEffect {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 0.7; transform: scale(1.1); }
+}
+
+.brand-element {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
+  opacity: 0.8;
+  z-index: 3;
+}
+
+.package-type {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 1.2rem;
+  opacity: 0.7;
+  z-index: 2;
+}
+
+.product-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 5px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.packaging-name {
+  font-size: 0.7rem;
+  font-style: italic;
+  text-align: center;
+  opacity: 0.8;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* Product details section */
+.product-details {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.8rem;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 5px;
+  border: 1px solid rgba(139, 107, 61, 0.2);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #5d4433;
+}
+
+.detail-value {
+  color: #8b6b3d;
+}
+
+/* Quality indicators */
+.quality-basic {
+  color: #777;
+}
+
+.quality-standard {
+  color: #8b6b3d;
+}
+
+.quality-quality {
+  color: #4a9451;
+}
+
+.quality-premium {
+  color: #4a78c5;
+}
+
+.quality-masterpiece {
+  color: #9c27b0;
+  text-shadow: 0 0 3px rgba(156, 39, 176, 0.3);
+}
+
+.value-modifier.positive {
+  color: #4a9451;
+  font-weight: 600;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .packaged-product.medium .package-container {
+    width: 100px;
+    height: 125px;
+  }
+  
+  .packaged-product.large .package-container {
+    width: 130px;
+    height: 160px;
+  }
+}

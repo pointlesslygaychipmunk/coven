@@ -15,7 +15,14 @@ import {
   findCardById, 
   getCardsBySeason, 
   getCardsByElement 
-} from 'coven-shared/src/tarotCards';
+} from 'coven-shared';
+import {
+  getWeatherInfo,
+  getSeasonInfo,
+  getMoonPhaseInfo,
+  calculateManaGeneration,
+  adaptPlantForDisplay
+} from '../utils';
 
 interface GardenProps {
   plots: GardenSlot[];
@@ -130,15 +137,12 @@ const Garden: React.FC<GardenProps> = ({
       
       // Find the tarot card definition for this plant
       const card = findCardById(plot.plant.tarotCardId);
-      if (!card || card.type !== 'tree' || !plot.plant.mature) return total;
+      if (!card) return total;
       
-      // Calculate mana based on card properties, growth stage, and alignment
-      const baseMana = card.manaGeneration || 0;
-      const moonBonus = card.moonPhaseAffinity === moonPhase ? 1.5 : 1;
-      const seasonBonus = card.seasonAffinity === season ? 1.3 : 1;
+      // Use utility function to calculate mana generation
+      const plantMana = calculateManaGeneration(card, plot.plant, moonPhase, season);
       
-      // Mature trees generate more mana
-      return total + (baseMana * moonBonus * seasonBonus * (plot.plant.mature ? 1 : 0.2));
+      return total + plantMana;
     }, 0);
     
     setManaAvailable(totalMana);
@@ -389,17 +393,7 @@ const Garden: React.FC<GardenProps> = ({
 
   // Render weather indicator
   const renderWeatherIndicator = () => {
-    let icon: string;
-    let label: string = weatherFate.charAt(0).toUpperCase() + weatherFate.slice(1);
-
-    switch (weatherFate) {
-      case 'rainy': icon = '🌧️'; break;
-      case 'dry': icon = '☀️'; break;
-      case 'foggy': icon = '🌫️'; break;
-      case 'windy': icon = '💨'; break;
-      case 'stormy': icon = '⛈️'; break;
-      case 'normal': default: icon = '🌤️'; label = 'Clear'; break;
-    }
+    const { icon, label } = getWeatherInfo(weatherFate);
     return (
       <div className="weather-indicator">
         <div className="weather-icon">{icon}</div>
@@ -410,16 +404,9 @@ const Garden: React.FC<GardenProps> = ({
 
   // Render season indicator
   const renderSeasonIndicator = () => {
-    let icon: string;
-    switch (season) {
-      case 'Spring': icon = '🌱'; break;
-      case 'Summer': icon = '☀️'; break;
-      case 'Fall': icon = '🍂'; break;
-      case 'Winter': icon = '❄️'; break;
-      default: icon = '❔';
-    }
+    const { icon, className } = getSeasonInfo(season);
     return (
-      <div className="season-indicator">
+      <div className={`season-indicator ${className}`}>
         <div className="season-icon">{icon}</div>
         <div className="season-label">{season}</div>
       </div>
@@ -467,7 +454,8 @@ const Garden: React.FC<GardenProps> = ({
     }
 
     // Details for unlocked plot
-    const plant = selectedPlot.plant;
+    const originalPlant = selectedPlot.plant;
+    const plant = adaptPlantForDisplay(originalPlant);
     const growthPercent = plant?.growth !== undefined && plant.maxGrowth
                         ? Math.min(100, Math.max(0, (plant.growth / plant.maxGrowth) * 100))
                         : 0;

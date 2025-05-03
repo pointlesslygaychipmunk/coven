@@ -18,7 +18,7 @@ export type MoonPhase =
 
 // --- Item Foundational Types ---
 
-export type ItemType = 'potion' | 'charm' | 'talisman' | 'ingredient' | 'seed' | 'tool' | 'ritual_item' | 'essence' | 'oil' | 'tonic' | 'mask' | 'elixir' | 'tree';
+export type ItemType = 'potion' | 'charm' | 'talisman' | 'ingredient' | 'seed' | 'tool' | 'ritual_item' | 'essence' | 'oil' | 'tonic' | 'mask' | 'elixir' | 'tree' | 'packaging_material' | 'design_style' | 'special_effect';
 export type ItemCategory =
   // Ingredients
   'herb' | 'flower' | 'root' | 'fruit' | 'mushroom' | 'leaf' | 'succulent' | 'essence' | 'crystal' |
@@ -26,6 +26,8 @@ export type ItemCategory =
   'tree' | 'plant' | 
   // Potions/Products
   'mask' | 'serum' | 'tonic' | 'elixir' | 'oil' | 'potion' |
+  // Packaging System
+  'packaging_material' | 'design_style' | 'special_effect' | 'brand' | 'package_design' |
   // Other
   'seed' | 'tool' | 'ritual_item' | 'charm' | 'talisman' | 'misc';
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
@@ -213,6 +215,32 @@ export type Plant = {
   specialTraits?: string[]; // Special traits gained during growth
 };
 
+// DisplayPlant is an extension of Plant with frontend-specific properties
+export interface DisplayPlant {
+  id: string;
+  name: string;
+  growth: number;
+  maxGrowth: number;
+  health: number;
+  mature: boolean;
+  watered: boolean;
+  age: number;
+  category?: string;
+  moonBlessed?: boolean;
+  seasonalModifier?: number;
+  mutations?: string[];
+  tarotCardId?: string;
+  // Additional properties from the new Plant type
+  moonBlessing?: number;
+  seasonalResonance?: number;
+  elementalHarmony?: number;
+  growthStage?: string;
+  qualityModifier?: number;
+  specialTraits?: string[];
+  // Allow additional properties
+  [key: string]: any;
+};
+
 export type GardenSlot = {
   id: number;             // Unique ID for the plot (e.g., 0-8)
   plant: Plant | null;    // The plant currently growing here, or null if empty
@@ -300,6 +328,11 @@ export type Player = {
   totalManaGenerated: number;      // Lifetime total mana generated from trees
   manaEfficiency: number;          // Efficiency of mana usage (0-100)
   
+  // Ritual and Effect System
+  activeBuffs?: PlayerBuff[];      // Active buffs from rituals and other sources
+  canTransmute?: boolean;          // Whether player can perform transmutation
+  transmuteEnergy?: number;        // Available transmutation energy
+  
   // Reputation & Standing
   reputation: number;              // Overall reputation
   townReputations: Record<string, number>; // Reputation with specific towns
@@ -320,6 +353,13 @@ export type Player = {
   activeCards: string[];           // IDs of cards currently in active use
   garden: GardenSlot[];
   gardenManaGrid: number[][];      // 2D grid of mana flow in garden
+  
+  // Packaging Inventory
+  packagingMaterials: Material[];  // Packaging materials in inventory  
+  packagingDesignStyles: DesignStyle[];  // Design styles known
+  packagingEffects: SpecialEffect[];  // Special effects available
+  packagingBrands: Brand[];        // Brands developed
+  packagingDesigns: PackagingDesign[];  // Saved packaging designs
   
   // Knowledge & Progress
   knownRecipes: string[];          // IDs of recipes personally known
@@ -384,6 +424,18 @@ export type MarketData = {
 };
 
 // --- Quest & Journal Types ---
+
+export type PlayerBuff = {
+  id: string;                    // Unique identifier for the buff
+  name: string;                  // Display name
+  effect: string;                // Type of effect (qualityBonus, brewingBonus, etc.)
+  value: number;                 // Numerical value of the effect
+  duration: number;              // Number of turns the buff lasts
+  source: 'ritual' | 'potion' | 'item' | 'event' | 'moon' | 'season'; // Source of the buff
+  element?: ElementType;         // Associated element if relevant
+  description?: string;          // Descriptive text
+  iconPath?: string;             // Path to icon graphic
+};
 
 export type TownRequest = {
   id: string;
@@ -481,3 +533,119 @@ export type Event = {
 
 // --- Action Log (if needed later) ---
 // export type ActionLog = { ... };
+
+// --- Packaging System Types ---
+
+// Import the main packaging types from packagingSystem to maintain alignment
+import {
+  PackagingMaterial,
+  DesignStyle as BackendDesignStyle,
+  LabelStyle,
+  PackagingEffect,
+  MaterialQuality,
+  PackagingType,
+  DesignElement
+} from './packagingSystem.js';
+
+// Frontend adapted Material type
+export type Material = {
+  id: string;
+  name: string;
+  description: string;
+  durability: number;         // 1-10
+  qualityLevel: number;       // 1-10
+  specialProperty?: string;
+  quantity?: number;
+  icon: string;               // Emoji representation
+  materialType: PackagingMaterial;
+  materialQuality: MaterialQuality;
+  elementalAffinity?: ElementType;
+  value: number;
+};
+
+// Frontend adapted Design Style
+export type DesignStyle = {
+  id: string;
+  name: string;
+  description: string;
+  complexityLevel: number;    // 1-10
+  customerAppeal: number;     // 1-10
+  marketBonus?: string;
+  icon: string;               // Emoji representation
+  designStyle: BackendDesignStyle;
+  elementalAffinity?: ElementType;
+  specializationAffinity?: AtelierSpecialization;
+};
+
+// Frontend adapted Special Effect
+export type SpecialEffect = {
+  id: string;
+  name: string;
+  description: string;
+  rarity: number;             // 1-10
+  power: number;              // 1-10
+  duration?: string;
+  quantity?: number;
+  icon: string;               // Emoji representation
+  effectType: PackagingEffect;
+  potencyBonus: number;
+  durabilityEffect: number;
+  specializationAffinity?: AtelierSpecialization;
+};
+
+// Frontend adapted Brand Identity
+export type Brand = {
+  id: string;
+  name: string;
+  description: string;
+  reputation: number;         // 1-10
+  recognition: number;        // 1-10
+  signature?: string;
+  icon: string;               // Emoji representation
+  tagline: string;
+  colorPalette: string[];
+  brandValues: string[];
+  specialization: AtelierSpecialization;
+  elementalAffinity: ElementType;
+};
+
+// Frontend adapted Packaging Design
+export type PackagingDesign = {
+  id: string;
+  name: string;
+  material: Material;
+  designStyle: DesignStyle;
+  specialEffect?: SpecialEffect | null;
+  brand?: Brand | null;
+  colors: {
+    base: string;             // HEX color
+    accent: string;           // HEX color
+  };
+  qualityScore: number;       // 0-100
+  packagingType?: PackagingType;
+  labelStyle?: LabelStyle;
+  designElements?: DesignElement[];
+  specialEffects?: PackagingEffect[];
+  lore?: string;
+  seasonalTheme?: string;
+  collectorValue?: number;
+  creationDate?: number;
+};
+
+// Frontend adapted Product type (for packaging)
+export type Product = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  type: ItemType;
+  category: ItemCategory;
+  value: number;
+  rarity: Rarity;
+  packaging?: PackagingDesign;
+  enhancedValue?: number;
+  potencyBoost?: number;
+  marketAppeal?: number;
+  shelfLife?: number;
+  packagingEffects?: string[];
+};

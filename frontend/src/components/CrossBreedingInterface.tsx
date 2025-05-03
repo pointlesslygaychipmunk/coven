@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CrossBreedingInterface.css';
-import { Plant, Season, MoonPhase } from 'coven-shared';
+import { Plant, Season, MoonPhase, DisplayPlant, adaptPlantForDisplay, isDisplayPlant } from 'coven-shared';
+import { getPlantIcon } from '../utils';
 
 interface CrossBreedingResult {
   success: boolean;
@@ -16,7 +17,11 @@ interface CrossBreedingResult {
 }
 
 interface CrossBreedingInterfaceProps {
-  plants: Plant[];
+  playerGarden: { 
+    plant: Plant | null;
+    id: number;
+    [key: string]: any;
+  }[];
   onCrossBreed: (plant1Id: string, plant2Id: string) => Promise<CrossBreedingResult>;
   onClose: () => void;
   currentSeason: Season;
@@ -25,7 +30,7 @@ interface CrossBreedingInterfaceProps {
 }
 
 const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
-  plants,
+  playerGarden,
   onCrossBreed,
   onClose,
   // currentSeason, // Unused but kept in props definition for API consistency
@@ -33,8 +38,8 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   playerGardeningSkill
 }) => {
   // Selected plants for cross-breeding
-  const [selectedPlant1, setSelectedPlant1] = useState<Plant | null>(null);
-  const [selectedPlant2, setSelectedPlant2] = useState<Plant | null>(null);
+  const [selectedPlant1, setSelectedPlant1] = useState<DisplayPlant | null>(null);
+  const [selectedPlant2, setSelectedPlant2] = useState<DisplayPlant | null>(null);
   
   // UI states
   const [isLoading, setIsLoading] = useState(false);
@@ -45,8 +50,13 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   const [compatibility, setCompatibility] = useState<number>(0);
   const [currentView, setCurrentView] = useState<'selectParent1' | 'selectParent2' | 'review'>('selectParent1');
   
+  // Get plants from garden and convert them to DisplayPlant format
+  const plants = playerGarden
+    .filter(slot => slot.plant !== null)
+    .map(slot => adaptPlantForDisplay(slot.plant));
+  
   // Get mature plants that can be cross-bred
-  const eligiblePlants = plants.filter(plant => plant.mature);
+  const eligiblePlants = plants.filter(plant => plant && plant.mature);
   
   // Effect to calculate cross-breeding success probability
   useEffect(() => {
@@ -76,16 +86,20 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   }, [selectedPlant1, selectedPlant2, playerGardeningSkill, currentMoonPhase]);
   
   // Handle plant selection
-  const handlePlantSelect = (plant: Plant) => {
+  const handlePlantSelect = (plant: Plant | DisplayPlant) => {
+    // Convert Plant to DisplayPlant if needed
+    const displayPlant = isDisplayPlant(plant) ? plant : adaptPlantForDisplay(plant as Plant);
+    if (!displayPlant) return;
+    
     if (currentView === 'selectParent1') {
-      setSelectedPlant1(plant);
+      setSelectedPlant1(displayPlant);
       setCurrentView('selectParent2');
     } else if (currentView === 'selectParent2') {
       // Don't allow selecting the same plant twice
-      if (selectedPlant1 && plant.id === selectedPlant1.id) {
+      if (selectedPlant1 && displayPlant.id === selectedPlant1.id) {
         return;
       }
-      setSelectedPlant2(plant);
+      setSelectedPlant2(displayPlant);
       setCurrentView('review');
     }
   };
@@ -213,17 +227,36 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
                 onClick={() => handlePlantSelect(plant)}
               >
                 <div className="plant-icon">
-                  {plant.category === 'herb' ? '🌿' :
-                   plant.category === 'flower' ? '🌹' :
-                   plant.category === 'root' ? '🥕' :
-                   plant.category === 'mushroom' ? '🍄' : '🌱'}
+                  {getPlantIcon(plant.category || plant.name, plant.growthStage)}
                 </div>
                 <div className="plant-details">
                   <div className="plant-name">{plant.name}</div>
                   <div className="plant-traits">
-                    {plant.moonBlessed && <span className="trait moon-blessed">Moon Blessed</span>}
+                    {plant.moonBlessed && (
+                      <span 
+                        className="trait moon-blessed tooltip-container"
+                        tabIndex={0}
+                        role="button"
+                        aria-label="Moon Blessed - Click for more info"
+                      >
+                        Moon Blessed
+                        <div className="trait-tooltip" role="tooltip">
+                          <p>This plant has been blessed by moonlight, enhancing its magical properties.</p>
+                        </div>
+                      </span>
+                    )}
                     {plant.mutations && plant.mutations.length > 0 && (
-                      <span className="trait mutation">Mutated</span>
+                      <span 
+                        className="trait mutation tooltip-container"
+                        tabIndex={0}
+                        role="button"
+                        aria-label="Mutated - Click for more info"
+                      >
+                        Mutated
+                        <div className="trait-tooltip" role="tooltip">
+                          <p>This plant has one or more mutations that affect its traits and growth patterns.</p>
+                        </div>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -272,16 +305,36 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
         <div className="parents-container">
           <div className="parent-plant">
             <div className="parent-icon">
-              {selectedPlant1.category === 'herb' ? '🌿' :
-               selectedPlant1.category === 'flower' ? '🌹' :
-               selectedPlant1.category === 'root' ? '🥕' :
-               selectedPlant1.category === 'mushroom' ? '🍄' : '🌱'}
+              {getPlantIcon(selectedPlant1.category || selectedPlant1.name, selectedPlant1.growthStage)}
             </div>
             <div className="parent-name">{selectedPlant1.name}</div>
             <div className="parent-traits">
-              {selectedPlant1.moonBlessed && <span className="trait moon-blessed">Moon Blessed</span>}
+              {selectedPlant1.moonBlessed && (
+                <span
+                  className="trait moon-blessed tooltip-container"
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Moon Blessed - Click for more info"
+                >
+                  Moon Blessed
+                  <div className="trait-tooltip" role="tooltip">
+                    <p>This plant has been blessed by moonlight, enhancing its magical properties.</p>
+                  </div>
+                </span>
+              )}
               {selectedPlant1.mutations && selectedPlant1.mutations.map((mutation, idx) => (
-                <span key={idx} className="trait mutation">{mutation}</span>
+                <span
+                  key={idx}
+                  className="trait mutation tooltip-container"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${mutation} mutation - Click for more info`}
+                >
+                  {mutation}
+                  <div className="trait-tooltip" role="tooltip">
+                    <p>A unique mutation that affects this plant's growth and properties.</p>
+                  </div>
+                </span>
               ))}
             </div>
           </div>
@@ -290,16 +343,36 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
           
           <div className="parent-plant">
             <div className="parent-icon">
-              {selectedPlant2.category === 'herb' ? '🌿' :
-               selectedPlant2.category === 'flower' ? '🌹' :
-               selectedPlant2.category === 'root' ? '🥕' :
-               selectedPlant2.category === 'mushroom' ? '🍄' : '🌱'}
+              {getPlantIcon(selectedPlant2.category || selectedPlant2.name, selectedPlant2.growthStage)}
             </div>
             <div className="parent-name">{selectedPlant2.name}</div>
             <div className="parent-traits">
-              {selectedPlant2.moonBlessed && <span className="trait moon-blessed">Moon Blessed</span>}
+              {selectedPlant2.moonBlessed && (
+                <span
+                  className="trait moon-blessed tooltip-container"
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Moon Blessed - Click for more info"
+                >
+                  Moon Blessed
+                  <div className="trait-tooltip" role="tooltip">
+                    <p>This plant has been blessed by moonlight, enhancing its magical properties.</p>
+                  </div>
+                </span>
+              )}
               {selectedPlant2.mutations && selectedPlant2.mutations.map((mutation, idx) => (
-                <span key={idx} className="trait mutation">{mutation}</span>
+                <span
+                  key={idx}
+                  className="trait mutation tooltip-container"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${mutation} mutation - Click for more info`}
+                >
+                  {mutation}
+                  <div className="trait-tooltip" role="tooltip">
+                    <p>A unique mutation that affects this plant's growth and properties.</p>
+                  </div>
+                </span>
               ))}
             </div>
           </div>
@@ -390,10 +463,7 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
       <div className="cross-breeding-process">
         <div className="process-animation">
           <div className="parent-icon left">
-            {selectedPlant1?.category === 'herb' ? '🌿' :
-             selectedPlant1?.category === 'flower' ? '🌹' :
-             selectedPlant1?.category === 'root' ? '🥕' :
-             selectedPlant1?.category === 'mushroom' ? '🍄' : '🌱'}
+            {selectedPlant1 ? getPlantIcon(selectedPlant1.category || selectedPlant1.name, selectedPlant1.growthStage) : '🌱'}
           </div>
           
           <div className="animation-container">
@@ -402,10 +472,7 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
           </div>
           
           <div className="parent-icon right">
-            {selectedPlant2?.category === 'herb' ? '🌿' :
-             selectedPlant2?.category === 'flower' ? '🌹' :
-             selectedPlant2?.category === 'root' ? '🥕' :
-             selectedPlant2?.category === 'mushroom' ? '🍄' : '🌱'}
+            {selectedPlant2 ? getPlantIcon(selectedPlant2.category || selectedPlant2.name, selectedPlant2.growthStage) : '🌱'}
           </div>
         </div>
         
@@ -452,7 +519,20 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
                   <div className="traits-list">
                     {result.traitInheritance.fromParent1.length > 0 ? 
                       result.traitInheritance.fromParent1.map((trait, idx) => (
-                        <div key={idx} className="trait-item">{trait.name}</div>
+                        <div 
+                          key={idx} 
+                          className="trait-item tooltip-container"
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`${trait.name} - Click for more info`}
+                        >
+                          <span className="trait-name">{trait.name}</span>
+                          {trait.description && (
+                            <div className="trait-tooltip" role="tooltip">
+                              <p>{trait.description}</p>
+                            </div>
+                          )}
+                        </div>
                       )) : 
                       <div className="no-traits">None</div>
                     }
@@ -464,7 +544,20 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
                   <div className="traits-list">
                     {result.traitInheritance.fromParent2.length > 0 ? 
                       result.traitInheritance.fromParent2.map((trait, idx) => (
-                        <div key={idx} className="trait-item">{trait.name}</div>
+                        <div 
+                          key={idx} 
+                          className="trait-item tooltip-container"
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`${trait.name} - Click for more info`}
+                        >
+                          <span className="trait-name">{trait.name}</span>
+                          {trait.description && (
+                            <div className="trait-tooltip" role="tooltip">
+                              <p>{trait.description}</p>
+                            </div>
+                          )}
+                        </div>
                       )) : 
                       <div className="no-traits">None</div>
                     }
@@ -473,10 +566,25 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
                 
                 {result.traitInheritance.newMutations.length > 0 && (
                   <div className="traits-section">
-                    <div className="traits-header mutation-header">New Mutations:</div>
-                    <div className="traits-list">
+                    <div className="traits-header mutation-header">
+                      <span>✨ New Mutations ✨</span>
+                    </div>
+                    <div className="traits-list mutations-list">
                       {result.traitInheritance.newMutations.map((trait, idx) => (
-                        <div key={idx} className="trait-item mutation">{trait.name}</div>
+                        <div 
+                          key={idx} 
+                          className="trait-item mutation tooltip-container"
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`New mutation: ${trait.name} - Click for more info`}
+                        >
+                          <span className="trait-name">{trait.name}</span>
+                          {trait.description && (
+                            <div className="trait-tooltip" role="tooltip">
+                              <p>{trait.description}</p>
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>

@@ -627,6 +627,120 @@
   font-size: 0.9rem;
 }
 
+/* Tooltip styles */
+.tooltip-container {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tooltip-container::after {
+  content: 'ⓘ';
+  font-size: 0.6rem;
+  opacity: 0.7;
+  margin-left: 2px;
+  vertical-align: super;
+}
+
+.trait-tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 250px;
+  background-color: #f9f3e6;
+  border: 1px solid #8b6b3d;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #5d4433;
+  font-size: 0.85rem;
+  font-weight: normal;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+  pointer-events: none;
+}
+
+.trait-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #8b6b3d transparent transparent transparent;
+}
+
+.tooltip-container:hover .trait-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Add focus support for keyboard navigation */
+.tooltip-container:focus .trait-tooltip,
+.tooltip-container:focus-within .trait-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Special styling for mutation tooltips */
+.trait-item.mutation .trait-tooltip {
+  background-color: #f9f0fd;
+  border-color: #7b1fa2;
+}
+
+.trait-item.mutation .trait-tooltip::after {
+  border-color: #7b1fa2 transparent transparent transparent;
+}
+
+/* Special styling for moon-blessed tooltips */
+.trait.moon-blessed .trait-tooltip {
+  background-color: #f0f5fd;
+  border-color: #4a5b87;
+}
+
+.trait.moon-blessed .trait-tooltip::after {
+  border-color: #4a5b87 transparent transparent transparent;
+}
+
+.trait-tooltip p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Add mobile-friendly considerations */
+@media (max-width: 768px) {
+  .trait-tooltip {
+    max-width: 200px;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  /* For touch devices, make tooltips appear below elements on mobile */
+  .plant-traits .tooltip-container .trait-tooltip {
+    bottom: auto;
+    top: 125%;
+  }
+  
+  .plant-traits .tooltip-container .trait-tooltip::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent #8b6b3d transparent;
+  }
+  
+  .plant-traits .trait.mutation .trait-tooltip::after {
+    border-color: transparent transparent #7b1fa2 transparent;
+  }
+  
+  .plant-traits .trait.moon-blessed .trait-tooltip::after {
+    border-color: transparent transparent #4a5b87 transparent;
+  }
+}
+
 .result-actions {
   display: flex;
   justify-content: center;

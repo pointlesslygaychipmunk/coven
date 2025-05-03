@@ -130,7 +130,24 @@ app.post('/api/ritual/claim', (req: Request, res: Response): void => {
     if (!playerId || !ritualId) {
         res.status(400).json({ error: 'Missing params: playerId, ritualId required' }); return;
     }
-    handleRequest(() => gameHandler.claimRitualReward(playerId, ritualId), res, 'claim');
+    handleRequest(() => gameHandler.claimRitualReward(playerId, ritualId), res, 'claim ritual reward');
+});
+
+// New endpoints for ritual system
+app.post('/api/ritual/perform', (req: Request, res: Response): void => {
+    const { playerId, ritualId, cardPlacements } = req.body;
+    if (!playerId || !ritualId || !cardPlacements) {
+        res.status(400).json({ error: 'Missing params: playerId, ritualId, cardPlacements required' }); return;
+    }
+    handleRequest(() => gameHandler.performRitual(playerId, ritualId, cardPlacements), res, 'perform ritual');
+});
+
+app.post('/api/ritual/rewards', (req: Request, res: Response): void => {
+    const { playerId, ritualId, ritualPower } = req.body;
+    if (!playerId || !ritualId || ritualPower === undefined) {
+        res.status(400).json({ error: 'Missing params: playerId, ritualId, ritualPower required' }); return;
+    }
+    handleRequest(() => gameHandler.claimRitualRewards(playerId, ritualId, Number(ritualPower)), res, 'claim ritual rewards');
 });
 
 app.post('/api/end-turn', (req: Request, res: Response): void => {

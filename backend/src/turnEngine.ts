@@ -32,6 +32,59 @@ function determineWeather(time: GameTime): WeatherFate {
 }
 
 
+// Process active buffs on a player (from rituals and other sources)
+function processPlayerBuffs(player: Player, turnEvents: Array<{text: string, category: string, importance: number, player?: string}>): void {
+    if (!player.activeBuffs || player.activeBuffs.length === 0) return;
+
+    // Process each active buff
+    const expiredBuffs: string[] = [];
+    const remainingBuffs: typeof player.activeBuffs = [];
+
+    player.activeBuffs.forEach(buff => {
+        // Decrement duration
+        buff.duration--;
+        
+        // If expired, add to expired list
+        if (buff.duration <= 0) {
+            expiredBuffs.push(buff.id);
+            turnEvents.push({
+                text: `${buff.name} effect has expired.`,
+                category: 'buff',
+                importance: 2,
+                player: player.id
+            });
+        } else {
+            // Buff is still active
+            remainingBuffs.push(buff);
+            
+            // Apply turn-based buff effects
+            if (buff.effect === 'manaRegen') {
+                const manaGain = Math.round(buff.value);
+                player.mana += manaGain;
+                turnEvents.push({
+                    text: `${buff.name}: Gained ${manaGain} mana.`,
+                    category: 'buff',
+                    importance: 2,
+                    player: player.id
+                });
+            }
+            
+            // Log remaining duration for important buffs
+            if (buff.duration === 1) {
+                turnEvents.push({
+                    text: `${buff.name} will expire soon.`,
+                    category: 'buff',
+                    importance: 1,
+                    player: player.id
+                });
+            }
+        }
+    });
+    
+    // Update player's active buffs
+    player.activeBuffs = remainingBuffs;
+}
+
 // Process growth, health, and weather effects for a single plant
 function applyGrowthAndWeather( plant: Plant, slot: GardenSlot, weather: WeatherFate, currentPhase: MoonPhase, currentSeason: Season ): { didGrow: boolean, didWither: boolean, becameMature: boolean, messages: string[] } {
     if (!plant) return { didGrow: false, didWither: false, becameMature: false, messages: [] };
@@ -185,6 +238,9 @@ export function processTurn(state: GameState): GameState {
 
     // Process each player
     state.players.forEach((player: Player) => {
+        // Process player's active buffs
+        processPlayerBuffs(player, turnEvents);
+        
         // Process garden plots
         player.garden.forEach((slot: GardenSlot) => {
              if (slot.isUnlocked === false) return; // Skip locked plots

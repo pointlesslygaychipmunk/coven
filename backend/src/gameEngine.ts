@@ -20,6 +20,18 @@ import { RITUAL_QUESTS, progressRituals, checkQuestStepCompletion, claimRitualRe
 import { SPECIALIZATIONS, getSpecializationBonus } from "./atelier.js";
 import { findMatchingRecipe, brewPotion as performBrewing, Recipe, getRecipeById, discoverRecipe as discoverRecipeSystem } from "./brewing.js";
 import { calculateHarvestQuality, getIngredientById, Ingredient, SeedItem } from "./ingredients.js"; // Ensure Ingredient/SeedItem are available
+import { 
+    rituals, Ritual, calculateRitualPower, 
+    calculateRitualSuccess, applyRitualEffects as applyRitualEffectsSystem,
+    CardPosition
+} from "coven-shared";
+
+// Define ritual reward type
+type RitualReward = {
+    type: string;
+    value: string;
+    quantity: number;
+};
 
 const DEFAULT_ITEM_QUALITY = 70;
 const STARTING_GARDEN_SLOTS = 3; // Initial unlocked slots
@@ -822,6 +834,498 @@ export class GameEngine {
     createCustomRumor( content: string, itemName: string, priceEffect: number, origin?: string, initialSpread?: number, duration?: number, verified?: boolean ): boolean {
         const rumor = createCustomRumor(this.state, content, itemName, priceEffect, origin, initialSpread, duration, verified);
         return !!rumor; // Return true if rumor was created
+    }
+    
+    // Ritual System Implementation
+    
+    // Perform a ritual with the given cards
+    performRitual(
+        playerId: string, 
+        ritualId: string, 
+        cardPlacements: Record<CardPosition, string | null>
+    ): { 
+        success: boolean;
+        power: number;
+        successChance: number;
+        effects?: Record<string, any>;
+        message: string;
+    } {
+        const player = this.state.players.find(p => p.id === playerId);
+        if (!player) {
+            return {
+                success: false,
+                power: 0,
+                successChance: 0,
+                message: "Player not found."
+            };
+        }
+        
+        // Find the ritual
+        const ritual = rituals.find(r => r.id === ritualId);
+        if (!ritual) {
+            return {
+                success: false,
+                power: 0,
+                successChance: 0,
+                message: "Ritual not found."
+            };
+        }
+        
+        // Check if player has enough mana
+        if (player.mana < ritual.manaCost) {
+            return {
+                success: false,
+                power: 0,
+                successChance: 0,
+                message: `Not enough mana. Need ${ritual.manaCost}, have ${player.mana}.`
+            };
+        }
+        
+        // Validate and resolve card placements
+        const cardPositions: Record<CardPosition, any> = {
+            center: null,
+            north: null,
+            east: null,
+            south: null,
+            west: null,
+            northeast: null,
+            southeast: null,
+            southwest: null,
+            northwest: null
+        };
+        
+        // Check required positions
+        for (const req of ritual.requirements) {
+            const position = req.position;
+            const cardId = cardPlacements[position];
+            
+            if (!cardId) {
+                if (req.specificCard) {
+                    return {
+                        success: false,
+                        power: 0,
+                        successChance: 0,
+                        message: `Missing required card at ${position} position.`
+                    };
+                }
+                cardPositions[position] = null;
+                continue;
+            }
+            
+            // Find card in player's inventory
+            const invItem = player.inventory.find(i => i.id === cardId);
+            if (!invItem) {
+                return {
+                    success: false,
+                    power: 0,
+                    successChance: 0,
+                    message: `Card ${cardId} not found in inventory.`
+                };
+            }
+            
+            // Convert inventory item to tarot card format
+            // In real implementation, we would have a more robust way to get card data
+            const cardForRitual = {
+                id: invItem.id,
+                name: invItem.name,
+                element: (invItem as any).element || 'Earth', // Default to Earth if not specified
+                rank: (invItem as any).rank || 1,
+                type: invItem.type || 'minor',
+                category: invItem.category || 'misc'
+            };
+            
+            cardPositions[position] = cardForRitual;
+        }
+        
+        // Calculate ritual power based on cards, moon phase, and season
+        const ritualPower = calculateRitualPower(
+            cardPositions,
+            ritual,
+            this.state.time.phaseName,
+            this.state.time.season
+        );
+        
+        // Calculate success chance based on power and player skill
+        const astrologySkill = player.skills.astrology || 1;
+        const { successChance, potencyModifier } = calculateRitualSuccess(
+            ritualPower,
+            astrologySkill
+        );
+        
+        // Deduct mana cost
+        player.mana -= ritual.manaCost;
+        
+        // Determine success
+        const isSuccessful = Math.random() * 100 <= successChance;
+        
+        // Handle ritual effects
+        let effects: Record<string, any> | undefined;
+        let resultMessage = '';
+        
+        if (isSuccessful) {
+            // Apply ritual effects
+            effects = applyRitualEffectsSystem(ritual, potencyModifier);
+            
+            // Process effects in the game state
+            this.applyRitualEffectsToGameState(player, effects);
+            
+            // Create result message
+            resultMessage = `Ritual "${ritual.name}" successful! `;
+            if (effects && effects.growth) resultMessage += `Plant growth boosted. `;
+            if (effects && effects.health) resultMessage += `Plant health improved. `;
+            if (effects && effects.quality) resultMessage += `Harvest quality enhanced. `;
+            if (effects && effects.fertility) resultMessage += `Soil fertility increased. `;
+            if (effects && effects.weather) resultMessage += `Weather influence successful. `;
+            if (effects && effects.transmutation) resultMessage += `Transmutation energy generated. `;
+            if (effects && effects.brewing) resultMessage += `Brewing potency enhanced. `;
+            
+            // Add journal entry
+            this.addJournal(`Ritual "${ritual.name}" performed successfully! Power: ${Math.round(ritualPower)}.`, 'ritual', 4);
+            
+            // Grant skill XP
+            const xpResult = addSkillXp(player, 'astrology', 0.5 + (ritualPower / 200));
+            if (xpResult.levelUp) {
+                this.addJournal(`${player.name}'s astrology reached level ${xpResult.newLevel}!`, 'skill', 4);
+            }
+            
+            // Check quest completion
+            checkQuestStepCompletion(this.state, player, 'ritual', {
+                ritualId: ritual.id,
+                ritualName: ritual.name,
+                power: ritualPower
+            });
+        } else {
+            resultMessage = `Ritual "${ritual.name}" failed. The energies dissipated unsuccessfully.`;
+            this.addJournal(`Ritual "${ritual.name}" failed. Success chance was ${Math.round(successChance)}%.`, 'ritual', 2);
+            
+            // Still grant a little XP for the attempt
+            addSkillXp(player, 'astrology', 0.1);
+        }
+        
+        return {
+            success: isSuccessful,
+            power: ritualPower,
+            successChance,
+            effects,
+            message: resultMessage
+        };
+    }
+    
+    // Apply ritual effects to the game state
+    applyRitualEffectsToGameState(player: Player, effects: Record<string, any> | undefined): void {
+        if (!effects) return;
+        
+        // Apply growth effects to garden
+        if (effects.growth && player.garden) {
+            player.garden.forEach(slot => {
+                if (slot.plant && !slot.plant.mature) {
+                    // Boost growth by the effect amount (as percentage)
+                    const growthBoost = Math.ceil((slot.plant.maxGrowth - slot.plant.growth) * (effects.growth / 100));
+                    slot.plant.growth = Math.min(slot.plant.maxGrowth, slot.plant.growth + growthBoost);
+                    
+                    // Check if plant is now mature
+                    if (slot.plant.growth >= slot.plant.maxGrowth) {
+                        slot.plant.mature = true;
+                        slot.plant.growthStage = 'mature';
+                        this.addJournal(`A plant in plot ${slot.id + 1} matured from ritual energy!`, 'garden', 3);
+                    }
+                }
+            });
+            this.addJournal(`Garden growth accelerated by ritual energy.`, 'garden', 3);
+        }
+        
+        // Apply health effects to garden
+        if (effects.health && player.garden) {
+            player.garden.forEach(slot => {
+                if (slot.plant) {
+                    slot.plant.health = Math.min(100, slot.plant.health + effects.health);
+                }
+            });
+            this.addJournal(`Plant health improved by ritual energy.`, 'garden', 3);
+        }
+        
+        // Apply fertility effects to garden slots
+        if (effects.fertility && player.garden) {
+            player.garden.forEach(slot => {
+                slot.fertility = Math.min(100, (slot.fertility || 70) + effects.fertility);
+            });
+            this.addJournal(`Soil fertility enhanced by ritual energy.`, 'garden', 3);
+        }
+        
+        // Apply moisture effects to garden
+        if (effects.moisture && player.garden) {
+            player.garden.forEach(slot => {
+                slot.moisture = Math.min(100, (slot.moisture || 50) + effects.moisture);
+            });
+            this.addJournal(`Garden moisture increased by ritual energy.`, 'garden', 3);
+        }
+        
+        // Apply weather effects
+        if (effects.weather && effects.weather > 50) {
+            // Influence next day's weather
+            const weatherRoll = Math.random() * 100;
+            if (weatherRoll < effects.weather) {
+                // Choose weather based on ritual type and element
+                let newWeather = "normal";
+                
+                if (effects.elementBonus === "Water") {
+                    newWeather = "rainy";
+                } else if (effects.elementBonus === "Fire") {
+                    newWeather = "sunny";
+                } else if (effects.elementBonus === "Air") {
+                    newWeather = "windy";
+                } else if (effects.elementBonus === "Earth") {
+                    newWeather = "misty";
+                } else if (effects.elementBonus === "Spirit") {
+                    newWeather = "ethereal";
+                } else {
+                    // Default to a random beneficial weather
+                    const weathers = ["rainy", "sunny", "misty", "windy"];
+                    newWeather = weathers[Math.floor(Math.random() * weathers.length)];
+                }
+                
+                // Explicitly cast to WeatherFate type
+                this.state.time.weatherFate = newWeather as any;
+                this.addJournal(`The ritual has influenced tomorrow's weather (${newWeather}).`, 'weather', 4);
+            }
+        }
+        
+        // Apply market insight effects
+        if (effects.marketInsight && effects.marketInsight > 30) {
+            // Reveal price trends for random items
+            const numItemsToReveal = Math.ceil(effects.marketInsight / 20);
+            const marketItems = [...this.state.market];
+            const revealedItems = [];
+            
+            for (let i = 0; i < numItemsToReveal && marketItems.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * marketItems.length);
+                const item = marketItems.splice(randomIndex, 1)[0];
+                
+                if (item) {
+                    // Determine trend
+                    const demand = this.state.marketData.demand[item.name] || 50;
+                    const supply = this.state.marketData.supply[item.name] || 50;
+                    
+                    let trend = "stable";
+                    const delta = demand - supply;
+                    
+                    if (delta > 20) trend = "rising sharply";
+                    else if (delta > 10) trend = "rising";
+                    else if (delta < -20) trend = "falling sharply";
+                    else if (delta < -10) trend = "falling";
+                    
+                    revealedItems.push(`${item.name} (${trend})`);
+                }
+            }
+            
+            if (revealedItems.length > 0) {
+                this.addJournal(`Market Insight: ${revealedItems.join(", ")}`, 'market', 4);
+            }
+        }
+        
+        // Apply harmony effects (general bonus to player)
+        if (effects.harmony && effects.harmony > 50) {
+            // Add temporary buff to player
+            player.activeBuffs = player.activeBuffs || [];
+            player.activeBuffs.push({
+                id: `harmony-${Date.now()}`,
+                name: "Elemental Harmony",
+                effect: "qualityBonus",
+                value: effects.harmony / 5, // Convert to percentage bonus
+                duration: 3, // Lasts 3 turns
+                source: "ritual"
+            });
+            
+            this.addJournal(`Elemental harmony surrounds you, enhancing your craft for the next few days.`, 'buff', 4);
+        }
+        
+        // Apply mana regeneration effect
+        if (effects.mana && effects.mana > 0) {
+            const manaGain = Math.round(effects.mana / 2);
+            player.mana += manaGain;
+            this.addJournal(`Ritual restored ${manaGain} mana.`, 'ritual', 3);
+        }
+        
+        // Apply transmutation effects (convert items)
+        if (effects.transmutation && effects.transmutation > 50) {
+            // Flag player for transmutation access
+            player.canTransmute = true;
+            player.transmuteEnergy = (player.transmuteEnergy || 0) + effects.transmutation;
+            this.addJournal(`Transmutation energy gathered. You can now transmute items at the atelier.`, 'ritual', 4);
+        }
+        
+        // Apply brewing effects (enhance next potion)
+        if (effects.brewing && effects.brewing > 0) {
+            // Add brewing buff to player
+            player.activeBuffs = player.activeBuffs || [];
+            player.activeBuffs.push({
+                id: `brewing-${Date.now()}`,
+                name: `${effects.elementBonus || "Elemental"} Brewing Enhancement`,
+                effect: "brewingBonus",
+                value: effects.brewing,
+                duration: 2, // Lasts 2 turns
+                element: effects.elementBonus,
+                source: "ritual"
+            });
+            
+            this.addJournal(`Your brewing is enhanced with ${effects.elementBonus || "elemental"} energy.`, 'buff', 4);
+        }
+    }
+    
+    // Generate ritual rewards
+    generateRitualRewards(ritual: Ritual, power: number): RitualReward[] {
+        // Base rewards based on ritual type and power
+        const rewards: RitualReward[] = [];
+        
+        // Gold reward based on power
+        const goldAmount = Math.round(10 + (power / 2));
+        rewards.push({
+            type: 'gold',
+            value: goldAmount.toString(),
+            quantity: 1
+        });
+        
+        // Skill reward
+        let skillType = 'gardening'; // Default
+        switch (ritual.type) {
+            case 'growth':
+            case 'harvest':
+                skillType = 'gardening';
+                break;
+            case 'elemental':
+            case 'transmutation':
+                skillType = 'brewing';
+                break;
+            case 'insight':
+            case 'harmony':
+                skillType = 'astrology';
+                break;
+            case 'weather':
+                skillType = 'herbalism';
+                break;
+        }
+        
+        const skillAmount = 0.2 + (power / 200);
+        rewards.push({
+            type: 'skill',
+            value: skillType,
+            quantity: skillAmount
+        });
+        
+        // Item rewards based on ritual power and type
+        if (power >= 70) {
+            // High power rituals have a chance for special rewards
+            let itemReward = null;
+            
+            switch (ritual.type) {
+                case 'growth':
+                    itemReward = 'ing_mystic_root';
+                    break;
+                case 'harvest':
+                    itemReward = 'ing_golden_herb';
+                    break;
+                case 'weather':
+                    itemReward = 'ing_storm_petal';
+                    break;
+                case 'elemental':
+                    if (ritual.primaryElement === 'Fire') itemReward = 'ing_fire_essence';
+                    else if (ritual.primaryElement === 'Water') itemReward = 'ing_water_essence';
+                    else if (ritual.primaryElement === 'Earth') itemReward = 'ing_earth_essence';
+                    else if (ritual.primaryElement === 'Air') itemReward = 'ing_air_essence';
+                    else if (ritual.primaryElement === 'Spirit') itemReward = 'ing_spirit_essence';
+                    break;
+                case 'harmony':
+                    itemReward = 'ing_celestial_dust';
+                    break;
+            }
+            
+            if (itemReward) {
+                rewards.push({
+                    type: 'item',
+                    value: itemReward,
+                    quantity: 1
+                });
+            }
+        }
+        
+        // Reputation reward for powerful rituals
+        if (power >= 80) {
+            rewards.push({
+                type: 'reputation',
+                value: '2',
+                quantity: 1
+            });
+        }
+        
+        return rewards;
+    }
+    
+    // Claim ritual rewards
+    claimRitualRewards(playerId: string, ritualId: string, ritualPower: number): boolean {
+        const player = this.state.players.find(p => p.id === playerId);
+        if (!player) return false;
+        
+        // Find the ritual
+        const ritual = rituals.find(r => r.id === ritualId);
+        if (!ritual) return false;
+        
+        // Generate rewards based on power
+        const rewards = this.generateRitualRewards(ritual, ritualPower);
+        
+        // Process each reward
+        rewards.forEach(reward => {
+            switch (reward.type) {
+                case 'gold':
+                    player.gold += Number(reward.value);
+                    this.addJournal(`Received ${reward.value} gold from ritual.`, 'reward', 3);
+                    break;
+                    
+                case 'item':
+                    const itemId = String(reward.value);
+                    const itemData = getItemData(itemId);
+                    if (itemData) {
+                        const quantity = reward.quantity || 1;
+                        const quality = 80 + Math.floor(Math.random() * 21); // 80-100 quality for ritual items
+                        addItemToInventory(player, itemData, quantity, quality, this.state.time.phaseName, this.state.time.season);
+                        this.addJournal(`Received ${quantity}x ${itemData.name} (Q:${quality}%) from ritual.`, 'reward', 3);
+                    }
+                    break;
+                    
+                case 'skill':
+                    const skillName = String(reward.value);
+                    const skillAmount = reward.quantity || 0.2;
+                    if (player.skills.hasOwnProperty(skillName)) {
+                        const xpResult = addSkillXp(player, skillName as keyof typeof player.skills, skillAmount);
+                        this.addJournal(`${skillName.charAt(0).toUpperCase() + skillName.slice(1)} skill increased from ritual.`, 'reward', 3);
+                        if (xpResult.levelUp) {
+                            this.addJournal(`${player.name}'s ${skillName} reached level ${xpResult.newLevel}!`, 'skill', 4);
+                        }
+                    }
+                    break;
+                    
+                case 'reputation':
+                    const repAmount = Number(reward.value);
+                    player.reputation = Math.min(100, player.reputation + repAmount);
+                    this.addJournal(`Gained ${repAmount} reputation from ritual.`, 'reward', 3);
+                    break;
+                    
+                case 'recipe':
+                    const recipeId = String(reward.value);
+                    if (!player.knownRecipes.includes(recipeId)) {
+                        player.knownRecipes.push(recipeId);
+                        const recipeData = getRecipeById(recipeId);
+                        this.addJournal(`Learned recipe: ${recipeData?.name || recipeId}!`, 'discovery', 4);
+                    }
+                    break;
+            }
+        });
+        
+        // Mark ritual as completed for the player
+        if (!player.completedRituals.includes(ritualId)) {
+            player.completedRituals.push(ritualId);
+        }
+        
+        return true;
     }
 
     // --- Turn Management ---

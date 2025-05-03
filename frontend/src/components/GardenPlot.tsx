@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import './GardenPlot.css';
+import { 
+  getGrowthStage, 
+  getHealthClass, 
+  getMoistureClass, 
+  getPlantCategoryClass, 
+  needsWater,
+  adaptPlantForDisplay
+} from '../utils';
+import { GardenSlot as BaseGardenSlot, DisplayPlant } from 'coven-shared';
 
-interface Plant {
-  name: string;
-  growth?: number;
-  maxGrowth?: number;
-  mature?: boolean;
-  health?: number;
-  age?: number;
-  category?: string;
-  moonBlessed?: boolean;
-  seasonalModifier?: number;
-}
-
-interface GardenSlot {
-  id: number;
-  fertility?: number;
-  moisture?: number;
-  plant: Plant | null;
-  isUnlocked?: boolean;
+interface GardenSlot extends Omit<BaseGardenSlot, 'plant'> {
+  plant: DisplayPlant | null;
 }
 
 interface GardenPlotProps {
-  plot: GardenSlot;
+  plot: BaseGardenSlot;
   selected: boolean;
   onClick: () => void;
   season?: 'Spring' | 'Summer' | 'Fall' | 'Winter';
@@ -60,7 +53,8 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
   useEffect(() => {
     let glowInterval: NodeJS.Timeout | null = null;
     
-    if (plot.plant?.mature) {
+    const displayPlant = adaptPlantForDisplay(plot.plant);
+    if (displayPlant?.mature) {
       // Start pulsing glow effect for harvest-ready plants
       glowInterval = setInterval(() => {
         setShowHarvestGlow(prev => !prev);
@@ -128,59 +122,19 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
     setShowPlantHint(false);
   };
 
-  // Get growth stage for visual representation
-  const getGrowthStage = (plant: Plant | null): string => {
-    if (!plant || plant.growth === undefined || plant.maxGrowth === undefined) {
-      return 'empty';
-    }
-    
-    if (plant.mature) return 'mature';
-    
-    const growthPercentage = (plant.growth / plant.maxGrowth) * 100;
-    
-    if (growthPercentage < 25) return 'seedling';
-    if (growthPercentage < 50) return 'sprout';
-    if (growthPercentage < 75) return 'growing';
-    return 'maturing';
-  };
-
-  // Get plant health class
-  const getHealthClass = (plant: Plant | null): string => {
-    if (!plant || plant.health === undefined) return '';
-    
-    if (plant.health < 30) return 'unhealthy';
-    if (plant.health < 70) return 'fair';
-    return 'healthy';
-  };
-
-  // Get moisture class for visual appearance
-  const getMoistureClass = (): string => {
-    const moisture = plot.moisture ?? 50;
-    
-    if (moisture < 30) return 'dry';
-    if (moisture > 80) return 'wet';
-    return 'normal';
-  };
-
-  // Determine if plant needs water
-  const needsWater = (plant: Plant | null): boolean => {
-    if (!plant || plant.mature) return false;
-    return (plot.moisture ?? 50) < 40;
-  };
-
-  // Get category-specific class
-  const getPlantCategoryClass = (plant: Plant | null): string => {
-    if (!plant) return '';
-    return plant.category ? plant.category.toLowerCase() : 'herb';
-  };
+  // Using imported utility functions for consistent behavior across components
   
   // Render plant visualization based on growth stage and category
   const renderPlant = () => {
     if (!plot.plant) return null;
     
-    const growthStage = getGrowthStage(plot.plant);
-    const healthClass = getHealthClass(plot.plant);
-    const categoryClass = getPlantCategoryClass(plot.plant);
+    // Convert Plant to DisplayPlant
+    const displayPlant = adaptPlantForDisplay(plot.plant);
+    if (!displayPlant) return null;
+    
+    const growthStage = getGrowthStage(displayPlant);
+    const healthClass = getHealthClass(displayPlant);
+    const categoryClass = getPlantCategoryClass(displayPlant);
     
     return (
       <div 
@@ -192,12 +146,12 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
           <div className="plant-sprite"></div>
           
           {/* Plant animations and effects */}
-          {plot.plant.moonBlessed && <div className="moon-blessing"></div>}
+          {displayPlant.moonBlessed && <div className="moon-blessing"></div>}
           
           {/* Status indicators */}
-          {plot.plant.seasonalModifier && plot.plant.seasonalModifier > 1.2 && 
+          {displayPlant.seasonalModifier && displayPlant.seasonalModifier > 1.2 && 
             <div className="season-boost"></div>}
-          {plot.plant.seasonalModifier && plot.plant.seasonalModifier < 0.8 && 
+          {displayPlant.seasonalModifier && displayPlant.seasonalModifier < 0.8 && 
             <div className="season-penalty"></div>}
         </div>
         
@@ -213,16 +167,18 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
 
   // Render plot status indicators
   const renderPlotStatus = () => {
+    const displayPlant = adaptPlantForDisplay(plot.plant);
+    
     return (
       <div className="plot-status">
-        {plot.plant?.mature && (
+        {displayPlant?.mature && (
           <div 
             className={`status-indicator harvest-ready ${showHarvestGlow ? 'glow' : ''}`} 
             title="Ready to Harvest"
           />
         )}
         
-        {needsWater(plot.plant) && (
+        {needsWater(displayPlant, plot.moisture ?? 50) && (
           <div className="status-indicator needs-water" title="Needs Water" />
         )}
         
@@ -234,13 +190,14 @@ const GardenPlot: React.FC<GardenPlotProps> = ({
   };
 
   // Combine all CSS classes
+  const displayPlant = adaptPlantForDisplay(plot.plant);
   const plotClasses = [
     'garden-plot',
     isLocked ? 'locked' : '',
     selected ? 'selected' : '',
-    getMoistureClass(),
+    getMoistureClass(plot.moisture),
     season.toLowerCase(), // Add season class
-    plot.plant?.mature ? 'mature' : '',
+    displayPlant?.mature ? 'mature' : '',
   ].filter(Boolean).join(' ');
 
   return (

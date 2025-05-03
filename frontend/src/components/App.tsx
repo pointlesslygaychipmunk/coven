@@ -35,6 +35,7 @@ import Lobby from './Lobby';
 import MultiplayerChat from './MultiplayerChat';
 import OnlinePlayers from './OnlinePlayers';
 import CrossBreedingInterface from './CrossBreedingInterface';
+import MoonBidGame from './MoonBidGame';
 
 // API Utility
 const API_BASE_URL = '/api';
@@ -643,6 +644,12 @@ const App: React.FC = () => {
                     <span className="game-menu-key">J</span>ournal
                 </div>
                 <div 
+                    className={`game-menu-item ${currentView === 'moonbid' ? 'active' : ''}`} 
+                    onClick={() => handleChangeLocation('moonbid')}
+                >
+                    <span className="game-menu-key">C</span>ard Game
+                </div>
+                <div 
                     className="game-menu-item"
                     onClick={advanceDay}
                 >
@@ -785,6 +792,20 @@ const App: React.FC = () => {
                                                                     time={gameState.time}
                                                                     player={currentPlayer}
                                                                     onClaimRitual={claimRitualReward}
+                                                                />
+                                                            );
+                                                        case 'moonbid':
+                                                            return (
+                                                                <MoonBidGame
+                                                                    playerName={currentPlayer.name}
+                                                                    playerId={currentPlayer.id}
+                                                                    currentMoonPhase={gameState.time.phaseName as MoonPhase}
+                                                                    currentSeason={gameState.time.season as Season}
+                                                                    onGameComplete={(rewards) => {
+                                                                        console.log("Moon Bid Game rewards:", rewards);
+                                                                        // In a real integration, we would update the player's inventory/currency here
+                                                                    }}
+                                                                    onClose={() => handleChangeLocation('journal')}
                                                                 />
                                                             );
                                                         default:

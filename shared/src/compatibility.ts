@@ -381,6 +381,12 @@ export function createDefaultPlayer(props: Partial<PlayerLegacy>): Player {
     manaRegenRate: 5,
     totalManaGenerated: 0,
     manaEfficiency: 50,
+    
+    // Ritual and Effect System
+    activeBuffs: [],
+    canTransmute: false,
+    transmuteEnergy: 0,
+    
     reputation: basePlayer.reputation,
     townReputations: Object.fromEntries(basePlayer.townAccess.map(town => [town, 0])),
     atelierSpecialization: basePlayer.atelierSpecialization as any,
@@ -394,6 +400,14 @@ export function createDefaultPlayer(props: Partial<PlayerLegacy>): Player {
     activeCards: [],
     garden: basePlayer.garden.map(fromLegacyGardenSlot),
     gardenManaGrid: Array(3).fill(Array(3).fill(0)),
+    
+    // Packaging system
+    packagingMaterials: [],
+    packagingDesignStyles: [],
+    packagingEffects: [],
+    packagingBrands: [],
+    packagingDesigns: [],
+    
     knownRecipes: [],
     knownCardCombos: [],
     discoveredCards: [],
