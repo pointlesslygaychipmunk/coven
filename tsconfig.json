@@ -5,10 +5,11 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "strict": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true
   },
-  "files": []
+  // "files": [] // Removed or commented out as it is unnecessary when empty
 }
