@@ -299,19 +299,21 @@ const SimpleApp: React.FC = () => {
       
       {showCrossBreeding && (
         <CrossBreedingInterface
-          playerGarden={currentPlayer.garden.map(plot => ({
-            ...plot,
-            plant: plot.plant ? ({
-              ...plot.plant,
-              id: plot.plant.id,
-              name: plot.plant.name,
-              growth: plot.plant.growth,
-              maxGrowth: plot.plant.maxGrowth,
-              health: plot.plant.health,
-              mature: plot.plant.mature,
-              watered: plot.plant.watered || false, 
-              age: plot.plant.age || 0,
-            } as any)) : null
+          playerGarden={currentPlayer.garden.map(plot => {
+            return {
+              ...plot,
+              plant: plot.plant ? {
+                ...plot.plant,
+                id: plot.plant.id,
+                name: plot.plant.name,
+                growth: plot.plant.growth,
+                maxGrowth: plot.plant.maxGrowth,
+                health: plot.plant.health,
+                mature: plot.plant.mature,
+                watered: plot.plant.watered || false, 
+                age: plot.plant.age || 0
+              } as any : null
+            };
           })}
           onCrossBreed={handleCrossBreed}
           onClose={() => setShowCrossBreeding(false)}
