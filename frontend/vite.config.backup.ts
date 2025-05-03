@@ -41,6 +41,11 @@ export default defineConfig({
     include: ['coven-shared'],
   },
   build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "src/index90s.tsx"),
+      },
+    },
     outDir: 'dist', // Ensure output directory is standard
     // Ensure shared package changes trigger rebuilds correctly
     commonjsOptions: {
