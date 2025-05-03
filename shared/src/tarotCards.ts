@@ -1,5 +1,5 @@
 // shared/src/tarotCards.ts
-import { TarotCard, CardEffect, ElementType, MoonPhase, Season, SoilType, CardFrame, Rarity, ItemType, ItemCategory } from './types';
+import { TarotCard, CardEffect, ElementType, MoonPhase, Season, SoilType, CardFrame, Rarity, ItemType, ItemCategory, ComboRef } from './types.js';
 
 // Helper function to create card effects
 const createEffect = (type: CardEffect['type'], value: number, description: string): CardEffect => ({
@@ -706,14 +706,14 @@ export const getCardsByElement = (element: ElementType): TarotCard[] => {
 };
 
 // Helper function to get cards that combo with a specific card
-export const getComboCards = (cardId: string): {card: TarotCard, comboEffect: any}[] => {
+export const getComboCards = (cardId: string): {card: TarotCard, comboEffect: ComboRef}[] => {
   const card = findCardById(cardId);
   if (!card) return [];
   
-  return card.combos.map(combo => {
+  return card.combos.map((combo: ComboRef) => {
     const comboCard = findCardById(combo.cardId);
     return comboCard ? { card: comboCard, comboEffect: combo } : null;
-  }).filter(Boolean) as {card: TarotCard, comboEffect: any}[];
+  }).filter(Boolean) as {card: TarotCard, comboEffect: ComboRef}[];
 };
 
 // Helper function to get cards based on moon phase affinity

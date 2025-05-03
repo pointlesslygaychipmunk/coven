@@ -1,6 +1,6 @@
 // shared/src/brewingMethods.ts
-import { ElementType, CardEffect, TarotCard } from './types';
-import { allTarotCards, findCardById } from './tarotCards';
+import { ElementType, CardEffect, TarotCard, ComboRef } from './types.js';
+import { findCardById } from './tarotCards.js';
 
 // The four Hanbang brewing methods
 export type BrewingMethod = 'Infusion' | 'Fermentation' | 'Distillation' | 'Crystallization';
@@ -165,8 +165,8 @@ export function calculateCompatibility(card1: TarotCard, card2: TarotCard): numb
   }
   
   // Known combo bonus
-  const hasCombo = card1.combos.some(combo => combo.cardId === card2.id) ||
-                  card2.combos.some(combo => combo.cardId === card1.id);
+  const hasCombo = card1.combos.some((combo: ComboRef) => combo.cardId === card2.id) ||
+                  card2.combos.some((combo: ComboRef) => combo.cardId === card1.id);
   if (hasCombo) {
     compatibility += 30;
   }
@@ -219,13 +219,13 @@ export function determineIdealMethod(cards: TarotCard[]): BrewingMethod | null {
     }
   }
   
-  // Check if Spirit is present to enhance
-  const spiritPresent = elementCounts['Spirit'] > 0;
+  // Check if Spirit is present to enhance (for future enhancement)
+  // const spiritPresent = elementCounts['Spirit'] > 0;
   
   // Convert to brewing method
   const method = elementToBrewingMethod[dominantElement];
   
-  // Return method with info about Spirit enhancement
+  // Return method
   return method;
 }
 

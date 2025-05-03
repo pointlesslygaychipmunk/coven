@@ -1,6 +1,6 @@
 // Ritual System - A tarot card-based ritual magic system
 
-import { TarotCard, ElementType, MoonPhase, Season } from './types';
+import { TarotCard, ElementType, MoonPhase, Season } from './types.js';
 
 // Types of rituals available in the game
 export type RitualType = 
@@ -47,6 +47,7 @@ export interface Ritual {
   moonPhaseBonus?: MoonPhase;
   seasonBonus?: Season;
   unlockRequirement?: string;
+  elementBonus?: ElementType;
 }
 
 // Evaluate a card's compatibility with a ritual position
