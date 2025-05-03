@@ -32,7 +32,7 @@ export const treeTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'herb_ginseng', 
-        effectDescription: 'Oak's strength enhances ginseng's vitality', 
+        effectDescription: 'Oak\'s strength enhances ginseng\'s vitality', 
         bonusType: 'potency', 
         bonusValue: 2 
       }
@@ -71,7 +71,7 @@ export const treeTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'herb_chamomile', 
-        effectDescription: 'Willow's calming nature enhances chamomile's soothing properties', 
+        effectDescription: 'Willow\'s calming nature enhances chamomile\'s soothing properties', 
         bonusType: 'quality', 
         bonusValue: 3 
       }
@@ -109,7 +109,7 @@ export const treeTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'flower_lavender', 
-        effectDescription: 'Ash's height carries lavender's scent farther', 
+        effectDescription: 'Ash\'s height carries lavender\'s scent farther', 
         bonusType: 'potency', 
         bonusValue: 3 
       }
@@ -148,7 +148,7 @@ export const treeTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'flower_rose', 
-        effectDescription: 'Cherry blossoms complement rose's beauty', 
+        effectDescription: 'Cherry blossoms complement rose\'s beauty', 
         bonusType: 'value', 
         bonusValue: 5 
       }
@@ -200,6 +200,7 @@ export const herbTarotCards: TarotCard[] = [
     growthTime: 6,
     yield: 2,
     soilPreference: 'loamy',
+    manaGeneration: 0, // Herbs don't generate mana
     
     potency: 8,
     stability: 6,
@@ -231,7 +232,7 @@ export const herbTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'root_angelica', 
-        effectDescription: 'Mugwort amplifies angelica's warming properties', 
+        effectDescription: 'Mugwort amplifies angelica\'s warming properties', 
         bonusType: 'potency', 
         bonusValue: 3 
       }
@@ -240,6 +241,7 @@ export const herbTarotCards: TarotCard[] = [
     growthTime: 4,
     yield: 3,
     soilPreference: 'sandy',
+    manaGeneration: 0, // Herbs don't generate mana
     
     potency: 6,
     stability: 5,
@@ -271,7 +273,7 @@ export const herbTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'herb_ginseng', 
-        effectDescription: 'Licorice harmonizes with ginseng's energy', 
+        effectDescription: 'Licorice harmonizes with ginseng\'s energy', 
         bonusType: 'quality', 
         bonusValue: 3 
       }
@@ -280,6 +282,7 @@ export const herbTarotCards: TarotCard[] = [
     growthTime: 5,
     yield: 4,
     soilPreference: 'clay',
+    manaGeneration: 0, // Herbs don't generate mana
     
     potency: 5,
     stability: 9,
@@ -320,6 +323,7 @@ export const herbTarotCards: TarotCard[] = [
     growthTime: 3,
     yield: 5,
     soilPreference: 'sandy',
+    manaGeneration: 0, // Herbs don't generate mana
     
     potency: 4,
     stability: 7,
@@ -365,6 +369,7 @@ export const flowerTarotCards: TarotCard[] = [
     growthTime: 5,
     yield: 3,
     soilPreference: 'loamy',
+    manaGeneration: 0, // Flowers don't generate mana
     
     potency: 6,
     stability: 4,
@@ -405,6 +410,7 @@ export const flowerTarotCards: TarotCard[] = [
     growthTime: 4,
     yield: 4,
     soilPreference: 'sandy',
+    manaGeneration: 0, // Flowers don't generate mana
     
     potency: 5,
     stability: 6,
@@ -446,6 +452,7 @@ export const flowerTarotCards: TarotCard[] = [
     growthTime: 8,
     yield: 2,
     soilPreference: 'peaty',
+    manaGeneration: 0, // Flowers don't generate mana
     
     potency: 9,
     stability: 7,
@@ -454,7 +461,7 @@ export const flowerTarotCards: TarotCard[] = [
     demandFluctuation: 8,
     
     description: 'A pristine bloom that opens with the first light. Symbol of purity and spiritual awakening.',
-    traditionUse: 'The lotus is revered in Hanbang for its purifying properties and ability to restore skin's natural balance.'
+    traditionUse: 'The lotus is revered in Hanbang for its purifying properties and ability to restore skin\'s natural balance.'
   }
 ];
 
@@ -482,7 +489,7 @@ export const rootTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'herb_licorice', 
-        effectDescription: 'Ginger's heat balanced by licorice's sweetness', 
+        effectDescription: 'Ginger\'s heat balanced by licorice\'s sweetness', 
         bonusType: 'stability', 
         bonusValue: 3 
       }
@@ -491,6 +498,7 @@ export const rootTarotCards: TarotCard[] = [
     growthTime: 5,
     yield: 3,
     soilPreference: 'sandy',
+    manaGeneration: 0, // Roots don't generate mana
     
     potency: 7,
     stability: 5,
@@ -522,7 +530,7 @@ export const rootTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'herb_mugwort', 
-        effectDescription: 'Angelica amplifies mugwort's protective qualities', 
+        effectDescription: 'Angelica amplifies mugwort\'s protective qualities', 
         bonusType: 'quality', 
         bonusValue: 4 
       }
@@ -531,6 +539,7 @@ export const rootTarotCards: TarotCard[] = [
     growthTime: 7,
     yield: 2,
     soilPreference: 'clay',
+    manaGeneration: 0, // Roots don't generate mana
     
     potency: 8,
     stability: 6,
@@ -571,6 +580,7 @@ export const rootTarotCards: TarotCard[] = [
     growthTime: 8,
     yield: 2,
     soilPreference: 'loamy',
+    manaGeneration: 0, // Roots don't generate mana
     
     potency: 7,
     stability: 8,
@@ -613,14 +623,19 @@ export const oilTarotCards: TarotCard[] = [
       }
     ],
     
+    growthTime: 0, // Cannot be planted
+    yield: 0,
+    soilPreference: 'loamy', // Not relevant as it can't be planted
+    manaGeneration: 0, // Does not generate mana
+    
     potency: 3,
     stability: 9,
     
     baseValue: 25,
     demandFluctuation: 3,
     
-    description: 'A golden liquid that mirrors skin's natural oils. Balances and nourishes.',
-    traditionUse: 'Jojoba oil is valued in Hanbang for its similarity to skin's natural sebum, making it perfect for balancing formulations.'
+    description: 'A golden liquid that mirrors skin\'s natural oils. Balances and nourishes.',
+    traditionUse: 'Jojoba oil is valued in Hanbang for its similarity to skin\'s natural sebum, making it perfect for balancing formulations.'
   },
   {
     id: 'oil_lotus',
@@ -644,11 +659,16 @@ export const oilTarotCards: TarotCard[] = [
     combos: [
       { 
         cardId: 'flower_lotus', 
-        effectDescription: 'Lotus seed oil amplifies lotus flower's purity', 
+        effectDescription: 'Lotus seed oil amplifies lotus flower\'s purity', 
         bonusType: 'potency', 
         bonusValue: 8 
       }
     ],
+    
+    growthTime: 0, // Cannot be planted
+    yield: 0,
+    soilPreference: 'peaty', // Not relevant as it can't be planted
+    manaGeneration: 0, // Does not generate mana
     
     potency: 8,
     stability: 7,
