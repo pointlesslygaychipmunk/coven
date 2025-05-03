@@ -1,0 +1,470 @@
+/* Sierra-inspired Adventure Game UI Styles */
+
+:root {
+  /* Sierra-inspired color palette */
+  --sierra-bg-dark: #1e2223;       /* Dark background for UI borders */
+  --sierra-bg-medium: #2c3640;     /* Medium background for panels */
+  --sierra-bg-light: #e8e0c8;      /* Light background for content areas (parchment) */
+  --sierra-accent: #8b6d3e;        /* Wood accent color */
+  --sierra-highlight: #c9a76c;     /* Gold highlight */
+  --sierra-text-dark: #3c2814;     /* Dark text color */
+  --sierra-text-light: #e8e0c8;    /* Light text color */
+  
+  /* Seasonal palette - more subdued, painterly */
+  --sierra-spring: #6c8c54;        /* Spring forest green */
+  --sierra-summer: #b3945f;        /* Summer golden wheat */
+  --sierra-fall: #a65e36;          /* Fall auburn */
+  --sierra-winter: #7c94aa;        /* Winter blue-gray */
+  
+  /* Magic-themed colors */
+  --sierra-magic-purple: #6c4e79;  /* Magical purple - more subdued */
+  --sierra-magic-blue: #4e6c96;    /* Magical blue */
+  --sierra-magic-green: #4d7850;   /* Potion green */
+  
+  /* Fonts - more in line with 90s adventure games */
+  --sierra-font-main: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  --sierra-font-header: 'Cinzel', 'Times New Roman', serif;
+  --sierra-font-interface: 'Lato', 'Arial', sans-serif;
+  
+  /* UI Dimensions */
+  --sierra-border-width: 2px;
+  --sierra-border-radius: 0px;
+  --sierra-panel-spacing: 12px;
+}
+
+/* Main game window */
+.sierra-game-window {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  background-color: var(--sierra-bg-dark);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-interface);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--sierra-bg-dark);
+  overflow: hidden;
+}
+
+/* Main game frame */
+.sierra-main-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top navigation bar - Sierra style */
+.sierra-nav-bar {
+  height: 36px;
+  background-color: var(--sierra-bg-medium);
+  border-bottom: 2px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+/* Sierra icon button style */
+.sierra-icon-button {
+  width: 28px;
+  height: 28px;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sierra-icon-button:hover {
+  background-color: var(--sierra-highlight);
+}
+
+.sierra-icon-button:active {
+  background-color: var(--sierra-accent);
+}
+
+/* Main content area */
+.sierra-content {
+  flex: 1;
+  display: flex;
+  background-color: var(--sierra-bg-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Side panel styling */
+.sierra-panel {
+  background-color: var(--sierra-bg-medium);
+  border: var(--sierra-border-width) solid var(--sierra-bg-dark);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panel headers */
+.sierra-panel-header {
+  height: 24px;
+  background-color: var(--sierra-accent);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-header);
+  font-size: 16px;
+  text-align: center;
+  line-height: 24px;
+  border-bottom: 1px solid var(--sierra-bg-dark);
+  position: relative;
+}
+
+/* Panel content */
+.sierra-panel-content {
+  flex: 1;
+  padding: 8px;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text-dark);
+  overflow: auto;
+}
+
+/* Detail panels like Sierra adventure games */
+.sierra-detail-panel {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  padding: 8px;
+  margin-bottom: 8px;
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--sierra-text-dark);
+}
+
+.sierra-detail-panel h3 {
+  font-family: var(--sierra-font-header);
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: var(--sierra-accent);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 4px;
+}
+
+/* Sierra-style buttons */
+.sierra-button {
+  background-color: var(--sierra-bg-medium);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-header);
+  font-size: 14px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  margin: 4px;
+}
+
+.sierra-button:hover {
+  background-color: var(--sierra-accent);
+}
+
+.sierra-button:active {
+  background-color: var(--sierra-bg-dark);
+  transform: translateY(1px);
+}
+
+.sierra-button.active {
+  background-color: var(--sierra-accent);
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Sierra-style inventory grid */
+.sierra-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 6px;
+  background-color: var(--sierra-bg-medium);
+}
+
+.sierra-inventory-slot {
+  width: 40px;
+  height: 40px;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.sierra-inventory-slot:hover {
+  border-color: var(--sierra-highlight);
+}
+
+.sierra-inventory-slot.active {
+  background-color: rgba(201, 167, 108, 0.3);
+  border-color: var(--sierra-highlight);
+}
+
+/* Sierra-style progress bars */
+.sierra-progress-bar {
+  height: 12px;
+  background-color: var(--sierra-bg-medium);
+  border: 1px solid var(--sierra-accent);
+  position: relative;
+  margin: 6px 0;
+}
+
+.sierra-progress-fill {
+  height: 100%;
+  background-color: var(--sierra-accent);
+  transition: width 0.3s ease;
+}
+
+/* Elegant labels for Sierra UI */
+.sierra-label {
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  color: var(--sierra-text-dark);
+  margin-bottom: 4px;
+}
+
+/* Sierra-style dialog windows */
+.sierra-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+  padding: 0;
+  z-index: 100;
+  min-width: 300px;
+}
+
+.sierra-dialog-header {
+  background-color: var(--sierra-accent);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-header);
+  font-size: 16px;
+  padding: 6px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--sierra-bg-dark);
+}
+
+.sierra-dialog-content {
+  padding: 12px;
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--sierra-text-dark);
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.sierra-dialog-footer {
+  padding: 8px 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--sierra-accent);
+}
+
+/* Status bar similar to Sierra games */
+.sierra-status-bar {
+  height: 24px;
+  background-color: var(--sierra-bg-medium);
+  border-top: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-interface);
+  font-size: 12px;
+}
+
+.sierra-status-section {
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.sierra-status-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scroll styling */
+.sierra-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sierra-accent) var(--sierra-bg-medium);
+}
+
+.sierra-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.sierra-scrollbar::-webkit-scrollbar-track {
+  background: var(--sierra-bg-medium);
+}
+
+.sierra-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--sierra-accent);
+  border-radius: 0;
+  border: 1px solid var(--sierra-bg-medium);
+}
+
+/* Tabs similar to Sierra interfaces */
+.sierra-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--sierra-accent);
+  background-color: var(--sierra-bg-medium);
+}
+
+.sierra-tab {
+  padding: 6px 12px;
+  font-family: var(--sierra-font-header);
+  font-size: 14px;
+  color: var(--sierra-text-light);
+  cursor: pointer;
+  background-color: var(--sierra-bg-medium);
+  border-right: 1px solid var(--sierra-accent);
+}
+
+.sierra-tab:hover {
+  background-color: rgba(139, 109, 62, 0.5);
+}
+
+.sierra-tab.active {
+  background-color: var(--sierra-accent);
+  font-weight: bold;
+}
+
+.sierra-tab-content {
+  display: none;
+  padding: 12px;
+  background-color: var(--sierra-bg-light);
+}
+
+.sierra-tab-content.active {
+  display: block;
+}
+
+/* Sierra game message box for narrative text */
+.sierra-message-box {
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  padding: 12px;
+  margin: 8px 0;
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sierra-text-dark);
+  position: relative;
+}
+
+.sierra-message-box::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 1px solid var(--sierra-bg-dark);
+  pointer-events: none;
+}
+
+/* Painterly background for game areas */
+.sierra-painterly-bg {
+  background-color: var(--sierra-bg-light);
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAEDklEQVRoQ92aW4hVVRjHf/8xdUad0ZG0wDCwsowwpHsU9SJUFFQQUg9BvXUXevChHqKXiKAHqbeiXoqgC0UQSRF0eYguVtNF0Uu3mRmdmvX329fsOTtz9p5z9t5nzzrCd56Gs9f+vvW/rMt3NrQA7r4WeAm4GrgG+B04CLxvZr+1QqMZjJlNBu4uj7v7ReWPc4FNwP3AOcBh4APgeTM7MRU7k0zsLT+b+yJwK3A28AtwB/BRk5gLgTeAa4FZ5cJbgS1mdqDJfKs/d0S6A9xdW/1FYD7wd+mFn1uA1wF3A+8Bs4FjwIvAM2Z2rIWFlqfOhsjAwnHgJeCpcgEtyqP7geuAs8oDeKMklI+mAiYDZgvEvdFwBngHeMDMDrl7B/AY8AhwdjnJ74BXgOfM7J+JLkhHYiQw3UePAK+a2aPu3gI8CTwMzAB+BR4HPjSzngmApBaRIZgJvA3cbmZ73P0C4CngPmDGSJ1TlZAKkX5EDgGvm9k97j4feAJ4AJhVwtBbfnrLtmYkQtUgUYgMCE/tT7ea2efu3gWsAx4E9MVxENgOvG1m34/XM9GIRCUygNCTwOvAH8Bc4BFAB/Ivjf08nrBNTlNUIm6ejnT/onLYPwI8Xfr2/8qF1dI+6+7PA7vM7HCjjk5GJNb+qrLYMdS5VL+7+0ZARHSf0JR56JmpUfZJ0ot0j3X5/+7uC4FHy+k0mP8A+MC9W81sz2hLJ7uP1JjcDLxTJhb6+2ZX0K+7++LyEVYPUy9NdGd81My+rZVsst0nUfCpe50TfXgB7iq9oZIGiJDuKvvN7JH+mZNFpCbmZeChMtLdWMdL3dWPu/vFZURUfX1iZl3VASfZWlUrJb60TwDXZ4pIrSRRxkqMu3vN7Ot+kBxEorqiVsJm0C7Q5iAU07YYRKLYGDOoGHNnIRTH5hiwGFPGgGUhFNa+GMCc4ELAshIbCywnkdgw4zClQGZnNS5AZoPyJAUyL5Ap4HnBTBPIpM6acpVNnXUFOhWYIeCtysfRSgYQcnuNIIQ8QP1bKxYhX/Qi/aEMQohQMoNQ+8Ls1sEmFIVQKvtSGZjCyCgGpjQylYEpDY1lYEpjYxmY0uCxDExpNIfB/QCxDM5icGPNsQzObHDNq1gGZzdYRscyeEIM1oARy+CGGJxqe0U1ODmRWgbHMnhCDR5kUCyDJ9XgqPUx0QzO5o2JMDj5zaLZgekMzk8kmsE5iUQzOKvXYxmcJfrVNDi7R6IZnJtINIOzEYllcFaP9C+sX2REMziLR2IanDu9iGZwFiLRDM7qkWgGT0hSMQypVYiVwdNKZJj7flU7xM7gaSMyRCp20pKvQ6aESDXBFAn9H0Hx67iiXd/PAAAAAElFTkSuQmCC');
+  background-blend-mode: multiply;
+  background-size: 200px 200px;
+}
+
+/* Sierra-style character portrait */
+.sierra-portrait {
+  width: 80px;
+  height: 80px;
+  background-color: var(--sierra-bg-medium);
+  border: 2px solid var(--sierra-accent);
+  margin: 0 auto 8px;
+  position: relative;
+}
+
+.sierra-portrait::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border: 1px solid var(--sierra-bg-dark);
+  pointer-events: none;
+}
+
+/* Sierra-style descriptive text */
+.sierra-description {
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sierra-text-dark);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* Quest Sierra style */
+.sierra-quest-entry {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.sierra-quest-title {
+  font-family: var(--sierra-font-header);
+  font-size: 16px;
+  margin: 0 0 6px 0;
+  color: var(--sierra-accent);
+}
+
+.sierra-quest-description {
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sierra-text-dark);
+  margin-bottom: 6px;
+}
+
+/* Seasonal variations */
+.sierra-spring-theme {
+  --sierra-accent: var(--sierra-spring);
+  --sierra-highlight: #8bb970;
+}
+
+.sierra-summer-theme {
+  --sierra-accent: var(--sierra-summer);
+  --sierra-highlight: #d9b675;
+}
+
+.sierra-fall-theme {
+  --sierra-accent: var(--sierra-fall);
+  --sierra-highlight: #c37e50;
+}
+
+.sierra-winter-theme {
+  --sierra-accent: var(--sierra-winter);
+  --sierra-highlight: #a3b8cc;
+}
+
+/* Magic theme */
+.sierra-magic-theme {
+  --sierra-accent: var(--sierra-magic-purple);
+  --sierra-highlight: #8e6c9b;
+}

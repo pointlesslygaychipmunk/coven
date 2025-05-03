@@ -139,12 +139,12 @@
         <p>Brewing your magical adventure...</p>
       </div>
     </div>
-    <!-- Load 90s UI assets -->
-    <script src="/assets/js/uiManager.js"></script>
+    <!-- Load Sierra-style UI assets -->
+    <link rel="stylesheet" href="/gameAssets/sierraStyle.css">
+    <script src="/assets/js/sierraManager.js"></script>
     <script type="module" src="/src/index.tsx"></script>
     
-    <!-- Optional CRT effect overlay -->
-    <div class="crt-lines" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 9999; opacity: 0.4;"></div>
+    <!-- No CRT scanlines for Sierra style - it used higher resolution than classic DOS games -->
     
     <!-- Fallback error handler for module loading issues -->
     <script>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sierra-Inspired UI for Witch's Coven</title>
+  <link rel="icon" type="image/png" href="/favicon.ico">
+  
+  <!-- Web fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Palatino+Linotype:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Sierra UI styles -->
+  <link rel="stylesheet" href="/gameAssets/sierraStyle.css">
+  
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-color: #1e2223;
+      color: #e8e0c8;
+      font-family: var(--sierra-font-interface);
+    }
+    
+    .page-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: var(--sierra-bg-medium);
+      border-bottom: 2px solid var(--sierra-accent);
+    }
+    
+    h1 {
+      font-family: var(--sierra-font-header);
+      font-size: 28px;
+      margin: 0;
+      color: var(--sierra-highlight);
+    }
+    
+    .subtitle {
+      font-family: var(--sierra-font-main);
+      font-style: italic;
+      font-size: 16px;
+      margin-top: 10px;
+      color: var(--sierra-text-light);
+    }
+    
+    .demo-section {
+      margin-bottom: 40px;
+    }
+    
+    .section-title {
+      font-family: var(--sierra-font-header);
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: var(--sierra-highlight);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--sierra-accent);
+    }
+    
+    .ui-examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .ui-example {
+      background-color: var(--sierra-bg-light);
+      border: 2px solid var(--sierra-accent);
+      overflow: hidden;
+    }
+    
+    .example-title {
+      font-family: var(--sierra-font-header);
+      font-size: 16px;
+      margin: 0;
+      padding: 8px;
+      color: var(--sierra-text-light);
+      background-color: var(--sierra-accent);
+      text-align: center;
+    }
+    
+    .example-content {
+      padding: 15px;
+      min-height: 150px;
+      color: var(--sierra-text-dark);
+    }
+    
+    .demo-window {
+      width: 800px;
+      height: 600px;
+      margin: 0 auto 40px;
+      position: relative;
+      background-color: var(--sierra-bg-dark);
+      border: 2px solid var(--sierra-accent);
+      overflow: hidden;
+    }
+    
+    .demo-header {
+      height: 36px;
+      background-color: var(--sierra-accent);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: var(--sierra-text-light);
+      font-family: var(--sierra-font-header);
+      font-size: 18px;
+    }
+    
+    .demo-content {
+      display: flex;
+      height: calc(100% - 60px);
+    }
+    
+    .demo-sidebar {
+      width: 200px;
+      background-color: var(--sierra-bg-medium);
+      border-right: 1px solid var(--sierra-accent);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .demo-main {
+      flex: 1;
+      background-color: var(--sierra-bg-light);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .demo-footer {
+      height: 24px;
+      background-color: var(--sierra-bg-medium);
+      border-top: 1px solid var(--sierra-accent);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: var(--sierra-text-light);
+      font-size: 12px;
+    }
+    
+    .demo-panel {
+      margin: 10px;
+      background-color: var(--sierra-bg-light);
+      border: 1px solid var(--sierra-accent);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+    }
+    
+    .demo-panel-header {
+      background-color: var(--sierra-accent);
+      color: var(--sierra-text-light);
+      font-family: var(--sierra-font-header);
+      font-size: 16px;
+      padding: 6px 12px;
+      text-align: center;
+    }
+    
+    .demo-panel-content {
+      padding: 12px;
+      color: var(--sierra-text-dark);
+      flex: 1;
+      overflow: auto;
+    }
+    
+    .demo-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--sierra-accent);
+    }
+    
+    .demo-tab {
+      padding: 8px 16px;
+      font-family: var(--sierra-font-header);
+      color: var(--sierra-text-dark);
+      cursor: pointer;
+      background-color: var(--sierra-bg-light);
+      border-right: 1px solid var(--sierra-accent);
+    }
+    
+    .demo-tab.active {
+      background-color: var(--sierra-accent);
+      color: var(--sierra-text-light);
+    }
+    
+    .demo-portrait {
+      width: 100px;
+      height: 100px;
+      background-color: var(--sierra-bg-medium);
+      margin: 0 auto 12px;
+      border: 2px solid var(--sierra-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: var(--sierra-text-light);
+      position: relative;
+    }
+    
+    .demo-portrait::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      border: 1px solid var(--sierra-bg-dark);
+      pointer-events: none;
+    }
+    
+    .demo-character-name {
+      text-align: center;
+      font-family: var(--sierra-font-header);
+      font-size: 16px;
+      margin: 0 0 6px 0;
+      color: var(--sierra-accent);
+    }
+    
+    .demo-character-class {
+      text-align: center;
+      font-family: var(--sierra-font-main);
+      font-style: italic;
+      font-size: 14px;
+      margin: 0 0 16px 0;
+      color: var(--sierra-text-dark);
+    }
+    
+    .demo-stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    
+    .demo-stat-label {
+      font-family: var(--sierra-font-main);
+      font-size: 14px;
+      color: var(--sierra-text-dark);
+    }
+    
+    .demo-stat-value {
+      font-family: var(--sierra-font-main);
+      font-weight: bold;
+      font-size: 14px;
+      color: var(--sierra-accent);
+    }
+    
+    .demo-inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 6px;
+      background-color: var(--sierra-bg-medium);
+      margin-top: 12px;
+    }
+    
+    .demo-inventory-slot {
+      width: 40px;
+      height: 40px;
+      background-color: var(--sierra-bg-light);
+      border: 1px solid var(--sierra-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-size: 18px;
+      color: var(--sierra-accent);
+    }
+    
+    .demo-inventory-count {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 10px;
+      color: var(--sierra-text-dark);
+      background-color: var(--sierra-bg-light);
+      padding: 1px 3px;
+      border: 1px solid var(--sierra-accent);
+    }
+    
+    .demo-garden-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 10px;
+      padding: 20px;
+      height: 100%;
+    }
+    
+    .demo-garden-plot {
+      background-color: var(--sierra-bg-light);
+      border: 2px solid var(--sierra-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: var(--sierra-accent);
+      font-size: 30px;
+    }
+    
+    .demo-garden-plot.empty {
+      color: var(--sierra-text-dark);
+      font-size: 16px;
+      font-style: italic;
+    }
+    
+    .demo-plot-number {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      font-size: 12px;
+      color: var(--sierra-text-dark);
+    }
+    
+    .demo-quest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .demo-quest-item {
+      background-color: var(--sierra-bg-light);
+      border: 1px solid var(--sierra-accent);
+      padding: 12px;
+    }
+    
+    .demo-quest-title {
+      font-family: var(--sierra-font-header);
+      font-size: 16px;
+      margin: 0 0 8px 0;
+      color: var(--sierra-accent);
+    }
+    
+    .demo-quest-description {
+      font-family: var(--sierra-font-main);
+      font-size: 14px;
+      color: var(--sierra-text-dark);
+      margin: 0 0 8px 0;
+      line-height: 1.4;
+    }
+    
+    .demo-quest-status {
+      font-family: var(--sierra-font-main);
+      font-style: italic;
+      font-size: 12px;
+      color: var(--sierra-text-dark);
+      text-align: right;
+    }
+    
+    /* Seasonal theme toggle controls */
+    .theme-controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .theme-button {
+      padding: 8px 16px;
+      background-color: var(--sierra-bg-medium);
+      border: 1px solid var(--sierra-accent);
+      color: var(--sierra-text-light);
+      font-family: var(--sierra-font-header);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .theme-button:hover {
+      background-color: var(--sierra-accent);
+    }
+    
+    .theme-button.active {
+      background-color: var(--sierra-accent);
+      border-color: var(--sierra-highlight);
+    }
+    
+    /* Component examples */
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    .demo-button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .demo-progress-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .demo-progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .demo-progress-label {
+      width: 80px;
+      font-family: var(--sierra-font-main);
+      font-size: 14px;
+      color: var(--sierra-text-dark);
+    }
+    
+    .demo-dialog-container {
+      position: relative;
+      height: 200px;
+      background-color: var(--sierra-bg-medium);
+      border: 1px solid var(--sierra-accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <header>
+      <h1>WITCH'S COVEN: SIERRA ADVENTURE STYLE</h1>
+      <div class="subtitle">Elegant, painterly UI inspired by classic adventure games</div>
+    </header>
+    
+    <div class="theme-controls">
+      <button class="theme-button active" data-theme="default">Default</button>
+      <button class="theme-button" data-theme="spring">Spring</button>
+      <button class="theme-button" data-theme="summer">Summer</button>
+      <button class="theme-button" data-theme="fall">Fall</button>
+      <button class="theme-button" data-theme="winter">Winter</button>
+      <button class="theme-button" data-theme="magic">Magic</button>
+    </div>
+    
+    <div class="demo-section">
+      <div class="section-title">COMPLETE GAME INTERFACE</div>
+      
+      <div class="demo-window">
+        <div class="demo-header">
+          WITCH'S COVEN: GLOW BRIGHTLY
+        </div>
+        <div class="demo-content">
+          <div class="demo-sidebar">
+            <div class="demo-panel">
+              <div class="demo-panel-header">Character</div>
+              <div class="demo-panel-content">
+                <div class="demo-portrait">W</div>
+                <div class="demo-character-name">Willow</div>
+                <div class="demo-character-class">Herbalist Witch</div>
+                
+                <div class="demo-stat-row">
+                  <div class="demo-stat-label">Herbalism</div>
+                  <div class="demo-stat-value">12</div>
+                </div>
+                <div class="demo-stat-row">
+                  <div class="demo-stat-label">Alchemy</div>
+                  <div class="demo-stat-value">8</div>
+                </div>
+                <div class="demo-stat-row">
+                  <div class="demo-stat-label">Reputation</div>
+                  <div class="demo-stat-value">7</div>
+                </div>
+                
+                <div class="demo-inventory-grid">
+                  <div class="demo-inventory-slot">❦<div class="demo-inventory-count">5</div></div>
+                  <div class="demo-inventory-slot">✿<div class="demo-inventory-count">3</div></div>
+                  <div class="demo-inventory-slot">·<div class="demo-inventory-count">8</div></div>
+                  <div class="demo-inventory-slot">♨<div class="demo-inventory-count">2</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="demo-main">
+            <div class="demo-tabs">
+              <div class="demo-tab active">Garden</div>
+              <div class="demo-tab">Brewing</div>
+              <div class="demo-tab">Atelier</div>
+              <div class="demo-tab">Market</div>
+              <div class="demo-tab">Journal</div>
+            </div>
+            
+            <div class="demo-garden-grid">
+              <div class="demo-garden-plot"><div class="demo-plot-number">1</div>✿</div>
+              <div class="demo-garden-plot empty"><div class="demo-plot-number">2</div>Empty</div>
+              <div class="demo-garden-plot"><div class="demo-plot-number">3</div>⚘</div>
+              <div class="demo-garden-plot empty"><div class="demo-plot-number">4</div>Empty</div>
+              <div class="demo-garden-plot"><div class="demo-plot-number">5</div>❀</div>
+              <div class="demo-garden-plot"><div class="demo-plot-number">6</div>❦</div>
+              <div class="demo-garden-plot empty"><div class="demo-plot-number">7</div>Empty</div>
+              <div class="demo-garden-plot"><div class="demo-plot-number">8</div>✽</div>
+              <div class="demo-garden-plot empty"><div class="demo-plot-number">9</div>Empty</div>
+            </div>
+          </div>
+          <div class="demo-sidebar">
+            <div class="demo-panel">
+              <div class="demo-panel-header">Quests</div>
+              <div class="demo-panel-content">
+                <div class="demo-quest-list">
+                  <div class="demo-quest-item">
+                    <div class="demo-quest-title">Gather Moonflowers</div>
+                    <div class="demo-quest-description">Collect 3 moonflowers during the full moon phase for the town elder.</div>
+                    <div class="demo-quest-status">Progress: 1/3</div>
+                  </div>
+                  <div class="demo-quest-item">
+                    <div class="demo-quest-title">Brew Clarity Potion</div>
+                    <div class="demo-quest-description">Create a potion of clarity for the village librarian.</div>
+                    <div class="demo-quest-status">Not Started</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-footer">
+          Day 3 • Waxing Crescent Moon • Summer • Gold: 175
+        </div>
+      </div>
+    </div>
+    
+    <div class="demo-section">
+      <div class="section-title">UI COMPONENTS</div>
+      
+      <div class="component-grid">
+        <!-- Buttons -->
+        <div class="ui-example">
+          <div class="example-title">Buttons</div>
+          <div class="example-content">
+            <div class="demo-button-group">
+              <button class="sierra-button">Standard Button</button>
+              <button class="sierra-button active">Active Button</button>
+              <button class="sierra-button" disabled>Disabled Button</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Progress Bars -->
+        <div class="ui-example">
+          <div class="example-title">Progress Bars</div>
+          <div class="example-content">
+            <div class="demo-progress-group">
+              <div class="demo-progress-row">
+                <div class="demo-progress-label">Health:</div>
+                <div class="sierra-progress-bar" style="flex: 1;">
+                  <div class="sierra-progress-fill" style="width: 75%;"></div>
+                </div>
+              </div>
+              <div class="demo-progress-row">
+                <div class="demo-progress-label">Mana:</div>
+                <div class="sierra-progress-bar" style="flex: 1;">
+                  <div class="sierra-progress-fill" style="width: 45%;"></div>
+                </div>
+              </div>
+              <div class="demo-progress-row">
+                <div class="demo-progress-label">Growth:</div>
+                <div class="sierra-progress-bar" style="flex: 1;">
+                  <div class="sierra-progress-fill" style="width: 30%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dialog Box -->
+        <div class="ui-example">
+          <div class="example-title">Dialog Boxes</div>
+          <div class="example-content">
+            <div class="demo-dialog-container">
+              <div class="sierra-dialog">
+                <div class="sierra-dialog-header">Garden Discovery</div>
+                <div class="sierra-dialog-content">
+                  <p>As you tend to your garden, you notice a peculiar glow emanating from beneath the soil. A rare Moonflower appears to be growing!</p>
+                  <p>Would you like to harvest it now or wait until it fully matures?</p>
+                </div>
+                <div class="sierra-dialog-footer">
+                  <button class="sierra-button">Harvest Now</button>
+                  <button class="sierra-button">Wait</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Message Box -->
+        <div class="ui-example">
+          <div class="example-title">Message Box</div>
+          <div class="example-content">
+            <div class="sierra-message-box">
+              <p>The moonlight filters through your cottage window, casting a silver glow on your workbench. Tonight seems like an auspicious time for brewing potions with lunar influences.</p>
+              <p>Your garden whispers with the subtle movements of nocturnal herbs stretching toward the moon's embrace.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Theme switching functionality
+    const themeButtons = document.querySelectorAll('.theme-button');
+    const demoWindow = document.querySelector('.demo-window');
+    
+    themeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        themeButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        button.classList.add('active');
+        
+        // Update theme
+        const theme = button.dataset.theme;
+        
+        // Remove all theme classes
+        demoWindow.classList.remove(
+          'sierra-spring-theme', 
+          'sierra-summer-theme', 
+          'sierra-fall-theme', 
+          'sierra-winter-theme',
+          'sierra-magic-theme'
+        );
+        
+        // Add selected theme class
+        if (theme !== 'default') {
+          demoWindow.classList.add(`sierra-${theme}-theme`);
+        }
+      });
+    });
+    
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.demo-tab');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        
+        // Add active class to clicked tab
+        tab.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
