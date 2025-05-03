@@ -1,12 +1,9 @@
 // frontend/src/index.tsx
-import * as ReactDOM from 'react-dom/client';
-// @ts-ignore -- React is used in JSX even if not directly referenced
-import * as React from 'react';
-// Import the simple version only
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App90s from './components/App90s'; 
+import './index.css'; // Import global styles
 import SimpleApp from './components/SimpleApp';
-import { renderMinimalApp } from './minimal';
-import { renderStandaloneApp } from './standalone';
-import './index.css';
 
 // Set up error tracking for React rendering errors
 const originalConsoleError = console.error;
@@ -28,82 +25,50 @@ console.error = function(...args) {
   originalConsoleError.apply(console, args);
 };
 
-// Enable React DevTools
-if (process.env.NODE_ENV !== 'production') {
-  // @ts-ignore
-  window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = { isDisabled: false };
-}
-
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  console.error("Fatal Error: Root element '#root' not found.");
+  console.error("Fatal Error: Root element with ID 'root' not found in the DOM. Cannot render the application.");
+  document.body.innerHTML = '<div style="color: #c75e54; background: #2d2038; font-family: \'Courier New\', monospace; padding: 30px; border: 4px solid #483d66; text-align: center;"><strong>Fatal Error!</strong><br><br>The Coven\'s portal could not open.<br>(Missing #root element in HTML document).<br><br>Please check the console.</div>';
   throw new Error("Root element '#root' not found.");
 }
 
 // Check for special mode parameters
 const urlParams = new URLSearchParams(window.location.search);
-
-// Type guard to assert rootElement is not null
-function assertNonNull<T>(value: T | null | undefined): asserts value is T {
-  if (value === null || value === undefined) {
-    throw new Error("Value is null or undefined");
-  }
-}
-
-// Function to render the main app with error handling
-function renderMainApp() {
-  try {
-    console.log('Attempting to render main App component...');
-    assertNonNull(rootElement);
-    const root = ReactDOM.createRoot(rootElement);
-    
-    // Add global error handler for React errors that happen during rendering
-    window.addEventListener('error', function(event) {
-      console.error('Global error caught:', event.error);
-      if (event.error && event.error.message && 
-          (event.error.message.includes('Maximum update') || 
-           event.error.message.includes('Too many re-renders') ||
-           event.error.message.includes('React error #310'))) {
-        console.error('Detected render loop, switching to standalone mode...');
-        // Go to standalone mode which is a simplified React app
-        window.location.href = '/?standalone=true';
-      }
-    });
-    
-    // Use SimpleApp instead of the complex App component
-    console.log('Rendering SimpleApp component');
-    root.render(<SimpleApp />);
-    
-    return true;
-  } catch (error) {
-    console.error('Fatal error rendering main App:', error);
-    // Try standalone mode first
-    if (!renderStandaloneApp()) {
-      // If standalone mode fails, go to minimal as last resort
-      return renderMinimalApp();
-    }
-    return true;
-  }
-}
-
-// Get URL parameters for different modes
-const useMinimal = urlParams.get('minimal') === 'true';
+const useModernUI = urlParams.get('modern') === 'true';
 const useStandalone = urlParams.get('standalone') === 'true';
+const useMinimal = urlParams.get('minimal') === 'true';
 
-// Render appropriate version based on URL parameters
+// Create the React root
+const root = ReactDOM.createRoot(rootElement);
+
+// Determine which version to render
 if (useStandalone) {
   console.log('Starting in standalone test mode');
-  renderStandaloneApp();
+  // Import dynamically to avoid loading unnecessary code
+  import('./standalone').then(module => {
+    module.renderStandaloneApp();
+  });
 } else if (useMinimal) {
   console.log('Starting in minimal mode');
-  renderMinimalApp();
+  // Import dynamically to avoid loading unnecessary code
+  import('./minimal').then(module => {
+    module.renderMinimalApp();
+  });
+} else if (useModernUI) {
+  console.log('Starting in modern UI mode');
+  // Render SimpleApp (original modern UI)
+  root.render(
+    <React.StrictMode>
+      <SimpleApp />
+    </React.StrictMode>
+  );
 } else {
-  console.log('Starting SimpleApp (stable version)');
-  try {
-    renderMainApp();
-  } catch (err) {
-    console.error('Critical failure in SimpleApp render, trying minimal mode:', err);
-    renderMinimalApp();
-  }
+  // Default to 90s UI
+  console.log('Starting in 90s UI mode (default)');
+  root.render(
+    <React.StrictMode>
+      <App90s />
+    </React.StrictMode>
+  );
 }
