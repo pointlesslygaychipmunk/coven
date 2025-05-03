@@ -1,0 +1,1173 @@
+/* HanbangBrewing.css */
+/* 90s-inspired tarot-based brewing system */
+
+/* Main container */
+.hanbang-brewing-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #2e3440;
+  color: #eceff4;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Header styles */
+.brewing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #4c566a;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.brewing-header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: #ebcb8b;
+  text-shadow: 2px 2px 0 #2e3440;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.brewing-lunar-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #d8dee9;
+}
+
+.brewing-season {
+  background-color: #4c566a;
+  padding: 3px 6px;
+  border-radius: 3px;
+}
+
+/* Method selection */
+.brewing-methods {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.method-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background-color: #3b4252;
+  border: 1px solid #4c566a;
+  color: #e5e9f0;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.method-button:hover {
+  background-color: #434c5e;
+}
+
+.method-button.active {
+  background-color: #5e81ac;
+  border-color: #81a1c1;
+}
+
+.method-icon {
+  font-size: 18px;
+}
+
+.method-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.method-product {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Element-specific styling for methods */
+.method-infusion {
+  border-left: 3px solid #88c0d0;
+}
+
+.method-fermentation {
+  border-left: 3px solid #a3be8c;
+}
+
+.method-distillation {
+  border-left: 3px solid #bf616a;
+}
+
+.method-crystallization {
+  border-left: 3px solid #b48ead;
+}
+
+/* Main content area */
+.brewing-content {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  min-height: 500px;
+}
+
+/* Ingredient panel */
+.ingredient-panel {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  background-color: #3b4252;
+  border: 1px solid #4c566a;
+  border-radius: 3px;
+}
+
+.ingredient-filters {
+  padding: 10px;
+  border-bottom: 1px solid #4c566a;
+}
+
+.search-box {
+  margin-bottom: 10px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 5px 8px;
+  background-color: #2e3440;
+  border: 1px solid #4c566a;
+  color: #eceff4;
+  font-family: 'Courier New', monospace;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.filter-buttons button {
+  background-color: #434c5e;
+  border: 1px solid #4c566a;
+  color: #e5e9f0;
+  padding: 3px 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+}
+
+.filter-buttons button.active {
+  background-color: #5e81ac;
+  border-color: #81a1c1;
+}
+
+.element-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.element-button {
+  background-color: #434c5e;
+  border: none;
+  color: #e5e9f0;
+  padding: 3px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  position: relative;
+}
+
+.element-button.active {
+  background-color: #5e81ac;
+  color: #eceff4;
+}
+
+.element-button.water {
+  border-left: 3px solid #88c0d0;
+}
+
+.element-button.earth {
+  border-left: 3px solid #a3be8c;
+}
+
+.element-button.fire {
+  border-left: 3px solid #bf616a;
+}
+
+.element-button.air {
+  border-left: 3px solid #b48ead;
+}
+
+.element-button.spirit {
+  border-left: 3px solid #ebcb8b;
+}
+
+.ingredient-scrollbox {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #4c566a #2e3440;
+}
+
+.ingredient-scrollbox::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ingredient-scrollbox::-webkit-scrollbar-track {
+  background: #2e3440;
+}
+
+.ingredient-scrollbox::-webkit-scrollbar-thumb {
+  background-color: #4c566a;
+  border-radius: 10px;
+}
+
+.no-ingredients {
+  font-size: 14px;
+  color: #d8dee9;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Ingredient cards */
+.ingredient-card {
+  display: flex;
+  align-items: center;
+  background-color: #434c5e;
+  border: 1px solid #4c566a;
+  border-radius: 3px;
+  padding: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.ingredient-card:hover {
+  background-color: #4c566a;
+}
+
+.ingredient-card.selected {
+  background-color: #5e81ac;
+  border-color: #81a1c1;
+}
+
+.ingredient-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-element {
+  font-size: 18px;
+  margin-right: 10px;
+  width: 24px;
+  text-align: center;
+}
+
+.card-element.water {
+  color: #88c0d0;
+}
+
+.card-element.earth {
+  color: #a3be8c;
+}
+
+.card-element.fire {
+  color: #bf616a;
+}
+
+.card-element.air {
+  color: #b48ead;
+}
+
+.card-element.spirit {
+  color: #ebcb8b;
+}
+
+.card-image {
+  width: 30px;
+  height: 30px;
+  background-color: #2e3440;
+  border-radius: 3px;
+  margin-right: 10px;
+  background-size: cover;
+  background-position: center;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-name {
+  font-size: 14px;
+  color: #eceff4;
+}
+
+.card-category {
+  font-size: 11px;
+  color: #d8dee9;
+  opacity: 0.8;
+}
+
+.card-quantity {
+  font-size: 12px;
+  color: #a3be8c;
+  font-weight: bold;
+}
+
+/* Card tooltip */
+.card-tooltip {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  left: 110%;
+  width: 200px;
+  background-color: #2e3440;
+  border: 1px solid #4c566a;
+  border-radius: 3px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.card-tooltip h4 {
+  margin: 0 0 5px 0;
+  color: #88c0d0;
+  font-size: 14px;
+  border-bottom: 1px solid #4c566a;
+  padding-bottom: 5px;
+}
+
+.card-tooltip p {
+  font-size: 12px;
+  margin: 0 0 10px 0;
+  color: #e5e9f0;
+}
+
+.tooltip-properties {
+  font-size: 11px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+
+.tooltip-properties div {
+  color: #d8dee9;
+}
+
+.tooltip-properties strong {
+  color: #ebcb8b;
+}
+
+/* Center brewing area */
+.brewing-area {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  background-color: #3b4252;
+  border: 1px solid #4c566a;
+  border-radius: 3px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.method-info {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #4c566a;
+}
+
+.method-info h3 {
+  margin: 0 0 5px 0;
+  color: #88c0d0;
+  font-size: 18px;
+}
+
+.method-info p {
+  font-size: 12px;
+  margin: 5px 0 10px;
+  color: #e5e9f0;
+}
+
+.brewing-requirements {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  font-size: 12px;
+  text-align: left;
+  color: #d8dee9;
+  margin: 0 auto;
+  max-width: 300px;
+}
+
+.brewing-requirements strong {
+  color: #ebcb8b;
+}
+
+/* Brewing apparatus visualization */
+.brewing-apparatus {
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0 20px;
+  position: relative;
+}
+
+.brewing-apparatus.shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.apparatus-container {
+  width: 150px;
+  height: 150px;
+  position: relative;
+}
+
+/* Infusion pot */
+.infusion-pot {
+  width: 100%;
+  height: 100%;
+  background-color: #434c5e;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #4c566a;
+}
+
+.potion-liquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  background-color: #88c0d0;
+  transition: background-color 0.5s;
+}
+
+.potion-liquid.bubbling {
+  animation: bubble 2s infinite;
+}
+
+@keyframes bubble {
+  0%, 100% { 
+    transform: translateY(0);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: translateY(-5px);
+    filter: brightness(1.2);
+  }
+}
+
+.fumes {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 40px;
+  background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+  animation: rise 2s infinite;
+  opacity: 0.7;
+}
+
+@keyframes rise {
+  0% { opacity: 0.1; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
+}
+
+/* Fermentation jar */
+.fermentation-jar {
+  width: 120px;
+  height: 150px;
+  background-color: #4c566a;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  border: 3px solid #3b4252;
+}
+
+.ferment-contents {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 85%;
+  background-color: #a3be8c;
+  transition: background-color 0.5s;
+}
+
+.ferment-contents.bubbling {
+  animation: ferment 3s infinite;
+}
+
+@keyframes ferment {
+  0%, 100% { 
+    height: 85%; 
+    filter: brightness(1);
+  }
+  50% { 
+    height: 87%;
+    filter: brightness(1.1);
+  }
+}
+
+/* Distillation alembic */
+.distillation-alembic {
+  width: 140px;
+  height: 140px;
+  background-color: #4c566a;
+  border-radius: 50% 50% 10px 10px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  border: 3px solid #3b4252;
+}
+
+.alembic-contents {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background-color: #bf616a;
+  transition: background-color 0.5s;
+}
+
+.alembic-contents.boiling {
+  animation: boil 1s infinite;
+}
+
+@keyframes boil {
+  0%, 100% { 
+    transform: scaleY(1);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scaleY(1.05);
+    filter: brightness(1.3);
+  }
+}
+
+.steam {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 50px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.5) 0%, transparent 70%);
+  animation: steam 1.5s infinite;
+}
+
+@keyframes steam {
+  0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+  50% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(1.5); }
+}
+
+/* Crystal chamber */
+.crystal-chamber {
+  width: 120px;
+  height: 120px;
+  background-color: #2e3440;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  border: 3px solid #4c566a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crystal-energy {
+  width: 60px;
+  height: 60px;
+  background-color: #b48ead;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  transition: background-color 0.5s;
+}
+
+.crystal-energy.pulsing {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scale(1.2);
+    filter: brightness(1.5);
+  }
+}
+
+.sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+  background-size: 10px 10px;
+  animation: sparkle 2s infinite;
+  opacity: 0.5;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
+}
+
+/* Progress bar */
+.brewing-progress-container {
+  width: 100%;
+  height: 15px;
+  background-color: #2e3440;
+  border-radius: 7px;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.brewing-progress-bar {
+  height: 100%;
+  background-color: #a3be8c;
+  transition: width 0.3s;
+}
+
+.brewing-progress-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #eceff4;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Selected cards */
+.selected-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+  min-height: 150px;
+  position: relative;
+  width: 100%;
+  perspective: 1000px;
+}
+
+.selected-card {
+  width: 80px;
+  height: 120px;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.card-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 2px solid #4c566a;
+  background-color: #2e3440;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-frame.element-water {
+  border-color: #88c0d0;
+  box-shadow: 0 0 5px rgba(136, 192, 208, 0.3);
+}
+
+.card-frame.element-earth {
+  border-color: #a3be8c;
+  box-shadow: 0 0 5px rgba(163, 190, 140, 0.3);
+}
+
+.card-frame.element-fire {
+  border-color: #bf616a;
+  box-shadow: 0 0 5px rgba(191, 97, 106, 0.3);
+}
+
+.card-frame.element-air {
+  border-color: #b48ead;
+  box-shadow: 0 0 5px rgba(180, 142, 173, 0.3);
+}
+
+.card-frame.element-spirit {
+  border-color: #ebcb8b;
+  box-shadow: 0 0 5px rgba(235, 203, 139, 0.3);
+}
+
+.card-frame .card-image {
+  flex: 1;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.card-frame .card-name {
+  padding: 3px;
+  text-align: center;
+  font-size: 10px;
+  background-color: rgba(46, 52, 64, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compatibility-line {
+  position: absolute;
+  top: 50%;
+  right: -20px;
+  width: 30px;
+  height: 3px;
+  z-index: 5;
+}
+
+.card-placeholder {
+  width: 80px;
+  height: 120px;
+  border-radius: 8px;
+  border: 2px dashed #4c566a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4c566a;
+}
+
+.placeholder-text {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Quality preview */
+.quality-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.quality-label {
+  font-size: 14px;
+  color: #d8dee9;
+  flex-shrink: 0;
+}
+
+.quality-meter {
+  flex: 1;
+  height: 20px;
+  background-color: #d8dee9;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.5s;
+}
+
+.quality-value {
+  font-size: 12px;
+  font-weight: bold;
+  color: #2e3440;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Brewing actions */
+.brewing-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.action-button {
+  padding: 8px 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button.brew {
+  background-color: #a3be8c;
+  color: #2e3440;
+}
+
+.action-button.brew:hover {
+  background-color: #8fbcbb;
+}
+
+.action-button.brew:disabled {
+  background-color: #4c566a;
+  color: #3b4252;
+  cursor: not-allowed;
+}
+
+.action-button.clear,
+.action-button.cancel {
+  background-color: #4c566a;
+  color: #eceff4;
+}
+
+.action-button.clear:hover,
+.action-button.cancel:hover {
+  background-color: #bf616a;
+}
+
+.action-button.clear:disabled {
+  background-color: #3b4252;
+  color: #4c566a;
+  cursor: not-allowed;
+}
+
+/* Brewing sidebar */
+.brewing-sidebar {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  background-color: #3b4252;
+  border: 1px solid #4c566a;
+  border-radius: 3px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.method-details {
+  margin-bottom: 20px;
+}
+
+.method-details h3 {
+  margin: 0 0 10px 0;
+  color: #88c0d0;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 1px solid #4c566a;
+  padding-bottom: 5px;
+}
+
+.method-element {
+  font-size: 16px;
+  color: #e5e9f0;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.method-affinity {
+  font-size: 12px;
+  color: #d8dee9;
+  margin-bottom: 15px;
+}
+
+.method-affinity div {
+  margin-bottom: 5px;
+}
+
+.method-affinity strong {
+  color: #ebcb8b;
+}
+
+.method-special {
+  margin-bottom: 15px;
+}
+
+.method-special h4 {
+  margin: 0 0 5px 0;
+  color: #88c0d0;
+  font-size: 14px;
+}
+
+.method-special ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: #e5e9f0;
+}
+
+.method-special li {
+  margin-bottom: 3px;
+}
+
+.optimal-ingredients h4 {
+  margin: 0 0 5px 0;
+  color: #88c0d0;
+  font-size: 14px;
+}
+
+.ingredient-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ingredient-tag {
+  background-color: #4c566a;
+  color: #e5e9f0;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* Player status */
+.player-status {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #4c566a;
+}
+
+.mana-display {
+  margin-bottom: 10px;
+}
+
+.mana-label {
+  font-size: 14px;
+  color: #88c0d0;
+  margin-bottom: 5px;
+}
+
+.mana-bar-container {
+  height: 20px;
+  background-color: #2e3440;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mana-bar {
+  height: 100%;
+  background-color: #5e81ac;
+  transition: width 0.3s;
+}
+
+.mana-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #eceff4;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+.skill-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skill-label {
+  font-size: 14px;
+  color: #88c0d0;
+}
+
+.skill-level {
+  font-size: 16px;
+  color: #a3be8c;
+  font-weight: bold;
+}
+
+/* Brewing result overlay */
+.brewing-result-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(46, 52, 64, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.result-panel {
+  width: 90%;
+  max-width: 500px;
+  background-color: #3b4252;
+  border: 2px solid #5e81ac;
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.result-panel h2 {
+  margin: 0 0 15px 0;
+  color: #88c0d0;
+  font-size: 20px;
+}
+
+.result-product-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  transition: color 0.5s;
+}
+
+.result-description {
+  font-size: 14px;
+  color: #e5e9f0;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.result-stats {
+  margin-bottom: 20px;
+}
+
+.result-quality {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.result-quality span {
+  font-size: 14px;
+  color: #d8dee9;
+}
+
+.quality-bar {
+  flex: 1;
+  height: 20px;
+  background-color: #2e3440;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.quality-fill {
+  height: 100%;
+  transition: width 1s, background-color 1s;
+}
+
+.quality-value {
+  font-weight: bold;
+}
+
+.result-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  text-align: left;
+  font-size: 14px;
+  color: #d8dee9;
+}
+
+.result-details strong {
+  color: #ebcb8b;
+}
+
+.result-confirm {
+  padding: 10px 20px;
+  background-color: #5e81ac;
+  color: #eceff4;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  transition: background-color 0.2s;
+}
+
+.result-confirm:hover {
+  background-color: #81a1c1;
+}
+
+/* Whisper message */
+.brewing-whisper {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(46, 52, 64, 0.8);
+  color: #eceff4;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  max-width: 80%;
+  text-align: center;
+  animation: fadeIn 0.5s;
+  z-index: 50;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .brewing-content {
+    flex-direction: column;
+  }
+  
+  .ingredient-panel,
+  .brewing-area,
+  .brewing-sidebar {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .brewing-sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .brewing-methods {
+    flex-wrap: wrap;
+  }
+  
+  .method-button {
+    min-width: 120px;
+  }
+  
+  .selected-cards {
+    flex-wrap: wrap;
+  }
+}

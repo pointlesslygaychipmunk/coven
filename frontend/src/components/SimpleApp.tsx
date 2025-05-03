@@ -25,19 +25,22 @@ import '../inventory-modal.css';
 import '../requests-styles.css';
 import '../weather-effects.css';
 import '../ritual-styles.css';
-import '../spells-styles.css';
 import '../skills-styles.css';
-import '../puzzle-integration.css';
-import BrewingPuzzle from './BrewingPuzzle';
-import SeasonalAttunementPuzzle from './SeasonalAttunementPuzzle';
+import HanbangBrewing from './HanbangBrewing';
+import TarotCollection from './TarotCollection';
 import CrossBreedingInterface from './CrossBreedingInterface';
+import TarotRitual from './TarotRitual';
+
+// Extend SimpleApp to support Tarot Rituals - this component is now integrated into the app's view system
 
 // Basic App that will definitely render without hooks issues
 const SimpleApp: React.FC = () => {
   // State for game functionality
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('garden');
+  const [view, setView] = useState('garden'); // Possible views: 'garden', 'brewing', 'market', 'rituals'
+  // Add collection view for tarot cards
+  const [showTarotCollection, setShowTarotCollection] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Additional state for interactive features
@@ -1354,6 +1357,165 @@ const SimpleApp: React.FC = () => {
     }
   };
   
+  // Handler for the HanbangBrewing component's onBrew function
+  const handleBrew = (
+    ingredientIds: string[], 
+    method: string, 
+    quality: number,
+    manaUsed: number
+  ) => {
+    // Current player
+    const player = gameState.players[gameState.currentPlayerIndex];
+    
+    // Find the ingredients being used
+    const ingredients = player.inventory.filter(item => 
+      ingredientIds.includes(item.id)
+    );
+    
+    // Generate a product name based on the first ingredient
+    const mainIngredient = ingredients[0]?.name || 'Mystery';
+    const productName = `${mainIngredient} ${method} ${quality >= 80 ? 'Elixir' : 'Tonic'}`;
+    
+    // Create the new potion/product
+    const newProduct = {
+      id: `product-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      baseId: ingredients[0]?.baseId || 'potion',
+      name: productName,
+      type: 'potion',
+      category: method.toLowerCase(),
+      quantity: 1,
+      quality: quality,
+      value: Math.floor(quality * ingredients.reduce((sum, i) => sum + (i.value || 10), 0) / ingredients.length),
+      description: `A ${quality >= 80 ? 'high quality' : 'modest'} ${method.toLowerCase()} made from ${ingredients.map(i => i.name).join(', ')}.`,
+      tarotCardId: ingredients[0]?.tarotCardId, // Transfer the tarot card ID from the main ingredient
+      method: method
+    };
+    
+    // Remove the used ingredients from inventory
+    const updatedInventory = player.inventory.map(item => {
+      if (ingredientIds.includes(item.id)) {
+        // Reduce quantity by 1
+        return {
+          ...item,
+          quantity: item.quantity - 1
+        };
+      }
+      return item;
+    }).filter(item => item.quantity > 0); // Remove items with 0 quantity
+    
+    // Add the new product
+    updatedInventory.push(newProduct as any);
+    
+    // Update the player
+    const updatedPlayer = {
+      ...player,
+      inventory: updatedInventory
+    };
+    
+    // Update game state
+    setGameState({
+      ...gameState,
+      players: gameState.players.map((p, idx) => 
+        idx === gameState.currentPlayerIndex ? updatedPlayer : p
+      )
+    } as GameState);
+    
+    // Award brewing experience based on quality and method complexity
+    const expGain = Math.floor(quality / 10) + (method === 'Crystallization' ? 15 : 
+                                              method === 'Distillation' ? 12 :
+                                              method === 'Fermentation' ? 10 : 8);
+    
+    addSkillExperience('brewing', expGain);
+    
+    setErrorMessage(`Successfully created ${productName}!`);
+  };
+  
+  // Handler for updating player's mana
+  const handleUpdateMana = (newMana: number) => {
+    // Current player
+    const player = gameState.players[gameState.currentPlayerIndex];
+    
+    // Update the player
+    const updatedPlayer = {
+      ...player,
+      mana: newMana
+    };
+    
+    // Update game state
+    setGameState({
+      ...gameState,
+      players: gameState.players.map((p, idx) => 
+        idx === gameState.currentPlayerIndex ? updatedPlayer : p
+      )
+    } as GameState);
+  };
+  
+  // Handler for the TarotRitual component's onPerformRitual function
+  const performTarotRitual = (
+    ritualId: string, 
+    cardIds: Record<string, string | null>, 
+    effects: any,
+    manaUsed: number
+  ) => {
+    if (!gameState) return;
+    
+    try {
+      // Current player
+      const player = gameState.players[gameState.currentPlayerIndex];
+      
+      // Update player's mana
+      const updatedMana = Math.max(0, player.mana - manaUsed);
+      
+      // Create a list of used card IDs (filter out null values)
+      const usedCardIds = Object.values(cardIds).filter(id => id !== null) as string[];
+      
+      // Find relevant skills for xp gain
+      let primarySkill = 'astrology';  // default
+      let primaryXpGain = 0;
+      let secondaryXpGain = 0;
+      
+      if (effects.success) {
+        // Higher XP for successful rituals
+        primaryXpGain = 30 + Math.floor(effects.potencyModifier * 10);
+        secondaryXpGain = 15;
+        
+        // Success message
+        setErrorMessage(`Ritual successful! Power: ${Math.round(effects.ritualPower)}, Potency: ${effects.potencyModifier.toFixed(1)}x`);
+      } else {
+        // Lower XP for failed rituals, but still some learning
+        primaryXpGain = 10;
+        secondaryXpGain = 5;
+        
+        // Failure message
+        setErrorMessage('The ritual energies dissipated. The ritual has failed.');
+      }
+      
+      // Award XP based on ritual type
+      addSkillExperience(primarySkill, primaryXpGain);
+      addSkillExperience('herbalism', secondaryXpGain);
+      
+      // Update the player
+      const updatedPlayer = {
+        ...player,
+        mana: updatedMana,
+        // Add ritual to performed rituals if needed
+        // performedRituals: [...(player.performedRituals || []), ritualId]
+      };
+      
+      // Update game state
+      setGameState({
+        ...gameState,
+        players: gameState.players.map((p, idx) => 
+          idx === gameState.currentPlayerIndex ? updatedPlayer : p
+        )
+      } as GameState);
+      
+    } catch (err) {
+      console.error('Error performing tarot ritual:', err);
+      setErrorMessage('Something went wrong with the ritual.');
+    }
+  };
+  
   // Get skill description text
   const getSkillDescription = (skill: string): string => {
     switch (skill) {
@@ -1873,12 +2035,6 @@ const SimpleApp: React.FC = () => {
             <span className="game-menu-key">B</span>rewing
           </div>
           <div 
-            className={`game-menu-item ${view === 'atelier' ? 'active' : ''}`}
-            onClick={() => setView('atelier')}
-          >
-            <span className="game-menu-key">A</span>telier
-          </div>
-          <div 
             className={`game-menu-item ${view === 'rituals' ? 'active' : ''}`}
             onClick={() => setView('rituals')}
           >
@@ -1913,6 +2069,12 @@ const SimpleApp: React.FC = () => {
             onClick={() => setView('journal')}
           >
             <span className="game-menu-key">J</span>ournal
+          </div>
+          <div 
+            className={`game-menu-item ${view === 'tarot' ? 'active' : ''}`}
+            onClick={() => setView('tarot')}
+          >
+            <span className="game-menu-key">C</span>ards
           </div>
           <div 
             className="game-menu-item"
@@ -2675,42 +2837,20 @@ const SimpleApp: React.FC = () => {
             )}
             
             {view === 'brewing' && (
-              <div className="brewing-view">
-                <h2>Brewing Chamber</h2>
-                <div className="brewing-intro">
-                  <p>Here you can brew magical potions using your harvested ingredients.</p>
-                  <p>Current moon phase: <span className="highlight">{gameState.time.phaseName}</span> - affects potion potency!</p>
-                </div>
-                
-                <div className="brewing-content">
-                  {/* Ingredients Panel */}
-                  <div className="ingredients-panel">
-                    <div className="ingredients-header">
-                      <h3>Ingredients</h3>
-                      <div className="ingredients-filters">
-                        <select onChange={(e) => setItemFilter(e.target.value === 'all' ? null : e.target.value)}>
-                          <option value="all">All Categories</option>
-                          <option value="herb">Herbs</option>
-                          <option value="crystal">Crystals</option>
-                          <option value="mushroom">Mushrooms</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="ingredients-grid">
-                      {Array.isArray(currentPlayer.inventory) && 
-                       currentPlayer.inventory.filter(item => {
-                         const isIngredient = item.type === 'ingredient';
-                         const matchesFilter = !itemFilter || item.category === itemFilter;
-                         return isIngredient && matchesFilter;
-                       }).length > 0 ? (
-                        currentPlayer.inventory
-                          .filter(item => {
-                            const isIngredient = item.type === 'ingredient';
-                            const matchesFilter = !itemFilter || item.category === itemFilter;
-                            return isIngredient && matchesFilter;
-                          })
-                          .map((item, index) => (
-                            <div 
+              <div className="hanbang-brewing-view">
+                <HanbangBrewing
+                  playerInventory={currentPlayer.inventory}
+                  playerMana={currentPlayer.mana}
+                  brewingSkillLevel={currentPlayer.skills.brewing}
+                  moonPhase={gameState.time.phaseName}
+                  season={gameState.time.season}
+                  onBrew={handleBrew}
+                  onUpdateMana={handleUpdateMana}
+                />
+              </div>
+            )}
+            
+            {/* Remove the atelier view and combine into brewing */}
                               key={index} 
                               className={`ingredient-item ${item.category || ''}`}
                               onClick={() => {
@@ -2964,39 +3104,7 @@ const SimpleApp: React.FC = () => {
               </div>
             )}
             
-            {view === 'atelier' && (
-              <div className="atelier-view">
-                <h2>Magic Atelier</h2>
-                <div className="atelier-intro">
-                  <p>Craft magical items and enhance your abilities in your personal atelier.</p>
-                  <p>Your specialization: <span className="highlight">{currentPlayer.atelierSpecialization}</span></p>
-                  <p>Atelier Level: <span className="highlight">{currentPlayer.atelierLevel}</span></p>
-                </div>
-                
-                <div className="atelier-workspace">
-                  {/* Components Panel */}
-                  <div className="ingredients-panel">
-                    <div className="ingredients-header">
-                      <h3>Components</h3>
-                      <div className="ingredients-filters">
-                        <select onChange={(e) => setItemFilter(e.target.value === 'all' ? null : e.target.value)}>
-                          <option value="all">All Categories</option>
-                          <option value="herb">Herbs</option>
-                          <option value="crystal">Crystals</option>
-                          <option value="ritual">Ritual Items</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="ingredients-grid">
-                      {Array.isArray(currentPlayer.inventory) && 
-                       currentPlayer.inventory.filter(item => {
-                         const isComponent = item.type === 'ingredient' || item.type === 'tool';
-                         const matchesFilter = !itemFilter || item.category === itemFilter;
-                         return isComponent && matchesFilter;
-                       }).length > 0 ? (
-                        currentPlayer.inventory
-                          .filter(item => {
-                            const isComponent = item.type === 'ingredient' || item.type === 'tool';
+            {/* Atelier view has been combined with Brewing in the HanbangBrewing component */}
                             const matchesFilter = !itemFilter || item.category === itemFilter;
                             return isComponent && matchesFilter;
                           })
@@ -3212,7 +3320,17 @@ const SimpleApp: React.FC = () => {
                   }}
                   onNavigateToMarket={() => setView('market')}
                   onNavigateToGarden={() => setView('garden')}
-                  onNavigateToAtelier={() => setView('atelier')}
+                  onNavigateToAtelier={() => setView('brewing')} {/* Redirecting to brewing since atelier is now combined */}
+                />
+              </div>
+            )}
+            
+            {view === 'tarot' && (
+              <div className="tarot-collection-view">
+                <TarotCollection
+                  playerInventory={currentPlayer.inventory}
+                  season={gameState.time.season}
+                  moonPhase={gameState.time.phaseName}
                 />
               </div>
             )}

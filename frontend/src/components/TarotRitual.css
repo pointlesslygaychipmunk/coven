@@ -1,0 +1,1060 @@
+/* TarotRitual.css - 90s-inspired ritual interface */
+
+/* Element Colors */
+:root {
+  --earth-color: #a3be8c;
+  --water-color: #88c0d0;
+  --fire-color: #bf616a;
+  --air-color: #ebcb8b;
+  --spirit-color: #b48ead;
+  
+  /* Score colors */
+  --score-excellent: #a3be8c;
+  --score-good: #ebcb8b;
+  --score-moderate: #d08770;
+  --score-poor: #bf616a;
+  --score-bad: #4c566a;
+  
+  /* 90s UI colors */
+  --primary-bg: #0c285a;
+  --secondary-bg: #404888;
+  --accent-color: #7b69ce;
+  --text-color: #f8f8f8;
+  --highlight-color: #fc5b94;
+  --border-color: #6f4bad;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Main container */
+.tarot-ritual-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  overflow: hidden;
+  position: relative;
+  padding: 10px;
+  box-sizing: border-box;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="%230c285a"/><circle cx="30" cy="30" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="90" cy="30" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="150" cy="30" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="210" cy="30" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="270" cy="30" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="30" cy="90" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="90" cy="90" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="150" cy="90" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="210" cy="90" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="270" cy="90" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="30" cy="150" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="90" cy="150" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="150" cy="150" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="210" cy="150" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="270" cy="150" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="30" cy="210" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="90" cy="210" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="150" cy="210" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="210" cy="210" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="270" cy="210" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="30" cy="270" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="90" cy="270" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="150" cy="270" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="210" cy="270" r="3" fill="%23ffffff" fill-opacity="0.2"/><circle cx="270" cy="270" r="3" fill="%23ffffff" fill-opacity="0.2"/></svg>');
+  background-attachment: fixed;
+}
+
+/* Header section */
+.ritual-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 0 var(--shadow-color);
+}
+
+.ritual-header h2 {
+  margin: 0;
+  color: var(--highlight-color);
+  font-family: "Comic Sans MS", cursive;
+  text-shadow: 2px 2px 0 var(--shadow-color);
+  font-size: 28px;
+}
+
+.player-mana {
+  background-color: var(--primary-bg);
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--accent-color);
+  font-size: 16px;
+}
+
+.mana-label {
+  margin-right: 5px;
+  color: var(--accent-color);
+}
+
+.mana-value {
+  font-weight: bold;
+  color: var(--highlight-color);
+}
+
+.cosmic-info {
+  display: flex;
+  gap: 15px;
+}
+
+.moon-phase,
+.season {
+  background-color: var(--primary-bg);
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--accent-color);
+  font-size: 14px;
+}
+
+.phase-label,
+.season-label {
+  margin-right: 5px;
+  color: var(--accent-color);
+}
+
+.phase-value,
+.season-value {
+  font-weight: bold;
+}
+
+/* Main content container */
+.ritual-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Ritual selection panel */
+.ritual-selection-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.ritual-selection-panel h3 {
+  margin: 0;
+  padding: 10px;
+  background-color: var(--accent-color);
+  color: white;
+  font-family: "Comic Sans MS", cursive;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.ritual-filters {
+  display: flex;
+  padding: 10px;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ritual-search {
+  flex: 1;
+  padding: 6px 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 3px;
+  background-color: var(--primary-bg);
+  color: white;
+  font-family: inherit;
+}
+
+.filter-group {
+  display: flex;
+  gap: 10px;
+}
+
+.ritual-type-filter,
+.ritual-element-filter {
+  padding: 6px 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 3px;
+  background-color: var(--primary-bg);
+  color: white;
+  font-family: inherit;
+}
+
+.rituals-list {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  align-content: start;
+}
+
+.ritual-item {
+  background-color: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  padding: 15px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.ritual-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px var(--shadow-color);
+  border-color: var(--highlight-color);
+}
+
+.ritual-item.selected {
+  border-color: var(--highlight-color);
+  background-color: rgba(123, 105, 206, 0.3);
+  box-shadow: 0 0 10px var(--highlight-color);
+}
+
+.ritual-item.insufficient-mana {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ritual-item.empowered {
+  background-image: linear-gradient(to right, rgba(123, 105, 206, 0.3), rgba(252, 91, 148, 0.3));
+}
+
+.ritual-item.empowered::after {
+  content: "✨";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px;
+  color: var(--highlight-color);
+}
+
+.ritual-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.ritual-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--highlight-color);
+}
+
+.ritual-cost {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.mana-icon {
+  margin-right: 3px;
+}
+
+.ritual-description {
+  font-size: 14px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.ritual-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.ritual-type {
+  color: var(--accent-color);
+}
+
+.ritual-elements {
+  display: flex;
+  gap: 5px;
+}
+
+.element {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.element.earth {
+  background-color: var(--earth-color);
+  color: #2e3440;
+}
+
+.element.water {
+  background-color: var(--water-color);
+  color: #2e3440;
+}
+
+.element.fire {
+  background-color: var(--fire-color);
+  color: white;
+}
+
+.element.air {
+  background-color: var(--air-color);
+  color: #2e3440;
+}
+
+.element.spirit {
+  background-color: var(--spirit-color);
+  color: white;
+}
+
+.ritual-alignments {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.ritual-moon,
+.ritual-season {
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: var(--secondary-bg);
+  border: 1px dashed var(--border-color);
+}
+
+.ritual-moon.active,
+.ritual-season.active {
+  background-color: var(--highlight-color);
+  border: 1px solid white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(252, 91, 148, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(252, 91, 148, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(252, 91, 148, 0); }
+}
+
+.no-rituals {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px;
+  font-style: italic;
+  color: var(--accent-color);
+}
+
+/* Active ritual view */
+.active-ritual {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.ritual-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: var(--accent-color);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.ritual-title h3 {
+  margin: 0;
+  color: white;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 22px;
+}
+
+.back-button {
+  background-color: var(--primary-bg);
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.back-button:hover {
+  background-color: var(--border-color);
+}
+
+.ritual-description {
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 15px;
+  font-style: italic;
+  text-align: center;
+}
+
+.ritual-workspace {
+  display: flex;
+  flex: 1;
+  gap: 15px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+/* Ritual circle */
+.ritual-circle {
+  flex: 1;
+  position: relative;
+  background-color: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+}
+
+.ritual-circle::before {
+  content: '';
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  top: 5%;
+  left: 5%;
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.ritual-circle::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+  border: 1px solid var(--accent-color);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.ritual-circle.active::before,
+.ritual-circle.active::after {
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px 0px var(--highlight-color); }
+  to { box-shadow: 0 0 20px 10px var(--highlight-color); }
+}
+
+.ritual-position {
+  position: absolute;
+  width: 80px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.ritual-position.empty {
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  background-color: rgba(12, 40, 90, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ritual-position.active {
+  box-shadow: 0 0 15px var(--highlight-color);
+}
+
+.empty-position {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.position-requirement {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.req-element {
+  font-weight: bold;
+  padding: 2px 5px;
+  background-color: var(--secondary-bg);
+  border-radius: 3px;
+}
+
+.req-rank {
+  font-size: 11px;
+  color: var(--highlight-color);
+}
+
+/* Placed card styling */
+.placed-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.card-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  padding: 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.card-frame.element-earth::before { background-color: var(--earth-color); }
+.card-frame.element-water::before { background-color: var(--water-color); }
+.card-frame.element-fire::before { background-color: var(--fire-color); }
+.card-frame.element-air::before { background-color: var(--air-color); }
+.card-frame.element-spirit::before { background-color: var(--spirit-color); }
+
+.card-frame.element-earth { border: 2px solid var(--earth-color); }
+.card-frame.element-water { border: 2px solid var(--water-color); }
+.card-frame.element-fire { border: 2px solid var(--fire-color); }
+.card-frame.element-air { border: 2px solid var(--air-color); }
+.card-frame.element-spirit { border: 2px solid var(--spirit-color); }
+
+.card-name {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333;
+}
+
+.card-element,
+.card-rank {
+  font-size: 11px;
+  text-align: center;
+  color: #555;
+}
+
+.remove-card {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--fire-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.position-score {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.position-score.excellent { background-color: var(--score-excellent); }
+.position-score.good { background-color: var(--score-good); color: #333; }
+.position-score.moderate { background-color: var(--score-moderate); }
+.position-score.poor { background-color: var(--score-poor); }
+.position-score.bad { background-color: var(--score-bad); }
+
+.ritual-position.excellent { border-color: var(--score-excellent); }
+.ritual-position.good { border-color: var(--score-good); }
+.ritual-position.moderate { border-color: var(--score-moderate); }
+.ritual-position.poor { border-color: var(--score-poor); }
+.ritual-position.bad { border-color: var(--score-bad); }
+
+/* Ritual power indicators */
+.ritual-power-indicators {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: rgba(12, 40, 90, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  z-index: 3;
+}
+
+.ritual-power,
+.ritual-success,
+.ritual-potency {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.power-label,
+.success-label,
+.potency-label {
+  color: var(--accent-color);
+  flex: 1;
+}
+
+.power-bar {
+  flex: 2;
+  height: 10px;
+  background-color: var(--primary-bg);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.power-fill {
+  height: 100%;
+  background-color: var(--highlight-color);
+  transition: width 0.5s ease;
+}
+
+.success-value,
+.potency-value {
+  flex: 1;
+  text-align: right;
+  font-weight: bold;
+}
+
+/* Ritual energy effects */
+.ritual-energy-center {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--highlight-color);
+  box-shadow: 0 0 30px var(--highlight-color);
+  animation: pulse-center 2s infinite alternate;
+  z-index: 1;
+}
+
+.ritual-energy-rays {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background-image: repeating-conic-gradient(
+    transparent 0deg 5deg,
+    rgba(123, 105, 206, 0.1) 5deg 10deg
+  );
+  opacity: 0.5;
+  animation: rotate 20s linear infinite;
+  z-index: 0;
+}
+
+.ritual-energy-circle {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  border: 10px solid transparent;
+  border-image: conic-gradient(
+    var(--earth-color),
+    var(--water-color),
+    var(--fire-color),
+    var(--air-color),
+    var(--spirit-color),
+    var(--earth-color)
+  ) 1;
+  animation: rotate-reverse 15s linear infinite;
+  z-index: 0;
+}
+
+@keyframes pulse-center {
+  from { transform: scale(1); }
+  to { transform: scale(1.5); opacity: 0.7; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotate-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Ritual log */
+.ritual-log {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.ritual-log h3 {
+  margin: 0;
+  padding: 10px;
+  background-color: var(--accent-color);
+  color: white;
+  font-family: "Comic Sans MS", cursive;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.log-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.empty-log {
+  font-style: italic;
+  text-align: center;
+  color: var(--accent-color);
+  padding: 20px 0;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.log-message {
+  background-color: var(--secondary-bg);
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.message-time {
+  font-size: 11px;
+  color: var(--accent-color);
+  margin-bottom: 3px;
+}
+
+.message-text {
+  line-height: 1.3;
+}
+
+/* Ritual actions */
+.ritual-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.perform-ritual,
+.new-ritual {
+  padding: 10px 20px;
+  background-color: var(--highlight-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.perform-ritual:hover,
+.new-ritual:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+.perform-ritual:active,
+.new-ritual:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.perform-ritual:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.ritual-progress {
+  font-style: italic;
+  color: var(--highlight-color);
+  animation: progress-pulse 1s infinite alternate;
+}
+
+@keyframes progress-pulse {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+/* Card selection overlay */
+.card-selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+  backdrop-filter: blur(3px);
+}
+
+.card-selection-panel {
+  width: 100%;
+  max-width: 800px;
+  max-height: 80vh;
+  background-color: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slide-up 0.3s ease;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.card-selection-panel h3 {
+  margin: 0;
+  padding: 15px;
+  background-color: var(--accent-color);
+  color: white;
+  border-bottom: 2px solid var(--border-color);
+  text-align: center;
+  font-family: "Comic Sans MS", cursive;
+}
+
+.position-requirements {
+  padding: 15px;
+  background-color: var(--primary-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.position-requirements h4 {
+  margin: 0 0 10px 0;
+  color: var(--highlight-color);
+}
+
+.position-requirements ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.position-requirements li {
+  margin-bottom: 5px;
+}
+
+.position-requirements .element {
+  display: inline-block;
+}
+
+.cards-grid {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  align-content: start;
+}
+
+.selectable-card {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.selectable-card:hover {
+  transform: translateY(-5px);
+  z-index: 1;
+}
+
+.selectable-card.excellent { box-shadow: 0 0 15px var(--score-excellent); }
+.selectable-card.good { box-shadow: 0 0 10px var(--score-good); }
+.selectable-card.moderate { box-shadow: 0 0 8px var(--score-moderate); }
+.selectable-card.poor { box-shadow: 0 0 5px var(--score-poor); }
+.selectable-card.bad { box-shadow: none; }
+
+.selectable-card .card-frame {
+  height: 180px;
+}
+
+.card-image {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-bottom: 5px;
+  background-color: #f0f0f0;
+}
+
+.card-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #ddd;
+  color: #333;
+}
+
+.card-score {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.selectable-card.excellent .card-score { background-color: var(--score-excellent); }
+.selectable-card.good .card-score { background-color: var(--score-good); color: #333; }
+.selectable-card.moderate .card-score { background-color: var(--score-moderate); }
+.selectable-card.poor .card-score { background-color: var(--score-poor); }
+.selectable-card.bad .card-score { background-color: var(--score-bad); }
+
+.card-used-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.selectable-card.used {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.selection-actions {
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--border-color);
+}
+
+.cancel-selection {
+  padding: 8px 16px;
+  background-color: var(--primary-bg);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cancel-selection:hover {
+  background-color: var(--border-color);
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  .ritual-workspace {
+    flex-direction: column;
+  }
+  
+  .ritual-circle {
+    min-height: 400px;
+  }
+  
+  .ritual-log {
+    width: 100%;
+    max-height: 200px;
+  }
+  
+  .ritual-position {
+    width: 70px;
+    height: 105px;
+  }
+  
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .ritual-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .ritual-filters {
+    flex-direction: column;
+  }
+  
+  .rituals-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .ritual-circle {
+    min-height: 350px;
+  }
+  
+  .ritual-position {
+    width: 60px;
+    height: 90px;
+  }
+  
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+}

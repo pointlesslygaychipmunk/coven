@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './Market.css';
-import { InventoryItem, MarketItem, Rumor, TownRequest } from 'coven-shared';
+import { 
+  InventoryItem, 
+  MarketItem, 
+  Rumor, 
+  TownRequest, 
+  TarotCard, 
+  ElementType 
+} from 'coven-shared';
+import { findCardById } from 'coven-shared/src/tarotCards';
 
 // Define custom type for price trend animation
 type TrendType = 'up' | 'down' | 'stable';
@@ -270,6 +278,23 @@ const Market: React.FC<MarketProps> = ({
     if (activeTab === 'buy' && selectedItemId) return marketItems.find(item => item.id === selectedItemId) || null;
     if (activeTab === 'sell' && selectedInventoryItemId) return playerInventory.find(item => item.id === selectedInventoryItemId) || null;
     if (activeTab === 'requests' && selectedRequestId) return townRequests.find(req => req.id === selectedRequestId) || null;
+    return null;
+  };
+  
+  // Get tarot card for an inventory item
+  const getTarotCard = (item: MarketItem | InventoryItem | null): TarotCard | null => {
+    if (!item) return null;
+    
+    // Check for tarotCardId property in inventory items
+    if ('tarotCardId' in item && item.tarotCardId) {
+      return findCardById(item.tarotCardId);
+    }
+    
+    // For market items, check if it has a reference cardId
+    if ('cardId' in item && item.cardId) {
+      return findCardById(item.cardId);
+    }
+    
     return null;
   };
 
@@ -826,10 +851,40 @@ const Market: React.FC<MarketProps> = ({
               )}
               
               <div className="item-image">
-                <div title={item.name}>{item.name.charAt(0).toUpperCase()}</div>
+                {/* Check for tarot card */}
+                {(() => {
+                  const tarotCard = getTarotCard(item);
+                  if (tarotCard) {
+                    return (
+                      <div 
+                        className={`tarot-card-miniature element-${tarotCard.element.toLowerCase()}`}
+                        title={`${tarotCard.element} • ${tarotCard.moonPhaseAffinity} • ${tarotCard.seasonAffinity}`}
+                      >
+                        <div className="card-frame">{tarotCard.name.charAt(0).toUpperCase()}</div>
+                        <div className="card-element">{tarotCard.element.charAt(0)}</div>
+                      </div>
+                    );
+                  } else {
+                    return <div title={item.name}>{item.name.charAt(0).toUpperCase()}</div>;
+                  }
+                })()}
               </div>
               
-              <div className="item-name">{item.name}</div>
+              <div className="item-name">
+            {item.name}
+            {/* Show element indicator if it's a tarot card */}
+            {(() => {
+              const tarotCard = getTarotCard(item);
+              if (tarotCard) {
+                return (
+                  <span className={`item-element element-${tarotCard.element.toLowerCase()}`}>
+                    {tarotCard.element}
+                  </span>
+                );
+              }
+              return null;
+            })()}
+          </div>
               
               {isSellTab && quantity !== undefined && quality !== undefined && (
                 <div className="item-details">

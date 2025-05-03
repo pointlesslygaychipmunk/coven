@@ -18,17 +18,87 @@ export type MoonPhase =
 
 // --- Item Foundational Types ---
 
-export type ItemType = 'potion' | 'charm' | 'talisman' | 'ingredient' | 'seed' | 'tool' | 'ritual_item' | 'essence' | 'oil' | 'tonic' | 'mask' | 'elixir';
+export type ItemType = 'potion' | 'charm' | 'talisman' | 'ingredient' | 'seed' | 'tool' | 'ritual_item' | 'essence' | 'oil' | 'tonic' | 'mask' | 'elixir' | 'tree';
 export type ItemCategory =
   // Ingredients
   'herb' | 'flower' | 'root' | 'fruit' | 'mushroom' | 'leaf' | 'succulent' | 'essence' | 'crystal' |
+  // Plants and Trees
+  'tree' | 'plant' | 
   // Potions/Products
   'mask' | 'serum' | 'tonic' | 'elixir' | 'oil' | 'potion' |
   // Other
   'seed' | 'tool' | 'ritual_item' | 'charm' | 'talisman' | 'misc';
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
 
-// Base Item definition - includes all common static properties
+// --- Tarot Card System Types ---
+
+export type ElementType = 'Earth' | 'Water' | 'Fire' | 'Air' | 'Spirit';
+
+export type CardFrame = 'herb' | 'tree' | 'flower' | 'root' | 'potion' | 'tonic' | 'mask' | 'charm' | 'ritual';
+
+export type CardEffect = {
+  type: 'growth' | 'potency' | 'stability' | 'essence' | 'value' | 'harmony' | 'quality' | 'yield';
+  value: number;
+  description: string;
+};
+
+export type ComboRef = {
+  cardId: string;
+  effectDescription: string;
+  bonusType: string;
+  bonusValue: number;
+};
+
+// Soil type preferences for plantable cards
+export type SoilType = 'loamy' | 'sandy' | 'clay' | 'chalky' | 'peaty';
+
+// Tarot Card - the unified representation of all game items
+export type TarotCard = {
+  // Identity
+  id: string;                     // Unique identifier
+  name: string;                   // Display name
+  category: ItemCategory;         // Item category
+  type: ItemType;                 // Item type classification
+  
+  // Visual Presentation
+  artworkPath: string;            // Path to card artwork
+  frameType: CardFrame;           // Visual frame style
+  
+  // Cosmic Associations
+  element: ElementType;           // Earth, Water, Fire, Air, Spirit
+  moonPhaseAffinity: MoonPhase;   // Which moon phase empowers this card
+  seasonAffinity: Season;         // Which season empowers this card
+  
+  // Gameplay Values
+  rank: number;                   // Power level (1-10)
+  essence: number;                // Mana/energy value
+  rarity: Rarity;                 // Rarity tier
+  
+  // Game Mechanics
+  primaryEffect: CardEffect;      // Main effect when used
+  secondaryEffect?: CardEffect;   // Optional secondary effect
+  combos: ComboRef[];             // Cards this combos with
+  
+  // Growth Properties (for Garden)
+  growthTime?: number;            // Time to mature if plantable
+  yield?: number;                 // Amount harvested if plantable
+  soilPreference?: SoilType;      // Preferred soil if plantable
+  manaGeneration?: number;        // Mana generated per turn (for trees)
+  
+  // Brewing Properties
+  potency?: number;               // Strength in brews (1-10)
+  stability?: number;             // How stable in mixtures (1-10)
+  
+  // Market Properties
+  baseValue: number;              // Base market value
+  demandFluctuation: number;      // How much price varies (1-10)
+  
+  // Lore
+  description: string;            // Card lore and description
+  traditionUse: string;           // Historical use in Hanbang
+};
+
+// Base Item definition - modified to align with TarotCard system
 export type Item = {
   id: string;             // Unique ID for the item type (e.g., 'ing_moonbud')
   name: string;           // Display name (e.g., "Moonbud") - MANDATORY
@@ -40,6 +110,9 @@ export type Item = {
   imagePath?: string;     // Path to item icon/image
   primaryProperty?: string; // e.g., "brightening" (for ingredients/potions)
   seasonalBonus?: Season; // Season where this item might be more valuable/available
+  
+  // Link to tarot card system
+  cardId?: string;        // Reference to the TarotCard ID if this is linked
 };
 
 // Basic info for recipes, suitable for frontend lists or basic state
@@ -92,31 +165,78 @@ export type AtelierSpecialization = 'Essence' | 'Fermentation' | 'Distillation' 
 
 // --- Garden Types ---
 
-export type Plant = {
-  id: string;             // Unique instance ID
-  name: string;           // Name of the plant (e.g., "Moonbud")
-  category?: ItemCategory;// Plant category (flower, root, etc.)
+// Legacy Plant type - kept for backward compatibility 
+export type PlantLegacy = {
+  id: string;              // Unique instance ID
+  name: string;            // Name of the plant (e.g., "Moonbud")
+  category?: ItemCategory; // Plant category (flower, root, etc.)
   imagePath?: string;      // Optional path for visual representation
-  growth: number;         // Current growth points
-  maxGrowth: number;      // Total growth points needed for maturity
-  seasonalModifier?: number; // Growth modifier based on current season (e.g., 1.5 for best season)
-  watered: boolean;       // If watered this turn
-  health: number;         // Current health (0-100)
-  age: number;            // Age in turns/phases
-  mature: boolean;        // Is the plant ready for harvest?
+  growth: number;          // Current growth points
+  maxGrowth: number;       // Total growth points needed for maturity
+  seasonalModifier?: number; // Growth modifier based on current season
+  watered: boolean;        // If watered this turn
+  health: number;          // Current health (0-100)
+  age: number;             // Age in turns/phases
+  mature: boolean;         // Is the plant ready for harvest?
   moonBlessed?: boolean;   // Bonus from Full Moon planting/harvesting
-  deathChance?: number;    // Chance of dying per turn (increases with low health/bad conditions)
+  deathChance?: number;    // Chance of dying per turn
   mutations?: string[];    // List of acquired mutations
-  qualityModifier?: number;// Affects harvested quality (e.g., from mutations)
+  qualityModifier?: number;// Affects harvested quality
+};
+
+// New Plant type that integrates with the tarot card system
+export type Plant = {
+  id: string;              // Unique instance ID
+  tarotCardId: string;     // Reference to the TarotCard definition
+  
+  // Instance-specific state
+  growth: number;          // Current growth points
+  maxGrowth: number;       // Total growth points needed for maturity
+  health: number;          // Current health (0-100)
+  watered: boolean;        // If watered this turn
+  age: number;             // Age in turns/phases
+  mature: boolean;         // Is the plant ready for harvest?
+  manaProduced?: number;   // Total mana produced so far (for trees)
+  manaProdRate?: number;   // Current mana production rate per turn (for trees)
+  
+  // Current modifiers
+  qualityModifier: number; // Current quality modifier (0-100)
+  moonBlessing: number;    // Moon phase blessing strength (0-100)
+  seasonalResonance: number; // How well the plant is resonating with current season (0-100)
+  elementalHarmony: number; // How well the plant's element harmonizes with the garden (0-100)
+  
+  // Visual state
+  growthStage: 'seed' | 'sprout' | 'growing' | 'mature' | 'blooming' | 'dying';
+  
+  // Special properties
+  mutations?: string[];    // Any mutations that have developed
+  specialTraits?: string[]; // Special traits gained during growth
 };
 
 export type GardenSlot = {
   id: number;             // Unique ID for the plot (e.g., 0-8)
   plant: Plant | null;    // The plant currently growing here, or null if empty
+  
+  // Soil properties
   fertility: number;      // Soil quality (0-100), affects growth/quality
   moisture: number;       // Current water level (0-100)
-  sunlight?: number;       // Sunlight exposure (0-100) - Optional for now
-  isUnlocked?: boolean;    // Whether the player has access to this plot (default true for starting plots)
+  soilType: SoilType;     // Type of soil in this plot
+  
+  // Environmental factors
+  sunlight: number;       // Sunlight exposure (0-100)
+  elementalInfluence: ElementType; // Primary elemental influence on this plot
+  
+  // Mana properties
+  manaCapacity: number;   // How much mana this plot can store (higher for plots with trees)
+  currentMana: number;    // Current mana stored in this plot
+  manaFlowRate: number;   // How quickly mana flows through this plot
+  
+  // Player access
+  isUnlocked: boolean;    // Whether the player has access to this plot
+  unlockCost?: number;    // Cost to unlock if not already unlocked
+  
+  // Visual state
+  plotAppearance: 'normal' | 'vibrant' | 'withered' | 'magical' | 'overgrown'; // Visual state of the plot
 };
 
 // --- Player Types ---
@@ -133,11 +253,29 @@ export type InventoryItem = {
   rarity?: Rarity;
   description?: string;
   imagePath?: string;
+  
+  // Tarot Card System Integration
+  tarotCardId: string;       // ID of the tarot card definition
+  
+  // Card-specific attributes
+  elementalPower: number;    // Current elemental power level (0-100)
+  moonAlignment: number;     // How aligned with its moon phase (0-100)
+  seasonalPotency: number;   // How potent based on current season (0-100)
+  essenceCharge: number;     // Current essence/mana charge (0-100)
+  
+  // Card interactions
+  activeEffects: CardEffect[]; // Currently active effects on this card
+  combosPotential: number;   // How many potential combos are available (0-100)
+  
   // Provenance
   harvestedDuring?: MoonPhase;
   harvestedSeason?: Season;
+  harvestedFrom?: number;    // Garden plot ID where harvested
+  createdWith?: string[];    // IDs of cards used to create this (for brewed items)
+  
   // Player state
   bookmarked?: boolean;
+  inUse?: boolean;           // Whether this card is currently in use elsewhere
 };
 
 export type Skills = {
@@ -154,40 +292,85 @@ export type Player = {
   id: string;
   name: string;
   gold: number;
-  mana: number;
-  reputation: number;
+  
+  // Mana System
+  mana: number;                    // Current mana points
+  maxMana: number;                 // Maximum mana capacity
+  manaRegenRate: number;           // Base mana regeneration rate per turn
+  totalManaGenerated: number;      // Lifetime total mana generated from trees
+  manaEfficiency: number;          // Efficiency of mana usage (0-100)
+  
+  // Reputation & Standing
+  reputation: number;              // Overall reputation
+  townReputations: Record<string, number>; // Reputation with specific towns
+  
+  // Specialization
   atelierSpecialization: AtelierSpecialization;
   atelierLevel: number;
+  elementalAffinity: ElementType;  // Player's elemental affinity
+  favoredMoonPhase: MoonPhase;     // Player's favored moon phase
+  
+  // Skills & Experience
   skills: Skills;
-  skillExperience?: Record<string, number>; // Experience points for each skill
+  skillExperience: Record<string, number>; // Experience points for each skill
+  cardMastery: Record<string, number>;     // Mastery level with specific cards
+  
+  // Inventory & Garden
   inventory: InventoryItem[];
+  activeCards: string[];           // IDs of cards currently in active use
   garden: GardenSlot[];
-  knownRecipes: string[]; // IDs of recipes personally known by the player
+  gardenManaGrid: number[][];      // 2D grid of mana flow in garden
+  
+  // Knowledge & Progress
+  knownRecipes: string[];          // IDs of recipes personally known
+  knownCardCombos: string[][];     // Pairs of card IDs that player knows combo
+  discoveredCards: string[];       // IDs of all cards player has discovered
+  
+  // Gameplay Progress
   completedRituals: string[];
   journalEntries: JournalEntry[];
   questsCompleted: number;
-  daysSurvived?: number;
+  daysSurvived: number;
+  
+  // Access & Activity
   blackMarketAccess: boolean;
+  townAccess: string[];            // Towns the player has access to
   lastActive: number;
 };
 
 // --- Market Types ---
 
 export type MarketItem = {
-  id: string;             // Matches the Item type ID
+  id: string;                    // Matches the Item type ID
   name: string;
   type: ItemType;
   category: ItemCategory;
   price: number;
   basePrice: number;
+  
+  // Tarot Card System Integration
+  tarotCardId: string;           // ID of the tarot card definition
+  cardQuality: number;           // Quality of this specific card (0-100)
+  
+  // Market-specific properties
+  currentDemand: number;         // Current market demand (0-100)
+  demandTrend: 'rising' | 'falling' | 'stable';
+  cosmicInfluence: number;       // How influenced by moon/season (0-100)
+  priceHistory: number[];        // History of recent prices
+  lastPriceChange: number;       // Amount of last price change
+  volatility: number;            // Price volatility (0-100)
+  
+  // Availability
+  stock: number;                 // How many are available
+  restockRate: number;           // How quickly it restocks
+  blackMarketOnly: boolean;      // Only available in black market
+  townAvailability: string[];    // Which towns carry this item
+  
+  // Visuals
   description?: string;
-  rarity?: Rarity;
+  rarity: Rarity;
   seasonalBonus?: Season;
-  priceHistory?: number[];
-  lastPriceChange?: number;
-  volatility?: number;
-  blackMarketOnly?: boolean;
-  imagePath?: string;
+  imagePath: string;
 };
 
 export type MarketData = {

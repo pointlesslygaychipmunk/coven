@@ -1,0 +1,40 @@
+/** 
+ * INSTRUCTIONS FOR INTEGRATING TAROT RITUAL INTO SIMPLE APP
+ * 
+ * We've encountered some challenges viewing the complete SimpleApp.tsx file
+ * due to its size. We've already:
+ * 
+ * 1. Added TarotRitual component import
+ * 2. Added comment about view options with 'rituals'
+ * 3. Implemented the performTarotRitual handler function
+ * 
+ * REMAINING CHANGES NEEDED:
+ * 
+ * 1. ADD MENU ITEM FOR RITUALS
+ * Look for the navigation menu in SimpleApp.tsx. It likely has buttons similar to:
+ * <div className="menu-item" onClick={() => setView('garden')}>Garden</div>
+ * <div className="menu-item" onClick={() => setView('brewing')}>Brewing</div>
+ * 
+ * Add a new menu item:
+ * <div className="menu-item" onClick={() => setView('rituals')}>Rituals</div>
+ * 
+ * 2. ADD CONDITIONAL RENDERING
+ * Find the section that renders different views based on the 'view' variable:
+ * {view === 'garden' && <Garden ... />}
+ * {view === 'brewing' && <Brewing ... />}
+ * 
+ * Add this new conditional:
+ * {view === 'rituals' && (
+ *   <TarotRitual
+ *     playerInventory={gameState.players[gameState.currentPlayerIndex].inventory}
+ *     playerMana={gameState.players[gameState.currentPlayerIndex].mana}
+ *     playerSkills={gameState.players[gameState.currentPlayerIndex].skills}
+ *     currentMoonPhase={gameState.time.phaseName}
+ *     currentSeason={gameState.time.season}
+ *     onPerformRitual={performTarotRitual}
+ *   />
+ * )}
+ * 
+ * Please add these changes to complete the integration of the TarotRitual component.
+ * The performTarotRitual handler function has already been implemented.
+ */

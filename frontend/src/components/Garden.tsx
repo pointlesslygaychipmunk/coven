@@ -1,53 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import './Garden.css';
 import GardenPlot from './GardenPlot';
-import SeasonalAttunementPuzzle from './SeasonalAttunementPuzzle';
-import { InventoryItem, GardenSlot, Season, WeatherFate } from 'coven-shared';
+// Import the TarotCard type and remove puzzle import
+import { 
+  InventoryItem, 
+  GardenSlot, 
+  Season, 
+  WeatherFate, 
+  TarotCard, 
+  ElementType 
+} from 'coven-shared';
+// Import helper functions for tarot cards
+import { 
+  findCardById, 
+  getCardsBySeason, 
+  getCardsByElement 
+} from 'coven-shared/src/tarotCards';
 
 interface GardenProps {
   plots: GardenSlot[];
   inventory: InventoryItem[];
+  playerMana: number;
+  playerMaxMana: number;
+  
+  // Garden actions
   onPlant: (slotId: number, seedInventoryItemId: string) => void;
   onHarvest: (slotId: number) => void;
-  onWater: (puzzleBonus: number) => void;
-  onCrossBreed?: () => void; // Optional callback to open cross-breeding interface
+  onWater: (slotId: number, elementalBoost?: ElementType) => void;
+  onCrossBreed?: (cardId1: string, cardId2: string) => void;
+  
+  // Mana system
+  onCollectMana: (amount: number) => void;
+  totalManaGeneration: number; // Mana generated per turn by all trees
+  
+  // Environment
   weatherFate: WeatherFate;
   season: Season;
+  moonPhase: string;
+  dayTime: 'dawn' | 'day' | 'dusk' | 'night';
 }
 
 const Garden: React.FC<GardenProps> = ({
   plots,
   inventory,
+  playerMana,
+  playerMaxMana,
   onPlant,
   onHarvest,
   onWater,
   onCrossBreed,
+  onCollectMana,
+  totalManaGeneration,
   weatherFate = 'normal',
-  season = 'Spring'
+  season = 'Spring',
+  moonPhase = 'Full Moon',
+  dayTime = 'day'
 }) => {
-  // State for plot and seed selection
+  // State for plot and card selection
   const [selectedPlotId, setSelectedPlotId] = useState<number | null>(null);
-  const [selectedSeedId, setSelectedSeedId] = useState<string | null>(null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
   
-  // State for UI elements and animations
-  const [attunementAnimation, setAttunementAnimation] = useState<boolean>(false);
+  // State for tarot card interactions
+  const [selectedTarotCard, setSelectedTarotCard] = useState<TarotCard | null>(null);
+  const [cardPreview, setCardPreview] = useState<boolean>(false);
+  const [cardRotation, setCardRotation] = useState<number>(0);
+  
+  // State for garden mana flow visualization
+  const [manaFlowAnimation, setManaFlowAnimation] = useState<boolean>(false);
+  const [manaAvailable, setManaAvailable] = useState<number>(0);
+  const [manaAnimationActive, setManaAnimationActive] = useState<boolean>(false);
+  
+  // State for garden ambience and tips
   const [showWhisper, setShowWhisper] = useState<string | null>(null);
   const [gardenTip, setGardenTip] = useState<string>('');
-  const [showAttunementPuzzle, setShowAttunementPuzzle] = useState<boolean>(false);
   const [showEastEgg, setShowEastEgg] = useState<boolean>(false);
+  
+  // State for element interactions
+  const [activeElement, setActiveElement] = useState<ElementType>('Earth');
 
   // Garden whispers (tips that appear randomly)
   const gardenWhispers = React.useMemo(() => [
-    "The moon blesses plants harvested under its full glow...",
-    "A plant's quality reflects its care and the soil it grows in...",
-    "Some herbs thrive in unexpected seasons...",
-    "Balance the elements to nurture your garden's spirit...",
-    "Plants whisper their needs, if you listen closely...",
-    "Each plant has a season where it thrives most brilliantly...",
-    "Moonbuds prefer the gentle light of evening skies...",
-    "Patience is the greatest virtue of a garden witch...",
-    "Harmonizing with the season unlocks potent growth.",
-    "Even failed experiments can yield useful compost."
+    "Trees that resonate with the current moon phase generate more mana...",
+    "Cards of the same element planted together create harmony in the garden...",
+    "The soul of a card reveals itself when aligned with its favored season...",
+    "A garden balanced with all elements will nurture even the rarest cards...",
+    "Listen to the whispers of your cards to understand their needs...",
+    "Trees draw their essence from deep within the earth and sky...",
+    "Cards harvested during their aligned moon phase contain more potent essence...",
+    "Patience allows a card's true nature to unfold over time...",
+    "The soil remembers which elements have blessed it before...",
+    "Trees and herbs form natural harmonies when their elements complement each other.",
+    "Some cards reveal secret properties when planted beside their companion cards...",
+    "Cards with Fire essence thrive when planted near cards with Spirit essence...",
+    "A garden rich in mana attracts more beneficial cosmic influences..."
   ], []);
 
   // Hanbang Gardening Tips (for Easter Egg)
@@ -65,7 +111,7 @@ const Garden: React.FC<GardenProps> = ({
     setGardenTip(randomTip); // Set initial tip
 
     const whisperInterval = setInterval(() => {
-      if (Math.random() < 0.25 && !showWhisper && !showAttunementPuzzle) {
+      if (Math.random() < 0.25 && !showWhisper && !cardPreview) {
         const randomWhisper = gardenWhispers[Math.floor(Math.random() * gardenWhispers.length)];
         setShowWhisper(randomWhisper);
         setTimeout(() => setShowWhisper(null), 7000);
@@ -73,11 +119,45 @@ const Garden: React.FC<GardenProps> = ({
     }, 30000);
 
     return () => clearInterval(whisperInterval);
-  }, [showWhisper, showAttunementPuzzle, gardenWhispers]);
+  }, [showWhisper, cardPreview, gardenWhispers]);
 
-  // Get available seeds from inventory
-  const getAvailableSeeds = (): InventoryItem[] => {
-    return inventory.filter(item => item.type === 'seed' && item.quantity > 0);
+  // Effect to calculate mana available from trees
+  useEffect(() => {
+    // Calculate total mana available from tree cards in garden
+    const totalMana = plots.reduce((total, plot) => {
+      // Skip empty plots or non-tree plants
+      if (!plot.plant || !plot.plant.tarotCardId) return total;
+      
+      // Find the tarot card definition for this plant
+      const card = findCardById(plot.plant.tarotCardId);
+      if (!card || card.type !== 'tree' || !plot.plant.mature) return total;
+      
+      // Calculate mana based on card properties, growth stage, and alignment
+      const baseMana = card.manaGeneration || 0;
+      const moonBonus = card.moonPhaseAffinity === moonPhase ? 1.5 : 1;
+      const seasonBonus = card.seasonAffinity === season ? 1.3 : 1;
+      
+      // Mature trees generate more mana
+      return total + (baseMana * moonBonus * seasonBonus * (plot.plant.mature ? 1 : 0.2));
+    }, 0);
+    
+    setManaAvailable(totalMana);
+  }, [plots, moonPhase, season]);
+
+  // Get available planting cards from inventory
+  const getPlantableCards = (): InventoryItem[] => {
+    return inventory.filter(item => 
+      // Include seeds and tree saplings
+      (item.type === 'seed' || item.type === 'tree') && 
+      item.quantity > 0 && 
+      !item.inUse
+    );
+  };
+
+  // Get tarot card details for an inventory item
+  const getTarotCardForItem = (inventoryItem: InventoryItem): TarotCard | null => {
+    if (!inventoryItem.tarotCardId) return null;
+    return findCardById(inventoryItem.tarotCardId) || null;
   };
 
   // Get selected plot details
@@ -89,29 +169,93 @@ const Garden: React.FC<GardenProps> = ({
   // Handle plot click
   const handlePlotClick = (plotId: number) => {
     const plot = plots.find(p => p.id === plotId);
-    if (!plot || plot.isUnlocked === false) return;
-
+    if (!plot || !plot.isUnlocked) return;
+    
+    // If clicking the same plot, toggle selection
     if (selectedPlotId === plotId) {
       setSelectedPlotId(null);
+      
+      // If plot has a tree that produces mana, show mana collection animation
+      if (plot.plant?.manaProduced && plot.plant.manaProduced > 0) {
+        setManaAnimationActive(true);
+        setTimeout(() => {
+          // Collect the mana
+          onCollectMana(plot.currentMana);
+          // Reset mana in the plot
+          setManaAnimationActive(false);
+        }, 1500);
+      }
     } else {
       setSelectedPlotId(plotId);
+      // Clear card selection when selecting a new plot
+      setSelectedCardId(null);
+      setSelectedInventoryItemId(null);
+      setSelectedTarotCard(null);
+    }
+  };
+  
+  // Handle card selection from inventory
+  const handleCardSelect = (inventoryItemId: string) => {
+    const item = inventory.find(i => i.id === inventoryItemId);
+    if (!item) return;
+    
+    setSelectedInventoryItemId(inventoryItemId);
+    
+    // Get and set the tarot card data
+    if (item.tarotCardId) {
+      const card = findCardById(item.tarotCardId);
+      if (card) {
+        setSelectedTarotCard(card);
+        setSelectedCardId(card.id);
+        // Reveal the card with an animation
+        setCardPreview(true);
+        setCardRotation(Math.random() * 10 - 5); // Slight random rotation for visual interest
+      }
     }
   };
 
-  // Handle seed selection from inventory
-  const handleSeedSelect = (seedId: string) => {
-    setSelectedSeedId(seedId === selectedSeedId ? null : seedId);
-  };
-
-  // Handle planting the selected seed
+  // Handle planting the selected tarot card
   const handlePlant = () => {
     const selectedPlot = getSelectedPlot();
-    if (!selectedPlot || selectedPlot.plant || selectedPlotId === null || !selectedSeedId) {
+    if (!selectedPlot || selectedPlot.plant || selectedPlotId === null || !selectedInventoryItemId) {
       return;
     }
     
-    onPlant(selectedPlotId, selectedSeedId);
-    setSelectedSeedId(null);
+    // Create a planting animation
+    const selectedItem = inventory.find(i => i.id === selectedInventoryItemId);
+    if (selectedItem && selectedItem.tarotCardId) {
+      const card = findCardById(selectedItem.tarotCardId);
+      
+      // Show card rising from inventory to plot location
+      setCardPreview(true);
+      
+      // After animation, plant the card
+      setTimeout(() => {
+        onPlant(selectedPlotId, selectedInventoryItemId);
+        
+        // Show elemental effect based on card's element
+        if (card) {
+          setActiveElement(card.element);
+          
+          // Extra effects for tree planting
+          if (card.type === 'tree') {
+            setManaFlowAnimation(true);
+            setTimeout(() => setManaFlowAnimation(false), 3000);
+          }
+        }
+        
+        // Clear the selection after planting
+        setCardPreview(false);
+        setSelectedInventoryItemId(null);
+        setSelectedCardId(null);
+        setSelectedTarotCard(null);
+        setSelectedPlotId(null);
+      }, 800);
+    } else {
+      // Fallback for legacy items without tarot cards
+      onPlant(selectedPlotId, selectedInventoryItemId);
+      setSelectedInventoryItemId(null);
+    }
   };
 
   // Handle harvesting from the selected plot
@@ -122,39 +266,89 @@ const Garden: React.FC<GardenProps> = ({
       setSelectedPlotId(null);
     }
   };
+  
+  // Handle collecting mana from tree cards
+  const handleCollectMana = () => {
+    // Get all plots with mature trees
+    const treePlots = plots.filter(plot => {
+      if (!plot.plant || !plot.plant.tarotCardId) return false;
+      
+      const card = findCardById(plot.plant.tarotCardId);
+      return card?.type === 'tree' && plot.plant.mature && plot.currentMana > 0;
+    });
+    
+    if (treePlots.length === 0) return;
+    
+    // Activate mana collection animation
+    setManaAnimationActive(true);
+    
+    // Calculate total mana to collect
+    const totalMana = treePlots.reduce((sum, plot) => sum + plot.currentMana, 0);
+    
+    // After animation completes, collect the mana
+    setTimeout(() => {
+      onCollectMana(totalMana);
+      setManaAnimationActive(false);
+    }, 1500);
+  };
 
   // Clear selection
   const handleClearSelection = () => {
-    setSelectedSeedId(null);
+    setSelectedInventoryItemId(null);
+    setSelectedCardId(null);
+    setSelectedTarotCard(null);
+    setCardPreview(false);
   };
 
-  // Start the seasonal attunement puzzle
-  const handleStartAttunement = () => {
-    if(showAttunementPuzzle) return;
-    setShowAttunementPuzzle(true);
-  };
-
-  // Handle when attunement puzzle completes
-  const handlePuzzleComplete = (result: { success: boolean; bonus: number; message: string }) => {
-    setShowAttunementPuzzle(false);
-    setShowWhisper(result.message);
-    setTimeout(() => setShowWhisper(null), 5000);
-
-    if (result.success) {
-      setAttunementAnimation(true);
-      onWater(result.bonus);
-      setTimeout(() => setAttunementAnimation(false), 1500);
+  // Handle elemental attunement for all plants
+  const handleElementalAttunement = (element: ElementType) => {
+    // Apply elemental effect to all plots
+    setActiveElement(element);
+    
+    // Show animation
+    setManaFlowAnimation(true);
+    setTimeout(() => setManaFlowAnimation(false), 1500);
+    
+    // Get all plots with plants that match this element
+    const matchingPlots = plots.filter(plot => {
+      if (!plot.plant || !plot.plant.tarotCardId) return false;
+      
+      const card = findCardById(plot.plant.tarotCardId);
+      return card?.element === element;
+    });
+    
+    // Water each matching plot with an elemental boost
+    matchingPlots.forEach(plot => {
+      onWater(plot.id, element);
+    });
+    
+    // Show appropriate message
+    if (matchingPlots.length > 0) {
+      setShowWhisper(`${element} energy resonates with ${matchingPlots.length} plants in your garden...`);
     } else {
-      onWater(0);
+      setShowWhisper(`${element} energy flows through your garden, but no plants respond...`);
     }
-  };
-
-  // Handle skipping the puzzle
-  const handleSkipPuzzle = () => {
-    setShowAttunementPuzzle(false);
-    setShowWhisper("Skipped attunement. Energies remain unchanged.");
     setTimeout(() => setShowWhisper(null), 5000);
-    onWater(0);
+  };
+  
+  // Handle collecting mana from all trees at once
+  const handleManaHarvest = () => {
+    if (manaAvailable <= 0) {
+      setShowWhisper("No mana available to collect from your trees...");
+      setTimeout(() => setShowWhisper(null), 3000);
+      return;
+    }
+    
+    // Activate mana collection animation
+    setManaAnimationActive(true);
+    
+    // After animation completes, collect the mana
+    setTimeout(() => {
+      onCollectMana(manaAvailable);
+      setManaAnimationActive(false);
+      setShowWhisper(`Collected ${Math.round(manaAvailable)} mana from your trees!`);
+      setTimeout(() => setShowWhisper(null), 3000);
+    }, 1500);
   };
 
   // Easter Egg: Handle secret spot click
@@ -354,11 +548,10 @@ const Garden: React.FC<GardenProps> = ({
           
           <div className="garden-actions">
             <button
-              className="action-button attunement"
-              onClick={handleStartAttunement}
-              disabled={showAttunementPuzzle}
+              className="action-button view-elements"
+              onClick={() => document.querySelector('.elemental-controls')?.classList.toggle('visible')}
             >
-              <span>Attune Garden</span>
+              <span>Elemental Attunement</span>
             </button>
             
             <button
@@ -374,57 +567,82 @@ const Garden: React.FC<GardenProps> = ({
     );
   };
 
-  // Render seed pouch panel
-  const renderSeedPouch = () => {
-    const seeds = getAvailableSeeds();
+  // Render tarot card collection panel
+  const renderTarotCardCollection = () => {
+    const plantableCards = getPlantableCards();
     const selectedPlot = getSelectedPlot();
-    const canPlant = selectedPlot && !selectedPlot.plant && selectedPlot.isUnlocked !== false;
+    const canPlant = selectedPlot && !selectedPlot.plant && selectedPlot.isUnlocked;
 
     return (
       <div className="inventory-panel">
         <div className="scroll-header">
           <div className="scroll-ornament left"></div>
-          <h3>Seed Pouch</h3>
+          <h3>Tarot Cards</h3>
           <div className="scroll-ornament right"></div>
         </div>
         <div className="parchment-content">
-          {/* Fixed seed action buttons - always visible */}
-          <div className="seed-actions fixed-actions">
+          {/* Fixed card action buttons - always visible */}
+          <div className="card-actions fixed-actions">
             <button
-              className={`action-button plant ${!canPlant || !selectedSeedId ? 'disabled' : ''}`}
-              disabled={!canPlant || !selectedSeedId}
+              className={`action-button plant ${!canPlant || !selectedInventoryItemId ? 'disabled' : ''}`}
+              disabled={!canPlant || !selectedInventoryItemId}
               onClick={handlePlant}
             >
-              <span>Plant Seed</span>
+              <span>Plant Card</span>
             </button>
             <button
-              className={`action-button clear ${!selectedSeedId ? 'disabled' : ''}`}
-              disabled={!selectedSeedId}
+              className={`action-button clear ${!selectedInventoryItemId ? 'disabled' : ''}`}
+              disabled={!selectedInventoryItemId}
               onClick={handleClearSelection}
             >
               <span>Clear</span>
             </button>
           </div>
           
-          {seeds.length === 0 ? (
-            <p>Your seed pouch is empty!</p>
+          {plantableCards.length === 0 ? (
+            <p>You have no cards to plant!</p>
           ) : (
             <>
-              <div className="seed-list">
-                {seeds.map(seed => (
-                  <div
-                    key={seed.id}
-                    className={`seed-item ${selectedSeedId === seed.id ? 'selected' : ''}`}
-                    onClick={() => handleSeedSelect(seed.id)}
-                  >
-                    <div className="seed-image">
-                      <div className="seed-placeholder">{seed.name.charAt(0).toUpperCase()}</div>
+              <div className="tarot-cards-list">
+                {plantableCards.map(item => {
+                  const card = getTarotCardForItem(item);
+                  return (
+                    <div
+                      key={item.id}
+                      className={`tarot-card-item ${selectedInventoryItemId === item.id ? 'selected' : ''} element-${card?.element?.toLowerCase() || 'unknown'}`}
+                      onClick={() => handleCardSelect(item.id)}
+                    >
+                      <div className="card-miniature" data-element={card?.element || 'unknown'}>
+                        <div className="card-frame">
+                          <span className="card-name">{item.name}</span>
+                        </div>
+                      </div>
+                      <div className="card-info">
+                        <div className="card-type">
+                          {card?.type === 'tree' ? '🌳' : '🌱'}
+                        </div>
+                        <div className="card-quantity">x{item.quantity}</div>
+                      </div>
                     </div>
-                    <div className="seed-quantity">{seed.quantity}</div>
-                    <div className="seed-name">{seed.name}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+              
+              {/* Card details if selected */}
+              {selectedTarotCard && (
+                <div className="selected-card-details">
+                  <h4>{selectedTarotCard.name}</h4>
+                  <p className="card-description">{selectedTarotCard.description}</p>
+                  <div className="card-properties">
+                    <div><strong>Element:</strong> {selectedTarotCard.element}</div>
+                    <div><strong>Moon:</strong> {selectedTarotCard.moonPhaseAffinity}</div>
+                    <div><strong>Season:</strong> {selectedTarotCard.seasonAffinity}</div>
+                    {selectedTarotCard.manaGeneration && (
+                      <div><strong>Mana:</strong> {selectedTarotCard.manaGeneration} per day</div>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <p className="garden-tip">{gardenTip}</p>
               <div className="parchment-filler"></div>
@@ -461,7 +679,7 @@ const Garden: React.FC<GardenProps> = ({
 
           <div className="garden-sidebar">
             {renderPlotDetails()}
-            {renderSeedPouch()}
+            {renderTarotCardCollection()}
             <div className="sidebar-decorations">
               <div className="corner-decoration top-left"></div>
               <div className="corner-decoration top-right"></div>
@@ -475,20 +693,51 @@ const Garden: React.FC<GardenProps> = ({
       {/* Floating garden whisper */}
       {showWhisper && <div className="garden-whisper">{showWhisper}</div>}
 
-      {/* Attunement animation overlay */}
-      {attunementAnimation && <div className="attunement-overlay" />}
+      {/* Mana flow animation overlay */}
+      {manaFlowAnimation && <div className="mana-flow-overlay" />}
+
+      {/* Mana collection animation */}
+      {manaAnimationActive && <div className="mana-collection-overlay" />}
 
       {/* East egg animation */}
       {showEastEgg && <div className="east-egg-overlay" />}
-
-      {/* Seasonal Attunement Puzzle */}
-      {showAttunementPuzzle && (
-        <SeasonalAttunementPuzzle
-          onComplete={handlePuzzleComplete}
-          onSkip={handleSkipPuzzle}
-          season={season}
-        />
+      
+      {/* Card Preview Panel */}
+      {cardPreview && selectedTarotCard && (
+        <div className="tarot-card-preview" 
+             style={{transform: `rotate(${cardRotation}deg)`}}
+             onClick={() => setCardPreview(false)}>
+          <div className="tarot-card-inner">
+            <div className="tarot-card-frame" data-element={selectedTarotCard.element}>
+              <div className="tarot-card-image" 
+                   style={{backgroundImage: `url(${selectedTarotCard.artworkPath || '/assets/cards/placeholder.png'})`}}>
+              </div>
+              <div className="tarot-card-name">{selectedTarotCard.name}</div>
+              <div className="tarot-card-rank">Rank {selectedTarotCard.rank}</div>
+              <div className="tarot-card-element">{selectedTarotCard.element}</div>
+              <div className="tarot-card-affinity">
+                <span className="moon">{selectedTarotCard.moonPhaseAffinity}</span>
+                <span className="season">{selectedTarotCard.seasonAffinity}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
+      
+      {/* Elemental Attunement Panel */}
+      <div className="elemental-controls">
+        <button className="element-button earth" onClick={() => handleElementalAttunement('Earth')}>Earth</button>
+        <button className="element-button water" onClick={() => handleElementalAttunement('Water')}>Water</button>
+        <button className="element-button fire" onClick={() => handleElementalAttunement('Fire')}>Fire</button>
+        <button className="element-button air" onClick={() => handleElementalAttunement('Air')}>Air</button>
+        <button className="element-button spirit" onClick={() => handleElementalAttunement('Spirit')}>Spirit</button>
+        
+        <button className="mana-harvest-button" 
+                onClick={handleManaHarvest} 
+                disabled={manaAvailable <= 0}>
+          Harvest Mana ({Math.round(manaAvailable)})
+        </button>
+      </div>
     </div>
   );
 };
