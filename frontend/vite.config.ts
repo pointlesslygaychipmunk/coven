@@ -2,11 +2,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react'; // Using the default export
 import path from 'path';
+import fs from 'fs';
 
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    // Fix for MIME type issues - ensure proper content type headers
+    middlewareMode: false,
     // Proxy API requests to the backend server during development
     proxy: {
       '/api': {
@@ -14,16 +17,8 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true, // Needed for virtual hosted sites
         secure: false,      // Allow self-signed certs if backend uses HTTPS locally
-        // If your backend uses HTTPS locally (port 8443):
-        // target: 'https://localhost:8443',
-        // secure: false, // Still needed for self-signed certs
       },
     },
-    // Optional: Configure HTTPS for the Vite dev server itself
-    // https: {
-    //   key: path.resolve(__dirname, '../backend/certs/key.pem'), // Adjust path if needed
-    //   cert: path.resolve(__dirname, '../backend/certs/cert.pem'),
-    // },
   },
   resolve: {
     alias: {
@@ -48,9 +43,16 @@ export default defineConfig({
     },
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, "src/index.tsx"),
+        main: path.resolve(__dirname, "index.html"),
       },
-      // Optional: Configure Rollup further if needed
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          shared: ['../shared/src'],
+        },
+        // Ensure assets have the correct MIME types
+        assetFileNames: 'assets/[name].[ext]'
+      }
     }
   },
 });

@@ -139,6 +139,70 @@
         <p>Brewing your magical adventure...</p>
       </div>
     </div>
+    <!-- Load 90s UI assets -->
+    <script src="/assets/js/uiManager.js"></script>
     <script type="module" src="/src/index.tsx"></script>
+    
+    <!-- Optional CRT effect overlay -->
+    <div class="crt-lines" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 9999; opacity: 0.4;"></div>
+    
+    <!-- Fallback error handler for module loading issues -->
+    <script>
+      // If the app fails to load within 10 seconds, show an error
+      const appLoadTimeout = setTimeout(() => {
+        const rootElement = document.getElementById('root');
+        if (rootElement && rootElement.querySelector('#loading')) {
+          // App hasn't initialized yet, likely a script loading error
+          console.error('Application failed to initialize. Showing fallback error.');
+          
+          // Create error message
+          const errorDiv = document.createElement('div');
+          errorDiv.style.textAlign = 'center';
+          errorDiv.style.width = '500px';
+          errorDiv.style.backgroundColor = '#2a2a3a';
+          errorDiv.style.border = '4px double #5a5a48';
+          errorDiv.style.padding = '20px';
+          errorDiv.style.color = '#e0e0d0';
+          errorDiv.style.fontFamily = 'VT323, monospace';
+          errorDiv.style.fontSize = '18px';
+          errorDiv.style.lineHeight = '1.5';
+          errorDiv.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.6)';
+          
+          errorDiv.innerHTML = `
+            <h2 style="color: #c0a060; font-family: 'Press Start 2P', monospace; font-size: 20px; margin-bottom: 20px;">ARCANE ERROR DETECTED</h2>
+            <p>The magical energies required to summon this application have been disrupted.</p>
+            <p>This may be due to a module loading failure or a MIME type issue.</p>
+            <p>Try refreshing or using a different browser.</p>
+            <div style="margin-top: 20px;">
+              <button onclick="window.location.href='/fallback.html'" style="background-color: #4a2c6f; color: #e0e0d0; border: 2px solid #5a5a48; padding: 10px 20px; font-family: 'Press Start 2P', monospace; font-size: 14px; cursor: pointer;">USE BACKUP ENCHANTMENT</button>
+              <button onclick="window.location.reload()" style="background-color: #5a783e; color: #e0e0d0; border: 2px solid #5a5a48; padding: 10px 20px; font-family: 'Press Start 2P', monospace; font-size: 14px; cursor: pointer; margin-left: 10px;">TRY AGAIN</button>
+            </div>
+          `;
+          
+          // Replace loading screen with error
+          rootElement.innerHTML = '';
+          rootElement.appendChild(errorDiv);
+        }
+      }, 10000);
+      
+      // Clear the timeout if the app loads successfully
+      window.addEventListener('load', () => {
+        clearTimeout(appLoadTimeout);
+      });
+      
+      // Function to notify that the app has started (called from index.tsx)
+      window.appStarted = function() {
+        clearTimeout(appLoadTimeout);
+        console.log('Application successfully started');
+        
+        // Ensure CRT effect is properly initialized
+        const crtElement = document.querySelector('.crt-lines');
+        if (crtElement) {
+          // Get user preference for CRT effect from localStorage
+          const crtEnabled = localStorage.getItem('crtEffectEnabled') !== 'false';
+          crtElement.style.opacity = crtEnabled ? '0.4' : '0';
+        }
+      };
+    </script>
   </body>
 </html>
