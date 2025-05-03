@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witch's Coven - 90s UI Preview</title>
+  <link rel="icon" type="image/png" href="/favicon.ico">
+  
+  <!-- Web fonts for 90s UI aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- Enhanced UI styles -->
+  <link rel="stylesheet" href="/gameAssets/90sUIStyles.css">
+  
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #111;
+      color: #e0e0d0;
+      font-family: 'VT323', monospace;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    header {
+      width: 100%;
+      padding: 20px 0;
+      background-color: #2a2a3a;
+      text-align: center;
+      border-bottom: 4px solid #7b4dab;
+    }
+    
+    h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 24px;
+      margin: 0;
+      padding: 0;
+      color: #c0a060;
+      text-shadow: 2px 2px 0 #000;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #e0e0d0;
+    }
+    
+    .content {
+      max-width: 1000px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+      background-color: #2a2a3a;
+      border: 2px solid #5a5a48;
+      padding: 20px;
+      position: relative;
+    }
+    
+    .section-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      margin: 0 0 20px 0;
+      color: #c0a060;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #5a5a48;
+    }
+    
+    .corner-decoration {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path d="M20 0v20H0V0h20zM18 2H2v16h16V2z" fill="%237b4dab"/><path d="M8 8L2 2v6h6zM12 8l6-6v6h-6zM8 12l-6 6v-6h6zM12 12l6 6v-6h-6z" fill="%237b4dab"/></svg>');
+    }
+    
+    .top-left {
+      top: 0;
+      left: 0;
+    }
+    
+    .top-right {
+      top: 0;
+      right: 0;
+      transform: rotate(90deg);
+    }
+    
+    .bottom-left {
+      bottom: 0;
+      left: 0;
+      transform: rotate(270deg);
+    }
+    
+    .bottom-right {
+      bottom: 0;
+      right: 0;
+      transform: rotate(180deg);
+    }
+    
+    .ui-examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .ui-example {
+      border: 2px solid #5a5a48;
+      padding: 10px;
+      background-color: #1a1a2a;
+    }
+    
+    .example-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      margin: 0 0 10px 0;
+      color: #c0a060;
+      text-align: center;
+    }
+    
+    .example-content {
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    /* Button examples */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    
+    /* Progress bar examples */
+    .progress-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    /* Panel examples */
+    .panel-example {
+      width: 100%;
+      background-color: #b8b090;
+      border: 2px solid #282838;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel-content {
+      padding: 10px;
+      color: #202020;
+    }
+    
+    /* Inventory slot examples */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      padding: 5px;
+      background-color: #2a2a3a;
+    }
+    
+    /* Interactive whisper example */
+    .whisper-container {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      background-color: #5a783e;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%235a783e"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%234e6a34" stroke-width="1"/></svg>');
+    }
+    
+    /* Seasonal theme examples */
+    .theme-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+    
+    .theme-box {
+      height: 100px;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+    }
+    
+    .spring-box {
+      background-color: #5a783e;
+      border-color: #4e6a34;
+      color: #e0e0d0;
+    }
+    
+    .summer-box {
+      background-color: #ac7339;
+      border-color: #9c6832;
+      color: #e0e0d0;
+    }
+    
+    .fall-box {
+      background-color: #a05c39;
+      border-color: #8f5232;
+      color: #e0e0d0;
+    }
+    
+    .winter-box {
+      background-color: #5d8396;
+      border-color: #517485;
+      color: #e0e0d0;
+    }
+    
+    /* Game window preview */
+    .game-window-preview {
+      width: 100%;
+      height: 400px;
+      background-color: #2a2a3a;
+      border: 4px solid #282838;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      outline: 1px solid #5a5a6a;
+      outline-offset: -3px;
+    }
+    
+    .game-header {
+      height: 36px;
+      background-color: #3a3a4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c0a060;
+      border-bottom: 2px solid #5a5a48;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+    }
+    
+    .game-content {
+      flex: 1;
+      display: flex;
+    }
+    
+    .left-sidebar {
+      width: 180px;
+      background-color: #2a2a3a;
+      border-right: 2px solid #282838;
+    }
+    
+    .main-viewport {
+      flex: 1;
+      background-color: #5a783e;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%235a783e"/><path d="M0 25h100M0 50h100M0 75h100M25 0v100M50 0v100M75 0v100" stroke="%234e6a34" stroke-width="1"/></svg>');
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e0e0d0;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+    }
+    
+    .right-sidebar {
+      width: 180px;
+      background-color: #2a2a3a;
+      border-left: 2px solid #282838;
+    }
+    
+    .game-footer {
+      height: 36px;
+      background-color: #3a3a4a;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      border-top: 2px solid #5a5a48;
+    }
+    
+    .nav-button {
+      padding: 4px 10px;
+      background-color: #4a2c6f;
+      color: #e0e0d0;
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      border: 0;
+      box-shadow: 
+        1px 1px 0 0 #282838,
+        inset 1px 1px 0 0 #7b4dab;
+    }
+    
+    .nav-button.active {
+      background-color: #8a7a5a;
+      box-shadow: 
+        inset 1px 1px 0 0 #282838,
+        inset -1px -1px 0 0 #c0a060;
+    }
+    
+    /* CRT Effects */
+    .crt-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+    }
+    
+    /* Toggle switch */
+    .toggle-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #2a2a3a;
+      border: 2px solid #5a5a48;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10000;
+    }
+    
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #1a1a2a;
+      transition: .4s;
+      border: 2px solid #5a5a48;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #e0e0d0;
+      transition: .4s;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #7b4dab;
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>WITCH'S COVEN: 90S UI</h1>
+    <div class="subtitle">Interactive Preview of Enhanced Visual Elements</div>
+  </header>
+  
+  <div class="content">
+    <div class="section">
+      <div class="section-title">COMPLETE GAME INTERFACE</div>
+      <div class="corner-decoration top-left"></div>
+      <div class="corner-decoration top-right"></div>
+      <div class="corner-decoration bottom-left"></div>
+      <div class="corner-decoration bottom-right"></div>
+      
+      <div class="game-window-preview">
+        <div class="game-header">COVEN: GLOW BRIGHTLY</div>
+        <div class="game-content">
+          <div class="left-sidebar"></div>
+          <div class="main-viewport">WITCH'S GARDEN</div>
+          <div class="right-sidebar"></div>
+        </div>
+        <div class="game-footer">
+          <button class="nav-button">GARDEN</button>
+          <button class="nav-button active">BREWING</button>
+          <button class="nav-button">ATELIER</button>
+          <button class="nav-button">MARKET</button>
+          <button class="nav-button">JOURNAL</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">UI COMPONENTS</div>
+      <div class="corner-decoration top-left"></div>
+      <div class="corner-decoration top-right"></div>
+      <div class="corner-decoration bottom-left"></div>
+      <div class="corner-decoration bottom-right"></div>
+      
+      <div class="ui-examples">
+        <!-- Buttons -->
+        <div class="ui-example">
+          <div class="example-title">BUTTONS</div>
+          <div class="example-content">
+            <div class="button-group">
+              <button class="pixel-button">NORMAL BUTTON</button>
+              <button class="pixel-button active">ACTIVE BUTTON</button>
+              <button class="pixel-button" disabled>DISABLED BUTTON</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Progress Bars -->
+        <div class="ui-example">
+          <div class="example-title">PROGRESS BARS</div>
+          <div class="example-content">
+            <div class="progress-group">
+              <div class="status-bar">
+                <div class="status-fill" style="width: 75%; background-color: #7b4dab;"></div>
+                <div class="status-label">75%</div>
+              </div>
+              <div class="status-bar">
+                <div class="status-fill" style="width: 40%; background-color: #5a783e;"></div>
+                <div class="status-label">40%</div>
+              </div>
+              <div class="status-bar">
+                <div class="status-fill" style="width: 90%; background-color: #ac7339;"></div>
+                <div class="status-label">90%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Panels -->
+        <div class="ui-example">
+          <div class="example-title">PANELS</div>
+          <div class="example-content">
+            <div class="panel-example">
+              <div class="panel-header">
+                <h2>Panel Title</h2>
+              </div>
+              <div class="panel-content">
+                This is panel content with a styled header.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Inventory Slots -->
+        <div class="ui-example">
+          <div class="example-title">INVENTORY</div>
+          <div class="example-content">
+            <div class="inventory-grid">
+              <div class="inventory-slot has-item">
+                <div class="item-icon">H</div>
+                <div class="item-count">5</div>
+              </div>
+              <div class="inventory-slot has-item">
+                <div class="item-icon">P</div>
+                <div class="item-count">2</div>
+              </div>
+              <div class="inventory-slot"></div>
+              <div class="inventory-slot has-item">
+                <div class="item-icon">S</div>
+                <div class="item-count">8</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Decorative Frames -->
+        <div class="ui-example">
+          <div class="example-title">DECORATIVE FRAMES</div>
+          <div class="example-content">
+            <div class="frame-container">
+              This content has a styled frame with inset borders.
+            </div>
+          </div>
+        </div>
+        
+        <!-- Game Whispers -->
+        <div class="ui-example">
+          <div class="example-title">GAME WHISPERS</div>
+          <div class="example-content">
+            <div class="whisper-container">
+              <div class="game-whisper">
+                Plants whisper their needs, if you listen closely...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">SEASONAL THEMES</div>
+      <div class="corner-decoration top-left"></div>
+      <div class="corner-decoration top-right"></div>
+      <div class="corner-decoration bottom-left"></div>
+      <div class="corner-decoration bottom-right"></div>
+      
+      <div class="theme-container">
+        <div class="theme-box spring-box">SPRING</div>
+        <div class="theme-box summer-box">SUMMER</div>
+        <div class="theme-box fall-box">FALL</div>
+        <div class="theme-box winter-box">WINTER</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toggle for CRT effect -->
+  <div class="toggle-container">
+    <div class="toggle-label">
+      <span>CRT Effect</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="crtToggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  
+  <!-- CRT Lines Effect -->
+  <div class="crt-lines" id="crtLines"></div>
+  
+  <script>
+    // CRT Effect Toggle
+    const crtToggle = document.getElementById('crtToggle');
+    const crtLines = document.getElementById('crtLines');
+    
+    crtToggle.addEventListener('change', () => {
+      crtLines.style.opacity = crtToggle.checked ? '0.3' : '0';
+    });
+    
+    // Add interaction to buttons
+    const buttons = document.querySelectorAll('.pixel-button:not([disabled])');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        button.classList.toggle('active');
+      });
+    });
+    
+    // Fake progress bar animation
+    const progressBars = document.querySelectorAll('.status-fill');
+    setInterval(() => {
+      progressBars.forEach(bar => {
+        const currentWidth = parseFloat(bar.style.width);
+        let newWidth = currentWidth + (Math.random() * 10 - 5);
+        if (newWidth > 100) newWidth = 100;
+        if (newWidth < 0) newWidth = 0;
+        bar.style.width = `${newWidth}%`;
+        
+        // Update label
+        const label = bar.nextElementSibling;
+        if (label) {
+          label.textContent = `${Math.round(newWidth)}%`;
+        }
+      });
+    }, 2000);
+  </script>
+</body>
+</html>

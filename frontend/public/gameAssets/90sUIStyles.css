@@ -1,0 +1,464 @@
+/* 90s UI Enhanced Styles - Retro Fantasy Game Aesthetic */
+
+:root {
+  /* Main color variables from the original design with enhancements */
+  --color-primary-dark: #2a2a3a;    /* Dark gray-blue base */
+  --color-primary: #3a3a4a;         /* Medium gray-blue */
+  --color-primary-light: #4a4a5a;   /* Light gray-blue */ 
+  --color-secondary: #5a5a48;       /* Earthy gray-green */
+  --color-tertiary: #6a5a48;        /* Warm gray-brown */
+  --color-accent: #8a7a5a;          /* Muted gold for accents */
+  --color-accent-green: #4a5a3a;    /* Muted green */
+  
+  /* Enhanced color palette inspired by HoMM3 and Quest for Glory */
+  --color-gold: #d0b060;            /* Gold accent for special elements */
+  --color-deep-purple: #4a2c6f;     /* Deep magical purple */
+  --color-blood-red: #8a3030;       /* Dark red for warnings/danger */
+  --color-forest-green: #3f5a3c;    /* Rich forest green */
+  --color-royal-blue: #304878;      /* Deep blue for water/magic elements */
+  
+  /* Background colors */
+  --color-bg-dark: #1a1a2a;         /* Dark backdrop */
+  --color-bg-medium: #2a2a3a;       /* Medium panels */
+  --color-bg-light: #d0c8b0;        /* Light parchment - less yellow */
+  --color-bg-panel: #b8b090;        /* Panel background - more gray */
+  
+  /* Text colors (improved readability) */
+  --color-text-dark: #202020;       /* Dark text - nearly black */
+  --color-text-medium: #404040;     /* Medium text */
+  --color-text-light: #e0e0d0;      /* Light text - slight cream tint */
+  --color-text-gold: #c0a060;       /* More muted gold text */
+  
+  /* Border colors */
+  --color-border-dark: #282838;     /* Dark borders */
+  --color-border-light: #5a5a6a;    /* Light borders - more contrast */
+  --color-border-gold: #8a7a5a;     /* Gold borders - more muted */
+  
+  /* Seasonal theme colors */
+  --spring-color: #5a783e;          /* Spring green */
+  --summer-color: #ac7339;          /* Summer amber */
+  --fall-color: #a05c39;            /* Fall auburn */
+  --winter-color: #5d8396;          /* Winter blue */
+  
+  /* Fonts - more authentic to DOS games */
+  --font-primary: 'VT323', 'Courier New', monospace;
+  --font-secondary: 'Press Start 2P', 'Courier New', monospace;
+  --font-pixel: 'Courier New', monospace; /* Fallback */
+  
+  /* UI Element Sizes */
+  --border-width: 2px;              /* Thinner borders for pixel art look */
+  --border-radius: 0px;             /* No rounded corners in DOS games */
+  --panel-spacing: 8px;             /* Slightly reduced spacing */
+}
+
+/* Enhanced CRT Effect */
+.crt-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-effect::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.crt-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(
+      circle at center,
+      rgba(20, 30, 40, 0.1), 
+      rgba(0, 0, 0, 0.3) 120%
+    );
+  pointer-events: none;
+  z-index: 9;
+}
+
+/* Decorative Frames */
+.frame-container {
+  position: relative;
+  border: 2px solid var(--color-border-dark);
+  padding: 8px;
+  background-color: var(--color-bg-light);
+  box-shadow: 
+    inset 1px 1px 0 var(--color-border-light),
+    inset -1px -1px 0 var(--color-border-dark);
+}
+
+.frame-container::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid var(--color-border-dark);
+  pointer-events: none;
+}
+
+.frame-fancy {
+  border: double 4px var(--color-border-gold);
+  padding: 10px;
+  position: relative;
+  background-color: var(--color-bg-light);
+}
+
+.frame-fancy::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 1px solid var(--color-border-dark);
+  pointer-events: none;
+}
+
+.frame-fancy::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border: 1px solid var(--color-border-dark);
+  pointer-events: none;
+}
+
+/* Corner Decorations */
+.corner-decoration {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.corner-decoration.top-left {
+  top: 0;
+  left: 0;
+}
+
+.corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  transform: rotate(90deg);
+}
+
+.corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  transform: rotate(270deg);
+}
+
+.corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}
+
+/* Pixelated Buttons */
+.pixel-button {
+  padding: 6px 15px;
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: 0;
+  font-family: var(--font-primary);
+  font-size: 14px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+  position: relative;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  height: 32px;
+  min-width: 80px;
+  box-shadow: 
+    2px 2px 0 0 var(--color-border-dark),
+    inset 1px 1px 0 0 var(--color-border-light), 
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.pixel-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.2) 0%, 
+            rgba(255, 255, 255, 0.2) 20%, 
+            transparent 20.1%, 
+            transparent 100%);
+}
+
+.pixel-button:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-text-gold);
+}
+
+.pixel-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 
+    0 0 0 0 var(--color-border-dark),
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.5), 
+    inset -1px -1px 0 0 var(--color-border-light);
+}
+
+.pixel-button.active {
+  background-color: var(--color-accent);
+  color: var(--color-text-light);
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 0 var(--color-border-light);
+  transform: translate(1px, 1px);
+}
+
+/* Panel Headers */
+.panel-header {
+  background-color: var(--color-primary);
+  padding: 5px 10px;
+  color: var(--color-text-light);
+  font-variant: small-caps;
+  text-align: center;
+  border-bottom: var(--border-width) solid var(--color-border-dark);
+  text-shadow: 1px 1px 0 #000;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.1), 
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.panel-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Progress/Status Bars */
+.status-bar {
+  height: 15px;
+  background-color: var(--color-bg-dark);
+  border: 1px solid var(--color-border-dark);
+  position: relative;
+  margin: 5px 0;
+}
+
+.status-fill {
+  height: 100%;
+  background-color: var(--color-primary-light);
+  transition: width 0.3s ease;
+}
+
+.status-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-text-light);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+  font-family: var(--font-secondary);
+}
+
+/* Inventory Items/Slots */
+.inventory-slot {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-bg-dark);
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.8),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.inventory-slot:hover {
+  outline: 1px solid var(--color-border-gold);
+}
+
+.inventory-slot.has-item {
+  background-color: var(--color-bg-medium);
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.item-count {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  font-size: 9px;
+  color: var(--color-text-light);
+  background-color: var(--color-primary-dark);
+  padding: 0 2px;
+  font-family: var(--font-secondary);
+  border: 1px solid var(--color-border-dark);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Tooltips */
+.pixel-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.pixel-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+  text-align: center;
+  padding: 8px;
+  border: 2px solid var(--color-border-gold);
+  border-radius: 0;
+  position: absolute;
+  z-index: 100;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.pixel-tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--color-border-gold) transparent transparent transparent;
+}
+
+.pixel-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse-effect {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+/* Scanlines and Pixelation for Images */
+.pixelated-image {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Grid Containers for UI Layouts */
+.pixel-grid {
+  display: grid;
+  gap: 8px;
+  background-color: var(--color-bg-medium);
+  padding: 8px;
+  border: 2px solid var(--color-border-dark);
+}
+
+/* Responsive Grid Layout (Maintains Aspect Ratio) */
+.pixel-grid.ratio-4-3 {
+  aspect-ratio: 4/3;
+}
+
+/* Whisper Animations for Game Tips */
+.game-whisper {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(30, 23, 36, 0.9);
+  border: 3px double var(--color-deep-purple);
+  padding: 15px 25px;
+  color: var(--color-text-light);
+  text-align: center;
+  font-style: italic;
+  max-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  animation: fadeIn 0.5s ease-in, fadeOut 0.5s ease-out 5.5s forwards;
+}
+
+/* Seasonal Styling Classes */
+.spring-theme {
+  --theme-primary: var(--spring-color);
+  --theme-border: #4e6a34;
+  --theme-accent: #6a894e;
+}
+
+.summer-theme {
+  --theme-primary: var(--summer-color);
+  --theme-border: #9c6832;
+  --theme-accent: #bc8349;
+}
+
+.fall-theme {
+  --theme-primary: var(--fall-color);
+  --theme-border: #8f5232;
+  --theme-accent: #b06c49;
+}
+
+.winter-theme {
+  --theme-primary: var(--winter-color);
+  --theme-border: #517485;
+  --theme-accent: #6e94a7;
+}

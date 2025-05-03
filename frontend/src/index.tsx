@@ -5,6 +5,10 @@ import App90s from './components/App90s';
 import './index.css'; // Import global styles
 import SimpleApp from './components/SimpleApp';
 
+// Import enhanced 90s UI assets (these will be loaded by bundler)
+// @ts-ignore
+import '../public/gameAssets/90sUIStyles.css';
+
 // Set up error tracking for React rendering errors
 const originalConsoleError = console.error;
 console.error = function(...args) {

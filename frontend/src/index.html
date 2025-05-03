@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witch's Coven - Glow Brightly</title>
+  <link rel="icon" type="image/png" href="/favicon.ico">
+  
+  <!-- Web fonts for 90s UI aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- Enhanced UI styles -->
+  <link rel="stylesheet" href="/gameAssets/90sUIStyles.css">
+  
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background-color: #111;
+      font-family: 'VT323', monospace;
+    }
+    
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #1a1a2a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+    
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loading-logo {
+      width: 200px;
+      height: 200px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%232a2a3a"/><circle cx="100" cy="100" r="80" fill="none" stroke="%23c0a060" stroke-width="4"/><path d="M100 20v160M20 100h160" stroke="%23c0a060" stroke-width="2" stroke-dasharray="4 4"/><circle cx="100" cy="100" r="30" fill="%237b4dab"/><circle cx="100" cy="100" r="20" fill="%234a2c6f"/><circle cx="100" cy="100" r="10" fill="%232a2a3a"/></svg>');
+      margin-bottom: 30px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    .loading-bar-container {
+      width: 300px;
+      height: 20px;
+      background-color: #2a2a3a;
+      border: 2px solid #5a5a48;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #7b4dab;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%237b4dab"/><path d="M0 0h20v1H0zM0 19h20v1H0z" fill="%239b6dcb"/><path d="M0 10h20" stroke="%239b6dcb" stroke-width="1"/></svg>');
+      transition: width 0.3s ease-in-out;
+    }
+    
+    .loading-text {
+      color: #e0e0d0;
+      font-size: 18px;
+      font-family: 'Press Start 2P', monospace;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    
+    .loading-hint {
+      color: #8a7a5a;
+      font-size: 14px;
+      max-width: 400px;
+      text-align: center;
+      font-style: italic;
+      line-height: 1.4;
+    }
+    
+    .crt-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+    
+    .crt-flicker {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(20, 30, 40, 0.03);
+      pointer-events: none;
+      z-index: 9998;
+      animation: flicker 0.3s infinite alternate;
+      opacity: 0;
+    }
+    
+    .game-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .engine-error {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #1a1a2a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9997;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in;
+    }
+    
+    .engine-error.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .error-title {
+      color: #e0e0d0;
+      font-size: 24px;
+      font-family: 'Press Start 2P', monospace;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .error-message {
+      color: #c0a060;
+      font-size: 16px;
+      max-width: 600px;
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 2px solid #5a5a48;
+      background-color: #2a2a3a;
+    }
+    
+    .error-button {
+      padding: 10px 20px;
+      background-color: #7b4dab;
+      border: 2px solid #5a5a48;
+      color: #e0e0d0;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    
+    .error-button:hover {
+      background-color: #8e5abc;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes flicker {
+      0% { opacity: 0; }
+      100% { opacity: 0.05; }
+    }
+    
+    @media (max-width: 1024px) {
+      .loading-logo {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .loading-bar-container {
+        width: 250px;
+      }
+      
+      .loading-text {
+        font-size: 16px;
+      }
+      
+      .loading-hint {
+        font-size: 12px;
+        max-width: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-logo"></div>
+    <div class="loading-text">COVEN: GLOW BRIGHTLY</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+    <div class="loading-hint" id="loadingHint">
+      A witch's intuition is her most powerful tool. Listen to the whispers of your garden...
+    </div>
+  </div>
+  
+  <!-- Engine Error Screen -->
+  <div class="engine-error" id="engineError">
+    <div class="error-title">ARCANE ENERGY DISRUPTION</div>
+    <div class="error-message" id="errorMessage">
+      The magical energies powering this application seem to have been disrupted. 
+      Perhaps your browser lacks the necessary enchantments, or the connection to the arcane server has been severed.
+    </div>
+    <button class="error-button" id="retryButton">REALIGN ENERGIES</button>
+    <button class="error-button" id="fallbackButton">USE BACKUP ENCHANTMENT</button>
+  </div>
+  
+  <!-- Game Container -->
+  <div class="game-container">
+    <div id="root"></div>
+  </div>
+  
+  <!-- CRT Effects (optional, can be disabled) -->
+  <div class="crt-lines"></div>
+  <div class="crt-flicker"></div>
+  
+  <!-- Loading Script -->
+  <script>
+    // Game loading hints
+    const loadingHints = [
+      "A witch's intuition is her most powerful tool. Listen to the whispers of your garden...",
+      "The lunar phase affects the potency of your harvested herbs. Plan accordingly...",
+      "Cross-breeding plants under a full moon may yield unexpected results...",
+      "The patterns of the seasons hold ancient secrets. Attune your garden to their rhythms...",
+      "Some herbs thrive in unexpected conditions. Experiment with their placement...",
+      "The townsfolk may provide valuable information about ingredients and brewing techniques...",
+      "Your garden's soil remembers what was planted before. Rotation brings prosperity...",
+      "Different brewing methods can extract different properties from the same ingredient...",
+      "Ancient rituals can be performed to enhance your witch's abilities...",
+      "Market prices fluctuate with the seasons. Buy low, sell high..."
+    ];
+    
+    // DOM elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const loadingBar = document.getElementById('loadingBar');
+    const loadingHint = document.getElementById('loadingHint');
+    const engineError = document.getElementById('engineError');
+    const errorMessage = document.getElementById('errorMessage');
+    const retryButton = document.getElementById('retryButton');
+    const fallbackButton = document.getElementById('fallbackButton');
+    
+    // Simulate loading process
+    let progress = 0;
+    const simulateLoading = () => {
+      if (progress < 100) {
+        progress += Math.random() * 10;
+        if (progress > 100) progress = 100;
+        
+        loadingBar.style.width = `${progress}%`;
+        
+        // Change hint every ~20%
+        if (progress % 20 < 1) {
+          const randomHint = loadingHints[Math.floor(Math.random() * loadingHints.length)];
+          loadingHint.textContent = randomHint;
+        }
+        
+        setTimeout(simulateLoading, 200 + Math.random() * 300);
+      } else {
+        // Loading complete
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+        }, 500);
+      }
+    };
+    
+    // Start loading simulation
+    simulateLoading();
+    
+    // Application error handling
+    let applicationErrorTimer;
+    
+    window.addEventListener('load', () => {
+      // Set a timer to check if the application has started
+      applicationErrorTimer = setTimeout(() => {
+        // If this executes, the application didn't start properly
+        engineError.classList.add('visible');
+        errorMessage.textContent = "The application seems to be taking longer than expected to start. This could be due to a connection issue or browser compatibility problem.";
+      }, 15000); // 15 seconds timeout
+    });
+    
+    // When app successfully loads, clear the error timer
+    window.appStarted = () => {
+      clearTimeout(applicationErrorTimer);
+    };
+    
+    // Button actions
+    retryButton.addEventListener('click', () => {
+      location.reload();
+    });
+    
+    fallbackButton.addEventListener('click', () => {
+      window.location.href = '/fallback.html';
+    });
+  </script>
+  
+  <!-- Main application script -->
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+</html>
