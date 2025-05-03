@@ -2,7 +2,8 @@ import React from 'react';
 import './PackagedProduct.css';
 import { 
   PackagingDesign, 
-  Product 
+  Product,
+  PackagingEffect
 } from 'coven-shared';
 
 interface PackagedProductProps {
@@ -61,13 +62,31 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
   
   // Get a formatted special effect description
   const getSpecialEffectDescription = () => {
-    if (!packaging.specialEffect) return null;
-    if (packaging.specialEffects && packaging.specialEffects.length > 0) {
-      return `${packaging.specialEffect.name} (${packaging.specialEffects.length > 1 ? 
-        `+${packaging.specialEffects.length - 1} more` : 
-        ''})`; 
+    if (!packaging.specialEffect && (!packaging.specialEffects || packaging.specialEffects.length === 0)) {
+      return null;
     }
-    return packaging.specialEffect.name;
+    
+    // If we have a specialEffect object with a name
+    if (packaging.specialEffect && packaging.specialEffect.name) {
+      // If we also have specialEffects array
+      if (packaging.specialEffects && packaging.specialEffects.length > 0) {
+        return `${packaging.specialEffect.name} (${packaging.specialEffects.length > 1 ? 
+          `+${packaging.specialEffects.length - 1} more` : 
+          ''})`;
+      }
+      return packaging.specialEffect.name;
+    }
+    
+    // If we only have specialEffects array but no specialEffect object
+    if (packaging.specialEffects && packaging.specialEffects.length > 0) {
+      const effectType = packaging.specialEffects[0] as PackagingEffect;
+      const formattedEffect = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+      return `${formattedEffect} ${packaging.specialEffects.length > 1 ? 
+        `(+${packaging.specialEffects.length - 1} more)` : 
+        ''}`;
+    }
+    
+    return "No special effect";
   };
   
   // Calculate value boost percentage
@@ -96,11 +115,11 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
               <div className="design-element">{packaging.designStyle.icon}</div>
             )}
             {packaging.specialEffect && (
-              <div className="effect-element">{packaging.specialEffect.icon}</div>
+              <div className="effect-element">{packaging.specialEffect?.icon || '✨'}</div>
             )}
           </div>
           {packaging.brand && (
-            <div className="brand-element">{packaging.brand.icon}</div>
+            <div className="brand-element">{packaging.brand.icon || '🏷️'}</div>
           )}
           {packaging.packagingType && (
             <div className="package-type" title={`${packaging.packagingType.charAt(0).toUpperCase() + packaging.packagingType.slice(1)}`}>
@@ -159,7 +178,7 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
             <div className="detail-row">
               <span className="detail-label">Brand:</span>
               <span className="detail-value">
-                {packaging.brand.name}
+                {packaging.brand.name || "Custom Brand"}
               </span>
             </div>
           )}
@@ -168,7 +187,7 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
             <div className="detail-row">
               <span className="detail-label">Material:</span>
               <span className="detail-value">
-                {packaging.material.name}
+                {packaging.material?.name || 'Unknown Material'}
               </span>
             </div>
           )}

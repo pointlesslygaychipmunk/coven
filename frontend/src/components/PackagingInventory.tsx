@@ -92,11 +92,14 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
     // This is a simulation - in a real implementation, 
     // the packaging information would be stored with the product
     // For now, we'll just return the first design in inventory that's suitable for this product
+    if (playerInventory.designs.length === 0) {
+      return null;
+    }
+    
+    // Find compatible designs (for demo, all designs are compatible)
     const compatibleDesigns = playerInventory.designs.filter(design => {
-      // Check if the design has a material type that matches the product's element
-      const materialElement = design.material.elementalAffinity;
-      // In a real implementation, we'd check product.element and do more compatibility checks
-      return true; // All designs are compatible for demo purposes
+      // For simplicity, we'll just check if design has a material
+      return !!design.material;
     });
     
     return compatibleDesigns.length > 0 ? compatibleDesigns[0] : null;
@@ -291,18 +294,18 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
                 <div 
                   className="design-preview"
                   style={{
-                    backgroundColor: design.colors.base,
-                    borderColor: design.colors.accent,
-                    color: design.colors.accent
+                    backgroundColor: design.colors?.base || '#f0f0f0',
+                    borderColor: design.colors?.accent || '#cccccc',
+                    color: design.colors?.accent || '#333333'
                   }}
                 >
-                  <div className="preview-icon">{design.material.icon}</div>
-                  <div className="preview-style">{design.designStyle.icon}</div>
+                  <div className="preview-icon">{design.material?.icon || '📦'}</div>
+                  <div className="preview-style">{design.designStyle?.icon || '🎨'}</div>
                   {design.specialEffect && (
-                    <div className="preview-effect">{design.specialEffect.icon}</div>
+                    <div className="preview-effect">{design.specialEffect?.icon || '✨'}</div>
                   )}
                   {design.brand && (
-                    <div className="preview-brand">{design.brand.icon}</div>
+                    <div className="preview-brand">{design.brand?.icon || '🏷️'}</div>
                   )}
                   {design.packagingType && (
                     <div className="preview-package-type" title={design.packagingType}>
@@ -331,18 +334,22 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
                   <div className="design-components">
                     <div className="component">
                       <span className="component-label">Material:</span>
-                      <span className="component-value">{design.material.name}</span>
+                      <span className="component-value">{design.material?.name || 'Unknown Material'}</span>
                     </div>
                     
                     <div className="component">
                       <span className="component-label">Style:</span>
-                      <span className="component-value">{design.designStyle.name}</span>
+                      <span className="component-value">{design.designStyle?.name || 'Design Style'}</span>
                     </div>
                     
                     {design.specialEffects && design.specialEffects.length > 0 && (
                       <div className="component">
                         <span className="component-label">Effect:</span>
-                        <span className="component-value">{design.specialEffects[0]}</span>
+                        <span className="component-value">{
+                          typeof design.specialEffects[0] === 'string' 
+                            ? design.specialEffects[0].charAt(0).toUpperCase() + design.specialEffects[0].slice(1)
+                            : 'Special Effect'
+                        }</span>
                       </div>
                     )}
                     

@@ -10,6 +10,7 @@ import {
   PackagingType,
   LabelStyle
 } from 'coven-shared';
+// Import packaging utility functions
 import {
   toBackendPackaging,
   applyPackagingDesignToProduct
@@ -159,7 +160,7 @@ const PackagingDesigner: React.FC<PackagingDesignerProps> = ({
         qualityScore: designQuality,
         packagingType,
         labelStyle,
-        specialEffects: selectedEffect ? [selectedEffect.effectType] : undefined,
+        specialEffects: selectedEffect && selectedEffect.effectType ? [selectedEffect.effectType] : [],
         creationDate: Date.now()
       };
 
@@ -238,7 +239,7 @@ const PackagingDesigner: React.FC<PackagingDesignerProps> = ({
                     <div className="special-property tooltip-container">
                       <span className="special-label">✨ Special Property</span>
                       <div className="trait-tooltip">
-                        <p>{material.specialProperty}</p>
+                        <p>{typeof material.specialProperty === 'string' ? material.specialProperty : 'Enhances product properties'}</p>
                       </div>
                     </div>
                   )}
@@ -518,13 +519,13 @@ const PackagingDesigner: React.FC<PackagingDesignerProps> = ({
               color: customColorAccent
             }}
           >
-            <div className="preview-material">{selectedMaterial.icon}</div>
-            <div className="preview-design">{selectedDesignStyle.icon}</div>
+            <div className="preview-material">{selectedMaterial.icon || '📦'}</div>
+            <div className="preview-design">{selectedDesignStyle.icon || '🎨'}</div>
             {selectedEffect && (
-              <div className="preview-effect">{selectedEffect.icon}</div>
+              <div className="preview-effect">{selectedEffect.icon || '✨'}</div>
             )}
             {selectedBrand && (
-              <div className="preview-brand">{selectedBrand.icon}</div>
+              <div className="preview-brand">{selectedBrand.icon || '🏷️'}</div>
             )}
             <div className="preview-package-type" title={packagingType}>
               {getPackagingTypeEmoji(packagingType)}
