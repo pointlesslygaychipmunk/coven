@@ -8,11 +8,8 @@ import {
   needsWater,
   adaptPlantForDisplay
 } from '../utils';
-import { GardenSlot as BaseGardenSlot, DisplayPlant } from 'coven-shared';
-
-interface GardenSlot extends Omit<BaseGardenSlot, 'plant'> {
-  plant: DisplayPlant | null;
-}
+import { GardenSlot as BaseGardenSlot } from 'coven-shared';
+import { DisplayGardenSlot } from '../utils/frontendCompatibility';
 
 interface GardenPlotProps {
   plot: BaseGardenSlot;

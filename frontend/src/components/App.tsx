@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, Component, ReactNode } from 'react';
 import './App.css';
-import { GameState, Season, InventoryItem, GardenSlot, AtelierSpecialization } from 'coven-shared';
+import { GameState, Season, InventoryItem, GardenSlot, AtelierSpecialization, MoonPhase } from 'coven-shared';
+import { createDefaultPlayer } from '../utils/playerStateMocks';
 
 // ErrorBoundary class component to catch render errors
 class ErrorBoundary extends Component<{ fallback: ReactNode, children?: ReactNode }> {
@@ -60,24 +61,13 @@ const createMockGameState = (): GameState => {
     return {
         currentPlayerIndex: 0,
         version: "1.0.0",
-        players: [{
-            id: "fallback",
-            name: "Fallback Witch",
+        players: [createDefaultPlayer('fallback', 'Fallback Witch', {
             gold: 500,
             mana: 500,
             reputation: 50,
             atelierLevel: 5,
             atelierSpecialization: "Essence" as AtelierSpecialization,
-            garden: [],
-            inventory: [],
-            blackMarketAccess: false,
-            skills: { gardening: 5, brewing: 5, trading: 5, crafting: 5, herbalism: 5, astrology: 5 },
-            knownRecipes: [],
-            completedRituals: [],
-            journalEntries: [],
-            questsCompleted: 0,
-            lastActive: Date.now()
-        }],
+        })],
         market: [],
         marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: false, tradingVolume: 0 },
         rumors: [],
@@ -482,24 +472,15 @@ const App: React.FC = () => {
                                         setGameState({
                                             currentPlayerIndex: 0,
                                             version: "1.0.0",
-                                            players: [{
-                                                id: "debug",
-                                                name: "Debug Witch",
+                                            players: [createDefaultPlayer('debug', 'Debug Witch', {
                                                 gold: 999,
                                                 mana: 999,
                                                 reputation: 100,
                                                 atelierLevel: 10,
                                                 atelierSpecialization: "Essence",
-                                                garden: [],
-                                                inventory: [],
                                                 blackMarketAccess: true,
                                                 skills: { gardening: 10, brewing: 10, trading: 10, crafting: 10, herbalism: 10, astrology: 10 },
-                                                knownRecipes: [],
-                                                completedRituals: [],
-                                                journalEntries: [],
-                                                questsCompleted: 0,
-                                                lastActive: Date.now()
-                                            }],
+                                            })],
                                             market: [],
                                             marketData: { inflation: 1.0, demand: {}, supply: {}, volatility: 0.1, blackMarketAccessCost: 500, blackMarketUnlocked: true, tradingVolume: 0 },
                                             rumors: [],
@@ -733,16 +714,22 @@ const App: React.FC = () => {
                                                                         onCrossBreed={() => setCurrentView('crossBreeding')}
                                                                         weatherFate={gameState.time.weatherFate}
                                                                         season={gameState.time.season as Season}
+                                                                        playerMana={currentPlayer.mana}
+                                                                        playerMaxMana={currentPlayer.maxMana}
+                                                                        onCollectMana={(amount) => console.log(`Collected mana: ${amount}`)}
+                                                                        totalManaGeneration={currentPlayer.totalManaGenerated || 0}
+                                                                        playerSkills={currentPlayer.skills}
+                                                                        currentMoonPhase={gameState.time.phaseName as MoonPhase}
                                                                     />
                                                                     
                                                                     {/* Show CrossBreedingInterface as an overlay when in crossBreeding view */}
                                                                     {showCrossBreeding && (
                                                                         <CrossBreedingInterface
-                                                                            plants={maturePlants}
+                                                                            playerGarden={currentPlayer.garden.filter(plot => plot.plant && plot.plant.mature)}
                                                                             onCrossBreed={handleCrossBreed}
                                                                             onClose={() => setCurrentView('garden')}
                                                                             currentSeason={gameState.time.season as Season}
-                                                                            currentMoonPhase={gameState.time.phaseName}
+                                                                            currentMoonPhase={gameState.time.phaseName as MoonPhase}
                                                                             playerGardeningSkill={currentPlayer.skills.gardening}
                                                                         />
                                                                     )}

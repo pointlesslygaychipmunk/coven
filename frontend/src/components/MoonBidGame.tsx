@@ -8,19 +8,16 @@ import {
   GameMode,
   MoonBidPlayer,
   Trick,
-  initializeMoonBidGame,
-  placeBid,
-  playCard,
-  getGameWinners,
   MOON_PHASE_EFFECTS,
   SEASON_EFFECTS,
-  GAME_MODES
-} from 'coven-shared/src/moonBidGame';
+  createMockGameState,
+  createMockMoonBidPlayer,
+  dealCards
+} from '../utils/moonBidMocks';
 import { 
   PlayerDeck,
-  createDefaultDeck,
-  createSpecializedDeck
-} from 'coven-shared/src/moonBidDeckbuilding';
+  createMockPlayerDeck
+} from '../utils/moonBidMocks';
 import { MoonPhase, Season } from 'coven-shared';
 import MoonBidDeckManager from './MoonBidDeckManager';
 

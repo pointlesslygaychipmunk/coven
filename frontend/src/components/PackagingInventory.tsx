@@ -115,16 +115,63 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
   const getPackagedProduct = (product: Product) => {
     // First check if the product already has packaging
     if (product.packaging) {
+      // Handle material in a type-safe way
+      let material: any = {};
+      if (typeof product.packaging.material === 'string') {
+        // String material needs proper conversion for frontend
+        material = {
+          name: product.packaging.material.charAt(0).toUpperCase() + product.packaging.material.slice(1),
+          icon: '📦',
+          materialType: product.packaging.material
+        };
+      } else if (product.packaging.material) {
+        // Object material needs proper handling
+        material = {
+          ...product.packaging.material,
+          name: (product.packaging.material as any)?.name || 'Material',
+          icon: (product.packaging.material as any)?.icon || '📦'
+        };
+      }
+      
+      // Handle designStyle in a type-safe way
+      let designStyle: any = {};
+      if (typeof product.packaging.designStyle === 'string') {
+        // String designStyle needs proper conversion for frontend
+        designStyle = {
+          name: product.packaging.designStyle.charAt(0).toUpperCase() + product.packaging.designStyle.slice(1),
+          icon: '🎨',
+          designStyle: product.packaging.designStyle
+        };
+      } else if (product.packaging.designStyle) {
+        // Object designStyle needs proper handling
+        designStyle = {
+          ...product.packaging.designStyle,
+          name: (product.packaging.designStyle as any)?.name || 'Style',
+          icon: (product.packaging.designStyle as any)?.icon || '🎨'
+        };
+      }
+      
+      // Handle brand in a type-safe way
+      let brand: any = null;
+      if (product.packaging.brand) {
+        // Brand needs icon and recognition properties
+        brand = {
+          ...product.packaging.brand,
+          name: (product.packaging.brand as any)?.name || 'Brand',
+          icon: (product.packaging.brand as any)?.icon || '🏷️',
+          recognition: (product.packaging.brand as any)?.recognition || 5,
+          reputation: (product.packaging.brand as any)?.reputation || 5
+        };
+      }
+      
       // Create a flexible compatible design that adapts to any packaging format
       const packageDesign: CompatibleDesign = {
         id: product.packaging.id || `design_${Date.now()}`,
         name: product.packaging.name || 'Package Design',
         
-        // Material can be either a string or Material object
-        material: product.packaging.material || {},
-        
-        // DesignStyle can be either a string or DesignStyle object
-        designStyle: product.packaging.designStyle || {},
+        // Use the properly converted material and designStyle
+        material: material,
+        designStyle: designStyle,
         
         // Handle properties that might be missing in the backend format
         colors: {
@@ -136,7 +183,7 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
         qualityScore: (product.packaging as any).qualityScore || 50,
         specialEffects: (product.packaging as any).specialEffects || [],
         specialEffect: (product.packaging as any).specialEffect || null,
-        brand: (product.packaging as any).brand || null,
+        brand: brand,
         packagingType: (product.packaging as any).packagingType || 'bottle',
         labelStyle: (product.packaging as any).labelStyle || 'printed',
         creationDate: (product.packaging as any).creationDate || Date.now()
@@ -531,10 +578,10 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
                           specialEffects: packageDesign?.specialEffects || [],
                           // Copy any brand information
                           brand: packageDesign?.brand,
-                          // Copy other properties
-                          packagingType: packageDesign?.packagingType,
-                          labelStyle: packageDesign?.labelStyle,
-                          creationDate: packageDesign?.creationDate
+                          // Copy other properties with type assertions for compatibility
+                          packagingType: (packageDesign?.packagingType || 'bottle') as any,
+                          labelStyle: (packageDesign?.labelStyle || 'printed') as any,
+                          creationDate: packageDesign?.creationDate || Date.now()
                         }}
                         showDetails={true}
                       />

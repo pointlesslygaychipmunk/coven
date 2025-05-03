@@ -4,7 +4,8 @@ import GardenPlot from './GardenPlot';
 import SeasonalAttunementPuzzle from './SeasonalAttunementPuzzle';
 import GardenMiniGame, { MiniGameType, MiniGameResult } from './GardenMiniGame';
 import CrossBreedingInterface from './CrossBreedingInterface';
-import { InventoryItem, GardenSlot, Season, WeatherFate, MoonPhase } from 'coven-shared';
+import { InventoryItem, GardenSlot, Season, WeatherFate, MoonPhase, DisplayPlant } from 'coven-shared';
+import { adaptPlantForDisplay } from '../utils';
 
 interface GardenProps {
   plots: GardenSlot[];
@@ -506,41 +507,47 @@ const Garden: React.FC<GardenProps> = ({
             </div>
           </div>
 
-          {plant ? (
-            <div className="plant-info">
-              <h4>{plant.name}</h4>
-              <div className="plant-progress">
-                <div className="progress-label">
-                  <span>Growth</span>
-                  <span>{growthPercent.toFixed(0)}%</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${growthPercent}%` }} />
-                </div>
-              </div>
-              <div className="plant-stats">
-                <div className="plant-stat">
-                  <div className="stat-label">Health</div>
-                  <div className="stat-value">{plant.health?.toFixed(0) ?? '?'}%</div>
-                </div>
-                <div className="plant-stat">
-                  <div className="stat-label">Age</div>
-                  <div className="stat-value">{plant.age ?? '?'} {plant.age === 1 ? 'phase' : 'phases'}</div>
-                </div>
-              </div>
-              {plant.moonBlessed && <div className="plant-blessing">✧ Moon Blessed ✧</div>}
-              {plant.seasonalModifier && plant.seasonalModifier !== 1.0 && (
-                <div className="plant-season">
-                  {plant.seasonalModifier > 1 ? 
-                    <span className="boost">Thriving (+{Math.round((plant.seasonalModifier - 1) * 100)}%)</span> : 
-                    <span className="penalty">Struggling (-{Math.round((1 - plant.seasonalModifier) * 100)}%)</span>
-                  }
-                </div>
-              )}
+          {plant ? (() => {
+              // Convert to DisplayPlant to access plant properties safely
+              const displayPlant = adaptPlantForDisplay(plant);
+              if (!displayPlant) return <div>Error loading plant data</div>;
+              
+              return (
+                <div className="plant-info">
+                  <h4>{displayPlant.name}</h4>
+                  <div className="plant-progress">
+                    <div className="progress-label">
+                      <span>Growth</span>
+                      <span>{growthPercent.toFixed(0)}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${growthPercent}%` }} />
+                    </div>
+                  </div>
+                  <div className="plant-stats">
+                    <div className="plant-stat">
+                      <div className="stat-label">Health</div>
+                      <div className="stat-value">{displayPlant.health?.toFixed(0) ?? '?'}%</div>
+                    </div>
+                    <div className="plant-stat">
+                      <div className="stat-label">Age</div>
+                      <div className="stat-value">{displayPlant.age ?? '?'} {displayPlant.age === 1 ? 'phase' : 'phases'}</div>
+                    </div>
+                  </div>
+                  {displayPlant.moonBlessed && <div className="plant-blessing">✧ Moon Blessed ✧</div>}
+                  {displayPlant.seasonalModifier && displayPlant.seasonalModifier !== 1.0 && (
+                    <div className="plant-season">
+                      {displayPlant.seasonalModifier > 1 ? 
+                        <span className="boost">Thriving (+{Math.round((displayPlant.seasonalModifier - 1) * 100)}%)</span> : 
+                        <span className="penalty">Struggling (-{Math.round((1 - displayPlant.seasonalModifier) * 100)}%)</span>
+                      }
+                    </div>
+                  )}
+              
               
               {/* Plant action buttons */}
               <div className="garden-actions plant-actions">
-                {plant.mature ? (
+                {displayPlant.mature ? (
                   <button 
                     className="action-button harvest" 
                     onClick={handleHarvest}
@@ -584,7 +591,8 @@ const Garden: React.FC<GardenProps> = ({
                 </div>
               )}
             </div>
-          ) : (
+          );
+          })() : (
             <div className="empty-plot-status">
               <p>This plot is empty.</p>
               <p>Select a seed from your inventory to plant here.</p>
@@ -748,7 +756,7 @@ const Garden: React.FC<GardenProps> = ({
       {/* Cross-Breeding Interface */}
       {showCrossBreeding && (
         <CrossBreedingInterface
-          plants={plots.flatMap(plot => plot.plant ? [plot.plant] : [])}
+          playerGarden={plots.filter(plot => plot.plant !== null)}
           onCrossBreed={onCrossBreed}
           onClose={handleCloseCrossBreeding}
           currentSeason={season}

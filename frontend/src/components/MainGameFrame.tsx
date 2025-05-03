@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './MainGameFrame.css';
 import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization } from 'coven-shared';
+import { createDefaultInventoryItem, createDefaultGardenSlot } from '../utils/playerStateMocks';
 
 // Import updated 90s-style components
 import Garden90s from './Garden90s';
@@ -68,28 +69,70 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     setCurrentView(view);
   };
   
-  // Mock data for demonstration purposes conforming to shared types
+  // Mock data creating GardenSlot objects conforming to shared types
   const mockPlots = [
-    { id: 0, fertility: 75, moisture: 60, isUnlocked: true, plant: null },
-    { id: 1, fertility: 80, moisture: 70, isUnlocked: true, plant: { id: "p1", name: "Moonflower", growth: 50, maxGrowth: 100, age: 2, health: 90, mature: false, watered: true } },
-    { id: 2, fertility: 65, moisture: 55, isUnlocked: true, plant: null },
-    { id: 3, fertility: 70, moisture: 65, isUnlocked: true, plant: { id: "p2", name: "Chamomile", growth: 100, maxGrowth: 100, age: 3, health: 95, mature: true, watered: true } },
-    { id: 4, fertility: 90, moisture: 80, isUnlocked: true, plant: { id: "p3", name: "Ginseng", growth: 30, maxGrowth: 100, age: 1, health: 85, mature: false, watered: true } },
-    { id: 5, fertility: 60, moisture: 50, isUnlocked: false, plant: null },
-    { id: 6, fertility: 0, moisture: 0, isUnlocked: false, plant: null },
-    { id: 7, fertility: 0, moisture: 0, isUnlocked: false, plant: null },
-    { id: 8, fertility: 0, moisture: 0, isUnlocked: false, plant: null }
+    createDefaultGardenSlot(0, true, null, { fertility: 75, moisture: 60 }),
+    createDefaultGardenSlot(1, true, { 
+      id: "p1", 
+      tarotCardId: "flower_moonflower",
+      growth: 50, 
+      maxGrowth: 100, 
+      health: 90, 
+      watered: true, 
+      age: 2, 
+      mature: false,
+      qualityModifier: 60,
+      moonBlessing: 30,
+      seasonalResonance: 50,
+      elementalHarmony: 40,
+      growthStage: 'growing'
+    }, { fertility: 80, moisture: 70 }),
+    createDefaultGardenSlot(2, true, null, { fertility: 65, moisture: 55 }),
+    createDefaultGardenSlot(3, true, { 
+      id: "p2", 
+      tarotCardId: "herb_chamomile",
+      growth: 100, 
+      maxGrowth: 100, 
+      health: 95, 
+      watered: true, 
+      age: 3, 
+      mature: true,
+      qualityModifier: 80,
+      moonBlessing: 70,
+      seasonalResonance: 60,
+      elementalHarmony: 50,
+      growthStage: 'mature'
+    }, { fertility: 70, moisture: 65 }),
+    createDefaultGardenSlot(4, true, { 
+      id: "p3", 
+      tarotCardId: "root_ginseng",
+      growth: 30, 
+      maxGrowth: 100, 
+      health: 85, 
+      watered: true, 
+      age: 1, 
+      mature: false,
+      qualityModifier: 40,
+      moonBlessing: 20,
+      seasonalResonance: 30,
+      elementalHarmony: 60,
+      growthStage: 'growing'
+    }, { fertility: 90, moisture: 80 }),
+    createDefaultGardenSlot(5, false, null, { fertility: 60, moisture: 50 }),
+    createDefaultGardenSlot(6, false, null),
+    createDefaultGardenSlot(7, false, null),
+    createDefaultGardenSlot(8, false, null)
   ];
   
-  // Use full type assertion to ensure TypeScript properly recognizes our mock data
+  // Use createDefaultInventoryItem to create properly typed inventory items
   const mockInventory: InventoryItem[] = [
-    { id: "1", baseId: "chamomile", name: "Chamomile", quantity: 5, type: "ingredient" as ItemType, category: "herb" as ItemCategory },
-    { id: "2", baseId: "lavender", name: "Lavender", quantity: 3, type: "ingredient" as ItemType, category: "herb" as ItemCategory },
-    { id: "3", baseId: "ginseng", name: "Ginseng", quantity: 1, type: "ingredient" as ItemType, category: "root" as ItemCategory },
-    { id: "4", baseId: "vial", name: "Crystal Vial", quantity: 2, type: "tool" as ItemType, category: "tool" as ItemCategory },
-    { id: "5", baseId: "moonflower_seed", name: "Moonflower Seeds", quantity: 4, type: "seed" as ItemType, category: "seed" as ItemCategory },
-    { id: "6", baseId: "chamomile_seed", name: "Chamomile Seeds", quantity: 2, type: "seed" as ItemType, category: "seed" as ItemCategory },
-    { id: "7", baseId: "dragon_scale", name: "Dragon Scale", quantity: 1, type: "ingredient" as ItemType, category: "essence" as ItemCategory }
+    createDefaultInventoryItem("1", "Chamomile", "ingredient", "herb", 5),
+    createDefaultInventoryItem("2", "Lavender", "ingredient", "herb", 3),
+    createDefaultInventoryItem("3", "Ginseng", "ingredient", "root", 1),
+    createDefaultInventoryItem("4", "Crystal Vial", "tool", "tool", 2),
+    createDefaultInventoryItem("5", "Moonflower Seeds", "seed", "seed", 4),
+    createDefaultInventoryItem("6", "Chamomile Seeds", "seed", "seed", 2),
+    createDefaultInventoryItem("7", "Dragon Scale", "ingredient", "essence", 1)
   ];
   
   const mockRecipes = [

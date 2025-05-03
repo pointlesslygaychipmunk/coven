@@ -14,9 +14,9 @@ import {
   getAvailableCraftableCards,
   getStandardCardDeck
 } from 'coven-shared';
-import { MoonPhase, Season, ElementType } from 'coven-shared/src/types';
-import { CORE_CARDS, CRAFTABLE_CARDS, CARD_COMBOS } from 'coven-shared/src/moonBidDeckbuilding';
-import { MOON_PHASE_EFFECTS } from 'coven-shared/src/moonBidGame';
+import { MoonPhase, Season, ElementType } from 'coven-shared';
+import { CORE_CARDS, CRAFTABLE_CARDS, CARD_COMBOS } from '../utils/moonBidMocks';
+import { MOON_PHASE_EFFECTS } from '../utils/moonBidMocks';
 
 interface MoonBidDeckManagerProps {
   playerId: string;

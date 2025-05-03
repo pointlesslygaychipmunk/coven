@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Garden90s.css';
-import type { GardenSlot, InventoryItem, Season, WeatherFate } from 'coven-shared';
+import type { GardenSlot, InventoryItem, Season, WeatherFate, DisplayPlant } from 'coven-shared';
+import { adaptPlantForDisplay } from '../utils';
 
 interface Garden90sProps {
   plots: GardenSlot[];
@@ -123,8 +124,12 @@ const Garden90s: React.FC<Garden90sProps> = ({
   const handleHarvest = () => {
     const plot = getSelectedPlot();
     if (plot?.plant?.mature) {
+      // Convert to DisplayPlant and get name
+      const displayPlant = adaptPlantForDisplay(plot.plant);
+      const plantName = displayPlant?.name || 'plant';
+      
       // Visual feedback
-      setWhisperText(`Harvesting ${plot.plant.name}...`);
+      setWhisperText(`Harvesting ${plantName}...`);
       setShowWhisper(true);
       
       // Call harvest action
@@ -184,8 +189,16 @@ const Garden90s: React.FC<Garden90sProps> = ({
                 <div className="lock-icon">🔒</div>
               ) : hasPlant ? (
                 <div className="plant-display">
-                  <div className="plant-icon">{getPlantIcon(plot.plant!.name)}</div>
-                  <div className="growth-indicator" style={{ height: `${(plot.plant!.growth / plot.plant!.maxGrowth) * 100}%` }}></div>
+                  {(() => {
+                    const displayPlant = adaptPlantForDisplay(plot.plant!);
+                    const plantName = displayPlant?.name || 'plant';
+                    return (
+                      <>
+                        <div className="plant-icon">{getPlantIcon(plantName)}</div>
+                        <div className="growth-indicator" style={{ height: `${(plot.plant!.growth / plot.plant!.maxGrowth) * 100}%` }}></div>
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="empty-plot"></div>
@@ -295,36 +308,44 @@ const Garden90s: React.FC<Garden90sProps> = ({
           </div>
           
           {selectedPlot.plant ? (
-            <div className="plant-details">
-              <h4>{selectedPlot.plant.name}</h4>
-              <div className="meter-row">
-                <span className="meter-label">Growth:</span>
-                <div className="meter-bar">
-                  <div 
-                    className="meter-fill growth" 
-                    style={{width: `${(selectedPlot.plant.growth / selectedPlot.plant.maxGrowth) * 100}%`}}
-                  ></div>
-                  <span className="meter-value">{Math.round((selectedPlot.plant.growth / selectedPlot.plant.maxGrowth) * 100)}%</span>
-                </div>
-              </div>
-              <div className="meter-row">
-                <span className="meter-label">Health:</span>
-                <div className="meter-bar">
-                  <div 
-                    className="meter-fill health" 
-                    style={{width: `${selectedPlot.plant.health || 0}%`}}
-                  ></div>
-                  <span className="meter-value">{selectedPlot.plant.health || 0}%</span>
-                </div>
-              </div>
-              <div className="plant-age">Age: {selectedPlot.plant.age} {selectedPlot.plant.age === 1 ? 'day' : 'days'}</div>
+            (() => {
+              // Convert to DisplayPlant to access plant properties safely
+              const displayPlant = adaptPlantForDisplay(selectedPlot.plant);
+              if (!displayPlant) return <div>Error loading plant data</div>;
               
-              {selectedPlot.plant.mature && (
-                <button className="garden-button harvest" onClick={handleHarvest}>
-                  <span className="button-text">Harvest</span>
-                </button>
-              )}
-            </div>
+              return (
+                <div className="plant-details">
+                  <h4>{displayPlant.name}</h4>
+                  <div className="meter-row">
+                    <span className="meter-label">Growth:</span>
+                    <div className="meter-bar">
+                      <div 
+                        className="meter-fill growth" 
+                        style={{width: `${(displayPlant.growth / displayPlant.maxGrowth) * 100}%`}}
+                      ></div>
+                      <span className="meter-value">{Math.round((displayPlant.growth / displayPlant.maxGrowth) * 100)}%</span>
+                    </div>
+                  </div>
+                  <div className="meter-row">
+                    <span className="meter-label">Health:</span>
+                    <div className="meter-bar">
+                      <div 
+                        className="meter-fill health" 
+                        style={{width: `${displayPlant.health || 0}%`}}
+                      ></div>
+                      <span className="meter-value">{displayPlant.health || 0}%</span>
+                    </div>
+                  </div>
+                  <div className="plant-age">Age: {displayPlant.age} {displayPlant.age === 1 ? 'day' : 'days'}</div>
+                  
+                  {displayPlant.mature && (
+                    <button className="garden-button harvest" onClick={handleHarvest}>
+                      <span className="button-text">Harvest</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })()
           ) : (
             <div className="empty-plot-message">
               <p>This plot is empty and ready for planting.</p>

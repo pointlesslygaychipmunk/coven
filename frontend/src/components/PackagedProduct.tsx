@@ -103,8 +103,12 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
         return "Special Effect";
       }
       // If it's an object, try to get its name
-      if (effectType && typeof effectType === 'object' && 'name' in effectType) {
-        return effectType.name;
+      if (effectType && typeof effectType === 'object') {
+        // Use type assertion to avoid TS18047 error
+        const effect = effectType as {name?: string};
+        if ('name' in effect && effect.name) {
+          return effect.name;
+        }
       }
       // Otherwise format the string
       if (typeof effectType === 'string') {

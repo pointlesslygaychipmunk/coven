@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './HanbangBrewing.css';
 import { 
-  InventoryItem, 
   TarotCard,
   MoonPhase, 
   Season,
-  ElementType
+  ElementType,
+  InventoryItem
 } from 'coven-shared';
-import { 
-  BrewingMethod, 
-  methodToProductType, 
+import {
+  BrewingMethod,
+  methodToProductType,
   brewingMethodElements,
   brewingMechanics,
   calculateCompatibility,
@@ -17,39 +17,14 @@ import {
   calculateBrewingQuality,
   generateProductName,
   generateProductDescription,
-  calculateBrewingTime
-} from 'coven-shared';
+  calculateBrewingTime,
+  BrewingResult,
+  HanbangBrewingProps
+} from '../utils/hanbangBrewingTypes';
 import LunarPhaseIcon from './LunarPhaseIcon';
-import { findCardById } from 'coven-shared';
+import { findCardById } from '../utils/tarotCardMocks';
 
-// Interface for brewing results 
-interface BrewingResult {
-  productName: string;
-  description: string;
-  quality: number;
-  method: BrewingMethod;
-  ingredientIds: string[];
-  moonPhase: MoonPhase;
-  season: Season;
-  element: ElementType;
-  brewTime: number;
-  manaUsed: number;
-}
-
-interface HanbangBrewingProps {
-  playerInventory: InventoryItem[];
-  playerMana: number;
-  brewingSkillLevel: number;
-  moonPhase: MoonPhase;
-  season: Season;
-  onBrew: (
-    ingredientIds: string[], 
-    method: BrewingMethod, 
-    quality: number,
-    manaUsed: number
-  ) => void;
-  onUpdateMana: (newMana: number) => void;
-}
+// We're now using imported types - no local redefinitions needed
 
 const HanbangBrewing: React.FC<HanbangBrewingProps> = ({
   playerInventory,
@@ -152,7 +127,7 @@ const HanbangBrewing: React.FC<HanbangBrewingProps> = ({
           if (i === j) {
             compat[i][j] = 100; // Perfect compatibility with self
           } else if (i < j) {
-            compat[i][j] = calculateCompatibility(tarot[i], tarot[j]);
+            compat[i][j] = calculateCompatibility([tarot[i]], activeMethod);
             compat[j][i] = compat[i][j]; // Symmetric
           }
         }
@@ -173,9 +148,7 @@ const HanbangBrewing: React.FC<HanbangBrewingProps> = ({
       // Calculate preliminary quality
       const quality = calculateBrewingQuality(
         tarot, 
-        activeMethod, 
-        moonPhase, 
-        season,
+        activeMethod,
         brewingSkillLevel
       );
       
@@ -357,9 +330,7 @@ const HanbangBrewing: React.FC<HanbangBrewingProps> = ({
     // Calculate final product quality
     const quality = calculateBrewingQuality(
       tarotCards, 
-      activeMethod, 
-      moonPhase, 
-      season,
+      activeMethod,
       brewingSkillLevel
     );
     
@@ -505,10 +476,10 @@ const HanbangBrewing: React.FC<HanbangBrewingProps> = ({
             disabled={isBrewing}
           >
             <div className="method-icon">
-              {renderElementIcon(info.element)}
+              {renderElementIcon(brewingMethodElements[method as BrewingMethod])}
             </div>
             <div className="method-name">{method}</div>
-            <div className="method-product">{info.productType}</div>
+            <div className="method-product">{methodToProductType[method as BrewingMethod]}</div>
           </button>
         ))}
       </div>

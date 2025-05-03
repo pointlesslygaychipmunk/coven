@@ -354,8 +354,11 @@ export function createMockGarden(
 /**
  * Type guard to check if a plant is a DisplayPlant
  */
-export function isDisplayPlant(plant: any): plant is DisplayPlant {
-  return plant && typeof plant === 'object' && 'name' in plant;
+export function isDisplayPlant(plant: unknown): plant is DisplayPlant {
+  return plant !== null && 
+         typeof plant === 'object' && 
+         plant !== undefined && 
+         'name' in (plant as object);
 }
 
 /**

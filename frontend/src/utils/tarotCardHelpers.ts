@@ -4,14 +4,18 @@ import {
   MoonPhase, 
   Season, 
   CardEffect,
-  ComboRef,
-  findCardById, 
-  getCardsByCategory, 
-  getCardsByElement, 
+  ComboRef
+} from 'coven-shared';
+
+// Import mock implementations
+import {
+  findCardById,
+  getCardsByCategory,
+  getCardsByElement,
   getCardsByMoonPhase,
   getCardsBySeason,
   getComboCards
-} from 'coven-shared';
+} from './tarotCardMocks';
 
 /**
  * Calculate the effectiveness of a card based on current environmental conditions
@@ -187,7 +191,11 @@ export function getElementalCompatibility(
     }
   };
   
-  return elementalRelations[element1][element2];
+  const relation = elementalRelations[element1][element2];
+  return { 
+    score: relation.score, 
+    reason: relation.relation 
+  };
 }
 
 /**

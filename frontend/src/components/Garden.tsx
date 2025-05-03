@@ -8,7 +8,8 @@ import {
   Season, 
   WeatherFate, 
   TarotCard, 
-  ElementType 
+  ElementType,
+  MoonPhase
 } from 'coven-shared';
 // Import helper functions for tarot cards
 import { 
@@ -24,7 +25,7 @@ import {
   adaptPlantForDisplay
 } from '../utils';
 
-interface GardenProps {
+export interface GardenProps {
   plots: GardenSlot[];
   inventory: InventoryItem[];
   playerMana: number;
@@ -33,8 +34,8 @@ interface GardenProps {
   // Garden actions
   onPlant: (slotId: number, seedInventoryItemId: string) => void;
   onHarvest: (slotId: number) => void;
-  onWater: (slotId: number, elementalBoost?: ElementType) => void;
-  onCrossBreed?: (cardId1: string, cardId2: string) => void;
+  onWater: (puzzleBonus?: number) => void;
+  onCrossBreed?: () => void;
   
   // Mana system
   onCollectMana: (amount: number) => void;
@@ -43,8 +44,12 @@ interface GardenProps {
   // Environment
   weatherFate: WeatherFate;
   season: Season;
-  moonPhase: string;
-  dayTime: 'dawn' | 'day' | 'dusk' | 'night';
+  currentMoonPhase?: MoonPhase;
+  playerSkills?: Record<string, number>;
+  
+  // Optional properties for backward compatibility
+  moonPhase?: string;
+  dayTime?: 'dawn' | 'day' | 'dusk' | 'night';
 }
 
 const Garden: React.FC<GardenProps> = ({
@@ -135,12 +140,18 @@ const Garden: React.FC<GardenProps> = ({
       // Skip empty plots or non-tree plants
       if (!plot.plant || !plot.plant.tarotCardId) return total;
       
+      // Make sure plant exists
+      if (!plot.plant || !plot.plant.tarotCardId) return total;
+      
       // Find the tarot card definition for this plant
       const card = findCardById(plot.plant.tarotCardId);
       if (!card) return total;
       
-      // Use utility function to calculate mana generation
-      const plantMana = calculateManaGeneration(card, plot.plant, moonPhase, season);
+      // Convert to DisplayPlant and use utility function to calculate mana generation
+      const displayPlant = adaptPlantForDisplay(plot.plant);
+      if (!displayPlant) return total;
+      
+      const plantMana = calculateManaGeneration(card, displayPlant, moonPhase, season);
       
       return total + plantMana;
     }, 0);
@@ -321,10 +332,8 @@ const Garden: React.FC<GardenProps> = ({
       return card?.element === element;
     });
     
-    // Water each matching plot with an elemental boost
-    matchingPlots.forEach(plot => {
-      onWater(plot.id, element);
-    });
+    // Water with an elemental boost - in new interface we just call onWater once
+    onWater(1.5); // Provide a bonus multiplier
     
     // Show appropriate message
     if (matchingPlots.length > 0) {
@@ -544,7 +553,7 @@ const Garden: React.FC<GardenProps> = ({
             
             <button
               className="action-button cross-breed"
-              onClick={() => onCrossBreed && onCrossBreed()}
+              onClick={() => onCrossBreed ? onCrossBreed() : undefined}
             >
               <span>Cross-Breed Plants</span>
             </button>
