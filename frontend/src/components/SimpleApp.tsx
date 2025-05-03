@@ -39,6 +39,85 @@ const SimpleApp: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('garden'); // Possible views: 'garden', 'brewing', 'market', 'rituals'
+  
+  // Initialize with a mock game state
+  useEffect(() => {
+    console.log("Initializing game state...");
+    // Create a mock player
+    const player: any = {
+      id: "player1",
+      name: "Witch Apprentice",
+      gold: 100,
+      mana: 50,
+      maxMana: 100,
+      reputation: 10,
+      atelierSpecialization: "Infusion",
+      atelierLevel: 1,
+      elementalAffinity: "Water",
+      favoredMoonPhase: "Full Moon",
+      skills: {
+        gardening: 1,
+        brewing: 1,
+        trading: 1,
+        crafting: 1,
+        herbalism: 1,
+        astrology: 1
+      },
+      inventory: [],
+      garden: Array(9).fill(null).map((_, idx) => ({
+        id: idx,
+        plant: null,
+        fertility: 75,
+        moisture: 50,
+        soilType: "loamy",
+        sunlight: 70,
+        elementalInfluence: "Earth",
+        manaCapacity: 100,
+        currentMana: 25,
+        manaFlowRate: 1,
+        isUnlocked: idx < 3,
+        plotAppearance: "normal"
+      })),
+      completedRituals: []
+    };
+    
+    // Create mock game state
+    const mockGameState: any = {
+      players: [player],
+      market: [],
+      marketData: {
+        inflation: 1.0,
+        demand: {},
+        supply: {},
+        volatility: 0.1,
+        blackMarketAccessCost: 500,
+        blackMarketUnlocked: false,
+        tradingVolume: 0
+      },
+      townRequests: [],
+      rituals: [],
+      rumors: [],
+      journal: [],
+      events: [],
+      currentPlayerIndex: 0,
+      time: {
+        year: 1,
+        season: "Spring",
+        phase: 5,
+        phaseName: "Full Moon",
+        weatherFate: "clear",
+        dayCount: 1,
+        lastSaved: Date.now()
+      },
+      version: "0.1.0",
+      knownRecipes: []
+    };
+    
+    // Set the game state and turn off loading
+    setGameState(mockGameState);
+    setLoading(false);
+    console.log("Game state initialized, ready to render!");
+  }, []); // Empty dependency array means this runs once on mount
   // Add collection view for tarot cards
   const [showTarotCollection, setShowTarotCollection] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
