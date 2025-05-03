@@ -441,7 +441,7 @@ const App: React.FC = () => {
             <div className="game-container">
                 <div className="loading-screen">
                     <div className="loading-dialog">
-                        <div className="loading-header">LOADING WITCH COVEN v1.0</div>
+                        <div className="loading-header">RUNNING COVEN.BAT v1.0</div>
                         <div className="loading-content">
                             <h1>INITIALIZING MAGICAL SYSTEMS</h1>
                             
@@ -451,7 +451,7 @@ const App: React.FC = () => {
                                 <div className="loading-bar"></div>
                             </div>
                             
-                            <p className="loading-text">Summoning magical components...</p>
+                            <p className="loading-text">Summoning your garden...</p>
                             
                             {/* Debug button to force exit loading state */}
                             <button 
