@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witch's Coven</title>
+  <style>
+    body {
+      background-color: #1e1724;
+      color: #d0c8b0;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    
+    .container {
+      width: 80%;
+      max-width: 600px;
+      background-color: #2a2545;
+      border: 4px double #695e9e;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    h1 {
+      color: #c1b3ff;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    p {
+      margin: 15px 0;
+      line-height: 1.5;
+    }
+    
+    .button-group {
+      margin-top: 25px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    button {
+      background-color: #4a3674;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      min-width: 150px;
+    }
+    
+    button:hover {
+      background-color: #7b4dab;
+    }
+    
+    .note {
+      font-size: 14px;
+      font-style: italic;
+      margin-top: 25px;
+      color: #a39cc5;
+    }
+    
+    pre {
+      background-color: #1f1a38;
+      padding: 15px;
+      text-align: left;
+      overflow-x: auto;
+      color: #a39cc5;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Witch's Coven - Default Page</h1>
+    
+    <p>You're seeing this page because your web server is serving this default.html file 
+    instead of correctly routing to the single-page application.</p>
+    
+    <p>The Witch's Coven application is a React single-page app that needs to route all
+    requests to the main index.html file.</p>
+    
+    <div class="button-group">
+      <button onclick="window.location.href='/'">Try Home Page</button>
+      <button onclick="window.location.href='/index.html'">Try Direct Index</button>
+      <button onclick="window.location.href='/emergency.html'">Emergency Page</button>
+    </div>
+    
+    <p class="note">Note for website administrators: You need to configure your server to route all requests 
+    to index.html for this single-page application to work properly.</p>
+    
+    <pre>
+# Apache (.htaccess):
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# Nginx:
+location / {
+  try_files $uri $uri/ /index.html;
+}
+
+# Netlify (_redirects):
+/*    /index.html   200
+    </pre>
+  </div>
+</body>
+</html>

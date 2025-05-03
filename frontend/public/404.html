@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witch's Coven</title>
+  <style>
+    body {
+      background-color: #1e1724;
+      color: #d0c8b0;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .container {
+      text-align: center;
+      width: 400px;
+      background-color: #e4d9b9;
+      border: 8px double #8b7250;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      color: #4a2c6f;
+    }
+    
+    h1 {
+      font-family: 'Times New Roman', serif;
+      font-size: 28px;
+      margin: 0 0 20px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      letter-spacing: 2px;
+      font-variant: small-caps;
+    }
+    
+    p {
+      margin: 20px 0;
+    }
+    
+    button {
+      background-color: #4a2c6f;
+      color: #d0c8b0;
+      border: 2px solid #8b7250;
+      padding: 10px 20px;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    button:hover {
+      background-color: #7b4dab;
+    }
+    
+    #redirect-message {
+      font-style: italic;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+  <script>
+    // Redirect to index.html
+    window.onload = function() {
+      // Show redirect message
+      document.getElementById('redirect-message').style.display = 'block';
+      
+      // Get the path from the current URL
+      const path = window.location.pathname;
+      
+      // Create the redirect URL (to homepage with the original path as a parameter)
+      const redirectURL = window.location.origin + '/?path=' + encodeURIComponent(path);
+      
+      // Redirect after a short delay
+      setTimeout(function() {
+        window.location.href = redirectURL;
+      }, 2000);
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Witch's Coven</h1>
+    <p>The page you requested is not found directly.</p>
+    <p>You will be redirected to the main application...</p>
+    <p id="redirect-message">Casting navigation spell...</p>
+    <button onclick="window.location.href='/'">Go to Home Page</button>
+  </div>
+</body>
+</html>
