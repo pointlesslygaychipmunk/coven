@@ -1,5 +1,7 @@
 // shared/src/tarotCards.ts
-import { TarotCard, CardEffect, ElementType, MoonPhase, Season, SoilType, CardFrame, Rarity, ItemType, ItemCategory, ComboRef } from './types.js';
+// We need to import these types even if TypeScript thinks they're unused
+// They're used in the object literals as string values
+import { TarotCard, CardEffect, ElementType, MoonPhase, Season, ItemCategory, ComboRef, SoilType, CardFrame, Rarity, ItemType } from './types.js';
 
 // Helper function to create card effects
 const createEffect = (type: CardEffect['type'], value: number, description: string): CardEffect => ({
@@ -14,19 +16,19 @@ export const treeTarotCards: TarotCard[] = [
   {
     id: 'tree_oak',
     name: 'Oak Tree',
-    category: 'tree',
-    type: 'tree',
+    category: 'tree' as ItemCategory,
+    type: 'tree' as ItemType,
     
     artworkPath: '/assets/cards/trees/oak_tree.png',
-    frameType: 'tree',
+    frameType: 'tree' as CardFrame,
     
-    element: 'Earth',
-    moonPhaseAffinity: 'Full Moon',
-    seasonAffinity: 'Fall',
+    element: 'Earth' as ElementType,
+    moonPhaseAffinity: 'Full Moon' as MoonPhase,
+    seasonAffinity: 'Fall' as Season,
     
     rank: 6,
     essence: 8,
-    rarity: 'common',
+    rarity: 'common' as Rarity,
     
     primaryEffect: createEffect('essence', 3, 'Generates 3 mana per turn when mature'),
     combos: [
@@ -40,7 +42,7 @@ export const treeTarotCards: TarotCard[] = [
     
     growthTime: 12,
     yield: 0,  // Trees don't get harvested
-    soilPreference: 'loamy',
+    soilPreference: 'loamy' as SoilType,
     manaGeneration: 3,
     
     baseValue: 50,

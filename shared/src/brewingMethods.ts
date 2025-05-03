@@ -1,6 +1,5 @@
 // shared/src/brewingMethods.ts
-import { ElementType, CardEffect, TarotCard, ComboRef } from './types.js';
-import { findCardById } from './tarotCards.js';
+import { ElementType, TarotCard, ComboRef } from './types.js';
 
 // The four Hanbang brewing methods
 export type BrewingMethod = 'Infusion' | 'Fermentation' | 'Distillation' | 'Crystallization';
