@@ -12,11 +12,16 @@ import {
   SEASON_EFFECTS,
   createMockGameState,
   createMockMoonBidPlayer,
-  dealCards
-} from '../utils/moonBidMocks';
-import { 
+  dealCards,
   PlayerDeck,
-  createMockPlayerDeck
+  createMockPlayerDeck,
+  createDefaultDeck,
+  createSpecializedDeck,
+  initializeMoonBidGame,
+  placeBid,
+  playCard,
+  getGameWinners,
+  GAME_MODES
 } from '../utils/moonBidMocks';
 import { MoonPhase, Season } from 'coven-shared';
 import MoonBidDeckManager from './MoonBidDeckManager';
@@ -128,9 +133,9 @@ const MoonBidGame: React.FC<MoonBidGameProps> = ({
     const newGame = initializeMoonBidGame(
       allPlayerIds,
       allPlayerNames,
+      selectedMode,
       currentMoonPhase,
-      currentSeason,
-      selectedMode
+      currentSeason
     );
     
     // In a full implementation, we would modify the game initialization 

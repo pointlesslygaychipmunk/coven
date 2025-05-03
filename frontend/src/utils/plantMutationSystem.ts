@@ -452,7 +452,7 @@ export function attemptPlantMutation(
   if (!plant) return { mutated: false, plant };
   
   // Calculate base mutation chance
-  // We're using a mock garden slot since we don't have the full structure
+  // Create a proper garden slot with all required fields
   const mockGardenSlot = { 
     id: 0, 
     plant: null, 
@@ -464,7 +464,8 @@ export function attemptPlantMutation(
     currentMana: gardenSlotMana, 
     manaFlowRate: 0, 
     isUnlocked: true, 
-    plotAppearance: 'normal' 
+    plotAppearance: 'normal' as 'normal' | 'vibrant' | 'withered' | 'magical' | 'overgrown', // Type assertion for string literal
+    sunlight: 70 // Add required sunlight property
   };
   
   const mutationChance = calculateMutationChance(plant, mockGardenSlot, moonPhase);

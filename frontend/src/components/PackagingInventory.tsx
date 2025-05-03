@@ -6,37 +6,12 @@ import {
   SpecialEffect, 
   Brand, 
   PackagingDesign,
-  Product
+  Product,
+  PackageType
 } from 'coven-shared';
 
-// Type definition to handle both frontend and backend packaging formats
-// Define a more flexible type that can accommodate both frontend and backend formats
-interface CompatibleDesign {
-  id: string;
-  name: string;
-  
-  // Properties for compatibility with both PackagingDesign and ProductPackaging
-  material: any; // Support both Material and PackagingMaterial
-  designStyle: any; // Support both DesignStyle and backend DesignStyle
-  
-  // Optional properties used by frontend
-  qualityScore?: number;
-  colors?: {
-    base?: string;
-    accent?: string;
-  };
-  specialEffects?: any[]; // Can be string[] or PackagingEffect[]
-  specialEffect?: any; // SpecialEffect or other format
-  brand?: any; // Brand or BrandIdentity
-  
-  // Other optional properties
-  packagingType?: string;
-  labelStyle?: string;
-  creationDate?: number;
-  
-  // Allow any additional properties
-  [key: string]: any;
-};
+// Use the shared PackageType interface which is already compatible with both frontend and backend formats
+type CompatibleDesign = PackageType;
 import PackagingDesigner from './PackagingDesigner';
 import PackagedProduct from './PackagedProduct';
 

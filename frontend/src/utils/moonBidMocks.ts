@@ -437,25 +437,36 @@ export const GAME_MODES = {
 };
 
 // Create a default deck for a player
-export function createDefaultDeck(playerId: string): PlayerDeck {
+export function createDefaultDeck(playerId: string, playerName: string): PlayerDeck {
   return createMockPlayerDeck(
     `deck_default_${playerId}`,
     'Default Deck',
-    playerId
+    playerId,
+    {
+      description: `${playerName}'s standard Moon Bid deck`
+    }
   );
 }
 
 // Create a specialized deck for a player with a specific focus
 export function createSpecializedDeck(
   playerId: string,
-  specialization: string, 
-  moonPhase: MoonPhase
+  playerName: string,
+  specialization: string
 ): PlayerDeck {
+  // Determine a moon phase that matches the specialization
+  const moonPhase: MoonPhase = 
+    specialization.toLowerCase().includes('herb') ? 'Waxing Crescent' :
+    specialization.toLowerCase().includes('potion') ? 'Waning Crescent' :
+    specialization.toLowerCase().includes('crystal') ? 'Waning Gibbous' :
+    'Full Moon'; // Default to Full Moon for other specializations
+    
   return createMockPlayerDeck(
     `deck_spec_${playerId}_${Date.now()}`,
-    `${moonPhase} ${specialization} Deck`,
+    `${specialization} Mastery Deck`,
     playerId,
     {
+      description: `${playerName}'s specialized deck for ${specialization}`,
       lunarAlignment: moonPhase
     }
   );
@@ -601,7 +612,6 @@ export function playCard(
           p.bid = 0;
           p.tricks = 0;
           p.winningCards = [];
-          p.passedLastRound = false;
         });
         
         // Go back to bidding phase
@@ -617,14 +627,19 @@ export function playCard(
 }
 
 // Determine the winners of the game
-export function getGameWinners(game: MoonBidGame): Array<{
-  playerId: string;
-  name: string;
-  score: number;
-  rank: number;
-}> {
-  // If the game isn't complete, return empty array
-  if (!game.winningConditionMet) return [];
+export function getGameWinners(game: MoonBidGame): {
+  winnerIds: string[];
+  winnerNames: string[];
+  isTeamWin: boolean;
+} {
+  // If the game isn't complete, return empty result
+  if (!game.winningConditionMet) {
+    return {
+      winnerIds: [],
+      winnerNames: [],
+      isTeamWin: false
+    };
+  }
   
   // Get player scores
   const playerScores = game.players.map(p => ({
@@ -636,21 +651,24 @@ export function getGameWinners(game: MoonBidGame): Array<{
   // Sort by score (highest first)
   playerScores.sort((a, b) => b.score - a.score);
   
-  // Assign ranks (handle ties)
-  let currentRank = 1;
-  let previousScore = -1;
-  
-  return playerScores.map((p, index) => {
-    if (index > 0 && p.score < previousScore) {
-      currentRank = index + 1;
-    }
-    previousScore = p.score;
-    
+  // For cooperative mode, it's a team win if condition is met
+  if (game.gameMode === 'cooperative') {
     return {
-      ...p,
-      rank: currentRank
+      winnerIds: game.players.map(p => p.id),
+      winnerNames: game.players.map(p => p.name),
+      isTeamWin: true
     };
-  });
+  }
+  
+  // For standard mode, find all players with the top score (handle ties)
+  const topScore = playerScores[0].score;
+  const winners = playerScores.filter(p => p.score === topScore);
+  
+  return {
+    winnerIds: winners.map(w => w.playerId),
+    winnerNames: winners.map(w => w.name),
+    isTeamWin: false
+  };
 }
 
 // Default deckbuilding rules

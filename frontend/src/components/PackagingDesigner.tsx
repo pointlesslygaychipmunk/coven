@@ -7,18 +7,10 @@ import {
   Brand,
   PackagingDesign,
   Product,
+  PackagingType,
+  LabelStyle,
+  PackageType
 } from 'coven-shared';
-
-// Define types that might be missing from the shared module
-type PackagingType = 
-  'bottle' | 'jar' | 'pouch' | 'box' | 'tin' | 'vial' | 'sachet' |
-  'envelope' | 'chest' | 'basket' | 'amphora' | 'gourd' | 'scroll' |
-  'teacup' | 'flask' | 'pendant' | 'amulet' | 'locket' | 'case';
-
-type LabelStyle = 
-  'handwritten' | 'printed' | 'etched' | 'embossed' | 'stamped' |
-  'inlaid' | 'burned' | 'painted' | 'calligraphy' | 'illustrated' |
-  'wax-sealed' | 'engraved' | 'ribboned' | 'hidden' | 'glowing';
 
 // Import or mock packaging utility functions
 // Since these might be missing, we'll create compatibility functions

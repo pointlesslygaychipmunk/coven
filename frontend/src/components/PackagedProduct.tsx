@@ -3,33 +3,9 @@ import './PackagedProduct.css';
 import { 
   PackagingDesign,
   Product,
-  PackagingEffect
+  PackagingEffect,
+  PackageType
 } from 'coven-shared';
-
-// Define wrapper types to handle both frontend and backend packaging formats
-type PackageType = PackagingDesign & {
-  qualityScore?: number;
-  colors?: {
-    base: string;
-    accent: string;
-  };
-  material?: {
-    name?: string;
-    icon?: string;
-  };
-  designStyle?: {
-    name?: string;
-    icon?: string; 
-  };
-  specialEffect?: {
-    name?: string;
-    icon?: string;
-  };
-  brand?: {
-    name?: string;
-    icon?: string;
-  };
-};
 
 interface PackagedProductProps {
   product: Product;

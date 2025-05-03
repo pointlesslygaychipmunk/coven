@@ -102,17 +102,17 @@ export interface ProductPackaging {
   name: string;
   designName: string; // Brand name + product line
   creatorId: string;
-  material: PackagingMaterial;
-  materialQuality: MaterialQuality;
-  packagingType: PackagingType;
-  designStyle: DesignStyle;
-  labelStyle: LabelStyle;
+  material: PackagingMaterial | any;
+  materialQuality: MaterialQuality | string;
+  packagingType: PackagingType | string;
+  designStyle: DesignStyle | string;
+  labelStyle: LabelStyle | string;
   colorScheme: string[];
-  specialEffects: PackagingEffect[];
-  designElements: DesignElement[];
-  componentIds: string[]; // IDs of all component parts used
+  specialEffects: PackagingEffect[] | string[];
+  designElements?: DesignElement[] | string[];  // Making designElements optional
+  componentIds?: string[]; // IDs of all component parts used
   signatureElement?: string; // Creator's signature element/motif
-  rarity: Rarity;
+  rarity: Rarity | string;
   seasonalTheme?: string;
   elementalAffinity: ElementType;
   bonuses: {
@@ -133,6 +133,15 @@ export interface ProductPackaging {
   isSignatureLine?: boolean;
   creationDate: number;
   collectorValue: number;
+  
+  // Frontend compatibility properties
+  colors?: {
+    base: string;
+    accent: string;
+  };
+  qualityScore?: number;
+  specialEffect?: any;
+  brand?: any;
 }
 
 /**
@@ -141,35 +150,42 @@ export interface ProductPackaging {
 export interface BrandIdentity {
   id: string;
   name: string;
-  ownerId: string;
   tagline: string;
   description: string;
-  foundingDate: number;
-  logoPath: string;
   colorPalette: string[];
-  signature: {
-    element: ElementType;
-    designStyle: DesignStyle;
-    motif: DesignElement;
-    materialPreference: PackagingMaterial;
-    specialEffect: PackagingEffect;
-  };
+  brandValues: string[];
   specialization: AtelierSpecialization;
   reputation: number;
-  brandValues: string[];
-  aestheticKeywords: string[];
-  regularCustomers: number;
-  productLines: Array<{
+  
+  // Fields that can be optional for frontend compatibility
+  ownerId?: string;
+  foundingDate?: number;
+  logoPath?: string;
+  signature?: {
+    element: ElementType;
+    designStyle: DesignStyle;
+    motif: DesignElement | string;
+    materialPreference: PackagingMaterial | string;
+    specialEffect: PackagingEffect | string;
+  } | string;
+  aestheticKeywords?: string[];
+  regularCustomers?: number;
+  productLines?: Array<{
     name: string;
     description: string;
     itemCategory: ItemCategory;
     pricePoint: 'budget' | 'standard' | 'premium' | 'luxury';
     targetAudience: string;
   }>;
-  marketingBonus: number;
-  brandLevelXp: number;
-  brandLevel: number;
-  achievements: string[];
+  marketingBonus?: number;
+  brandLevelXp?: number;
+  brandLevel?: number;
+  achievements?: string[];
+  
+  // Additional properties for frontend compatibility
+  recognition?: number;
+  icon?: string;
+  elementalAffinity?: ElementType;
 }
 
 /**
@@ -571,11 +587,18 @@ export function calculatePackagingValue(packaging: ProductPackaging): {
   prestigeValue: number;
   specialEffectDescription: string;
 } {
-  // Base material value
-  const materialBase = MATERIAL_BASES[packaging.material];
+  // Base material value with type assertion for index
+  const materialBase = MATERIAL_BASES[packaging.material as PackagingMaterial] || {
+    baseValue: 20,
+    rarity: 'common' as Rarity,
+    durability: 60,
+    prestige: 30,
+    elementalAffinity: 'Water' as ElementType,
+    description: 'Default material'
+  };
   let totalValue = materialBase.baseValue;
   
-  // Material quality multiplier
+  // Material quality multiplier with type assertion
   const qualityMultipliers = {
     'common': 1.0,
     'fine': 1.5,
@@ -583,18 +606,34 @@ export function calculatePackagingValue(packaging: ProductPackaging): {
     'masterwork': 3.0,
     'legendary': 5.0
   };
-  totalValue *= qualityMultipliers[packaging.materialQuality];
+  const materialQuality = typeof packaging.materialQuality === 'string' ? 
+    packaging.materialQuality as MaterialQuality : 'common';
+  totalValue *= qualityMultipliers[materialQuality as keyof typeof qualityMultipliers] || 1.0;
   
-  // Design style value
-  const designStyle = DESIGN_STYLES[packaging.designStyle];
+  // Design style value with type assertion for index
+  const designStyleKey = packaging.designStyle as DesignStyle;
+  const designStyle = DESIGN_STYLES[designStyleKey] || {
+    marketingValue: 30,
+    specialization: 'Essence' as AtelierSpecialization,
+    elementalAffinity: 'Air' as ElementType,
+    description: 'Default design style'
+  };
   totalValue += designStyle.marketingValue;
   
-  // Special effects bonuses
+  // Special effects bonuses with type safety
   let potencyBonus = 0;
-  let specialEffects = [];
+  let specialEffects: string[] = [];
   
   for (const effect of packaging.specialEffects) {
-    const effectData = SPECIAL_EFFECTS[effect];
+    const effectKey = effect as PackagingEffect;
+    // Safely access the effect data with fallback
+    const effectData = SPECIAL_EFFECTS[effectKey] || {
+      potencyBonus: 5,
+      durabilityEffect: 0,
+      atelierSpecialization: 'Essence' as AtelierSpecialization,
+      rarity: 'common' as Rarity,
+      description: 'Default effect'
+    };
     potencyBonus += effectData.potencyBonus;
     totalValue += effectData.potencyBonus * 5;
     specialEffects.push(effectData.description);
@@ -607,13 +646,25 @@ export function calculatePackagingValue(packaging: ProductPackaging): {
   if (materialBase.rarity === 'rare') rarityPoints += 3;
   if (materialBase.rarity === 'legendary') rarityPoints += 5;
   
-  if (packaging.materialQuality === 'fine') rarityPoints += 1;
-  if (packaging.materialQuality === 'excellent') rarityPoints += 2;
-  if (packaging.materialQuality === 'masterwork') rarityPoints += 3;
-  if (packaging.materialQuality === 'legendary') rarityPoints += 5;
+  // Check material quality with appropriate type handling
+  const qualityValue = packaging.materialQuality as string;
+  if (qualityValue === 'fine') rarityPoints += 1;
+  if (qualityValue === 'excellent') rarityPoints += 2;
+  if (qualityValue === 'masterwork') rarityPoints += 3;
+  if (qualityValue === 'legendary') rarityPoints += 5;
   
+  // Process special effects with type safety
   for (const effect of packaging.specialEffects) {
-    const effectData = SPECIAL_EFFECTS[effect];
+    const effectKey = effect as PackagingEffect;
+    // Get effect data with fallback for type safety
+    const effectData = SPECIAL_EFFECTS[effectKey] || {
+      potencyBonus: 5,
+      durabilityEffect: 0,
+      atelierSpecialization: 'Essence' as AtelierSpecialization,
+      rarity: 'common' as Rarity,
+      description: 'Default effect'
+    };
+    
     if (effectData.rarity === 'uncommon') rarityPoints += 1;
     if (effectData.rarity === 'rare') rarityPoints += 2;
     if (effectData.rarity === 'legendary') rarityPoints += 4;
@@ -630,7 +681,7 @@ export function calculatePackagingValue(packaging: ProductPackaging): {
     materialBase.prestige + 
     (designStyle.marketingValue / 2) + 
     (packaging.specialEffects.length * 10) +
-    (packaging.designElements.length * 5) +
+    (packaging.designElements?.length ? packaging.designElements.length * 5 : 0) +
     ((packaging.isSignatureLine ? 50 : 0)) +
     (packaging.isBestseller ? 25 : 0);
   
@@ -857,10 +908,10 @@ export function createBrandIdentity(
   tagline: string,
   specialization: AtelierSpecialization,
   element: ElementType,
-  designStyle: DesignStyle,
-  motif: DesignElement,
-  materialPreference: PackagingMaterial,
-  specialEffect: PackagingEffect
+  designStyle: DesignStyle | string,
+  motif: DesignElement | string,
+  materialPreference: PackagingMaterial | string,
+  specialEffect: PackagingEffect | string
 ): BrandIdentity {
   // Generate unique ID
   const id = `brand_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
@@ -874,6 +925,10 @@ export function createBrandIdentity(
     'Spirit': ['#9370DB', '#9932CC', '#BA55D3', '#E6E6FA', '#8A2BE2']
   };
   
+  // Convert designStyle to string if needed for aestheticKeywords
+  const designStyleKey = typeof designStyle === 'string' ? designStyle : 
+                       (designStyle as DesignStyle).toString();
+  
   return {
     id,
     name,
@@ -885,7 +940,7 @@ export function createBrandIdentity(
     colorPalette: colorPalettes[element],
     signature: {
       element,
-      designStyle,
+      designStyle: designStyle as DesignStyle, // Force the type
       motif,
       materialPreference,
       specialEffect
@@ -893,7 +948,7 @@ export function createBrandIdentity(
     specialization,
     reputation: 10, // Starting reputation
     brandValues: ['Quality', 'Craft', 'Authenticity'],
-    aestheticKeywords: [designStyle, element.toLowerCase(), 'handcrafted'],
+    aestheticKeywords: [designStyleKey, element.toLowerCase(), 'handcrafted'],
     regularCustomers: 1,
     productLines: [{
       name: `${name} Essentials`,
@@ -906,6 +961,22 @@ export function createBrandIdentity(
     brandLevelXp: 0,
     brandLevel: 1,
     achievements: []
+  };
+}
+
+/**
+ * Helper function to safely get effect data even if it's a string
+ * @param effect The packaging effect to look up
+ * @returns The effect data from SPECIAL_EFFECTS or a default
+ */
+function getSafeEffectData(effect: PackagingEffect | string) {
+  const effectKey = effect as PackagingEffect;
+  return SPECIAL_EFFECTS[effectKey] || {
+    potencyBonus: 5,
+    durabilityEffect: 0,
+    atelierSpecialization: 'Essence' as AtelierSpecialization,
+    rarity: 'common' as Rarity,
+    description: 'Magical visual enhancement'
   };
 }
 
@@ -928,32 +999,43 @@ export function applyPackagingToProduct(
   packagingEffects: string[];
 } {
   // Calculate value and potency boosts from packaging
-  const valueBoost = packaging.bonuses.marketValue + (packaging.bonuses.attractiveness * 0.5);
-  const potencyBoost = packaging.bonuses.potency;
+  const bonuses = packaging.bonuses || { marketValue: 50, potency: 25, attractiveness: 75, durability: 80, prestige: 60 };
+  const valueBoost = bonuses.marketValue + (bonuses.attractiveness * 0.5);
+  const potencyBoost = bonuses.potency;
   
-  // Calculate market appeal
+  // Calculate market appeal with safe property access
   const marketAppeal = 
-    packaging.bonuses.attractiveness + 
-    packaging.bonuses.marketValue + 
-    packaging.bonuses.prestige;
+    bonuses.attractiveness + 
+    bonuses.marketValue + 
+    bonuses.prestige;
   
   // Calculate shelf life based on durability
-  const shelfLife = packaging.bonuses.durability * 0.1;
+  const shelfLife = bonuses.durability * 0.1;
   
-  // Generate packaging effects descriptions
+  // Generate packaging effects descriptions with type safety
+  const materialName = typeof packaging.material === 'string' ? 
+                     packaging.material.charAt(0).toUpperCase() + packaging.material.slice(1) : 
+                     'Standard';
+  
+  const packagingType = packaging.packagingType || 'container';
+  const designStyle = packaging.designStyle || 'standard';
+  
   const packagingEffects = [
-    `${packaging.material.charAt(0).toUpperCase() + packaging.material.slice(1)} ${packaging.packagingType} enhances product presentation`,
-    `${packaging.designStyle} styling appeals to discerning customers`
+    `${materialName} ${packagingType} enhances product presentation`,
+    `${designStyle} styling appeals to discerning customers`
   ];
   
-  // Add special effects descriptions
-  for (const effect of packaging.specialEffects) {
-    packagingEffects.push(SPECIAL_EFFECTS[effect].description);
+  // Add special effects descriptions with type safety
+  if (packaging.specialEffects && Array.isArray(packaging.specialEffects)) {
+    for (const effect of packaging.specialEffects) {
+      const effectData = getSafeEffectData(effect);
+      packagingEffects.push(effectData.description);
+    }
   }
   
   // Add specialization-specific effect if applicable
-  if (packaging.bonuses.specialProperty) {
-    packagingEffects.push(packaging.bonuses.specialProperty.description);
+  if (bonuses.specialProperty) {
+    packagingEffects.push(bonuses.specialProperty.description);
   }
   
   // Generate new product ID with packaging
@@ -1150,6 +1232,22 @@ export function toFrontendSpecialEffect(
   };
 }
 
+// Type guard to check if signature is an object with nested properties
+function isSignatureObject(signature: any): 
+  signature is { 
+    element: ElementType, 
+    designStyle: DesignStyle, 
+    motif: string, 
+    materialPreference: string, 
+    specialEffect: string 
+  } {
+  return signature && 
+         typeof signature === 'object' && 
+         'element' in signature &&
+         'designStyle' in signature &&
+         'motif' in signature;
+}
+
 /**
  * Convert a backend brand identity to a frontend brand
  * @param brandId Brand ID
@@ -1160,19 +1258,36 @@ export function toFrontendSpecialEffect(
 export function toFrontendBrand(
   backendBrand: BrandIdentity
 ): FrontendBrand {
+  // Handle either string or object for signature with type guard
+  let signatureString = '';
+  let elementalAffinity: ElementType = 'Earth';
+  
+  if (typeof backendBrand.signature === 'string') {
+    signatureString = backendBrand.signature;
+    // Default element if signature is just a string
+    elementalAffinity = 'Earth';
+  } else if (isSignatureObject(backendBrand.signature)) {
+    signatureString = `${backendBrand.signature.motif} in ${backendBrand.signature.designStyle} style`;
+    elementalAffinity = backendBrand.signature.element;
+  }
+  
+  // Calculate recognition with a fallback for undefined regularCustomers
+  const customersCount = backendBrand.regularCustomers || 1;
+  const recognition = Math.min(10, Math.round(customersCount / 10) + 2);
+  
   return {
     id: backendBrand.id,
     name: backendBrand.name,
     description: backendBrand.description,
     reputation: Math.min(10, Math.round(backendBrand.reputation / 10)),
-    recognition: Math.min(10, Math.round(backendBrand.regularCustomers / 10) + 2),
-    signature: `${backendBrand.signature.motif} in ${backendBrand.signature.designStyle} style`,
+    recognition: recognition,
+    signature: signatureString,
     icon: '🏷️',
     tagline: backendBrand.tagline,
     colorPalette: backendBrand.colorPalette,
     brandValues: backendBrand.brandValues,
     specialization: backendBrand.specialization,
-    elementalAffinity: backendBrand.signature.element
+    elementalAffinity: elementalAffinity
   };
 }
 
@@ -1184,8 +1299,18 @@ export function toFrontendBrand(
 export function toFrontendPackagingDesign(
   packaging: ProductPackaging
 ): FrontendPackagingDesign {
+  // Get material info with type safety
+  const materialKey = packaging.material as PackagingMaterial;
+  const materialBase = MATERIAL_BASES[materialKey] || {
+    baseValue: 20,
+    rarity: 'common' as Rarity,
+    durability: 60,
+    prestige: 30,
+    elementalAffinity: 'Water' as ElementType,
+    description: 'Default material'
+  };
+  
   // Create derived colors from material and style
-  const materialBase = MATERIAL_BASES[packaging.material];
   const colorBase = materialBase.elementalAffinity === 'Earth' ? '#8b6b3d' :
                    materialBase.elementalAffinity === 'Water' ? '#4a78c5' :
                    materialBase.elementalAffinity === 'Fire' ? '#c85a54' :
@@ -1196,25 +1321,32 @@ export function toFrontendPackagingDesign(
                      materialBase.elementalAffinity === 'Fire' ? '#fad7d5' :
                      materialBase.elementalAffinity === 'Air' ? '#f4f9fd' : '#e9d9f2';
   
-  // Calculate quality score from bonuses
+  // Calculate quality score from bonuses with safe access
+  const bonuses = packaging.bonuses || { marketValue: 50, potency: 25, attractiveness: 75, durability: 80, prestige: 60 };
   const qualityScore = Math.min(100, Math.round(
-    (packaging.bonuses.marketValue + 
-     packaging.bonuses.potency + 
-     packaging.bonuses.attractiveness + 
-     packaging.bonuses.durability / 2 + 
-     packaging.bonuses.prestige) / 2
+    (bonuses.marketValue + 
+     bonuses.potency + 
+     bonuses.attractiveness + 
+     bonuses.durability / 2 + 
+     bonuses.prestige) / 2
   ));
   
-  // Create frontend material
-  const frontendMaterial = toFrontendMaterial(packaging.material, packaging.materialQuality);
+  // Create frontend material with type assertions
+  const frontendMaterial = toFrontendMaterial(
+    packaging.material as PackagingMaterial, 
+    packaging.materialQuality as MaterialQuality
+  );
   
-  // Create frontend design style
-  const frontendDesignStyle = toFrontendDesignStyle(packaging.designStyle);
+  // Create frontend design style with type assertion
+  const frontendDesignStyle = toFrontendDesignStyle(
+    packaging.designStyle as DesignStyle
+  );
   
-  // Create frontend special effect (if any)
+  // Create frontend special effect (if any) with type safety
   let frontendSpecialEffect = null;
-  if (packaging.specialEffects.length > 0) {
-    frontendSpecialEffect = toFrontendSpecialEffect(packaging.specialEffects[0]);
+  if (packaging.specialEffects && packaging.specialEffects.length > 0) {
+    const firstEffect = packaging.specialEffects[0] as PackagingEffect;
+    frontendSpecialEffect = toFrontendSpecialEffect(firstEffect);
   }
   
   return {

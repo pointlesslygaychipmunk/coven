@@ -16,11 +16,22 @@ import {
 
 // Import the existing compatibility functions from shared
 import {
-  getPlantName,
-  toLegacyPlant,
   createDefaultInventoryItem,
   createDefaultGardenSlot
 } from 'coven-shared';
+
+/**
+ * Helper function to get name property compatible with old code
+ */
+export function getPlantName(plant: Plant): string {
+  if (!plant || !plant.tarotCardId) return 'Unknown Plant';
+  
+  // In the new system, we'd look up the name from the tarot card
+  // For now, extract from tarotCardId
+  const parts = plant.tarotCardId.split('_');
+  if (parts.length < 2) return 'Unknown Plant';
+  return parts[parts.length - 1].charAt(0).toUpperCase() + parts[parts.length - 1].slice(1).replace(/_/g, ' ');
+}
 
 /**
  * Frontend-compatible Plant type that includes properties required by UI components

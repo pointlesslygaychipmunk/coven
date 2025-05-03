@@ -292,7 +292,7 @@ const Market: React.FC<MarketProps> = ({
     
     // For market items, check if it has a reference cardId
     if ('cardId' in item && item.cardId) {
-      return findCardById(item.cardId);
+      return findCardById(item.cardId as string);
     }
     
     return null;

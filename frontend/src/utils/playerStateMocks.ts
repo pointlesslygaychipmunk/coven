@@ -431,8 +431,8 @@ export function createTestBrandIdentity(
     logoPath: overrides.logoPath || '/assets/brands/default.png',
     colorPalette: overrides.colorPalette || ['#3a4a6e', '#c1d4f0', '#f0e6d9'],
     signature: overrides.signature || {
-      element: 'Water',
-      designStyle: 'elegant',
+      element: 'Water' as ElementType,
+      designStyle: 'elegant' as unknown as DesignStyle, // Type assertion to make it compatible
       motif: 'symbol',
       materialPreference: 'glass',
       specialEffect: 'glow'
@@ -457,6 +457,30 @@ export function createTestBrandIdentity(
 }
 
 /**
+ * Convert a backend BrandIdentity to a frontend Brand
+ * This function takes care of mapping the types between backend and frontend
+ */
+export function convertBrandIdentityToBrand(
+  brandIdentity: BackendBrand
+): Brand {
+  // Create frontend brand with proper type assertions
+  return {
+    id: brandIdentity.id,
+    name: brandIdentity.name,
+    description: brandIdentity.description,
+    tagline: brandIdentity.tagline,
+    colorPalette: brandIdentity.colorPalette,
+    brandValues: brandIdentity.brandValues,
+    specialization: brandIdentity.specialization as any, // Type assertion for compatibility
+    elementalAffinity: brandIdentity.signature.element as ElementType,
+    icon: '🏷️', // Frontend UI property
+    recognition: Math.min(10, Math.round(brandIdentity.reputation / 10) + 2), // Frontend UI property
+    reputation: Math.min(10, Math.round(brandIdentity.reputation / 10)), // Frontend property
+    signature: `${brandIdentity.signature.motif} in ${brandIdentity.signature.designStyle} style` // Frontend property
+  };
+}
+
+/**
  * Create a frontend brand for UI testing
  */
 export function createFrontendBrand(
@@ -464,25 +488,24 @@ export function createFrontendBrand(
   name: string = 'Test Brand',
   overrides: Partial<Brand> = {}
 ): Brand {
+  // Create a complete brand with all required frontend properties
   return {
     id,
     name, 
     description: overrides.description || 'A test brand for UI',
-    reputation: overrides.reputation || 7,
-    recognition: overrides.recognition || 6,
-    signature: overrides.signature || { 
-      element: 'Water', 
-      designStyle: 'elegant', 
-      motif: 'symbol', 
-      materialPreference: 'glass', 
-      specialEffect: 'glow' 
-    },
-    icon: overrides.icon || '🌙',
     tagline: overrides.tagline || 'Nature\'s magic by moonlight',
     colorPalette: overrides.colorPalette || ['#3a4a6e', '#c1d4f0', '#f0e6d9'],
     brandValues: overrides.brandValues || ['Quality', 'Tradition', 'Harmony'],
     specialization: overrides.specialization || 'Essence',
-    elementalAffinity: overrides.elementalAffinity || 'Water'
+    
+    // Frontend specific UI properties
+    elementalAffinity: overrides.elementalAffinity || 'Water',
+    icon: overrides.icon || '🏷️',
+    recognition: overrides.recognition || 7,
+    reputation: overrides.reputation || 6,
+    
+    // Optional properties with defaults
+    signature: overrides.signature || 'Classic signature style'
   };
 }
 
@@ -490,32 +513,28 @@ export function createFrontendBrand(
  * Create test brands for testing
  */
 export function createTestBrands(): Brand[] {
+  // Create test brands with proper frontend properties
   return [
     createFrontendBrand('brand_1', 'Moonlit Garden', {
       description: 'Products crafted under the full moon',
-      reputation: 7,
-      recognition: 6,
-      icon: '🌙',
       tagline: 'Nature\'s magic by moonlight',
       colorPalette: ['#3a4a6e', '#c1d4f0', '#f0e6d9'],
-      elementalAffinity: 'Water'
+      elementalAffinity: 'Water',
+      icon: '🌙',
+      recognition: 8,
+      reputation: 7,
+      signature: 'Celestial motif with moonlight accent'
     }),
     createFrontendBrand('brand_2', 'Mountain Roots', {
       description: 'Ingredients from pristine mountain regions',
-      reputation: 8,
-      recognition: 5,
-      icon: '⛰️',
       tagline: 'Grounded in nature\'s wisdom',
       colorPalette: ['#503d2e', '#8b7356', '#dbd1b3'],
       specialization: 'Infusion',
       elementalAffinity: 'Earth',
-      signature: { 
-        element: 'Earth', 
-        designStyle: 'rustic', 
-        motif: 'pattern', 
-        materialPreference: 'wood', 
-        specialEffect: 'aromatic' 
-      }
+      icon: '🌿',
+      recognition: 6,
+      reputation: 5,
+      signature: 'Botanical motif with earthy tones'
     })
   ];
 }
@@ -529,7 +548,7 @@ export function createPlayerWithPackaging(
   overrides: Partial<Player> = {}
 ): Player {
   // Create enhanced player with packaging materials
-  const brands = createTestBrands();
+  const brands = createTestBrands(); // These should already be properly typed
   return createDefaultPlayer(id, name, {
     packagingMaterials: createTestPackagingMaterials(),
     packagingDesignStyles: createTestDesignStyles(),

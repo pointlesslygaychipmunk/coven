@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CrossBreedingInterface.css';
 import { Plant, Season, MoonPhase, DisplayPlant } from 'coven-shared';
-import { adaptPlantForDisplay, isDisplayPlant, getPlantIcon } from '../utils';
+import { adaptPlantForDisplay, isDisplayPlant, getPlantIcon, getPlantName } from '../utils/frontendCompatibility';
 
 interface CrossBreedingResult {
   success: boolean;
@@ -88,10 +88,15 @@ const CrossBreedingInterface: React.FC<CrossBreedingInterfaceProps> = ({
   // Handle plant selection
   const handlePlantSelect = (plant: Plant | DisplayPlant) => {
     // Convert Plant to DisplayPlant if needed
-    const plantObj = plant as any; // Use any to bypass type check temporarily
-    const displayPlant = 'name' in plantObj ? 
-      plantObj as DisplayPlant : 
-      adaptPlantForDisplay(plantObj as Plant);
+    let displayPlant: DisplayPlant | null = null;
+
+    if (isDisplayPlant(plant)) {
+      // Already a DisplayPlant
+      displayPlant = plant as DisplayPlant;
+    } else {
+      // Convert from Plant to DisplayPlant
+      displayPlant = adaptPlantForDisplay(plant as Plant);
+    }
     
     if (!displayPlant) return;
     

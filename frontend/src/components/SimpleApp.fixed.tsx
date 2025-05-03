@@ -86,9 +86,31 @@ const SimpleApp: React.FC = () => {
   };
 
   // Function to handle cross-breeding plants
-  const handleCrossBreed = (plotId1: number, plotId2: number) => {
-    console.log(`Cross-breeding plants in plots ${plotId1} and ${plotId2}`);
-    // Implementation would go here
+  const handleCrossBreed = async (plantId1?: string, plantId2?: string): Promise<any> => {
+    console.log(`Cross-breeding plants with IDs ${plantId1} and ${plantId2}`);
+    
+    // Simulate async operation
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Return mock result (this would be replaced with actual implementation)
+    return {
+      success: Math.random() > 0.3, // 70% success rate for demo
+      newVarietyId: `plant_${Date.now()}`,
+      newVarietyName: 'Hybrid Moonflower',
+      traitInheritance: {
+        fromParent1: [
+          { name: 'Luminescent', description: 'The plant softly glows in the dark' }
+        ],
+        fromParent2: [
+          { name: 'Deep Roots', description: 'Extensive root system improving stability' }
+        ],
+        newMutations: [
+          { name: 'Cosmic Connection', description: 'A mysterious connection to celestial forces' }
+        ]
+      },
+      rarityTier: 3, // Rare
+      message: 'Successfully cross-bred plants to create a new hybrid variety!'
+    };
   };
 
   // Main component render
@@ -220,9 +242,19 @@ const SimpleApp: React.FC = () => {
                 <HanbangBrewing
                   playerInventory={currentPlayer.inventory}
                   playerSkills={currentPlayer.skills}
-                  onBrewPotion={(ingredients, potionData) => {
-                    console.log(`Brew potion with: ${ingredients.join(", ")}`);
-                    console.log("Potion data:", potionData);
+                  playerMana={currentPlayer.mana}
+                  brewingSkillLevel={currentPlayer.skills?.brewing || 1}
+                  moonPhase={gameState.time.phaseName as MoonPhase}
+                  season={gameState.time.season as Season}
+                  onBrew={(ingredientIds, method, quality, manaUsed) => {
+                    console.log(`Brew potion with: ${ingredientIds.join(", ")}`);
+                    console.log(`Method: ${method}, Quality: ${quality}, Mana: ${manaUsed}`);
+                  }}
+                  onUpdateMana={(newMana) => {
+                    // Update player mana
+                    const newGameState = { ...gameState };
+                    newGameState.players[newGameState.currentPlayerIndex].mana = newMana;
+                    setGameState(newGameState);
                   }}
                   onDiscoverRecipe={(recipeId) => {
                     console.log(`Discovered recipe: ${recipeId}`);
@@ -247,8 +279,8 @@ const SimpleApp: React.FC = () => {
               <div className="tarot-collection-view">
                 <TarotCollection
                   playerInventory={currentPlayer.inventory}
-                  season={gameState.time.season}
-                  moonPhase={gameState.time.phaseName}
+                  season={gameState.time.season as Season}
+                  moonPhase={gameState.time.phaseName as MoonPhase}
                 />
               </div>
             )}
@@ -305,7 +337,11 @@ const SimpleApp: React.FC = () => {
               plant: plot.plant ? {
                 ...plot.plant,
                 id: plot.plant.id,
-                name: plot.plant.name,
+                // Use tarotCardId to generate name
+                name: plot.plant.tarotCardId ? 
+                  plot.plant.tarotCardId.split('_').pop()?.charAt(0).toUpperCase() + 
+                  plot.plant.tarotCardId.split('_').pop()?.slice(1).replace(/_/g, ' ') || 
+                  'Plant' : 'Plant',
                 growth: plot.plant.growth,
                 maxGrowth: plot.plant.maxGrowth,
                 health: plot.plant.health,
