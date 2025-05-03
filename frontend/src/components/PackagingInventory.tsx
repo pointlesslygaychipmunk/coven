@@ -8,6 +8,18 @@ import {
   PackagingDesign,
   Product
 } from 'coven-shared';
+
+// Type definition to handle both frontend and backend packaging formats
+type CompatibleDesign = PackagingDesign & {
+  qualityScore?: number;
+  colors?: {
+    base?: string;
+    accent?: string;
+  };
+  specialEffects?: string[];
+  specialEffect?: SpecialEffect;
+  brand?: Brand;
+};
 import PackagingDesigner from './PackagingDesigner';
 import PackagedProduct from './PackagedProduct';
 
@@ -17,7 +29,7 @@ interface PackagingInventoryProps {
     designStyles: DesignStyle[];
     specialEffects: SpecialEffect[];
     brands: Brand[];
-    designs: PackagingDesign[];
+    designs: CompatibleDesign[];
   };
   products: Product[];
   playerCraftSkill: number;
@@ -86,11 +98,11 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
   const getPackagedProduct = (product: Product) => {
     // First check if the product already has packaging
     if (product.packaging) {
-      return product.packaging;
+      return product.packaging as CompatibleDesign;
     }
     
-    // This is a simulation - in a real implementation, 
-    // the packaging information would be stored with the product
+    // This is a simulation - in a real implementation, the packaging 
+    // information would be stored with the product.
     // For now, we'll just return the first design in inventory that's suitable for this product
     if (playerInventory.designs.length === 0) {
       return null;

@@ -1,14 +1,39 @@
 import React from 'react';
 import './PackagedProduct.css';
 import { 
-  PackagingDesign, 
+  PackagingDesign,
   Product,
   PackagingEffect
 } from 'coven-shared';
 
+// Define wrapper types to handle both frontend and backend packaging formats
+type PackageType = PackagingDesign & {
+  qualityScore?: number;
+  colors?: {
+    base: string;
+    accent: string;
+  };
+  material?: {
+    name?: string;
+    icon?: string;
+  };
+  designStyle?: {
+    name?: string;
+    icon?: string; 
+  };
+  specialEffect?: {
+    name?: string;
+    icon?: string;
+  };
+  brand?: {
+    name?: string;
+    icon?: string;
+  };
+};
+
 interface PackagedProductProps {
   product: Product;
-  packaging: PackagingDesign;
+  packaging: PackageType;
   onClick?: () => void;
   className?: string;
   showDetails?: boolean;
@@ -25,7 +50,7 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
 }) => {
   // Calculate the value modifier based on packaging quality
   const getValueModifier = () => {
-    const qualityScore = packaging.qualityScore;
+    const qualityScore = packaging.qualityScore || 50;
     if (qualityScore < 20) return '0%';
     if (qualityScore < 40) return '+10%';
     if (qualityScore < 60) return '+25%';
@@ -35,14 +60,14 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
   
   // Calculate style for the package container based on design's colors
   const packageStyle = {
-    backgroundColor: packaging.colors.base,
-    borderColor: packaging.colors.accent,
-    color: packaging.colors.accent
+    backgroundColor: packaging.colors?.base || '#8b6b3d',
+    borderColor: packaging.colors?.accent || '#f9f3e6',
+    color: packaging.colors?.accent || '#f9f3e6'
   };
   
   // Get quality level text
   const getQualityText = () => {
-    const qualityScore = packaging.qualityScore;
+    const qualityScore = packaging.qualityScore || 50;
     if (qualityScore < 20) return 'Basic';
     if (qualityScore < 40) return 'Standard';
     if (qualityScore < 60) return 'Quality';
@@ -52,7 +77,7 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
   
   // Get rarity class based on quality
   const getRarityClass = () => {
-    const qualityScore = packaging.qualityScore;
+    const qualityScore = packaging.qualityScore || 50;
     if (qualityScore < 20) return 'basic';
     if (qualityScore < 40) return 'standard';
     if (qualityScore < 60) return 'quality';
@@ -62,31 +87,36 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
   
   // Get a formatted special effect description
   const getSpecialEffectDescription = () => {
-    if (!packaging.specialEffect && (!packaging.specialEffects || packaging.specialEffects.length === 0)) {
-      return null;
+    // Handle backend format with specialEffects array only
+    if (Array.isArray(packaging.specialEffects) && packaging.specialEffects.length > 0) {
+      // If we also have frontend format with specialEffect object
+      if (packaging.specialEffect && packaging.specialEffect.name) {
+        return `${packaging.specialEffect.name} ${packaging.specialEffects.length > 1 ? 
+          `(+${packaging.specialEffects.length - 1} more)` : 
+          ''}`;
+      }
+      
+      // Just use the specialEffects array
+      const effectType = packaging.specialEffects[0];
+      // If it's an object, try to get its name
+      if (typeof effectType === 'object' && effectType !== null && 'name' in effectType) {
+        return effectType.name;
+      }
+      // Otherwise format the string
+      if (typeof effectType === 'string') {
+        const formattedEffect = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+        return `${formattedEffect} ${packaging.specialEffects.length > 1 ? 
+          `(+${packaging.specialEffects.length - 1} more)` : 
+          ''}`;
+      }
     }
     
-    // If we have a specialEffect object with a name
+    // Fallback to frontend only format
     if (packaging.specialEffect && packaging.specialEffect.name) {
-      // If we also have specialEffects array
-      if (packaging.specialEffects && packaging.specialEffects.length > 0) {
-        return `${packaging.specialEffect.name} (${packaging.specialEffects.length > 1 ? 
-          `+${packaging.specialEffects.length - 1} more` : 
-          ''})`;
-      }
       return packaging.specialEffect.name;
     }
     
-    // If we only have specialEffects array but no specialEffect object
-    if (packaging.specialEffects && packaging.specialEffects.length > 0) {
-      const effectType = packaging.specialEffects[0] as PackagingEffect;
-      const formattedEffect = effectType.charAt(0).toUpperCase() + effectType.slice(1);
-      return `${formattedEffect} ${packaging.specialEffects.length > 1 ? 
-        `(+${packaging.specialEffects.length - 1} more)` : 
-        ''}`;
-    }
-    
-    return "No special effect";
+    return null;
   };
   
   // Calculate value boost percentage
@@ -109,10 +139,10 @@ const PackagedProduct: React.FC<PackagedProductProps> = ({
           <div className="product-icon">{product.icon}</div>
           <div className="packaging-elements">
             {packaging.material && (
-              <div className="material-element">{packaging.material.icon}</div>
+              <div className="material-element">{packaging.material.icon || '📦'}</div>
             )}
             {packaging.designStyle && (
-              <div className="design-element">{packaging.designStyle.icon}</div>
+              <div className="design-element">{packaging.designStyle.icon || '🎨'}</div>
             )}
             {packaging.specialEffect && (
               <div className="effect-element">{packaging.specialEffect?.icon || '✨'}</div>
