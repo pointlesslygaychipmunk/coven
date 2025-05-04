@@ -317,7 +317,7 @@ app.use('/api/garden', gardenRoutes);
 app.use('/api/connection-test', connectionTestRoutes);
 
 // EMERGENCY: Add socket.io debug endpoint with permissive CORS
-app.get('/socketio-debug', (req, res) => {
+app.get('/socketio-debug', (_req: Request, res: Response) => {
   // Set CORS headers
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -329,12 +329,12 @@ app.get('/socketio-debug', (req, res) => {
     socketio: {
       http: multiplayerManager ? {
         connected: true,
-        clientsCount: multiplayerManager.connectedPlayers ? multiplayerManager.connectedPlayers.size : 0,
+        // Use getStats() method instead of accessing private property
         stats: multiplayerManager.getStats ? multiplayerManager.getStats() : null
       } : null,
       https: httpsMultiplayerManager ? {
         connected: true,
-        clientsCount: httpsMultiplayerManager.connectedPlayers ? httpsMultiplayerManager.connectedPlayers.size : 0,
+        // Use getStats() method instead of accessing private property
         stats: httpsMultiplayerManager.getStats ? httpsMultiplayerManager.getStats() : null
       } : null
     }

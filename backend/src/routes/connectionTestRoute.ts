@@ -1,7 +1,8 @@
 // Simple connection test route for diagnosing production issues
-import express, { Request, Response } from 'express';
+import express, { Request, Response, Router } from 'express';
 
-const router = express.Router();
+// Use explicit type annotation for router
+const router: Router = express.Router();
 
 router.get('/status', (req: Request, res: Response) => {
   // Return server status with CORS headers
@@ -20,8 +21,9 @@ router.get('/status', (req: Request, res: Response) => {
   });
 });
 
-router.options('/status', (req: Request, res: Response) => {
+router.options('/status', (_req: Request, res: Response) => {
   // Handle CORS preflight requests
+  // Use _req to indicate the parameter is not used
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
