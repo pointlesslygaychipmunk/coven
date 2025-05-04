@@ -239,7 +239,7 @@ if (fs.existsSync(frontendDistPath)) {
             return res.status(404).json({ error: 'API route not found' });
         }
         const indexPath = path.join(frontendDistPath, 'index.html');
-        res.sendFile(indexPath, (err: any) => {
+        return res.sendFile(indexPath, (err: any) => {
             if (err) {
                 console.error("[Server] Error sending index.html:", err);
                 if (!res.headersSent) {
@@ -251,7 +251,7 @@ if (fs.existsSync(frontendDistPath)) {
 } else {
     // Fallback if dist not found
     app.get('*', (_req, res) => {
-      res.status(500).send('Frontend build not found. Please run `npm run build` in the frontend directory.');
+      return res.status(500).send('Frontend build not found. Please run `npm run build` in the frontend directory.');
     });
 }
 
@@ -276,13 +276,15 @@ const HTTP_PORT = process.env.PORT || 8080;
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 
 // Create HTTP server with proper timeouts
-const httpServer = http.createServer({
-  // Configure server timeouts
-  keepAlive: true,
-  keepAliveTimeout: 30000, // 30 seconds
-  headersTimeout: 65000, // 65 seconds (slightly higher than keepAliveTimeout)
-  requestTimeout: 300000, // 5 minutes for long-running requests
-}, app);
+const httpServer = http.createServer(app);
+
+// Configure server timeouts
+if ('keepAliveTimeout' in httpServer) {
+  httpServer.keepAliveTimeout = 30000; // 30 seconds
+}
+if ('requestTimeout' in httpServer) {
+  (httpServer as any).requestTimeout = 300000; // 5 minutes
+}
 
 // Add error handling for HTTP server
 httpServer.on('error', (error) => {
@@ -305,14 +307,15 @@ httpServer.listen(HTTP_PORT, () => {
 
 // If SSL is configured, set up HTTPS server as well
 if (sslOptions) {
-  httpsServer = https.createServer({
-    ...sslOptions,
-    // Configure server timeouts (same as HTTP)
-    keepAlive: true,
-    keepAliveTimeout: 30000, // 30 seconds
-    headersTimeout: 65000, // 65 seconds
-    requestTimeout: 300000, // 5 minutes
-  }, app);
+  httpsServer = https.createServer(sslOptions, app);
+  
+  // Configure server timeouts (same as HTTP)
+  if (httpsServer && 'keepAliveTimeout' in httpsServer) {
+    httpsServer.keepAliveTimeout = 30000; // 30 seconds
+  }
+  if (httpsServer && 'requestTimeout' in httpsServer) {
+    (httpsServer as any).requestTimeout = 300000; // 5 minutes
+  }
   
   // Add error handling for HTTPS server
   httpsServer.on('error', (error) => {
