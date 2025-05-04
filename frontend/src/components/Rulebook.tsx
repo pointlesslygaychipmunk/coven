@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import './Rulebook.css';
 
 // Define sections for the rulebook tabs
@@ -117,9 +116,24 @@ const Rulebook: React.FC<RulebookProps> = ({ isOpen, onClose }) => {
         
         <div className="rulebook-content">
           {sectionContent[activeSection] ? (
-            <ReactMarkdown>
-              {sectionContent[activeSection]}
-            </ReactMarkdown>
+            <div className="markdown-content">
+              {sectionContent[activeSection].split('\n').map((line, index) => {
+                // Simple markdown rendering for headers and paragraphs
+                if (line.startsWith('# ')) {
+                  return <h1 key={index}>{line.replace('# ', '')}</h1>;
+                } else if (line.startsWith('## ')) {
+                  return <h2 key={index}>{line.replace('## ', '')}</h2>;
+                } else if (line.startsWith('### ')) {
+                  return <h3 key={index}>{line.replace('### ', '')}</h3>;
+                } else if (line.startsWith('- ')) {
+                  return <li key={index}>{line.replace('- ', '')}</li>;
+                } else if (line.trim() === '') {
+                  return <br key={index} />;
+                } else {
+                  return <p key={index}>{line}</p>;
+                }
+              })}
+            </div>
           ) : (
             <div className="loading-text">Loading rulebook content...</div>
           )}

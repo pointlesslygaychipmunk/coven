@@ -104,7 +104,8 @@ class SocketService {
       
       this.socket.on('connect_error', (error) => {
         console.error(`[Socket] Connection error: ${error.message}`, error);
-        console.error(`[Socket] Failed to connect to ${this.socket?.io?.uri}`);
+        // Don't try to access the private uri property
+        console.error(`[Socket] Failed to connect to server`);
         this.connected = false;
         this.connecting = false;
         this.notifyError({ message: `Failed to connect to server: ${error.message}` });
