@@ -44,7 +44,12 @@ type ConnectionStatusCallback = (status: boolean) => void;
 
 // Socket service class
 class SocketService {
-  private socket: Socket | null = null;
+  // Expose socket as a read-only property
+  private _socket: Socket | null = null;
+  
+  get socket(): Socket | null {
+    return this._socket;
+  }
   private connected: boolean = false;
   private connecting: boolean = false;
   private reconnectAttempts: number = 0;
@@ -173,7 +178,7 @@ class SocketService {
     }, 15000); // 15 second timeout
     
     // Initialize socket connection
-    this.socket = io(url, {
+    this._socket = io(url, {
       reconnection: false, // We'll handle reconnection manually
       autoConnect: true, // Connect immediately
       transports: ['websocket', 'polling'], // Try websocket first, then fallback to polling
@@ -185,15 +190,15 @@ class SocketService {
     
     // Set up event listeners
     return new Promise((resolve) => {
-      if (!this.socket) {
+      if (!this._socket) {
         this.clearConnectionTimeout();
         this.connecting = false;
         resolve(false);
         return;
       }
       
-      this.socket.on('connect', () => {
-        console.log(`[Socket] Connected with ID: ${this.socket?.id}`);
+      this._socket.on('connect', () => {
+        console.log(`[Socket] Connected with ID: ${this._socket?.id}`);
         this.clearConnectionTimeout();
         this.connected = true;
         this.connecting = false;
@@ -210,7 +215,7 @@ class SocketService {
         resolve(true);
       });
       
-      this.socket.on('connect_error', (error) => {
+      this._socket.on('connect_error', (error) => {
         console.error(`[Socket] Connection error: ${error.message}`, error);
         console.error(`[Socket] Failed to connect to server at ${url}`);
         this.clearConnectionTimeout();
@@ -222,7 +227,7 @@ class SocketService {
         resolve(false);
       });
       
-      this.socket.on('disconnect', (reason) => {
+      this._socket.on('disconnect', (reason) => {
         console.log(`[Socket] Disconnected: ${reason}`);
         this.clearPingInterval();
         this.connected = false;
@@ -234,7 +239,7 @@ class SocketService {
         }
       });
       
-      this.socket.on('error', (error) => {
+      this._socket.on('error', (error) => {
         console.error('[Socket] Socket error:', error);
         this.notifyError({ message: `Socket error: ${error}` });
       });
@@ -248,10 +253,10 @@ class SocketService {
     this.clearConnectionTimeout();
     this.clearPingInterval();
     
-    if (this.socket) {
-      this.socket.removeAllListeners();
-      this.socket.close();
-      this.socket = null;
+    if (this._socket) {
+      this._socket.removeAllListeners();
+      this._socket.close();
+      this._socket = null;
     }
   }
   
@@ -273,8 +278,8 @@ class SocketService {
     
     // Send a ping every 30 seconds to keep the connection alive
     this.pingIntervalId = window.setInterval(() => {
-      if (this.socket && this.connected) {
-        this.socket.emit('ping', { timestamp: Date.now() });
+      if (this._socket && this.connected) {
+        this._socket.emit('ping', { timestamp: Date.now() });
       }
     }, 30000);
   }
@@ -438,132 +443,132 @@ class SocketService {
    * Join the game as a player
    */
   public joinGame(playerName: string, playerId?: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('player:join', { playerName, playerId });
+    this._socket.emit('player:join', { playerName, playerId });
   }
   
   /**
    * Send a chat message
    */
   public sendChatMessage(message: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('chat:message', { message });
+    this._socket.emit('chat:message', { message });
   }
   
   /**
    * Plant a seed
    */
   public plantSeed(slotId: number, seedItemId: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:plant', { slotId, seedItemId });
+    this._socket.emit('game:plant', { slotId, seedItemId });
   }
   
   /**
    * Water plants
    */
   public waterPlants(puzzleBonus: number = 0): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:water', { puzzleBonus });
+    this._socket.emit('game:water', { puzzleBonus });
   }
   
   /**
    * Harvest a plant
    */
   public harvestPlant(slotId: number): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:harvest', { slotId });
+    this._socket.emit('game:harvest', { slotId });
   }
   
   /**
    * Brew a potion
    */
   public brewPotion(ingredientInvItemIds: string[], puzzleBonus: number = 0): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:brew', { ingredientInvItemIds, puzzleBonus });
+    this._socket.emit('game:brew', { ingredientInvItemIds, puzzleBonus });
   }
   
   /**
    * Buy an item
    */
   public buyItem(itemId: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:buy', { itemId });
+    this._socket.emit('game:buy', { itemId });
   }
   
   /**
    * Sell an item
    */
   public sellItem(itemId: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:sell', { itemId });
+    this._socket.emit('game:sell', { itemId });
   }
   
   /**
    * Fulfill a request
    */
   public fulfillRequest(requestId: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:fulfill', { requestId });
+    this._socket.emit('game:fulfill', { requestId });
   }
   
   /**
    * Claim a ritual reward
    */
   public claimRitualReward(ritualId: string): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:claim-ritual', { ritualId });
+    this._socket.emit('game:claim-ritual', { ritualId });
   }
   
   /**
    * End the current turn
    */
   public endTurn(): void {
-    if (!this.socket || !this.connected) {
+    if (!this._socket || !this.connected) {
       this.notifyError({ message: 'Not connected to server' });
       return;
     }
     
-    this.socket.emit('game:end-turn');
+    this._socket.emit('game:end-turn');
   }
   
   // Event subscription methods
@@ -580,6 +585,22 @@ class SocketService {
   public onPlayerDisconnected(callback: PlayerDisconnectedCallback): () => void {
     this.playerDisconnectedCallbacks.add(callback);
     return () => this.playerDisconnectedCallbacks.delete(callback);
+  }
+  
+  public onPlayerReconnected(callback: PlayerDisconnectedCallback): () => void {
+    // We can reuse the PlayerDisconnectedCallback type since it has the same shape
+    if (this._socket) {
+      // Add a direct event listener for this specific callback
+      this._socket.on('player:reconnected', callback);
+      // Return a cleanup function
+      return () => {
+        if (this._socket) {
+          this._socket.off('player:reconnected', callback);
+        }
+      };
+    }
+    // Return a no-op if socket isn't available
+    return () => {};
   }
   
   public onChatMessage(callback: ChatMessageCallback): () => void {

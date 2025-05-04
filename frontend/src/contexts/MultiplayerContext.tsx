@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import socketService, { PlayerJoinedEvent, PlayerListEvent, ChatMessageEvent, ErrorEvent } from '../services/socketService';
 import { GameState } from 'coven-shared';
 
@@ -237,7 +237,9 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.log(`[MultiplayerContext] Player reconnected: ${data.playerName}`);
       addStatusMessage(`Player ${data.playerName} reconnected`);
     };
-    const playerReconnectedUnsubscribe = socketService.onConnectionStatus(playerReconnectedCallback);
+    
+    // Use the dedicated handler for player reconnection events
+    const playerReconnectedUnsubscribe = socketService.onPlayerReconnected(playerReconnectedCallback);
 
     // Mail events - Placeholder for future implementation
     // Currently the backend doesn't support mail features,
