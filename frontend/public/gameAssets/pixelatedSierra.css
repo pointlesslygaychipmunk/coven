@@ -1,0 +1,661 @@
+/* Sierra-inspired Adventure Game UI with Pixelated Elements */
+
+:root {
+  /* Sierra-inspired color palette with slight pixelation emphasis */
+  --sierra-bg-dark: #1e2223;
+  --sierra-bg-medium: #2c3640;
+  --sierra-bg-light: #e8e0c8;
+  --sierra-accent: #8b6d3e;
+  --sierra-highlight: #c9a76c;
+  --sierra-text-dark: #3c2814;
+  --sierra-text-light: #e8e0c8;
+  
+  /* Seasonal palette - slightly more pixelated */
+  --sierra-spring: #6c8c54;
+  --sierra-summer: #b3945f;
+  --sierra-fall: #a65e36;
+  --sierra-winter: #7c94aa;
+  
+  /* Magic-themed colors */
+  --sierra-magic-purple: #6c4e79;
+  --sierra-magic-blue: #4e6c96;
+  --sierra-magic-green: #4d7850;
+  
+  /* Fonts - Mix of serif and pixel fonts */
+  --sierra-font-main: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  --sierra-font-header: 'Cinzel', 'Times New Roman', serif;
+  --sierra-font-interface: 'Lato', 'Arial', sans-serif;
+  --sierra-font-pixel: 'Press Start 2P', 'VT323', monospace; /* For pixelated elements */
+  
+  /* UI Dimensions with pixelated emphasis */
+  --sierra-border-width: 2px;
+  --sierra-border-radius: 0px; /* Sharp edges for pixel art feel */
+  --sierra-panel-spacing: 12px;
+}
+
+/* Add pixel rendering for specific elements */
+.pixel-render {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Main game window */
+.sierra-game-window {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  background-color: var(--sierra-bg-dark);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-interface);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--sierra-bg-dark);
+  overflow: hidden;
+}
+
+/* Main game frame */
+.sierra-main-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top navigation bar - Sierra style with pixel borders */
+.sierra-nav-bar {
+  height: 36px;
+  background-color: var(--sierra-bg-medium);
+  border-bottom: 2px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  /* Pixel-perfect border */
+  box-shadow: inset 0 -1px 0 var(--sierra-highlight);
+}
+
+/* Sierra icon button style with pixelated edges */
+.sierra-icon-button {
+  width: 28px;
+  height: 28px;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  /* Pixel-perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.sierra-icon-button:hover {
+  background-color: var(--sierra-highlight);
+}
+
+.sierra-icon-button:active {
+  background-color: var(--sierra-accent);
+}
+
+/* Main content area */
+.sierra-content {
+  flex: 1;
+  display: flex;
+  background-color: var(--sierra-bg-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Side panel styling with pixel-perfect borders */
+.sierra-panel {
+  background-color: var(--sierra-bg-medium);
+  border: var(--sierra-border-width) solid var(--sierra-bg-dark);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Pixel-perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Panel headers with pixelated accents */
+.sierra-panel-header {
+  height: 24px;
+  background-color: var(--sierra-accent);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-pixel);
+  font-size: 12px; /* Smaller for pixel font */
+  text-align: center;
+  line-height: 24px;
+  border-bottom: 1px solid var(--sierra-bg-dark);
+  position: relative;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Panel content */
+.sierra-panel-content {
+  flex: 1;
+  padding: 8px;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text-dark);
+  overflow: auto;
+}
+
+/* Detail panels like Sierra adventure games */
+.sierra-detail-panel {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  padding: 8px;
+  margin-bottom: 8px;
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--sierra-text-dark);
+  /* Pixel-perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.sierra-detail-panel h3 {
+  font-family: var(--sierra-font-header);
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: var(--sierra-accent);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 4px;
+}
+
+/* Sierra-style buttons with pixel-perfect edges */
+.sierra-button {
+  background-color: var(--sierra-bg-medium);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-pixel);
+  font-size: 10px; /* Smaller for pixel font */
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  margin: 4px;
+  /* Pixel-perfect button styling */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0; /* Tighter spacing for pixel font */
+}
+
+.sierra-button:hover {
+  background-color: var(--sierra-accent);
+}
+
+.sierra-button:active {
+  background-color: var(--sierra-bg-dark);
+  transform: translateY(1px);
+  /* Pressed button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sierra-button.active {
+  background-color: var(--sierra-accent);
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Sierra-style inventory grid with pixel-perfect cells */
+.sierra-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px; /* Tighter for pixel feel */
+  padding: 5px;
+  background-color: var(--sierra-bg-medium);
+  /* Pixel grid pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%232c3640"/><path d="M0,1 h4 M0,3 h4 M1,0 v4 M3,0 v4" stroke="%23223040" stroke-width="0.5" opacity="0.3"/></svg>');
+  background-repeat: repeat;
+}
+
+.sierra-inventory-slot {
+  width: 40px;
+  height: 40px;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  /* Pixel-perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.sierra-inventory-slot:hover {
+  border-color: var(--sierra-highlight);
+  /* Highlight outline with pixel-perfect edges */
+  outline: 1px solid var(--sierra-highlight);
+}
+
+.sierra-inventory-slot.active {
+  background-color: rgba(201, 167, 108, 0.3);
+  border-color: var(--sierra-highlight);
+}
+
+/* Sierra-style progress bars with pixel-perfect edges */
+.sierra-progress-bar {
+  height: 12px;
+  background-color: var(--sierra-bg-medium);
+  border: 1px solid var(--sierra-accent);
+  position: relative;
+  margin: 6px 0;
+  /* Pixel-art inset */
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sierra-progress-fill {
+  height: 100%;
+  background-color: var(--sierra-accent);
+  transition: width 0.3s ease;
+  /* Pixel-art pattern for bar fill */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="12" viewBox="0 0 6 12"><rect width="6" height="12" fill="%238b6d3e"/><path d="M0,3 h6 M0,9 h6" stroke="%23c9a76c" stroke-width="1" opacity="0.3"/></svg>');
+}
+
+/* Elegant labels for Sierra UI */
+.sierra-label {
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  color: var(--sierra-text-dark);
+  margin-bottom: 4px;
+}
+
+/* Sierra-style dialog windows with pixelated corners */
+.sierra-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+  padding: 0;
+  z-index: 100;
+  min-width: 300px;
+  /* Pixel corner decorations */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><path d="M0,0 h8 v8 h-8 Z M292,0 h8 v8 h-8 Z M0,192 h8 v8 h-8 Z M292,192 h8 v8 h-8 Z" fill="%238b6d3e"/></svg>');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.sierra-dialog-header {
+  background-color: var(--sierra-accent);
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-pixel);
+  font-size: 12px;
+  padding: 6px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--sierra-bg-dark);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.sierra-dialog-content {
+  padding: 12px;
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--sierra-text-dark);
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.sierra-dialog-footer {
+  padding: 8px 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--sierra-accent);
+}
+
+/* Status bar similar to Sierra games with pixel elements */
+.sierra-status-bar {
+  height: 24px;
+  background-color: var(--sierra-bg-medium);
+  border-top: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--sierra-text-light);
+  font-family: var(--sierra-font-pixel);
+  font-size: 8px; /* Smaller for pixel font */
+  /* Pixel-perfect top highlight */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sierra-status-section {
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.sierra-status-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Pixel rendering */
+  image-rendering: pixelated;
+}
+
+/* Scroll styling with pixelated scrollbar */
+.sierra-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sierra-accent) var(--sierra-bg-medium);
+}
+
+.sierra-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.sierra-scrollbar::-webkit-scrollbar-track {
+  background: var(--sierra-bg-medium);
+  /* Pixel grid */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%232c3640"/><path d="M0,2 h8 M0,6 h8" stroke="%231e2223" stroke-width="1" opacity="0.3"/></svg>');
+}
+
+.sierra-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--sierra-accent);
+  border-radius: 0;
+  border: 1px solid var(--sierra-bg-medium);
+  /* Pixelated grip pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%238b6d3e"/><path d="M2,2 h4 M2,6 h4" stroke="%23c9a76c" stroke-width="1" opacity="0.5"/></svg>');
+}
+
+/* Tabs similar to Sierra interfaces with pixel-perfect edges */
+.sierra-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--sierra-accent);
+  background-color: var(--sierra-bg-medium);
+}
+
+.sierra-tab {
+  padding: 6px 12px;
+  font-family: var(--sierra-font-pixel);
+  font-size: 8px; /* Smaller for pixel font */
+  color: var(--sierra-text-light);
+  cursor: pointer;
+  background-color: var(--sierra-bg-medium);
+  border-right: 1px solid var(--sierra-accent);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  /* Pixel-perfect top highlight */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sierra-tab:hover {
+  background-color: rgba(139, 109, 62, 0.5);
+}
+
+.sierra-tab.active {
+  background-color: var(--sierra-accent);
+  font-weight: bold;
+  /* Pixelated active indicator */
+  box-shadow: 
+    inset 0 -2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sierra-tab-content {
+  display: none;
+  padding: 12px;
+  background-color: var(--sierra-bg-light);
+}
+
+.sierra-tab-content.active {
+  display: block;
+}
+
+/* Sierra game message box for narrative text with pixel-perfect borders */
+.sierra-message-box {
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  padding: 12px;
+  margin: 8px 0;
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sierra-text-dark);
+  position: relative;
+  /* Pixel-perfect border inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.sierra-message-box::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 1px solid var(--sierra-bg-dark);
+  pointer-events: none;
+}
+
+/* Pixelated Sierra-style icon/button for actions */
+.sierra-pixel-icon {
+  width: 24px;
+  height: 24px;
+  background-color: var(--sierra-bg-medium);
+  border: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sierra-font-pixel);
+  font-size: 12px;
+  color: var(--sierra-text-light);
+  cursor: pointer;
+  /* Pixel-perfect styling */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.sierra-pixel-icon:hover {
+  background-color: var(--sierra-accent);
+}
+
+/* Sierra-style character portrait with pixel-perfect frame */
+.sierra-portrait {
+  width: 80px;
+  height: 80px;
+  background-color: var(--sierra-bg-medium);
+  border: 2px solid var(--sierra-accent);
+  margin: 0 auto 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Pixel corners */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><path d="M0,0 h5 v5 h-5 Z M75,0 h5 v5 h-5 Z M0,75 h5 v5 h-5 Z M75,75 h5 v5 h-5 Z" fill="%238b6d3e"/></svg>');
+  background-repeat: no-repeat;
+}
+
+.sierra-portrait::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border: 1px solid var(--sierra-bg-dark);
+  pointer-events: none;
+}
+
+/* Sierra-style descriptive text */
+.sierra-description {
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sierra-text-dark);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* Quest Sierra style with pixel accents */
+.sierra-quest-entry {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  padding: 8px;
+  margin-bottom: 8px;
+  /* Pixel corners */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100"><path d="M0,0 h4 v4 h-4 Z M196,0 h4 v4 h-4 Z M0,96 h4 v4 h-4 Z M196,96 h4 v4 h-4 Z" fill="%238b6d3e"/></svg>');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.sierra-quest-title {
+  font-family: var(--sierra-font-pixel);
+  font-size: 12px;
+  margin: 0 0 6px 0;
+  color: var(--sierra-accent);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sierra-quest-description {
+  font-family: var(--sierra-font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sierra-text-dark);
+  margin-bottom: 6px;
+}
+
+/* Pixel-art garden grid */
+.sierra-garden-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  padding: 12px;
+  background-color: var(--sierra-bg-medium);
+  /* Pixel grid pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><rect width="6" height="6" fill="%232c3640"/><path d="M0,3 h6 M3,0 v6" stroke="%231e2223" stroke-width="1" opacity="0.2"/></svg>');
+}
+
+.sierra-garden-plot {
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 24px;
+  color: var(--sierra-accent);
+  aspect-ratio: 1;
+  /* Pixel-perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+  /* Pixelated soil texture */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8e0c8"/><path d="M1,1 h1 v1 h-1 Z M3,3 h1 v1 h-1 Z M5,5 h1 v1 h-1 Z M7,7 h1 v1 h-1 Z" fill="%23dac9a9" opacity="0.5"/></svg>');
+}
+
+.sierra-garden-plot:hover {
+  border-color: var(--sierra-highlight);
+  /* Pixelated highlight glow */
+  box-shadow: 
+    0 0 0 1px var(--sierra-highlight),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.sierra-garden-plot.selected {
+  border-color: var(--sierra-highlight);
+  /* Pixelated selection indicator */
+  box-shadow:
+    0 0 0 1px var(--sierra-highlight),
+    inset 0 0 10px rgba(201, 167, 108, 0.3);
+}
+
+.sierra-garden-plot-icon {
+  font-size: 24px;
+  /* Apply pixel rendering specifically to plot icons */
+  font-family: var(--sierra-font-pixel);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.sierra-plot-number {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-family: var(--sierra-font-pixel);
+  font-size: 8px;
+  color: var(--sierra-text-dark);
+  background-color: rgba(255, 255, 255, 0.5);
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Seasonal variations with pixelated textures */
+.sierra-spring-theme {
+  --sierra-accent: var(--sierra-spring);
+  --sierra-highlight: #8bb970;
+  
+  /* Pixelated spring texture */
+  .sierra-garden-grid {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%236c8c54"/><path d="M4,4 h2 v2 h-2 Z M10,4 h2 v2 h-2 Z M4,10 h2 v2 h-2 Z M10,10 h2 v2 h-2 Z" fill="%235a7a42" opacity="0.3"/></svg>');
+  }
+}
+
+.sierra-summer-theme {
+  --sierra-accent: var(--sierra-summer);
+  --sierra-highlight: #d9b675;
+  
+  /* Pixelated summer texture */
+  .sierra-garden-grid {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23b3945f"/><path d="M0,0 l4,4 l-4,4 M8,0 l4,4 l-4,4 M0,8 l4,4 l-4,4 M8,8 l4,4 l-4,4" stroke="%239d804c" stroke-width="1" opacity="0.3"/></svg>');
+  }
+}
+
+.sierra-fall-theme {
+  --sierra-accent: var(--sierra-fall);
+  --sierra-highlight: #c37e50;
+  
+  /* Pixelated fall texture */
+  .sierra-garden-grid {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23a65e36"/><path d="M4,2 l1,1 l-1,1 M10,4 l1,1 l-1,1 M2,8 l1,1 l-1,1 M12,10 l1,1 l-1,1" stroke="%238f4e26" stroke-width="1" opacity="0.3"/></svg>');
+  }
+}
+
+.sierra-winter-theme {
+  --sierra-accent: var(--sierra-winter);
+  --sierra-highlight: #a3b8cc;
+  
+  /* Pixelated winter texture */
+  .sierra-garden-grid {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%237c94aa"/><path d="M4,4 l0,-2 M4,4 l2,0 M4,4 l0,2 M4,4 l-2,0 M12,4 l0,-2 M12,4 l2,0 M12,4 l0,2 M12,4 l-2,0 M4,12 l0,-2 M4,12 l2,0 M4,12 l0,2 M4,12 l-2,0 M12,12 l0,-2 M12,12 l2,0 M12,12 l0,2 M12,12 l-2,0" stroke="%236a84a0" stroke-width="1" opacity="0.3"/></svg>');
+  }
+}
+
+/* Magic theme with pixelated accents */
+.sierra-magic-theme {
+  --sierra-accent: var(--sierra-magic-purple);
+  --sierra-highlight: #8e6c9b;
+  
+  /* Pixelated magic texture */
+  .sierra-garden-grid {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" fill="%236c4e79"/><path d="M8,2 l0,2 M8,2 l2,0 M8,2 l0,-2 M8,2 l-2,0 M8,14 l0,2 M8,14 l2,0 M8,14 l0,-2 M8,14 l-2,0 M2,8 l0,2 M2,8 l2,0 M2,8 l0,-2 M2,8 l-2,0 M14,8 l0,2 M14,8 l2,0 M14,8 l0,-2 M14,8 l-2,0" stroke="%23533c5c" stroke-width="1" opacity="0.3"/></svg>');
+  }
+}
