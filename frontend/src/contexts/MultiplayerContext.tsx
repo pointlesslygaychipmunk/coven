@@ -507,28 +507,71 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     };
   }, [connect, isJoined, attemptReconnection]);
   
-  // Set up a periodic reconnection attempt if we lose connection
+  // Enhanced periodic reconnection system with online status awareness
   useEffect(() => {
     let reconnectInterval: NodeJS.Timeout | null = null;
+    let onlineStateChanged = false;
     
-    if (!isConnected && !isJoined) {
-      // Try to reconnect every 30 seconds if we're disconnected
+    // Function to handle online/offline status changes
+    const handleOnlineStatusChange = () => {
+      onlineStateChanged = true;
+      const isOnline = navigator.onLine;
+      console.log(`[MultiplayerContext] Network status changed: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+      
+      if (isOnline && !isConnected) {
+        // When we come back online and aren't connected, try to reconnect immediately
+        console.log('[MultiplayerContext] Device came back online, attempting immediate reconnection...');
+        
+        // Wait a brief moment for network to stabilize
+        setTimeout(() => {
+          connect().then((success) => {
+            if (success) {
+              attemptReconnection();
+            }
+          });
+        }, 2000);
+      }
+    };
+    
+    // Register online/offline event listeners
+    window.addEventListener('online', handleOnlineStatusChange);
+    window.addEventListener('offline', handleOnlineStatusChange);
+    
+    // Set up periodic reconnection attempts when disconnected
+    if (!isConnected) {
+      // If we're not connected, try to reconnect periodically
+      const reconnectAttemptDelay = isJoined ? 15000 : 30000; // More aggressive if we were joined before
+      
+      console.log(`[MultiplayerContext] Setting up periodic reconnection every ${reconnectAttemptDelay/1000}s`);
+      
       reconnectInterval = setInterval(() => {
+        // Don't attempt reconnection if we're offline unless the online state just changed
+        if (!navigator.onLine && !onlineStateChanged) {
+          console.log('[MultiplayerContext] Device is offline, skipping reconnection attempt');
+          return;
+        }
+        
+        // Reset the online state change flag
+        onlineStateChanged = false;
+        
         console.log('[MultiplayerContext] Attempting periodic reconnection...');
         connect().then((success) => {
           if (success) {
             attemptReconnection();
           }
         });
-      }, 30000); // 30 seconds
+      }, reconnectAttemptDelay);
     } else if (reconnectInterval) {
-      // Clear the interval if we're connected or joined
+      // Clear the interval if we're connected
       clearInterval(reconnectInterval);
       reconnectInterval = null;
     }
     
-    // Clean up when component unmounts
+    // Clean up when component unmounts or dependencies change
     return () => {
+      window.removeEventListener('online', handleOnlineStatusChange);
+      window.removeEventListener('offline', handleOnlineStatusChange);
+      
       if (reconnectInterval) {
         clearInterval(reconnectInterval);
       }

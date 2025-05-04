@@ -90,10 +90,14 @@ class SocketService {
     if (this.reconnectAttempts === 0) {
       this.urlAttempt = 0;
       
+      // PRODUCTION-FIRST APPROACH
+      // For production, we want to connect to the same server that served the frontend
+      // This ensures that we're connecting to the correct backend instance
+      
       // Determine the backend URL based on the environment
-      // Use the same domain and protocol as the frontend
       const host = window.location.hostname;
       const protocol = window.location.protocol;
+      const port = window.location.port;
       const useSecure = protocol === 'https:';
       
       // Set up all possible URLs to try
@@ -104,52 +108,57 @@ class SocketService {
         this.alternativeUrls.push(this.lastSuccessfulUrl);
       }
       
+      console.log(`[Socket] Current environment: ${protocol}//${host}:${port || (useSecure ? '443' : '80')}`);
+      
+      // ENHANCED PRODUCTION STRATEGY
+      // 1. First, always try the exact origin that served this page (most reliable for deployed environments)
+      this.alternativeUrls.push(window.location.origin);
+      
+      // 2. If we're on a custom port, also try without it
+      if (port) {
+        this.alternativeUrls.push(`${protocol}//${host}`);
+      }
+      
+      // 3. If we're NOT on standard ports (80/443), add those as fallbacks
+      if (port !== '80' && port !== '443' && port !== '') {
+        this.alternativeUrls.push(useSecure ? `https://${host}:443` : `http://${host}:80`);
+      }
+      
       // IMPORTANT: In production with HTTPS, only use secure WebSockets (WSS)
       // otherwise browsers will block mixed content
       
-      // For development environment (localhost), try these URLs in order
+      // If on localhost, include additional development-specific options
       if (host === 'localhost' || host === '127.0.0.1') {
-        // HARDCODED DEVELOPMENT SERVER URL - most reliable option
-        this.alternativeUrls.push('http://localhost:8080');
+        // For local development, also try specific ports
+        if (port !== '8080' && port !== '8443') {
+          this.alternativeUrls.push(useSecure 
+            ? `https://${host}:8443` // Secure dev connection with specific port
+            : `http://${host}:8080`  // Non-secure dev connection with specific port
+          );
+        }
         
-        // Then fall back to standard options
-        this.alternativeUrls.push(useSecure 
-          ? `https://${host}:8443` // Secure dev connection with specific port
-          : `http://${host}:8080`  // Non-secure dev connection with specific port
-        );
-        
-        // Then try default ports
-        this.alternativeUrls.push(useSecure 
-          ? `https://${host}` // Secure dev connection with default port
-          : `http://${host}`  // Non-secure dev connection with default port
-        );
-        
-        // Add specific port alternatives
-        this.alternativeUrls.push(`http://${host}:3000`); // Common Vite dev server port
-        
-        // Finally try the opposite security protocol (only if not HTTPS)
-        if (!useSecure) {
-          this.alternativeUrls.push(`https://${host}:8443`); // Try secure if we started with non-secure
+        // Add specific port alternatives for dev servers
+        if (!useSecure && port !== '3000') {
+          this.alternativeUrls.push(`http://${host}:3000`); // Common Vite dev server port
         }
       } else {
-        // For production, only use the current protocol to avoid mixed content warnings
-        // Try current origin first (best option)
-        this.alternativeUrls.push(window.location.origin);
-        
-        // Then try standard ports with same protocol
+        // For production, ensure we have appropriate protocol options
         if (useSecure) {
           // Only add HTTPS options if we're on HTTPS
-          this.alternativeUrls.push(`https://${host}`); // Standard HTTPS port
-          this.alternativeUrls.push(`https://${host}:443`); // Explicit HTTPS port
-          this.alternativeUrls.push(`https://${host}:8443`); // Alternative HTTPS port
-          
-          // Try adding an explicit path
-          this.alternativeUrls.push(`${window.location.origin}/socket.io`);
+          if (!this.alternativeUrls.includes(`https://${host}`)) {
+            this.alternativeUrls.push(`https://${host}`); // Standard HTTPS port
+          }
+          if (!this.alternativeUrls.includes(`https://${host}:443`)) {
+            this.alternativeUrls.push(`https://${host}:443`); // Explicit HTTPS port
+          }
         } else {
           // Only add HTTP options if we're on HTTP
-          this.alternativeUrls.push(`http://${host}`); // Standard HTTP port
-          this.alternativeUrls.push(`http://${host}:80`); // Explicit HTTP port
-          this.alternativeUrls.push(`http://${host}:8080`); // Alternative HTTP port
+          if (!this.alternativeUrls.includes(`http://${host}`)) {
+            this.alternativeUrls.push(`http://${host}`); // Standard HTTP port
+          }
+          if (!this.alternativeUrls.includes(`http://${host}:80`)) {
+            this.alternativeUrls.push(`http://${host}:80`); // Explicit HTTP port
+          }
         }
       }
       
@@ -189,35 +198,47 @@ class SocketService {
     
     // Initialize socket connection
     try {
-      // DEVELOPMENT MODE DETECTION: check if we're running on the dev server
-      const isDevelopment = window.location.port === '3000';
-      const targetPort = isDevelopment ? '8080' : undefined;
+      // ENHANCED PRODUCTION-READY approach
+      // Determine if we're using /socket.io path explicitly in the URL
+      const hasExplicitPath = url.includes('/socket.io');
       
-      console.log(`[Socket] Creating connection to ${url} (Development mode: ${isDevelopment})`);
-      
-      // Check if we need to force port 8080 for development
-      let connectionUrl = url;
-      if (isDevelopment && !url.includes(':8080')) {
-        const urlObj = new URL(url);
-        urlObj.port = '8080';
-        connectionUrl = urlObj.toString();
-        console.log(`[Socket] Development mode: Redirecting socket connection to ${connectionUrl}`);
+      // Extract protocol and port information for better connection diagnostics
+      let urlObj: URL;
+      try {
+        urlObj = new URL(url);
+      } catch (e) {
+        console.error(`[Socket] Invalid URL format: ${url}`, e);
+        urlObj = new URL(window.location.origin); // Fallback to current origin
       }
       
-      // Determine if we're using /socket.io path explicitly in the URL
-      const hasExplicitPath = connectionUrl.includes('/socket.io');
+      // Determine if we're using secure protocol (HTTPS/WSS)
+      const isSecure = urlObj.protocol === 'https:';
       
-      this._socket = io(connectionUrl, {
+      console.log(`[Socket] Creating connection to ${url} (${isSecure ? 'secure' : 'non-secure'})`);
+      
+      this._socket = io(url, {
         reconnection: false, // We'll handle reconnection manually
         autoConnect: true, // Connect immediately
-        transports: ['polling', 'websocket'], // Start with polling for more reliable initial connection
+        // Use appropriate transports based on environment
+        // In production, try websocket first for better performance
+        // In development or fallback, start with polling for better compatibility
+        transports: window.location.hostname === 'localhost' ? 
+          ['polling', 'websocket'] : // Dev: polling first for reliability
+          ['websocket', 'polling'],  // Prod: websocket first for performance
         path: hasExplicitPath ? undefined : '/socket.io', // Only set path if not in URL already
-        timeout: 15000, // Increase timeout to 15 seconds for more reliability
+        timeout: 20000, // Increase timeout to 20 seconds for more reliability in production
         forceNew: true, // Force a new connection
-        query: { clientTime: Date.now().toString() }, // Add timestamp to prevent caching issues
+        query: { 
+          clientTime: Date.now().toString(),
+          mode: 'production',
+          protocol: isSecure ? 'secure' : 'non-secure',
+          clientPort: window.location.port || (isSecure ? '443' : '80'),
+          origin: window.location.origin
+        }, // Enhanced diagnostics data
         withCredentials: false, // Don't send cookies for cross-origin requests
         extraHeaders: {
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
       });
     } catch (err) {
@@ -266,12 +287,44 @@ class SocketService {
         this.connected = false;
         this.connecting = false;
         
+        // Enhanced error diagnostics for easier troubleshooting
+        const protocol = window.location.protocol;
+        const isSecureContext = window.isSecureContext;
+        const navigator = window.navigator;
+        const online = navigator && navigator.onLine;
+        
+        // Log detailed connection diagnostics
+        console.log(`[Socket] Connection diagnostics:
+          - URL attempted: ${url}
+          - Current origin: ${window.location.origin}
+          - Protocol: ${protocol}
+          - Is secure context: ${isSecureContext}
+          - Online status: ${online}
+          - URL attempt: ${this.urlAttempt}/${this.alternativeUrls.length}
+          - Reconnect attempts: ${this.reconnectAttempts}/${this.maxReconnectAttempts}
+          - Error: ${error.message}
+        `);
+        
         // Simplify error message for the user
         let userMessage;
+        
+        // More detailed error classification for better UX
         if (error.message.includes('xhr poll error') || error.message.includes('websocket error')) {
-          userMessage = 'Could not reach the game server. Please check your connection or try again later.';
+          if (protocol === 'https:' && url.startsWith('http:')) {
+            userMessage = 'Cannot connect to insecure socket from secure page. Trying secure connections...';
+          } else if (!online) {
+            userMessage = 'You appear to be offline. Please check your internet connection.';
+          } else {
+            userMessage = 'Could not reach the game server. Please check your connection or try again later.';
+          }
         } else if (error.message.includes('timeout')) {
-          userMessage = 'Connection to server timed out. Please try again later.';
+          userMessage = 'Connection to server timed out. The server might be busy or temporarily unavailable.';
+        } else if (error.message.includes('CORS')) {
+          userMessage = 'Cross-origin connection blocked. This is a technical issue our team needs to fix.';
+        } else if (error.message.includes('Invalid namespace')) {
+          userMessage = 'Socket.IO connection error. Trying alternative connection method...';
+          // Force next URL attempt on this specific error
+          this.urlAttempt++;
         } else {
           userMessage = `Connection error: ${error.message}`;
         }
@@ -307,11 +360,22 @@ class SocketService {
   private cleanupExistingConnection(): void {
     this.clearConnectionTimeout();
     this.clearPingInterval();
+    this.clearReconnectTimeout();
     
     if (this._socket) {
       this._socket.removeAllListeners();
       this._socket.close();
       this._socket = null;
+    }
+  }
+  
+  /**
+   * Clear reconnect timeout
+   */
+  private clearReconnectTimeout(): void {
+    if (this._reconnectTimeoutId !== null) {
+      window.clearTimeout(this._reconnectTimeoutId);
+      this._reconnectTimeoutId = null;
     }
   }
   
@@ -350,36 +414,88 @@ class SocketService {
   }
   
   /**
-   * Close the socket connection
+   * Close the socket connection and clean up all resources
    */
   public disconnect(): void {
     this.cleanupExistingConnection();
+    
+    // Also clear the recovery interval if it exists
+    if (this._recoveryIntervalId !== null) {
+      window.clearInterval(this._recoveryIntervalId);
+      this._recoveryIntervalId = null;
+    }
+    
+    // Reset connection states
     this.connected = false;
+    this.connecting = false;
+    this.reconnectAttempts = 0;
+    
     this.notifyConnectionStatus(false);
+    console.log('[Socket] Disconnected and all resources cleaned up');
   }
   
   /**
-   * Attempt to reconnect to the server
+   * Attempt to reconnect to the server with enhanced resilience
    */
   private attemptReconnect(): void {
+    // Check if we've reached max attempts
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error(`[Socket] Max reconnect attempts (${this.maxReconnectAttempts}) reached`);
       
-      // Check if we can fallback to REST API mode
+      // When we've exhausted all connection attempts, try resetting our URL strategy
+      // This helps recover from situations where the first URLs aren't working
+      this.urlAttempt = 0;
+      
+      // Notify user about limited functionality
       this.notifyError({ 
-        message: `Unable to establish a real-time connection. The game will use a limited mode that requires refreshing to see updates.` 
+        message: `Unable to establish a real-time connection. The game will use a limited mode that requires refreshing to see updates. Try refreshing the page to reconnect.` 
       });
       
-      // If you have a REST API fallback, you could enable it here
-      // this.enableRestApiFallback();
+      // Set up a final backup timer that will keep checking for connectivity periodically
+      // This allows recovery if the server comes back online
+      const RECOVERY_CHECK_INTERVAL = 60000; // 1 minute
+      
+      // Set up periodic recovery check if we don't have one already
+      if (!this._recoveryIntervalId) {
+        console.log('[Socket] Setting up recovery interval to check for server availability');
+        this._recoveryIntervalId = window.setInterval(() => {
+          console.log('[Socket] Recovery check: attempting to reconnect...');
+          
+          // Reset reconnect attempts to allow a fresh sequence of connection attempts
+          this.reconnectAttempts = 0;
+          
+          // Try to connect again
+          this.init().then(success => {
+            if (success) {
+              console.log('[Socket] Recovery successful! Clearing recovery interval.');
+              if (this._recoveryIntervalId) {
+                window.clearInterval(this._recoveryIntervalId);
+                this._recoveryIntervalId = null;
+              }
+              
+              // Notify user of recovery
+              this.notifyError({ message: "Connection recovered! Real-time updates resumed." });
+            } else {
+              console.log('[Socket] Recovery attempt failed, will try again later.');
+            }
+          });
+        }, RECOVERY_CHECK_INTERVAL);
+      }
       
       return;
     }
     
     this.reconnectAttempts++;
     
-    // Use a more gentle backoff strategy to improve UX
-    // Start with quick retries, then get slower
+    // Enhanced backoff strategy with URL rotation
+    // After a few attempts with the same URL, try the next one
+    if (this.reconnectAttempts > 3 && this.reconnectAttempts % 3 === 1) {
+      // Every 3 attempts, try a different URL in the list
+      this.urlAttempt++;
+      console.log(`[Socket] Switching to next URL option (${this.urlAttempt % this.alternativeUrls.length + 1}/${this.alternativeUrls.length})`);
+    }
+    
+    // Dynamic backoff strategy based on connection attempt
     let reconnectInterval;
     
     if (this.reconnectAttempts <= 3) {
@@ -399,6 +515,35 @@ class SocketService {
     
     console.log(`[Socket] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${Math.round(reconnectInterval/1000)}s...`);
     
+    // Check if browser is online before attempting reconnection
+    const isOnline = window.navigator && window.navigator.onLine !== false;
+    
+    if (!isOnline) {
+      console.log(`[Socket] Browser reports offline status. Waiting for online status before reconnecting.`);
+      
+      // Show a more specific message for offline status
+      this.notifyError({ message: "You appear to be offline. Reconnection will resume when your connection is restored." });
+      
+      // Listen for online event to trigger reconnection
+      const onlineHandler = () => {
+        console.log(`[Socket] Browser back online, resuming reconnection.`);
+        window.removeEventListener('online', onlineHandler);
+        
+        // Try to reconnect immediately when we come back online
+        this.init().then((success) => {
+          if (!success && this.reconnectAttempts < this.maxReconnectAttempts) {
+            // Continue trying to reconnect with the normal flow
+            this.attemptReconnect();
+          } else if (success) {
+            this.notifyError({ message: "Connected to server successfully!" });
+          }
+        });
+      };
+      
+      window.addEventListener('online', onlineHandler);
+      return;
+    }
+    
     // Show fewer messages to the user to avoid spam
     if (this.reconnectAttempts % 3 === 1 || this.reconnectAttempts === this.maxReconnectAttempts - 1) {
       this.notifyError({ 
@@ -406,7 +551,7 @@ class SocketService {
       });
     }
     
-    setTimeout(() => {
+    this._reconnectTimeoutId = window.setTimeout(() => {
       this.init().then((success) => {
         if (!success && this.reconnectAttempts < this.maxReconnectAttempts) {
           // Continue trying to reconnect
@@ -414,10 +559,20 @@ class SocketService {
         } else if (success) {
           // Clear any error messages since we're connected now
           this.notifyError({ message: "Connected to server successfully!" });
+          
+          // Clear any recovery interval if it exists
+          if (this._recoveryIntervalId) {
+            window.clearInterval(this._recoveryIntervalId);
+            this._recoveryIntervalId = null;
+          }
         }
       });
     }, reconnectInterval);
   }
+  
+  // Add property for recovery interval
+  private _recoveryIntervalId: number | null = null;
+  private _reconnectTimeoutId: number | null = null;
   
   /**
    * Set up all event listeners

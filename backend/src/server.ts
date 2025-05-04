@@ -19,13 +19,35 @@ const app: Application = express();
 // Initialize game handler
 const gameHandler = new GameHandler();
 
-// Set up middleware
-app.use(cors({
-  origin: '*', // Allow all origins in development
+// Set up middleware with production-ready CORS settings
+const isProduction = process.env.NODE_ENV === 'production';
+console.log(`[Server] Running in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode`);
+
+// Determine CORS configuration based on environment
+const corsOptions = {
+  // In production, be more restrictive with allowed origins
+  origin: isProduction ? 
+    // Allow the deployment URL and localhost for testing
+    [
+      'https://witchscoven.game', 
+      'https://www.witchscoven.game',
+      // Add other production domains here
+      'http://localhost:3000', 
+      'http://localhost:8080',
+      'https://localhost:8443'
+    ] : 
+    '*', // In development, allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+  credentials: true,
+  // Add cache control for preflight requests in production
+  maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development
+};
+
+// Log CORS configuration
+console.log(`[Server] CORS configuration: ${isProduction ? 'Restricted to specific origins' : 'Open to all origins'}`);
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '50mb' })); // Increase payload limit for larger data transfers
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

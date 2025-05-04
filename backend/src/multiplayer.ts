@@ -26,19 +26,45 @@ export class MultiplayerManager {
   constructor(server: http.Server, gameHandler: GameHandler) {
     this.gameHandler = gameHandler;
     
-    // Initialize Socket.IO with CORS options
+    // Get production mode from environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    console.log(`[Multiplayer] Initializing in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode`);
+    
+    // Determine allowed origins based on environment
+    const allowedOrigins = isProduction ? 
+      // Production-specific allowed origins
+      [
+        'https://witchscoven.game', 
+        'https://www.witchscoven.game',
+        // Add other production domains as needed
+        'http://localhost:3000', 
+        'http://localhost:8080',
+        'https://localhost:8443'
+      ] : 
+      "*"; // In development, allow all origins
+    
+    // Initialize Socket.IO with enhanced configuration
     this.io = new Server(server, {
       cors: {
-        origin: "*", // For development, in production limit to your domain
+        origin: allowedOrigins,
         methods: ["GET", "POST"],
-        credentials: true
+        credentials: true,
+        // Add cache control for preflight requests in production
+        maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development
       },
-      pingTimeout: 30000, // Increase ping timeout (default 20000ms)
-      pingInterval: 25000, // Ping interval (default 25000ms)
-      connectTimeout: 20000, // Connection timeout (default 45000ms)
-      upgradeTimeout: 15000, // Upgrade timeout (default 10000ms)
+      // Increase timeouts for more reliability in production
+      pingTimeout: isProduction ? 40000 : 30000, // Increase ping timeout for production
+      pingInterval: isProduction ? 20000 : 25000, // More frequent pings in production
+      connectTimeout: 20000, // Connection timeout
+      upgradeTimeout: isProduction ? 20000 : 15000, // Increase upgrade timeout for production
       maxHttpBufferSize: 1e8, // 100 MB (default 1e6, or 1 MB)
-      transports: ['websocket', 'polling'] // Prefer WebSocket over polling
+      // In production, prefer WebSocket for better performance
+      // In development, support both with preference order
+      transports: isProduction ? 
+        ['websocket', 'polling'] : // Production: prefer WebSocket for better performance
+        ['polling', 'websocket'], // Development: start with polling for better compatibility
+      allowEIO3: true, // Allow both v3 and v4 clients to connect
+      serveClient: false, // Don't serve client files in production
     });
     
     this.setupSocketHandlers();
