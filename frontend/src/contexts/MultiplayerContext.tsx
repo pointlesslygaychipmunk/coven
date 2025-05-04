@@ -614,37 +614,36 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   
   // Enhanced periodic reconnection system with online status awareness and EMERGENCY anti-loop protection
   useEffect(() => {
-    // EMERGENCY ANTI-LOOP PROTECTION
-    // Keep a counter for reconnect attempts at the context level to prevent infinite loops
-    // This is separate from socketService's own tracking
-    const reconnectAttemptCounterKey = 'coven_reconnect_attempt_counter';
-    const reconnectStartTimeKey = 'coven_reconnect_start_time';
-    const MAX_CONTEXT_RECONNECT_ATTEMPTS = 10;
+    // EMERGENCY FIX: Clear existing counters to allow connection to work immediately 
+    // This is a complete reset of the connection attempt limits to fix the "too many attempts" error
     
-    // Initialize or increment reconnect counter
-    let reconnectCounter = parseInt(sessionStorage.getItem(reconnectAttemptCounterKey) || '0', 10);
-    if (!isConnected) {
-      reconnectCounter++;
-      sessionStorage.setItem(reconnectAttemptCounterKey, reconnectCounter.toString());
-      
-      // Also store start time if not already set
+    // Clear any existing counters that might have accumulated
+    sessionStorage.removeItem('coven_reconnect_attempt_counter');
+    sessionStorage.removeItem('coven_reconnect_start_time');
+    
+    // Implementing a less aggressive anti-loop protection
+    // Only blocks if we've been trying for more than 15 minutes (extremely long time)
+    const reconnectStartTimeKey = 'coven_reconnect_start_time_v2'; // New key to avoid conflicts
+    
+    // Reset the start time if we're connected
+    if (isConnected) {
+      sessionStorage.removeItem(reconnectStartTimeKey);
+    } else {
+      // Store start time if not already set
       if (!sessionStorage.getItem(reconnectStartTimeKey)) {
         sessionStorage.setItem(reconnectStartTimeKey, Date.now().toString());
       }
-    } else {
-      // Reset counter if connected
-      sessionStorage.removeItem(reconnectAttemptCounterKey);
-      sessionStorage.removeItem(reconnectStartTimeKey);
     }
     
     // Get reconnection start time
     const reconnectStartTime = parseInt(sessionStorage.getItem(reconnectStartTimeKey) || '0', 10);
-    const reconnectDuration = Date.now() - reconnectStartTime;
+    const reconnectDuration = reconnectStartTime > 0 ? Date.now() - reconnectStartTime : 0;
     
-    // If we've tried too many times or been trying for too long, stop
-    if ((reconnectCounter > MAX_CONTEXT_RECONNECT_ATTEMPTS) || (reconnectStartTime > 0 && reconnectDuration > 5 * 60 * 1000)) {
-      console.error(`[MultiplayerContext] EMERGENCY: Too many reconnect attempts (${reconnectCounter}) or too long duration (${Math.round(reconnectDuration/1000)}s), stopping automatic reconnection`);
-      setError("Too many connection attempts. Please refresh the page to try again.");
+    // Only block if we've been trying for more than 15 minutes (extremely permissive)
+    const MAX_RECONNECT_DURATION = 15 * 60 * 1000; // 15 minutes
+    if (reconnectStartTime > 0 && reconnectDuration > MAX_RECONNECT_DURATION) {
+      console.error(`[MultiplayerContext] EMERGENCY: Connection attempts have been running for over 15 minutes (${Math.round(reconnectDuration/1000)}s), stopping automatic reconnection`);
+      setError("Connection process timed out. Please refresh the page to try again.");
       return () => {}; // Return empty cleanup function
     }
     
