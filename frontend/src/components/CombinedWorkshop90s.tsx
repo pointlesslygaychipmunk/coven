@@ -15,7 +15,7 @@ import type {
   Brand,
   PackagingDesign,
   PackageType
-} from '../../../shared/src/types';
+} from 'coven-shared';
 
 // Import 90s-style components (or base components to be styled with 90s UI)
 import Brewing90s from './Brewing90s';

@@ -7,10 +7,18 @@ import {
   Brand,
   PackagingDesign,
   Product,
-  PackagingType,
-  LabelStyle,
   PackageType
 } from 'coven-shared';
+
+// Define these types directly to avoid import errors
+type BrandIdentity = Brand;
+type PackagingType = 'bottle' | 'jar' | 'pouch' | 'box' | 'tin' | 'vial' | 'sachet' |
+  'envelope' | 'chest' | 'basket' | 'amphora' | 'gourd' | 'scroll' |
+  'teacup' | 'flask' | 'pendant' | 'amulet' | 'locket' | 'case';
+type LabelStyle = 
+  'handwritten' | 'printed' | 'etched' | 'embossed' | 'stamped' |
+  'inlaid' | 'burned' | 'painted' | 'calligraphy' | 'illustrated' |
+  'wax-sealed' | 'engraved' | 'ribboned' | 'hidden' | 'glowing';
 
 // Import or mock packaging utility functions
 // Since these might be missing, we'll create compatibility functions
@@ -155,7 +163,7 @@ interface PackagingDesignerProps {
     materials: Material[];
     designStyles: DesignStyle[];
     specialEffects: SpecialEffect[];
-    brands: Brand[];
+    brands: BrandIdentity[];
   };
   onDesignCreate: (design: PackagingDesign) => Promise<void>;
   onApplyToProduct: (design: PackagingDesign, product: Product) => Promise<void>;

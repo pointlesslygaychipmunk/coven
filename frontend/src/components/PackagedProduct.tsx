@@ -3,9 +3,8 @@ import './PackagedProduct.css';
 import { 
   PackagingDesign,
   Product,
-  PackagingEffect,
   PackageType
-} from '../../../shared/src/types';
+} from 'coven-shared';
 
 interface PackagedProductProps {
   product: Product;

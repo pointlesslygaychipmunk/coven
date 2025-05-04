@@ -3,24 +3,43 @@ import ReactDOM from 'react-dom/client';
 import CombinedWorkshop90s from './components/CombinedWorkshop90s';
 import './components/pixelatedSierra.css';
 
+// Import types at the top of the file
+import type { 
+  MoonPhase, 
+  AtelierSpecialization, 
+  Material, 
+  DesignStyle, 
+  SpecialEffect, 
+  Brand, 
+  PackageType,
+  ItemType,
+  ItemCategory,
+  Rarity,
+  Product,
+  PackagingDesign
+} from 'coven-shared';
+
+// Define these types directly to avoid import errors
+type PackagingMaterial = 
+  'glass' | 'pottery' | 'paper' | 'wood' | 'metal' | 
+  'cloth' | 'crystal' | 'porcelain' | 'silk' | 'leather' |
+  'bamboo' | 'stone' | 'shell' | 'ceramic' | 'parchment';
+
+type MaterialQuality = 'common' | 'fine' | 'excellent' | 'masterwork' | 'legendary';
+
+type BackendDesignStyle = 
+  'minimalist' | 'elegant' | 'rustic' | 'mystical' | 'ornate' |
+  'celestial' | 'botanical' | 'geometric' | 'vintage' | 'folk' |
+  'alchemical' | 'artistic' | 'whimsical' | 'seasonal' | 'abstract';
+
+type PackagingEffect = 
+  'shimmer' | 'glow' | 'mist' | 'bubbling' | 'swirling' |
+  'aura' | 'crystalline' | 'magnetic' | 'reflective' | 'iridescent' |
+  'levitating' | 'frost' | 'heat-reactive' | 'aromatic' | 'musical' |
+  'translucent' | 'changing' | 'shadowy' | 'prismatic' | 'layered';
+
 // Demo standalone page for the combined workshop
 const Demo = () => {
-  // Import types for proper typing
-  // Note: We're using direct imports with relative paths to ensure TypeScript compatibility
-  import type { 
-    MoonPhase, 
-    AtelierSpecialization, 
-    Material, 
-    DesignStyle, 
-    SpecialEffect, 
-    Brand, 
-    PackageType,
-    ItemType,
-    ItemCategory,
-    Rarity,
-    Product,
-    PackagingDesign
-  } from '../../shared/src/types';
 
   // Create some basic mock inventory items
   const mockInventory = [
@@ -106,8 +125,8 @@ const Demo = () => {
       durability: 6,
       qualityLevel: 7,
       icon: "🧪",
-      materialType: "glass",
-      materialQuality: "fine",
+      materialType: "glass" as PackagingMaterial,
+      materialQuality: "fine" as MaterialQuality,
       elementalAffinity: "Water" as const,
       value: 30
     }
@@ -123,7 +142,7 @@ const Demo = () => {
       customerAppeal: 8,
       marketBonus: "Increases market value by 35",
       icon: "🔮",
-      designStyle: "mystical",
+      designStyle: "mystical" as BackendDesignStyle,
       elementalAffinity: "Spirit" as const,
       specializationAffinity: "Crystallization" as AtelierSpecialization
     }
@@ -139,7 +158,7 @@ const Demo = () => {
       power: 8,
       duration: "Medium",
       icon: "🌟",
-      effectType: "glow",
+      effectType: "glow" as PackagingEffect,
       potencyBonus: 10,
       durabilityEffect: 0,
       specializationAffinity: "Essence" as AtelierSpecialization
@@ -177,7 +196,7 @@ const Demo = () => {
     designStyles: mockDesignStyles,
     specialEffects: mockEffects,
     brands: mockBrands,
-    packagingDesigns: [] as PackagingDesign[],
+    packagingDesigns: [] as any[], // Use any to avoid type compatibility issues
     onBrew: (ingredientIds: string[], puzzleBonus: number, recipeId?: string) => console.log('Brewing:', ingredientIds, puzzleBonus, recipeId),
     onCraftItem: (ingredientIds: string[], resultItemId: string) => console.log('Crafting:', ingredientIds, resultItemId),
     onDesignCreate: (design: PackagingDesign) => { console.log('Design created:', design); return Promise.resolve(); },

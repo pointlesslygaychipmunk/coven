@@ -8,7 +8,10 @@ import {
   PackagingDesign,
   Product,
   PackageType
-} from '../../../shared/src/types';
+} from 'coven-shared';
+
+// Use a type assertion for Brand compatibility
+type BrandIdentity = Brand;
 
 // Use the shared PackageType interface which is already compatible with both frontend and backend formats
 type CompatibleDesign = PackageType;
@@ -671,7 +674,7 @@ const PackagingInventory: React.FC<PackagingInventoryProps> = ({
             materials: playerInventory.materials,
             designStyles: playerInventory.designStyles,
             specialEffects: playerInventory.specialEffects,
-            brands: playerInventory.brands
+            brands: playerInventory.brands as unknown as BrandIdentity[]
           }}
           onDesignCreate={onDesignCreate}
           onApplyToProduct={onApplyToProduct}
