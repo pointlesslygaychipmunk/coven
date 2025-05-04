@@ -379,7 +379,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
                 durability: 8,
                 qualityLevel: 7,
                 quantity: 2,
-                materialQuality: "standard" as const,
+                materialQuality: "common" as const, // Using 'common' which is a valid MaterialQuality
                 value: 15
               }
             ]}
