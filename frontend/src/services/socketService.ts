@@ -109,7 +109,10 @@ class SocketService {
       
       // For development environment (localhost), try these URLs in order
       if (host === 'localhost' || host === '127.0.0.1') {
-        // Try specific ports first
+        // HARDCODED DEVELOPMENT SERVER URL - most reliable option
+        this.alternativeUrls.push('http://localhost:8080');
+        
+        // Then fall back to standard options
         this.alternativeUrls.push(useSecure 
           ? `https://${host}:8443` // Secure dev connection with specific port
           : `http://${host}:8080`  // Non-secure dev connection with specific port
@@ -123,7 +126,6 @@ class SocketService {
         
         // Add specific port alternatives
         this.alternativeUrls.push(`http://${host}:3000`); // Common Vite dev server port
-        this.alternativeUrls.push(`http://${host}:5000`); // Another common port
         
         // Finally try the opposite security protocol (only if not HTTPS)
         if (!useSecure) {
@@ -187,12 +189,25 @@ class SocketService {
     
     // Initialize socket connection
     try {
-      console.log(`[Socket] Creating connection to ${url}`);
+      // DEVELOPMENT MODE DETECTION: check if we're running on the dev server
+      const isDevelopment = window.location.port === '3000';
+      const targetPort = isDevelopment ? '8080' : undefined;
+      
+      console.log(`[Socket] Creating connection to ${url} (Development mode: ${isDevelopment})`);
+      
+      // Check if we need to force port 8080 for development
+      let connectionUrl = url;
+      if (isDevelopment && !url.includes(':8080')) {
+        const urlObj = new URL(url);
+        urlObj.port = '8080';
+        connectionUrl = urlObj.toString();
+        console.log(`[Socket] Development mode: Redirecting socket connection to ${connectionUrl}`);
+      }
       
       // Determine if we're using /socket.io path explicitly in the URL
-      const hasExplicitPath = url.includes('/socket.io');
+      const hasExplicitPath = connectionUrl.includes('/socket.io');
       
-      this._socket = io(url, {
+      this._socket = io(connectionUrl, {
         reconnection: false, // We'll handle reconnection manually
         autoConnect: true, // Connect immediately
         transports: ['polling', 'websocket'], // Start with polling for more reliable initial connection
