@@ -2,7 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import CombinedWorkshop90s from './components/CombinedWorkshop90s';
 import './components/pixelatedSierra.css';
-import { ItemType, ItemCategory, MoonPhase, AtelierSpecialization } from 'coven-shared';
+import { 
+  ItemType, 
+  ItemCategory, 
+  MoonPhase, 
+  AtelierSpecialization, 
+  ElementType, 
+  Rarity,
+  PackagingDesign,
+  Product
+} from 'coven-shared';
 
 // Demo standalone page for the combined workshop
 const Demo = () => {
@@ -24,8 +33,8 @@ const Demo = () => {
     playerCraftSkill: 7,
     playerArtistrySkill: 8,
     products: [
-      {id: "product1", name: "Healing Tonic", description: "Restores vitality and health.", type: "potion" as ItemType, category: "potion" as ItemCategory, rarity: "common", value: 50, icon: "🧪", potencyBoost: 80},
-      {id: "product2", name: "Lunar Essence", description: "Captures moonlight energy in liquid form.", type: "potion" as ItemType, category: "essence" as ItemCategory, rarity: "uncommon", value: 75, icon: "✨", potencyBoost: 85}
+      {id: "product1", name: "Healing Tonic", description: "Restores vitality and health.", type: "potion" as ItemType, category: "potion" as ItemCategory, rarity: "common" as Rarity, value: 50, icon: "🧪", potencyBoost: 80},
+      {id: "product2", name: "Lunar Essence", description: "Captures moonlight energy in liquid form.", type: "potion" as ItemType, category: "essence" as ItemCategory, rarity: "uncommon" as Rarity, value: 75, icon: "✨", potencyBoost: 85}
     ],
     packagingMaterials: [
       {id: "m1", name: "Glass", description: "Clear glass material for bottles.", materialType: "glass", icon: "🧪", durability: 7, qualityLevel: 8, quantity: 3, materialQuality: "fine", value: 25, elementalAffinity: "Water" as ElementType},
@@ -44,8 +53,8 @@ const Demo = () => {
     packagingDesigns: [],
     onBrew: (ingredientIds: string[], puzzleBonus: number, recipeId?: string) => console.log('Brewing:', ingredientIds, puzzleBonus, recipeId),
     onCraftItem: (ingredientIds: string[], resultItemId: string) => console.log('Crafting:', ingredientIds, resultItemId),
-    onDesignCreate: (design) => { console.log('Design created:', design); return Promise.resolve(); },
-    onApplyToProduct: (design, product) => { console.log('Design applied:', design, product); return Promise.resolve(); }
+    onDesignCreate: (design: PackagingDesign) => { console.log('Design created:', design); return Promise.resolve(); },
+    onApplyToProduct: (design: PackagingDesign, product: Product) => { console.log('Design applied:', design, product); return Promise.resolve(); }
   };
 
   return (
