@@ -151,15 +151,10 @@ class SocketService {
         upgrade: false,                       // Disable transport upgrade attempts
         rememberUpgrade: false,               // Don't remember transport upgrades
         timestampRequests: true,              // Add timestamps to requests to avoid caching
-        rejectUnauthorized: false,            // Accept self-signed certs through Cloudflare
-        // Add polling-specific options
-        polling: {
-          extraHeaders: {                     // Additional headers for polling transport
-            'X-Socket-Transport': 'polling',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': '*/*'
-          }
-        }
+        rejectUnauthorized: false            // Accept self-signed certs through Cloudflare
+        
+        // NOTE: The polling property was removed because it's not supported by Socket.IO TypeScript types
+        // Headers will be set via extraHeaders instead
       });
       
       console.log('[Socket] Socket connection created, waiting for connection...');
@@ -308,14 +303,10 @@ class SocketService {
               rememberUpgrade: false,          // Don't remember transport upgrades
               timestampRequests: true,         // Add timestamps to requests to avoid caching
               rejectUnauthorized: false,       // Accept self-signed certs through Cloudflare
-              withCredentials: false,          // Don't send cookies
-              // Polling-specific settings
-              polling: {
-                extraHeaders: {
-                  'X-Socket-Transport': 'polling',
-                  'Accept': '*/*'
-                }
-              }
+              withCredentials: false           // Don't send cookies
+              
+              // NOTE: The polling property was removed because it's not supported by Socket.IO TypeScript types
+              // Headers need to be set via extraHeaders instead
             });
             
             // Setup this new socket
