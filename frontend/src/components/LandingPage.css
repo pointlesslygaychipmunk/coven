@@ -154,13 +154,17 @@
 .lobby-content {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
+  max-height: 50vh; /* Increased height to avoid cutting off content */
+  padding: var(--space-md);
+  background-color: var(--color-bg-dark);
+  border-radius: var(--border-radius-sm);
 }
 
 .game-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  max-width: 100%;
 }
 
 .game-item {
@@ -188,9 +192,18 @@
 
 .game-details {
   display: flex;
-  gap: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
   font-size: var(--font-size-sm);
   color: var(--color-text-medium);
+  margin-top: var(--space-xs);
+}
+
+.game-details span {
+  background-color: var(--color-bg-darker);
+  padding: var(--space-xxs) var(--space-xs);
+  border-radius: var(--border-radius-sm);
+  white-space: nowrap;
 }
 
 .game-actions {

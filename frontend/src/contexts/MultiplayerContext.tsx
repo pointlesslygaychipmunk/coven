@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { io, Socket } from 'socket.io-client';
+import socketService, { PlayerJoinedEvent, PlayerListEvent, ChatMessageEvent, ErrorEvent } from '../services/socketService';
 import { GameState } from 'coven-shared';
 
 // Types for our MultiplayerContext
@@ -39,6 +39,7 @@ interface MultiplayerContextType {
   // Connection state
   isConnected: boolean;
   isJoined: boolean;
+  connecting: boolean;
   
   // Player info
   currentPlayer: {
@@ -61,7 +62,7 @@ interface MultiplayerContextType {
   error: string | null;
   
   // Connection Actions
-  connect: () => void;
+  connect: () => Promise<boolean>;
   disconnect: () => void;
   joinGame: (playerName: string, playerId?: string) => void;
   
@@ -90,12 +91,10 @@ const MultiplayerContext = createContext<MultiplayerContextType | undefined>(und
 
 // Provider component
 export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Socket instance
-  const [socket, setSocket] = useState<Socket | null>(null);
-  
   // Connection state
   const [isConnected, setIsConnected] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   
   // Player info
   const [currentPlayer, setCurrentPlayer] = useState<{ playerId: string; playerName: string } | null>(null);
@@ -114,139 +113,150 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Error handling
   const [error, setError] = useState<string | null>(null);
   
-  // Connect to the WebSocket server
-  const connect = () => {
-    // Check if we're already connected
-    if (socket) return;
-    
-    // Get the server URL (same as the API URL)
-    const serverUrl = window.location.origin;
-    
-    // Create socket connection
-    const newSocket = io(serverUrl);
-    
-    // Set up event handlers
-    newSocket.on('connect', () => {
-      console.log('Connected to multiplayer server');
-      setIsConnected(true);
-      setError(null);
+  // Initialize socket event listeners
+  useEffect(() => {
+    // Set up connection status listener
+    const connectionStatusUnsubscribe = socketService.onConnectionStatus((status) => {
+      console.log(`[MultiplayerContext] Connection status changed: ${status}`);
+      setIsConnected(status);
+      setConnecting(false);
+      if (!status) {
+        setIsJoined(false);
+      }
     });
-    
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from multiplayer server');
-      setIsConnected(false);
-      setIsJoined(false);
+
+    // Set up game state listener
+    const gameStateUnsubscribe = socketService.onGameState((state) => {
+      console.log('[MultiplayerContext] Game state update received');
+      setGameState(state);
     });
-    
-    newSocket.on('error', (data: { message: string }) => {
-      console.error('Socket error:', data.message);
-      setError(data.message);
-    });
-    
-    newSocket.on('player:joined', (data: { success: boolean; playerId: string; playerName: string; message: string }) => {
-      if (data.success) {
+
+    // Set up player joined listener
+    const playerJoinedUnsubscribe = socketService.onPlayerJoined((event: PlayerJoinedEvent) => {
+      console.log(`[MultiplayerContext] Player joined: ${event.playerName}`);
+      
+      if (event.success) {
         setCurrentPlayer({
-          playerId: data.playerId,
-          playerName: data.playerName
+          playerId: event.playerId,
+          playerName: event.playerName
         });
         setIsJoined(true);
         setError(null);
         
         // Store player ID in local storage for potential reconnection
-        localStorage.setItem('coven_player_id', data.playerId);
-        localStorage.setItem('coven_player_name', data.playerName);
+        localStorage.setItem('coven_player_id', event.playerId);
+        localStorage.setItem('coven_player_name', event.playerName);
       } else {
-        setError(data.message || 'Failed to join game');
+        setError(event.message || 'Failed to join game');
       }
     });
-    
-    newSocket.on('player:list', (data: Player[]) => {
-      setPlayers(data);
+
+    // Set up player list listener
+    const playerListUnsubscribe = socketService.onPlayerList((playerList: PlayerListEvent[]) => {
+      console.log(`[MultiplayerContext] Player list updated: ${playerList.length} players`);
+      setPlayers(playerList.map(p => ({
+        playerId: p.playerId,
+        playerName: p.playerName,
+        joinedAt: p.joinedAt
+      })));
     });
-    
-    newSocket.on('player:forced-disconnect', (data: { reason: string }) => {
-      setError(data.reason);
-      newSocket.disconnect();
+
+    // Set up chat message listener
+    const chatMessageUnsubscribe = socketService.onChatMessage((message: ChatMessageEvent) => {
+      console.log(`[MultiplayerContext] Chat message received from ${message.senderName}`);
+      setMessages(prev => [...prev, {
+        senderId: message.senderId,
+        senderName: message.senderName,
+        message: message.message,
+        timestamp: message.timestamp
+      }]);
     });
-    
-    newSocket.on('game:state', (data: GameState) => {
-      setGameState(data);
+
+    // Set up error listener
+    const errorUnsubscribe = socketService.onError((error: ErrorEvent) => {
+      console.error(`[MultiplayerContext] Error: ${error.message}`);
+      setError(error.message);
     });
-    
-    newSocket.on('game:update', (data: GameState) => {
-      setGameState(data);
+
+    // Set up player disconnected listener
+    const playerDisconnectedUnsubscribe = socketService.onPlayerDisconnected((data) => {
+      console.log(`[MultiplayerContext] Player disconnected: ${data.playerName}`);
     });
-    
-    newSocket.on('chat:message', (data: ChatMessage) => {
-      setMessages(prev => [...prev, data]);
-    });
-    
-    // Mail related events
-    newSocket.on('mail:received', (data: MailMessage) => {
-      setMailbox(prev => [data, ...prev]);
-      if (!data.isRead) {
-        setUnreadMailCount(count => count + 1);
-      }
-    });
-    
-    newSocket.on('mail:updated', (data: { mailbox: MailMessage[] }) => {
-      setMailbox(data.mailbox);
-      setUnreadMailCount(data.mailbox.filter(mail => !mail.isRead).length);
-    });
-    
-    // Save the socket instance
-    setSocket(newSocket);
-    
-    // Return cleanup function
+
+    // Mail events - Placeholder for future implementation
+    // Currently the backend doesn't support mail features,
+    // but we'll keep the interface consistent for future addition
+
+    // Cleanup function to remove event listeners
     return () => {
-      newSocket.disconnect();
-      setSocket(null);
+      connectionStatusUnsubscribe();
+      gameStateUnsubscribe();
+      playerJoinedUnsubscribe();
+      playerListUnsubscribe();
+      chatMessageUnsubscribe();
+      errorUnsubscribe();
+      playerDisconnectedUnsubscribe();
     };
+  }, []);
+  
+  // Connect to the WebSocket server
+  const connect = async (): Promise<boolean> => {
+    if (isConnected) return true;
+    if (connecting) return false;
+    
+    setConnecting(true);
+    setError(null);
+    return socketService.init();
   };
   
   // Disconnect from the WebSocket server
   const disconnect = () => {
-    if (socket) {
-      socket.disconnect();
-      setSocket(null);
-      setIsConnected(false);
-      setIsJoined(false);
-    }
+    socketService.disconnect();
+    setIsConnected(false);
+    setIsJoined(false);
+    setCurrentPlayer(null);
   };
   
   // Join a game
   const joinGame = (playerName: string, playerId?: string) => {
-    if (!socket || !isConnected) {
-      setError('Not connected to server');
-      return;
+    if (!isConnected) {
+      connect().then((success) => {
+        if (success) {
+          socketService.joinGame(playerName, playerId);
+        } else {
+          setError('Failed to connect to server');
+        }
+      });
+    } else {
+      socketService.joinGame(playerName, playerId);
     }
-    
-    socket.emit('player:join', { playerName, playerId });
   };
   
   // Send a chat message
   const sendMessage = (message: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('chat:message', { message });
+    socketService.sendChatMessage(message);
   };
   
-  // Send a mail message
+  // Send a mail message - Placeholder for future implementation
   const sendMail = (recipientId: string, subject: string, content: string, attachments?: MailAttachment[]) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('mail:send', { recipientId, subject, content, attachments });
+    setError('Mail system not yet implemented in the backend');
+    // For future implementation:
+    // socket.emit('mail:send', { recipientId, subject, content, attachments });
   };
   
-  // Mark a mail as read
+  // Mark a mail as read - Placeholder for future implementation
   const readMail = (mailId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
@@ -262,13 +272,14 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Update unread count
     setUnreadMailCount(prev => Math.max(0, prev - 1));
     
-    // Send to server
-    socket.emit('mail:read', { mailId });
+    setError('Mail system not yet implemented in the backend');
+    // For future implementation:
+    // socket.emit('mail:read', { mailId });
   };
   
-  // Delete a mail
+  // Delete a mail - Placeholder for future implementation
   const deleteMail = (mailId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
@@ -282,90 +293,91 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Update locally for immediate UI feedback
     setMailbox(prev => prev.filter(mail => mail.id !== mailId));
     
-    // Send to server
-    socket.emit('mail:delete', { mailId });
+    setError('Mail system not yet implemented in the backend');
+    // For future implementation:
+    // socket.emit('mail:delete', { mailId });
   };
   
   // Game actions (proxied through WebSocket)
   const plantSeed = (slotId: number, seedItemId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:plant', { slotId, seedItemId });
+    socketService.plantSeed(slotId, seedItemId);
   };
   
   const waterPlants = (puzzleBonus?: number) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:water', { puzzleBonus });
+    socketService.waterPlants(puzzleBonus);
   };
   
   const harvestPlant = (slotId: number) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:harvest', { slotId });
+    socketService.harvestPlant(slotId);
   };
   
   const brewPotion = (ingredientInvItemIds: string[], puzzleBonus?: number) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:brew', { ingredientInvItemIds, puzzleBonus });
+    socketService.brewPotion(ingredientInvItemIds, puzzleBonus);
   };
   
   const buyItem = (itemId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:buy', { itemId });
+    socketService.buyItem(itemId);
   };
   
   const sellItem = (itemId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:sell', { itemId });
+    socketService.sellItem(itemId);
   };
   
   const fulfillRequest = (requestId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:fulfill', { requestId });
+    socketService.fulfillRequest(requestId);
   };
   
   const claimRitualReward = (ritualId: string) => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:claim-ritual', { ritualId });
+    socketService.claimRitualReward(ritualId);
   };
   
   const endTurn = () => {
-    if (!socket || !isConnected || !isJoined) {
+    if (!isConnected || !isJoined) {
       setError('Not connected to server or not joined to game');
       return;
     }
     
-    socket.emit('game:end-turn');
+    socketService.endTurn();
   };
   
   // Try to auto-connect on first render
@@ -380,7 +392,7 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (savedPlayerId && savedPlayerName) {
       // We'll use a timeout to ensure the socket is connected first
       const reconnectTimeout = setTimeout(() => {
-        if (socket && isConnected && !isJoined) {
+        if (isConnected && !isJoined) {
           joinGame(savedPlayerName, savedPlayerId);
         }
       }, 1000);
@@ -388,16 +400,14 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       return () => clearTimeout(reconnectTimeout);
     }
     
-    // If there are no saved credentials, still need to return a cleanup function
-    return () => {}; // Empty cleanup function
-    
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isConnected]);
   
   // Context value
   const value: MultiplayerContextType = {
     isConnected,
     isJoined,
+    connecting,
     currentPlayer,
     players,
     gameState,

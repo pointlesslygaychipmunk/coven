@@ -9,6 +9,7 @@ import LandingPage from './LandingPage';
 import MatchSystem from './MatchSystem';
 import SkipLinks from './SkipLinks';
 import { MoonPhase } from 'coven-shared';
+import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 // Mock game data for development - in a real app this would come from your backend
 const mockGameData = {
@@ -70,6 +71,19 @@ const App90s: React.FC = () => {
     if (savedUsername) {
       setIsAuthenticated(true);
     }
+    
+    // Add event listener for authentication changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'covenUsername') {
+        setIsAuthenticated(!!e.newValue);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   // Loading screen
@@ -92,63 +106,65 @@ const App90s: React.FC = () => {
   // Main application with router for navigation
   return (
     <Router>
-      <SkipLinks 
-        links={[
-          { id: 'main-content', label: 'Skip to main content' },
-          { id: 'main-navigation', label: 'Skip to navigation' }
-        ]} 
-      />
-      <div className="pixelated">
-        <Routes>
-          {/* Landing page route */}
-          <Route path="/" element={<LandingPage />} />
-          
-          {/* Match system routes */}
-          <Route path="/game/:gameId" element={<MatchSystem />} />
-          <Route path="/game/setup" element={<MatchSystem />} />
-          
-          {/* Main game route */}
-          <Route 
-            path="/game/active" 
-            element={
-              isAuthenticated ? (
-                <MainGameFrame
-                  playerName={mockGameData.playerName}
-                  gold={mockGameData.gold}
-                  day={mockGameData.day}
-                  lunarPhase={mockGameData.lunarPhase}
-                  reputation={mockGameData.reputation}
-                  playerLevel={mockGameData.playerLevel}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } 
-          />
-          
-          {/* Single player game route */}
-          <Route 
-            path="/game/single-player" 
-            element={
-              isAuthenticated ? (
-                <MainGameFrame
-                  playerName={localStorage.getItem('covenUsername') || mockGameData.playerName}
-                  gold={mockGameData.gold}
-                  day={mockGameData.day}
-                  lunarPhase={mockGameData.lunarPhase}
-                  reputation={mockGameData.reputation}
-                  playerLevel={mockGameData.playerLevel}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } 
-          />
-          
-          {/* Fallback route - redirect to landing page */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      <MultiplayerProvider>
+        <SkipLinks 
+          links={[
+            { id: 'main-content', label: 'Skip to main content' },
+            { id: 'main-navigation', label: 'Skip to navigation' }
+          ]} 
+        />
+        <div className="pixelated">
+          <Routes>
+            {/* Landing page route */}
+            <Route path="/" element={<LandingPage />} />
+            
+            {/* Match system routes */}
+            <Route path="/game/:gameId" element={<MatchSystem />} />
+            <Route path="/game/setup" element={<MatchSystem />} />
+            
+            {/* Main game route */}
+            <Route 
+              path="/game/active" 
+              element={
+                localStorage.getItem('covenUsername') ? (
+                  <MainGameFrame
+                    playerName={localStorage.getItem('covenUsername') || mockGameData.playerName}
+                    gold={mockGameData.gold}
+                    day={mockGameData.day}
+                    lunarPhase={mockGameData.lunarPhase}
+                    reputation={mockGameData.reputation}
+                    playerLevel={mockGameData.playerLevel}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } 
+            />
+            
+            {/* Single player game route */}
+            <Route 
+              path="/game/single-player" 
+              element={
+                localStorage.getItem('covenUsername') ? (
+                  <MainGameFrame
+                    playerName={localStorage.getItem('covenUsername') || mockGameData.playerName}
+                    gold={mockGameData.gold}
+                    day={mockGameData.day}
+                    lunarPhase={mockGameData.lunarPhase}
+                    reputation={mockGameData.reputation}
+                    playerLevel={mockGameData.playerLevel}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } 
+            />
+            
+            {/* Fallback route - redirect to landing page */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </MultiplayerProvider>
     </Router>
   );
 };

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
+import { useMultiplayer } from '../contexts/MultiplayerContext';
+import { v4 as uuidv4 } from 'uuid';
 
-// Define types
+// Define Game type (since we removed the import from gameService)
 interface Game {
   id: string;
   name: string;
@@ -13,6 +15,7 @@ interface Game {
   createdAt: Date;
 }
 
+// Define Player type (since we removed the import from gameService)
 interface Player {
   id: string;
   name: string;
@@ -29,15 +32,59 @@ const LandingPage: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [gameName, setGameName] = useState('');
   const [maxPlayers, setMaxPlayers] = useState('4');
+  
+  // Get multiplayer context
+  const { 
+    isConnected, 
+    isJoined,
+    connecting,
+    currentPlayer,
+    players: onlinePlayers,
+    connect,
+    joinGame: joinMultiplayerGame,
+    error
+  } = useMultiplayer();
 
-  // Mock API call to fetch games
+  // Convert online players from context to our Player format
+  useEffect(() => {
+    if (onlinePlayers.length > 0) {
+      const convertedPlayers: Player[] = onlinePlayers.map(p => ({
+        id: p.playerId,
+        name: p.playerName, 
+        status: 'online'
+      }));
+      
+      // Add the current player if not already in the list
+      if (currentPlayer && !convertedPlayers.some(p => p.id === currentPlayer.playerId)) {
+        convertedPlayers.push({
+          id: currentPlayer.playerId,
+          name: currentPlayer.playerName,
+          status: 'online'
+        });
+      }
+      
+      setPlayers(convertedPlayers);
+    }
+  }, [onlinePlayers, currentPlayer]);
+
+  // Fetch games using real WebSocket connection
   const fetchGames = useCallback(async () => {
     setLoading(true);
+    
     try {
-      // Simulated API call
+      // For now, use simulated data until backend provides game listing
+      // In real implementation, the game list would come through the WebSocket
+      
+      // Try to connect if not connected
+      if (!isConnected && !connecting) {
+        await connect();
+      }
+      
+      // Simulated API call - to be replaced with actual data from WebSocket
+      // In a real implementation, this data would come from the backend via WebSocket events
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Mock data - would be replaced with actual API call
+      // Mock data - would be replaced with actual data from WebSocket
       const mockGames: Game[] = [
         {
           id: '1',
@@ -74,34 +121,11 @@ const LandingPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  // Mock API call to fetch online players
-  const fetchPlayers = useCallback(async () => {
-    try {
-      // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
-      // Mock data - would be replaced with actual API call
-      const mockPlayers: Player[] = [
-        { id: '1', name: 'MysticAlder', status: 'online' },
-        { id: '2', name: 'RavenCraft', status: 'online' },
-        { id: '3', name: 'WillowWitch', status: 'online' },
-        { id: '4', name: 'LunarBotanist', status: 'away' },
-        { id: '5', name: 'SageBrewMaster', status: 'online' },
-        { id: '6', name: 'MidnightHerbalist', status: 'offline' },
-      ];
-      
-      setPlayers(mockPlayers);
-    } catch (error) {
-      console.error('Error fetching players:', error);
-    }
-  }, []);
+  }, [isConnected, connecting, connect]);
 
   // Load data on component mount
   useEffect(() => {
     fetchGames();
-    fetchPlayers();
     
     // Check if user has saved username
     const savedUsername = localStorage.getItem('covenUsername');
@@ -112,13 +136,11 @@ const LandingPage: React.FC = () => {
     
     // Set up polling for game list updates
     const gamesInterval = setInterval(fetchGames, 15000);
-    const playersInterval = setInterval(fetchPlayers, 30000);
     
     return () => {
       clearInterval(gamesInterval);
-      clearInterval(playersInterval);
     };
-  }, [fetchGames, fetchPlayers]);
+  }, [fetchGames]);
 
   // Handle login
   const handleLogin = (e: React.FormEvent) => {
@@ -126,6 +148,13 @@ const LandingPage: React.FC = () => {
     if (username.trim()) {
       localStorage.setItem('covenUsername', username);
       setAuthenticated(true);
+      
+      // Connect to the multiplayer server
+      connect().then(success => {
+        if (success) {
+          joinMultiplayerGame(username);
+        }
+      });
     }
   };
 
@@ -138,7 +167,16 @@ const LandingPage: React.FC = () => {
     }
     
     if (gameName.trim()) {
-      // In a real app, this would create the game via API
+      // First, ensure we're connected to the multiplayer server
+      if (!isConnected) {
+        connect().then(success => {
+          if (success) {
+            joinMultiplayerGame(username);
+          }
+        });
+      }
+      
+      // In a real app, this would create the game via WebSocket
       console.log('Creating game:', {
         name: gameName,
         host: username,
@@ -166,7 +204,16 @@ const LandingPage: React.FC = () => {
     const game = games.find(g => g.id === gameId);
     if (!game) return;
     
-    // In a real app, this would join the game via API
+    // First, ensure we're connected to the multiplayer server
+    if (!isConnected) {
+      connect().then(success => {
+        if (success) {
+          joinMultiplayerGame(username);
+        }
+      });
+    }
+    
+    // In a real app, this would join the game via WebSocket
     console.log('Joining game:', gameId);
     
     // Navigate to the game page
@@ -185,6 +232,12 @@ const LandingPage: React.FC = () => {
       return;
     }
     
+    // First, we need to ensure localStorage has the username
+    if (username) {
+      localStorage.setItem('covenUsername', username);
+    }
+    
+    // Navigate to single player mode
     navigate('/game/single-player');
   };
 

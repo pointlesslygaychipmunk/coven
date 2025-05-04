@@ -581,6 +581,10 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
 
   const handleBackToLobby = () => {
     if (window.confirm("Are you sure you want to leave the game and return to the lobby?")) {
+      // Ensure any game state is saved or cleared as needed
+      // For a real app, you would want to disconnect from multiplayer, save state, etc.
+      
+      // Navigate back to the lobby
       navigate('/');
     }
   };

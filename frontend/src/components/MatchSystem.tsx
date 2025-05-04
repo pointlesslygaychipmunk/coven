@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useMultiplayer } from '../contexts/MultiplayerContext';
 import './MatchSystem.css';
 
 // Types
@@ -53,6 +54,20 @@ const MatchSystem: React.FC = () => {
   
   const { isHost = false, gameName = '', maxPlayers = 4 } = locationState;
   
+  // Get multiplayer context
+  const { 
+    isConnected, 
+    isJoined,
+    currentPlayer,
+    players: onlinePlayers,
+    messages: chatMessages,
+    gameState: multiplayerGameState,
+    connect,
+    joinGame: joinMultiplayerGame,
+    sendMessage: sendChatMessage,
+    error: connectionError
+  } = useMultiplayer();
+  
   // State
   const [game, setGame] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,21 +82,84 @@ const MatchSystem: React.FC = () => {
     pvpEnabled: false
   });
 
-  // Get username from local storage
+  // Get username from local storage and connect to server
   useEffect(() => {
     const savedUsername = localStorage.getItem('covenUsername');
     if (!savedUsername) {
       navigate('/');
       return;
     }
+    
     setUsername(savedUsername);
-  }, [navigate]);
+    
+    // Connect to the server if not already connected
+    if (!isConnected) {
+      connect().then(success => {
+        if (success && !isJoined) {
+          joinMultiplayerGame(savedUsername);
+        }
+      });
+    }
+  }, [navigate, isConnected, isJoined, connect, joinMultiplayerGame]);
+
+  // Add connection error to our error state
+  useEffect(() => {
+    if (connectionError) {
+      setError(connectionError);
+    }
+  }, [connectionError]);
+
+  // Update chat messages when they come in through WebSocket
+  useEffect(() => {
+    if (chatMessages.length > 0 && game) {
+      // Convert WebSocket chat message format to our game's format
+      const formattedMessages: ChatMessage[] = chatMessages.map(msg => ({
+        id: `ws-${msg.timestamp}`,
+        senderId: msg.senderId,
+        senderName: msg.senderName,
+        content: msg.message,
+        timestamp: new Date(msg.timestamp),
+        type: 'chat'
+      }));
+      
+      // Update game with new messages
+      setGame(prevGame => {
+        if (!prevGame) return null;
+        
+        // Filter out messages we already have by comparing content and sender
+        const existingMessageSignatures = new Set(prevGame.messages.map(m => 
+          `${m.senderId}-${m.content.substring(0, 20)}-${m.timestamp.getTime()}`
+        ));
+        
+        const newMessages = formattedMessages.filter(m => 
+          !existingMessageSignatures.has(`${m.senderId}-${m.content.substring(0, 20)}-${m.timestamp.getTime()}`)
+        );
+        
+        if (newMessages.length === 0) return prevGame;
+        
+        return {
+          ...prevGame,
+          messages: [...prevGame.messages, ...newMessages]
+        };
+      });
+    }
+  }, [chatMessages, game]);
 
   // Initialize or join game
   const initializeGame = useCallback(async () => {
     setLoading(true);
     try {
-      // In a real app, this would be an API call
+      // In a real app, this would be an API call through WebSocket
+      // For now, use the mock version but initialize a WebSocket connection in parallel
+      
+      // Ensure we're connected
+      if (!isConnected) {
+        await connect();
+        if (username) {
+          joinMultiplayerGame(username);
+        }
+      }
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (isHost && !gameId) {
@@ -122,13 +200,12 @@ const MatchSystem: React.FC = () => {
         };
         
         setGame(newGame);
-        // In a real app, save this game to the server
         
         // Update the URL without reloading the page
         window.history.pushState({}, '', `/game/${newGameId}`);
       } else if (gameId) {
         // Join an existing game
-        // In a real app, fetch the game data from the server
+        // In a real app, fetch the game data from the server via WebSocket
         
         // Mock data for an existing game
         const existingGame: GameState = {
@@ -194,7 +271,7 @@ const MatchSystem: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [gameId, isHost, username, gameName, maxPlayers, navigate]);
+  }, [gameId, isHost, username, gameName, maxPlayers, isConnected, connect, joinMultiplayerGame]);
 
   useEffect(() => {
     if (username) {
@@ -202,53 +279,90 @@ const MatchSystem: React.FC = () => {
     }
   }, [username, initializeGame]);
 
-  // Simulate real-time updates
+  // Update player list from connected players
   useEffect(() => {
-    if (!game) return;
-    
-    // Simulate other players joining
-    const playerJoinTimeout = setTimeout(() => {
-      if (game.players.length < game.maxPlayers && Math.random() > 0.5) {
-        const playerNames = ['MysticBrewer', 'SageCraft', 'LunarBotanist', 'WillowWitch'];
-        const randomName = playerNames[Math.floor(Math.random() * playerNames.length)];
+    if (game && onlinePlayers.length > 0) {
+      setGame(prevGame => {
+        if (!prevGame) return null;
         
-        setGame(prevGame => {
-          if (!prevGame) return null;
+        // Convert WebSocket player format to our game's format
+        const connectedPlayers = onlinePlayers.map(p => {
+          const existingPlayer = prevGame.players.find(player => player.name === p.playerName);
+          return {
+            id: p.playerId,
+            name: p.playerName,
+            status: 'connected' as const,
+            isHost: p.playerName === prevGame.host,
+            isReady: existingPlayer?.isReady || false,
+            joinedAt: new Date(p.joinedAt)
+          };
+        });
+        
+        // Keep existing players that aren't in the WebSocket list
+        const existingPlayers = prevGame.players.filter(player => 
+          !onlinePlayers.some(p => p.playerName === player.name)
+        );
+        
+        const updatedPlayers = [...connectedPlayers, ...existingPlayers];
+        
+        // If player counts changed, add system message
+        if (connectedPlayers.length !== prevGame.players.length) {
+          const newPlayerNames = connectedPlayers
+            .filter(p => !prevGame.players.some(player => player.name === p.name))
+            .map(p => p.name);
           
-          const updatedGame = { ...prevGame };
+          const disconnectedPlayerNames = prevGame.players
+            .filter(player => !connectedPlayers.some(p => p.name === player.name))
+            .map(player => player.name);
           
-          // Add new player
-          updatedGame.players = [
-            ...updatedGame.players,
-            {
-              id: `ai-${Math.random().toString(36).substring(2, 9)}`,
-              name: randomName,
-              status: 'connected',
-              isHost: false,
-              isReady: false,
-              joinedAt: new Date()
-            }
-          ];
+          const updatedMessages = [...prevGame.messages];
           
-          // Add system message
-          updatedGame.messages = [
-            ...updatedGame.messages,
-            {
+          // Add join messages
+          newPlayerNames.forEach(name => {
+            updatedMessages.push({
               id: `msg-${Math.random().toString(36).substring(2, 9)}`,
               senderId: 'system',
               senderName: 'System',
-              content: `${randomName} joined the game.`,
+              content: `${name} joined the game.`,
               timestamp: new Date(),
               type: 'system'
-            }
-          ];
+            });
+          });
           
-          return updatedGame;
-        });
-      }
-    }, 15000); // Simulate player joining after 15 seconds
+          // Add disconnect messages
+          disconnectedPlayerNames.forEach(name => {
+            updatedMessages.push({
+              id: `msg-${Math.random().toString(36).substring(2, 9)}`,
+              senderId: 'system',
+              senderName: 'System',
+              content: `${name} disconnected.`,
+              timestamp: new Date(),
+              type: 'system'
+            });
+          });
+          
+          return {
+            ...prevGame,
+            players: updatedPlayers,
+            messages: updatedMessages
+          };
+        }
+        
+        return {
+          ...prevGame,
+          players: updatedPlayers
+        };
+      });
+    }
+  }, [onlinePlayers, game]);
+
+  // Simulate real-time updates (for demo purposes)
+  // In a real app, these would come from WebSocket events
+  useEffect(() => {
+    if (!game) return;
     
-    // Simulate players setting ready status
+    // Simulate AI players setting ready status only
+    // Player joining is now handled by the WebSocket
     const playerReadyTimeout = setTimeout(() => {
       setGame(prevGame => {
         if (!prevGame) return null;
@@ -268,7 +382,6 @@ const MatchSystem: React.FC = () => {
     }, 5000);
     
     return () => {
-      clearTimeout(playerJoinTimeout);
       clearTimeout(playerReadyTimeout);
     };
   }, [game, username]);
@@ -278,6 +391,12 @@ const MatchSystem: React.FC = () => {
     e.preventDefault();
     if (!chatMessage.trim() || !game) return;
     
+    // Send via WebSocket if connected
+    if (isConnected && isJoined) {
+      sendChatMessage(chatMessage);
+    }
+    
+    // Also update local state for immediate feedback
     const newMessage: ChatMessage = {
       id: `msg-${Math.random().toString(36).substring(2, 9)}`,
       senderId: username,
@@ -330,6 +449,10 @@ const MatchSystem: React.FC = () => {
       
       return updatedGame;
     });
+    
+    // In a real app, send ready status via WebSocket
+    // For now, just log it
+    console.log(`[WebSocket] Sending ready status: ${!isReady}`);
   };
 
   // Handle game start
@@ -367,7 +490,9 @@ const MatchSystem: React.FC = () => {
       return updatedGame;
     });
     
-    // In a real app, this would start the actual game
+    // In a real app, this would start the actual game via WebSocket
+    console.log('[WebSocket] Starting game:', game.id);
+    
     // For now, redirect to the main game component after a delay
     setTimeout(() => {
       navigate('/game/active', { 
@@ -400,12 +525,16 @@ const MatchSystem: React.FC = () => {
         
         return updatedGame;
       });
+      
+      // In a real app, broadcast settings change via WebSocket
+      console.log(`[WebSocket] Updating game setting: ${setting}=${value}`);
     }
   };
 
   // Leave game
   const handleLeaveGame = () => {
-    // In a real app, notify the server that the player is leaving
+    // In a real app, notify the server that the player is leaving via WebSocket
+    console.log('[WebSocket] Leaving game');
     navigate('/');
   };
 
@@ -575,7 +704,8 @@ const MatchSystem: React.FC = () => {
               <button 
                 className="match-button start-game"
                 onClick={handleStartGame}
-                disabled={!allPlayersReady || game.players.length < 2}
+                // Allow single player mode by not requiring multiple players
+                disabled={!allPlayersReady}
               >
                 Start Game
               </button>
