@@ -10,6 +10,7 @@ import MatchSystem from './MatchSystem';
 import SkipLinks from './SkipLinks';
 import { MoonPhase } from 'coven-shared';
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
+import { RulebookButton } from './Rulebook';
 
 // Mock game data for development - in a real app this would come from your backend
 const mockGameData = {
@@ -141,28 +142,18 @@ const App90s: React.FC = () => {
               } 
             />
             
-            {/* Single player game route */}
+            {/* Redirect any attempt to access single player mode back to home */}
             <Route 
               path="/game/single-player" 
-              element={
-                localStorage.getItem('covenUsername') ? (
-                  <MainGameFrame
-                    playerName={localStorage.getItem('covenUsername') || mockGameData.playerName}
-                    gold={mockGameData.gold}
-                    day={mockGameData.day}
-                    lunarPhase={mockGameData.lunarPhase}
-                    reputation={mockGameData.reputation}
-                    playerLevel={mockGameData.playerLevel}
-                  />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              } 
+              element={<Navigate to="/" replace />}
             />
             
             {/* Fallback route - redirect to landing page */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          
+          {/* Rulebook help button - available on all pages */}
+          <RulebookButton />
         </div>
       </MultiplayerProvider>
     </Router>

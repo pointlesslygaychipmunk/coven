@@ -69,12 +69,12 @@ class SocketService {
     this.connecting = true;
     
     // Determine the backend URL based on the environment
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // Always use the same domain as the frontend, but always port 8080 for backend/websocket
     const host = window.location.hostname;
-    const port = window.location.port || (protocol === 'wss:' ? '443' : '80');
-    const url = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:8080' // Local development server
-      : `${window.location.protocol}//${host}:${port}`; // Production/deployed server
+    const useSecure = window.location.protocol === 'https:';
+    const url = useSecure 
+      ? `https://${host}:8443` // Secure production connection
+      : `http://${host}:8080`; // Non-secure connection (dev or prod)
       
     console.log(`[Socket] Connecting to ${url}`);
     
@@ -82,6 +82,7 @@ class SocketService {
       reconnection: false, // We'll handle reconnection manually
       autoConnect: true, // Connect immediately
       transports: ['websocket', 'polling'], // Prefer WebSocket but fall back to polling
+      path: '/socket.io', // Ensure correct socket.io path
     });
     
     // Set up event listeners
@@ -102,9 +103,11 @@ class SocketService {
       });
       
       this.socket.on('connect_error', (error) => {
-        console.error(`[Socket] Connection error: ${error.message}`);
+        console.error(`[Socket] Connection error: ${error.message}`, error);
+        console.error(`[Socket] Failed to connect to ${this.socket?.io?.uri}`);
         this.connected = false;
         this.connecting = false;
+        this.notifyError({ message: `Failed to connect to server: ${error.message}` });
         this.notifyConnectionStatus(false);
         this.attemptReconnect();
         resolve(false);

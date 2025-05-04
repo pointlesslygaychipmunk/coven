@@ -129,3 +129,48 @@ Emitted 'error' event on Server instance at:
 
 Node.js v18.20.8
 Failed running 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+[GameEngine] Initializing...
+[Starter] Giving items for Essence to Willow.
+[Inventory] Added 2x Glimmerroot Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 2x Silverleaf Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 1x Ancient Ginseng (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Sacred Lotus (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Mortar and Pestle (Q: 70) to Willow. Current total: 1
+Created player Willow (ID: player1), Specialization: Essence.
+[TownRequests] Generated 1 new requests for Spring.
+[GameEngine] Initialized/Ensured market demand/supply.
+[QuestSystem] Unlocked: essence_mastery_1
+[GameEngine] Initialization complete.
+GameHandler initialized.
+[GameEngine] Initializing...
+[Starter] Giving items for Essence to Willow.
+[Inventory] Added 2x Glimmerroot Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 2x Silverleaf Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 1x Ancient Ginseng (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Sacred Lotus (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Mortar and Pestle (Q: 70) to Willow. Current total: 1
+Created player Willow (ID: player1), Specialization: Essence.
+[TownRequests] Generated 1 new requests for Spring.
+[GameEngine] Initialized/Ensured market demand/supply.
+[QuestSystem] Unlocked: essence_mastery_1
+[GameEngine] Initialization complete.
+GameHandler initialized.
+[Server ERROR] Frontend build directory not found: /Users/mileslefay/new coven/backend/dist/frontend/dist
+[Server] SSL certificates not found. Starting HTTP only.
+[Multiplayer] WebSocket server initialized
+ (HTTPS server not started)
+
+ Backend server listening at http://localhost:8080 ✨
+
+ Multiplayer WebSocket server running on ws://localhost:8080 🌐
+--------------------------------------------------

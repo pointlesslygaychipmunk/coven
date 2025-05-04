@@ -206,7 +206,19 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     
     setConnecting(true);
     setError(null);
-    return socketService.init();
+    
+    try {
+      console.log('[MultiplayerContext] Attempting to connect to server...');
+      const success = await socketService.init();
+      console.log(`[MultiplayerContext] Connection ${success ? 'successful' : 'failed'}`);
+      return success;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown connection error';
+      console.error('[MultiplayerContext] Connection error:', errorMessage);
+      setError(errorMessage);
+      setConnecting(false);
+      return false;
+    }
   };
   
   // Disconnect from the WebSocket server
