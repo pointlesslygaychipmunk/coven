@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import socketService, { PlayerJoinedEvent, PlayerListEvent, ChatMessageEvent, ErrorEvent } from '../services/socketService';
 import { GameState } from 'coven-shared';
+import connectionDiagnostics, { ConnectionDiagnosticsReport } from '../utils/connectionDiagnostics';
 
 // Types for our MultiplayerContext
 interface Player {
@@ -66,6 +67,10 @@ interface MultiplayerContextType {
   disconnect: () => void;
   joinGame: (playerName: string, playerId?: string) => void;
   
+  // Diagnostics - Added for connection troubleshooting
+  runConnectionDiagnostics: () => Promise<ConnectionDiagnosticsReport>;
+  getLastDiagnosticsReport: () => ConnectionDiagnosticsReport | null;
+  
   // Chat Actions
   sendMessage: (message: string) => void;
   
@@ -109,6 +114,9 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Mail
   const [mailbox, setMailbox] = useState<MailMessage[]>([]);
   const [unreadMailCount, setUnreadMailCount] = useState<number>(0);
+  
+  // Diagnostics
+  const [lastDiagnosticsReport, setLastDiagnosticsReport] = useState<ConnectionDiagnosticsReport | null>(null);
   
   // Error handling
   const [error, setError] = useState<string | null>(null);
@@ -261,7 +269,79 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     };
   }, [isConnected, addStatusMessage]);
   
-  // Connect to the WebSocket server
+  // Run connection diagnostics
+  const runConnectionDiagnostics = async (): Promise<ConnectionDiagnosticsReport> => {
+    console.log('[MultiplayerContext] Running connection diagnostics...');
+    
+    try {
+      // We'll log an event anytime we do diagnostics
+      connectionDiagnostics.logConnectionEvent('diagnostics_requested_from_context', {
+        isConnected,
+        isJoined,
+        connecting,
+        hasError: error !== null
+      });
+      
+      // Run the diagnostics
+      const report = await connectionDiagnostics.generateConnectionReport();
+      
+      // Store the report for future reference
+      setLastDiagnosticsReport(report);
+      
+      // Log a summary to the console
+      console.log('[MultiplayerContext] Diagnostics completed:', 
+        connectionDiagnostics.getConnectionIssuesSummary(report));
+      
+      // Add a status message with the result
+      const summary = connectionDiagnostics.getConnectionIssuesSummary(report);
+      if (summary !== "No connection issues detected.") {
+        addStatusMessage(`Diagnostics: ${summary}`, true);
+      }
+      
+      return report;
+    } catch (err) {
+      console.error('[MultiplayerContext] Error running diagnostics:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      
+      // Add error to diagnostics log
+      connectionDiagnostics.logConnectionEvent('diagnostics_error', { error: errorMessage });
+      
+      // Create a basic report with the error
+      const errorReport: ConnectionDiagnosticsReport = {
+        timestamp: Date.now(),
+        navigatorOnline: navigator.onLine,
+        secureContext: window.isSecureContext,
+        webSocketSupport: 'WebSocket' in window,
+        userAgent: navigator.userAgent,
+        connectionInfo: {
+          protocol: window.location.protocol,
+          hostname: window.location.hostname,
+          port: window.location.port || (window.location.protocol === 'https:' ? '443' : '80'),
+          pathname: window.location.pathname
+        },
+        networkInfo: {},
+        tests: {
+          httpRequest: {
+            success: false,
+            error: `Diagnostics error: ${errorMessage}`
+          }
+        },
+        connectionHistory: []
+      };
+      
+      // Store the error report
+      setLastDiagnosticsReport(errorReport);
+      
+      return errorReport;
+    }
+  };
+  
+  // Get the most recent diagnostics report
+  const getLastDiagnosticsReport = (): ConnectionDiagnosticsReport | null => {
+    return lastDiagnosticsReport;
+  };
+  
+  // Connect to the WebSocket server with enhanced diagnostics
   const connect = async (): Promise<boolean> => {
     if (isConnected) return true;
     if (connecting) return false;
@@ -269,21 +349,46 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     setConnecting(true);
     setError("Connecting to server...");
     
+    // Log connection attempt in the diagnostics system
+    connectionDiagnostics.logConnectionEvent('connection_attempt', {
+      timestamp: Date.now(),
+      currentOrigin: window.location.origin
+    });
+    
     try {
       console.log('[MultiplayerContext] Attempting to connect to server...');
       const success = await socketService.init();
       console.log(`[MultiplayerContext] Connection ${success ? 'successful' : 'failed'}`);
       
+      // Log the result
+      connectionDiagnostics.logConnectionEvent(
+        success ? 'connection_success' : 'connection_failure',
+        { timestamp: Date.now() }
+      );
+      
       if (success) {
         setError(null);
       } else {
         setError("Not connected to server. Please try refreshing the page or check your internet connection.");
+        
+        // If connection failed, automatically run diagnostics to help troubleshoot
+        runConnectionDiagnostics().catch(() => {
+          // Catch errors from diagnostics to prevent them from affecting the connection flow
+          console.error('[MultiplayerContext] Failed to run automatic diagnostics');
+        });
       }
       
       return success;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown connection error';
       console.error('[MultiplayerContext] Connection error:', errorMessage);
+      
+      // Log error details
+      connectionDiagnostics.logConnectionEvent('connection_error', {
+        error: errorMessage,
+        timestamp: Date.now()
+      });
+      
       setError(`Connection error: ${errorMessage}. Please check your internet connection and try again.`);
       setConnecting(false);
       return false;
@@ -593,6 +698,9 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     connect,
     disconnect,
     joinGame,
+    // Include new diagnostics functions
+    runConnectionDiagnostics,
+    getLastDiagnosticsReport,
     sendMessage,
     sendMail,
     readMail,

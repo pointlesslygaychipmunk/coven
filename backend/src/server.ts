@@ -87,32 +87,221 @@ app.use('/wp-login', (_req, res) => {
   res.status(403).send('Forbidden');
 });
 
-// Add a health check endpoint
+// Enhanced health check endpoints
+// Quick simple health endpoint (for load balancers)
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok', timestamp: Date.now() });
 });
 
-// WebSocket status endpoint
+// Detailed server health endpoint with system metrics
+app.get('/server-health', (_req, res) => {
+  try {
+    // Calculate memory usage statistics
+    const memUsage = process.memoryUsage();
+    const formatMemory = (bytes: number) => (bytes / 1024 / 1024).toFixed(2) + ' MB';
+    
+    // Calculate uptime info
+    const uptimeSeconds = process.uptime();
+    const uptimeFormatted = {
+      days: Math.floor(uptimeSeconds / 86400),
+      hours: Math.floor((uptimeSeconds % 86400) / 3600),
+      minutes: Math.floor((uptimeSeconds % 3600) / 60),
+      seconds: Math.floor(uptimeSeconds % 60)
+    };
+    
+    // Get connection counts
+    const httpConnections = multiplayerManager ? 
+      Array.from(multiplayerManager['connectedPlayers'].values()).length : 0;
+    
+    const httpsConnections = httpsMultiplayerManager ? 
+      Array.from(httpsMultiplayerManager['connectedPlayers'].values()).length : 0;
+    
+    // Create detailed health report
+    const healthReport = {
+      status: 'ok',
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: Date.now(),
+      server: {
+        uptime: uptimeFormatted,
+        uptimeSeconds: uptimeSeconds,
+        version: process.version,
+        platform: process.platform,
+        arch: process.arch,
+      },
+      memory: {
+        rss: formatMemory(memUsage.rss),
+        heapTotal: formatMemory(memUsage.heapTotal),
+        heapUsed: formatMemory(memUsage.heapUsed),
+        external: formatMemory(memUsage.external),
+        percentage: ((memUsage.heapUsed / memUsage.heapTotal) * 100).toFixed(2) + '%'
+      },
+      connections: {
+        http: httpConnections,
+        https: httpsConnections,
+        total: httpConnections + httpsConnections
+      }
+    };
+    
+    res.status(200).json(healthReport);
+  } catch (error) {
+    console.error('[Server] Error getting server health:', error);
+    res.status(500).json({ status: 'error', error: 'Error getting server health', timestamp: Date.now() });
+  }
+});
+
+// Enhanced WebSocket status endpoint with detailed connection statistics
 app.get('/websocket-status', (_req, res) => {
   try {
-    const httpStatus = {
-      connected: Boolean(multiplayerManager),
-      playerCount: multiplayerManager ? Array.from(multiplayerManager['connectedPlayers'].values()).length : 0
+    // Get HTTP socket details with player info
+    const getPlayerStatistics = (manager: any) => {
+      if (!manager) return { connected: false, playerCount: 0, players: [] };
+      
+      const players = Array.from(manager['connectedPlayers'].values());
+      const now = Date.now();
+      
+      // Collect activity statistics
+      let totalActivity = 0;
+      let minActivity = now;
+      let maxActivity = 0;
+      
+      players.forEach(player => {
+        const lastActivity = player.lastActivity || 0;
+        totalActivity += (now - lastActivity);
+        minActivity = Math.min(minActivity, lastActivity);
+        maxActivity = Math.max(maxActivity, lastActivity);
+      });
+      
+      // Calculate player activity stats
+      const avgActivityTime = players.length ? Math.round(totalActivity / players.length) : 0;
+      
+      return {
+        connected: Boolean(manager),
+        playerCount: players.length,
+        // Anonymize player data for privacy but retain useful info
+        players: players.map(p => ({
+          id: p.playerId.substring(0, 8) + '...', // Only show first 8 chars of ID
+          connectionTime: now - (p.joinedAt || now),
+          lastActiveSeconds: Math.round((now - (p.lastActivity || now)) / 1000),
+          pingCount: p.pingCount || 0
+        })),
+        activity: {
+          avgIdleTimeMs: avgActivityTime,
+          oldestActivityMs: now - minActivity,
+          mostRecentActivityMs: now - maxActivity
+        }
+      };
     };
     
-    const httpsStatus = {
-      connected: Boolean(httpsMultiplayerManager),
-      playerCount: httpsMultiplayerManager ? Array.from(httpsMultiplayerManager['connectedPlayers'].values()).length : 0
+    // Get stats for HTTP and HTTPS servers
+    const httpStatus = getPlayerStatistics(multiplayerManager);
+    const httpsStatus = getPlayerStatistics(httpsMultiplayerManager);
+    
+    // Get Socket.IO server statistics if available
+    const getSocketStats = (manager: any) => {
+      if (!manager || !manager.io) return null;
+      
+      try {
+        // Get Socket.IO server statistics
+        const io = manager.io;
+        return {
+          clientsCount: io.engine ? io.engine.clientsCount : 'N/A',
+          rooms: Array.from(io.sockets.adapter.rooms.keys()),
+          middlewareCount: io.engine?.middlewares?.length || 0,
+        };
+      } catch (e) {
+        console.error('[Server] Error getting Socket.IO stats:', e);
+        return null;
+      }
     };
     
+    // Prepare detailed response
     res.status(200).json({ 
-      http: httpStatus,
-      https: httpsStatus,
-      timestamp: Date.now()
+      status: 'ok',
+      timestamp: Date.now(),
+      http: {
+        ...httpStatus,
+        socketStats: getSocketStats(multiplayerManager)
+      },
+      https: {
+        ...httpsStatus,
+        socketStats: getSocketStats(httpsMultiplayerManager)
+      },
+      totalPlayers: httpStatus.playerCount + httpsStatus.playerCount,
+      serverUptime: process.uptime()
     });
   } catch (error) {
     console.error('[Server] Error getting WebSocket status:', error);
-    res.status(500).json({ error: 'Error getting WebSocket status' });
+    res.status(500).json({ 
+      status: 'error', 
+      error: 'Error getting WebSocket status',
+      timestamp: Date.now() 
+    });
+  }
+});
+
+// New detailed diagnostic endpoint that exposes enhanced multiplayer statistics
+app.get('/multiplayer-diagnostics', (_req, res) => {
+  try {
+    // Get detailed statistics from the multiplayer managers
+    const httpDiagnostics = multiplayerManager ? multiplayerManager.getStats() : null;
+    const httpsDiagnostics = httpsMultiplayerManager ? httpsMultiplayerManager.getStats() : null;
+    
+    // Get overall system stats
+    const memUsage = process.memoryUsage();
+    const formatMemory = (bytes: number) => (bytes / 1024 / 1024).toFixed(2) + ' MB';
+    
+    // Prepare the comprehensive diagnostics report
+    const diagnosticsReport = {
+      timestamp: Date.now(),
+      serverInfo: {
+        uptime: process.uptime(),
+        memory: {
+          rss: formatMemory(memUsage.rss),
+          heapUsed: formatMemory(memUsage.heapUsed),
+          heapTotal: formatMemory(memUsage.heapTotal)
+        },
+        environment: process.env.NODE_ENV || 'development',
+        nodeVersion: process.version
+      },
+      connections: {
+        http: {
+          active: httpDiagnostics ? httpDiagnostics.stats.activeConnections : 0,
+          total: httpDiagnostics ? httpDiagnostics.stats.totalConnections : 0,
+          disconnections: httpDiagnostics ? httpDiagnostics.stats.disconnections : 0,
+          reconnections: httpDiagnostics ? httpDiagnostics.stats.reconnections : 0,
+          errors: httpDiagnostics ? httpDiagnostics.stats.connectionErrors : 0
+        },
+        https: {
+          active: httpsDiagnostics ? httpsDiagnostics.stats.activeConnections : 0,
+          total: httpsDiagnostics ? httpsDiagnostics.stats.totalConnections : 0,
+          disconnections: httpsDiagnostics ? httpsDiagnostics.stats.disconnections : 0,
+          reconnections: httpsDiagnostics ? httpsDiagnostics.stats.reconnections : 0,
+          errors: httpsDiagnostics ? httpsDiagnostics.stats.connectionErrors : 0
+        }
+      },
+      recentEvents: {
+        http: httpDiagnostics ? httpDiagnostics.recentEvents : [],
+        https: httpsDiagnostics ? httpsDiagnostics.recentEvents : []
+      },
+      errors: {
+        http: httpDiagnostics ? httpDiagnostics.stats.lastError : null,
+        https: httpsDiagnostics ? httpsDiagnostics.stats.lastError : null
+      },
+      socketInfo: {
+        http: httpDiagnostics ? httpDiagnostics.socketServerInfo : null,
+        https: httpsDiagnostics ? httpsDiagnostics.socketServerInfo : null
+      }
+    };
+    
+    res.status(200).json(diagnosticsReport);
+  } catch (error) {
+    console.error('[Server] Error getting multiplayer diagnostics:', error);
+    res.status(500).json({ 
+      status: 'error', 
+      error: 'Error getting multiplayer diagnostics',
+      timestamp: Date.now(),
+      errorMessage: error.message
+    });
   }
 });
 
