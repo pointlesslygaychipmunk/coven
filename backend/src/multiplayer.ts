@@ -139,15 +139,9 @@ export class MultiplayerManager {
       },
       // Disable ALL compression
       perMessageDeflate: false,            // No WebSocket compression
-      httpCompression: false,              // No HTTP compression
-      // Add polling-specific settings
-      polling: {
-        extraHeaders: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'X-Cloudflare-Skip-Cache': 'true'
-        }
-      }
+      httpCompression: false               // No HTTP compression
+      // Socket.IO Server doesn't support polling property in options
+      // We'll set headers on the Express side instead
     });
     
     // Add additional DEBUG error handlers with Cloudflare Tunnel diagnostics

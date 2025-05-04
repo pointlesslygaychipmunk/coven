@@ -75,8 +75,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   
   // Extract Cloudflare-specific headers for logging and diagnostics
   const cfRay = req.headers['cf-ray'] || '';
-  const cfIP = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip;
+  const cfConnectingIP = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip;
   const cfCountry = req.headers['cf-ipcountry'] || '';
+  
+  // Use the Cloudflare headers for additional logs if needed
+  req.socket.remoteAddress = cfConnectingIP as string || req.socket.remoteAddress;
   
   // Forward protocol info - important for socket.io handling
   if (req.headers['x-forwarded-proto']) {
@@ -88,7 +91,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.on('finish', () => {
     const duration = Date.now() - start;
     const cfInfo = cfRay ? ` [CF:${cfRay.toString().substring(0, 8)}..${cfCountry}]` : '';
-    console.log(`[Server] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)${cfInfo}`);
+    console.log(`[Server] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)${cfInfo} IP:${cfConnectingIP}`);
+    
+    // Add special handling for Socket.IO polling requests
+    if (req.originalUrl.includes('/socket.io/') && req.originalUrl.includes('&transport=polling')) {
+      // Add custom headers to help with Cloudflare caching issues for Socket.IO polling
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('X-Cloudflare-Skip-Cache', 'true');
+    }
   });
   
   next();
