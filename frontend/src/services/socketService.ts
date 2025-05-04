@@ -1,8 +1,10 @@
 /**
- * Socket Service
+ * Production Socket Service
  * 
- * This service provides a wrapper around the WebSocket connection
+ * This service provides a production-ready wrapper around the WebSocket connection
  * to the backend, handling events, reconnection, and message passing.
+ * 
+ * IMPORTANT: This version is configured for LIVE PRODUCTION DEPLOYMENT.
  */
 
 import { io, Socket } from 'socket.io-client';
@@ -50,11 +52,30 @@ class SocketService {
   get socket(): Socket | null {
     return this._socket;
   }
+  
+  // Connection states
   private connected: boolean = false;
   private connecting: boolean = false;
+  
+  // Production configuration constants
+  private readonly PRODUCTION_RECONNECT_ATTEMPTS = 3; // Only try 3 times in production
+  private readonly PRODUCTION_CONNECT_TIMEOUT = 30000; // 30 seconds timeout for production
+  private readonly PRODUCTION_PING_INTERVAL = 20000; // 20 seconds ping interval
+  
+  // Reconnection variables
   private reconnectAttempts: number = 0;
-  private maxReconnectAttempts: number = 15; // Increased from 10 to 15
-  private baseReconnectInterval: number = 1000; // Base interval for exponential backoff
+  private maxReconnectAttempts: number = 3; // Reduced for production reliability
+  private baseReconnectInterval: number = 5000; // 5 seconds base in production
+  
+  // Legacy variables kept for compatibility
+  private _recoveryIntervalId: number | null = null;
+  private _reconnectTimeoutId: number | null = null;
+  private _totalRecoveryAttempts: number = 0;
+  private _firstReconnectTime: number | null = null;
+  private urlAttempt: number = 0;
+  private alternativeUrls: string[] = [];
+  
+  // Event callbacks
   private gameStateCallbacks: Set<GameStateCallback> = new Set();
   private playerJoinedCallbacks: Set<PlayerJoinedCallback> = new Set();
   private playerDisconnectedCallbacks: Set<PlayerDisconnectedCallback> = new Set();
@@ -63,13 +84,19 @@ class SocketService {
   private errorCallbacks: Set<ErrorCallback> = new Set();
   private connectionStatusCallbacks: Set<ConnectionStatusCallback> = new Set();
   
-  // Track current URL and connection attempts
-  private urlAttempt: number = 0;
-  private alternativeUrls: string[] = [];
+  // Infrastructure variables
   private connectionTimeoutId: number | null = null;
   private pingIntervalId: number | null = null;
   private lastSuccessfulUrl: string | null = null;
+  
+  // SIMPLIFIED PRODUCTION VARIABLES
+  // We're removing all URL tracking and alternatives
+  // In production, we only use the current origin
     
+  /**
+   * Initialize and connect to the Socket.IO server
+   * COMPLETELY REWRITTEN FOR PRODUCTION
+   */
   public init(): Promise<boolean> {
     if (this.connected) {
       return Promise.resolve(true);
@@ -77,93 +104,25 @@ class SocketService {
     
     if (this.connecting) {
       return new Promise((resolve) => {
-        // Check again in a short time if we're still connecting
-        setTimeout(() => {
-          resolve(this.connected);
-        }, 500);
+        setTimeout(() => resolve(this.connected), 500);
       });
     }
     
     this.connecting = true;
     
-    // Reset URL attempt if this is a fresh connection attempt
-    if (this.reconnectAttempts === 0) {
-      this.urlAttempt = 0;
-      
-      // PRODUCTION-FIRST APPROACH
-      // For production, we want to connect to the same server that served the frontend
-      // This ensures that we're connecting to the correct backend instance
-      
-      // Determine the backend URL based on the environment
-      const host = window.location.hostname;
-      const protocol = window.location.protocol;
-      const port = window.location.port;
-      const useSecure = protocol === 'https:';
-      
-      // Set up all possible URLs to try
-      this.alternativeUrls = [];
-      
-      // If we have a previously successful URL, try that first
-      if (this.lastSuccessfulUrl) {
-        this.alternativeUrls.push(this.lastSuccessfulUrl);
-      }
-      
-      console.log(`[Socket] Current environment: ${protocol}//${host}:${port || (useSecure ? '443' : '80')}`);
-      
-      // LIVE PRODUCTION-ONLY STRATEGY
-      // For a production deployment, we ONLY want to use the exact origin
-      // This is critical for WebSocket security and reliability in production
-      
-      console.log(`[Socket] LIVE PRODUCTION MODE DETECTED: ${protocol}//${host}:${port || (useSecure ? '443' : '80')}`);
-      
-      // PRODUCTION SINGLE-URL STRATEGY: Only use the exact current origin
-      // This is the most reliable approach for production deployments
-      this.alternativeUrls = [window.location.origin];
-      
-      console.log(`[Socket] Using STRICT production URL: ${window.location.origin}`);
-      
-      // CRITICAL: Do not attempt to connect to any other URLs in production
-      // This prevents mixed-content warnings, CORS issues, and security problems
-      
-      // Remove duplicates and ensure protocol compatibility
-      this.alternativeUrls = [...new Set(this.alternativeUrls)].filter(url => {
-        // If we're on HTTPS, only allow HTTPS URLs to avoid mixed content
-        if (useSecure) {
-          return url.startsWith('https:');
-        }
-        return true;
-      });
-      
-      console.log(`[Socket] Will try the following URLs: ${this.alternativeUrls.join(', ')}`);
-    }
+    // PRODUCTION CONNECTION CODE
+    // In production, we connect ONLY to the current origin
+    const socketUrl = window.location.origin;
     
-    // Check if we've exhausted all URLs - if so, return false immediately to prevent looping
-    if (this.alternativeUrls.length === 0) {
-      console.error('[Socket] No URLs available to try!');
-      this.connecting = false;
-      this.notifyError({ message: 'No server addresses available to connect to. Please refresh the page.' });
-      return Promise.resolve(false);
-    }
+    console.log(`[Socket] PRODUCTION MODE: Using server URL ${socketUrl}`);
     
-    // In production, we only use a single URL (the origin)
-    // This simplifies the connection process and makes it more reliable
-    const url = this.alternativeUrls[0]; // Always use the first URL (current origin)
-    
-    // Reset all counters - this is an emergency fix for production
-    this.urlAttempt = 0;
-    this.reconnectAttempts = 0;
-    
-    console.log(`[Socket] PRODUCTION: Connecting to ${url} (using strict production configuration)`);
-    
-    // Clear any existing socket and timeout
+    // Clean up any existing connection
     this.cleanupExistingConnection();
     
-    // Create connection timeout to prevent hanging indefinitely
+    // Set a connection timeout
     this.connectionTimeoutId = window.setTimeout(() => {
-      console.error(`[Socket] Connection attempt to ${url} timed out`);
+      console.error(`[Socket] Connection attempt to server timed out`);
       
-      // In production, a timeout likely means the server is unreachable
-      // We'll clear the socket and try again once with a clear message to the user
       if (this._socket) {
         this._socket.close();
         this._socket = null;
@@ -173,66 +132,74 @@ class SocketService {
       this.connected = false;
       this.notifyConnectionStatus(false);
       
-      // Show a clear error message
-      this.notifyError({ 
-        message: `Connection to server timed out. The server may be temporarily unavailable. Attempting reconnection...` 
+      // Set a clear user message
+      this.notifyError({
+        message: `Unable to connect to the game server. The server may be temporarily unavailable.`
       });
       
-      // Make a single retry after timeout
-      this.attemptReconnect();
-    }, 30000); // 30 second timeout for production
-    
-    // Initialize socket connection
-    try {
-      // ENHANCED PRODUCTION-READY approach
-      // Determine if we're using /socket.io path explicitly in the URL
-      const hasExplicitPath = url.includes('/socket.io');
-      
-      // Extract protocol and port information for better connection diagnostics
-      let urlObj: URL;
+      // EMERGENCY CONNECTION LIMIT RESET
+      // Clear session storage counters to avoid reconnection limits
       try {
-        urlObj = new URL(url);
-      } catch (e) {
-        console.error(`[Socket] Invalid URL format: ${url}`, e);
-        urlObj = new URL(window.location.origin); // Fallback to current origin
+        sessionStorage.removeItem('coven_reconnect_attempt_counter');
+        sessionStorage.removeItem('coven_reconnect_start_time');
+        sessionStorage.removeItem('coven_reconnect_start_time_v2');
+      } catch (storageErr) {
+        console.error('[Socket] Error clearing session storage:', storageErr);
       }
       
-      // Determine if we're using secure protocol (HTTPS/WSS)
-      const isSecure = urlObj.protocol === 'https:';
+      // Only retry once in production to avoid excessive attempts
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++;
+        console.log(`[Socket] Timeout recovery, attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+        setTimeout(() => this.attemptReconnect(), 5000);
+      } else {
+        console.log(`[Socket] Maximum reconnection attempts reached (${this.maxReconnectAttempts}). No further automatic reconnection.`);
+      }
+    }, this.PRODUCTION_CONNECT_TIMEOUT);
+    
+    // Connect to the Socket.IO server
+    try {
+      console.log(`[Socket] Connecting to ${socketUrl}`);
       
-      console.log(`[Socket] Creating connection to ${url} (${isSecure ? 'secure' : 'non-secure'})`);
-      
-      this._socket = io(url, {
-        reconnection: false, // We'll handle reconnection manually
-        autoConnect: true, // Connect immediately
-        // STRICT PRODUCTION CONFIGURATION
-        // In live production, ALWAYS use websocket first for better performance
-        transports: ['websocket', 'polling'],  // Strongly prefer WebSocket in production
-        path: hasExplicitPath ? undefined : '/socket.io', // Only set path if not in URL already
-        timeout: 30000, // Longer timeout (30s) for more reliable production connections
-        forceNew: true, // Force a new connection
+      // MINIMAL PRODUCTION CONFIG
+      // Using simplified connection options for production reliability
+      this._socket = io(socketUrl, {
+        reconnection: false,              // Important: We handle reconnection ourselves
+        autoConnect: true,                // Connect immediately
+        transports: ['websocket'],        // WEBSOCKET ONLY in production for reliability
+        timeout: this.PRODUCTION_CONNECT_TIMEOUT,
+        forceNew: true,                   // Always create a new connection
+        upgrade: false,                   // Don't try to upgrade transport
+        rememberUpgrade: false,           // Don't remember upgrades
+        transportOptions: {               // Additional transport options for stability
+          websocket: {
+            maxPayload: 1024 * 1024,      // Limit frame size to 1MB 
+            timeout: this.PRODUCTION_CONNECT_TIMEOUT
+          }
+        },
         query: { 
-          clientTime: Date.now().toString(),
-          mode: 'live-production',
-          origin: window.location.origin
-        }, // Minimal query parameters for production
-        withCredentials: false, // Don't send cookies for cross-origin requests
-        extraHeaders: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          time: Date.now().toString(),    // For connection debugging
+          client: 'production',           // Identify as production client
+          v: '1'                          // Add version to force fresh connection
         }
       });
-    } catch (err) {
-      console.error(`[Socket] Error creating socket: ${err.message}`);
+    } catch (err: any) {
+      console.error(`[Socket] Socket creation error: ${err?.message || 'Unknown error'}`);
       this._socket = null;
       this.connecting = false;
-      this.notifyError({ message: `Failed to create socket connection: ${err.message}` });
+      this.notifyError({ message: `Connection error: ${err?.message || 'Unknown error'}` });
       this.notifyConnectionStatus(false);
-      this.attemptReconnect();
+      
+      // Try to reconnect once
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++;
+        setTimeout(() => this.attemptReconnect(), 5000);
+      }
+      
       return Promise.resolve(false);
     }
     
-    // Set up event listeners
+    // Set up connection event listeners
     return new Promise((resolve) => {
       if (!this._socket) {
         this.clearConnectionTimeout();
@@ -241,122 +208,115 @@ class SocketService {
         return;
       }
       
+      // Connection succeeded
       this._socket.on('connect', () => {
-        console.log(`[Socket] Connected with ID: ${this._socket?.id}`);
+        console.log(`[Socket] Connected successfully with ID: ${this._socket?.id}`);
         this.clearConnectionTimeout();
         this.connected = true;
         this.connecting = false;
         this.reconnectAttempts = 0;
-        this.lastSuccessfulUrl = url; // Remember the successful URL
+        this.lastSuccessfulUrl = socketUrl;
         
-        // Setup ping interval to keep connection alive
+        // Start ping interval to keep connection alive
         this.setupPingInterval();
         
-        // Setup event listeners
+        // Set up game event listeners
         this.setupEventListeners();
         
-        // Notify connection status AFTER event listeners are set up
+        // Notify components of connection
         this.notifyConnectionStatus(true);
         
         resolve(true);
       });
       
-      this._socket.on('connect_error', (error) => {
-        console.error(`[Socket] Connection error: ${error.message}`, error);
-        console.error(`[Socket] Failed to connect to server at ${url}`);
+      // Connection error
+      this._socket.on('connect_error', (error: any) => {
+        console.error(`[Socket] Connection error: ${error?.message || 'Unknown error'}`);
+        
         this.clearConnectionTimeout();
         this.connected = false;
         this.connecting = false;
         
-        // Enhanced error diagnostics for easier troubleshooting
-        const protocol = window.location.protocol;
-        const isSecureContext = window.isSecureContext;
-        const navigator = window.navigator;
-        const online = navigator && navigator.onLine;
-        
-        // Log detailed connection diagnostics
-        console.log(`[Socket] Connection diagnostics:
-          - URL attempted: ${url}
-          - Current origin: ${window.location.origin}
-          - Protocol: ${protocol}
-          - Is secure context: ${isSecureContext}
-          - Online status: ${online}
-          - URL attempt: ${this.urlAttempt}/${this.alternativeUrls.length}
-          - Reconnect attempts: ${this.reconnectAttempts}/${this.maxReconnectAttempts}
-          - Error: ${error.message}
+        // Log detailed diagnostics
+        console.log(`[Socket] Diagnostics:
+          - Server: ${socketUrl}
+          - Protocol: ${window.location.protocol}
+          - Secure: ${window.isSecureContext}
+          - Online: ${navigator.onLine}
+          - Error: ${error?.message || 'Unknown'}
         `);
         
-        // Simplify error message for the user
-        let userMessage;
-        
-        // More detailed error classification for better UX
-        if (error.message.includes('xhr poll error') || error.message.includes('websocket error')) {
-          if (protocol === 'https:' && url.startsWith('http:')) {
-            userMessage = 'Cannot connect to insecure socket from secure page. Trying secure connections...';
-          } else if (!online) {
-            userMessage = 'You appear to be offline. Please check your internet connection.';
-          } else {
-            userMessage = 'Could not reach the game server. Please check your connection or try again later.';
-          }
-        } else if (error.message.includes('timeout')) {
-          userMessage = 'Connection to server timed out. The server might be busy or temporarily unavailable.';
-        } else if (error.message.includes('CORS')) {
-          userMessage = 'Cross-origin connection blocked. This is a technical issue our team needs to fix.';
-        } else if (error.message.includes('Invalid namespace')) {
-          userMessage = 'Socket.IO connection error. Trying alternative connection method...';
-          // Force next URL attempt on this specific error
-          this.urlAttempt++;
-        } else {
-          userMessage = `Connection error: ${error.message}`;
-        }
+        // Simple error message for user
+        const userMessage = navigator.onLine
+          ? `Unable to connect to game server. Please try again later.`
+          : `You appear to be offline. Please check your internet connection.`;
         
         this.notifyError({ message: userMessage });
         this.notifyConnectionStatus(false);
-        this.attemptReconnect();
+        
+        // EMERGENCY CONNECTION LIMIT RESET
+        // Clear session storage counters to avoid reconnection limits
+        // This fixes the "maximum reconnection attempts reached" issue
+        try {
+          sessionStorage.removeItem('coven_reconnect_attempt_counter');
+          sessionStorage.removeItem('coven_reconnect_start_time');
+          sessionStorage.removeItem('coven_reconnect_start_time_v2');
+        } catch (storageErr) {
+          console.error('[Socket] Error clearing session storage:', storageErr);
+        }
+        
+        // Only retry if we haven't reached max attempts
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.reconnectAttempts++;
+          // Use a non-recursive approach with a simple setTimeout
+          setTimeout(() => this.attemptReconnect(), 5000);
+        }
+        
         resolve(false);
       });
       
-      this._socket.on('disconnect', (reason) => {
+      // Disconnection
+      this._socket.on('disconnect', (reason: string) => {
         console.log(`[Socket] Disconnected: ${reason}`);
         this.clearPingInterval();
         this.connected = false;
         this.notifyConnectionStatus(false);
         
-        // Attempt to reconnect if not intentionally closed
-        if (reason !== 'io client disconnect') {
+        // Only attempt reconnection for non-intentional disconnects
+        if (reason !== 'io client disconnect' && this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.reconnectAttempts++;
           this.attemptReconnect();
         }
       });
       
-      this._socket.on('error', (error) => {
+      // Socket error
+      this._socket.on('error', (error: any) => {
         console.error('[Socket] Socket error:', error);
-        this.notifyError({ message: `Socket error: ${error}` });
+        this.notifyError({ message: `Connection error. Please try again later.` });
       });
     });
   }
   
   /**
    * Clean up any existing connection resources
+   * Simplified for production
    */
   private cleanupExistingConnection(): void {
+    // Clear all timeouts
     this.clearConnectionTimeout();
     this.clearPingInterval();
-    this.clearReconnectTimeout();
     
+    // Close and clean up socket
     if (this._socket) {
-      this._socket.removeAllListeners();
-      this._socket.close();
-      this._socket = null;
-    }
-  }
-  
-  /**
-   * Clear reconnect timeout
-   */
-  private clearReconnectTimeout(): void {
-    if (this._reconnectTimeoutId !== null) {
-      window.clearTimeout(this._reconnectTimeoutId);
-      this._reconnectTimeoutId = null;
+      try {
+        console.log('[Socket] Cleaning up existing socket connection');
+        this._socket.removeAllListeners();
+        this._socket.close();
+      } catch (err) {
+        console.error('[Socket] Error during socket cleanup:', err);
+      } finally {
+        this._socket = null;
+      }
     }
   }
   
@@ -376,12 +336,12 @@ class SocketService {
   private setupPingInterval(): void {
     this.clearPingInterval();
     
-    // Send a ping every 30 seconds to keep the connection alive
+    // Send a ping to keep the connection alive
     this.pingIntervalId = window.setInterval(() => {
       if (this._socket && this.connected) {
         this._socket.emit('ping', { timestamp: Date.now() });
       }
-    }, 30000);
+    }, this.PRODUCTION_PING_INTERVAL);
   }
   
   /**
@@ -396,248 +356,157 @@ class SocketService {
   
   /**
    * Close the socket connection and clean up all resources
+   * COMPLETELY SIMPLIFIED for maximum reliability
    */
   public disconnect(): void {
     // Log disconnect attempt
     console.log('[Socket] Disconnecting...');
     
+    // First, clean up the socket
     this.cleanupExistingConnection();
     
-    // Reset ALL reconnection-related state to prevent future reconnection attempts
+    // Clear ALL timeouts and intervals to prevent memory leaks
+    // and prevent unwanted reconnection attempts
     
-    // Clear the recovery interval if it exists
-    if (this._recoveryIntervalId !== null) {
-      window.clearInterval(this._recoveryIntervalId);
-      this._recoveryIntervalId = null;
+    // Clear connection timeout
+    if (this.connectionTimeoutId !== null) {
+      window.clearTimeout(this.connectionTimeoutId);
+      this.connectionTimeoutId = null;
     }
     
-    // Clear reconnect timeout
+    // Clear ping interval
+    if (this.pingIntervalId !== null) {
+      window.clearInterval(this.pingIntervalId);
+      this.pingIntervalId = null;
+    }
+    
+    // Clear the reconnect timeout if exists
     if (this._reconnectTimeoutId !== null) {
       window.clearTimeout(this._reconnectTimeoutId);
       this._reconnectTimeoutId = null;
     }
     
-    // Reset ALL connection states and counters
+    // Clear recovery interval if exists
+    if (this._recoveryIntervalId !== null) {
+      window.clearInterval(this._recoveryIntervalId);
+      this._recoveryIntervalId = null;
+    }
+    
+    // Reset ALL connection states to prevent future reconnection attempts
     this.connected = false;
     this.connecting = false;
     this.reconnectAttempts = 0;
     this._totalRecoveryAttempts = 0;
     this._firstReconnectTime = null;
     this.urlAttempt = 0;
-    
-    // Empty the alternative URLs array to prevent reconnection attempts
     this.alternativeUrls = [];
-    
-    // Clear the last successful URL to force a fresh search on next connect
     this.lastSuccessfulUrl = null;
     
+    // Clear ALL session storage counters to ensure clean future connections
+    try {
+      sessionStorage.removeItem('coven_reconnect_attempt_counter');
+      sessionStorage.removeItem('coven_reconnect_start_time');
+      sessionStorage.removeItem('coven_reconnect_start_time_v2');
+    } catch (err) {
+      console.error('[Socket] Error clearing session storage:', err);
+    }
+    
+    // Notify of disconnection
     this.notifyConnectionStatus(false);
     console.log('[Socket] Disconnected and all resources cleaned up');
   }
   
   /**
-   * Attempt to reconnect to the server with enhanced resilience
+   * Ultra-simplified reconnection method for production
+   * This version is rewritten to be extremely simple and more reliable
    */
   private attemptReconnect(): void {
-    // EMERGENCY FIX: Reset all counters to allow immediate reconnection without limits
-    this._totalRecoveryAttempts = 0;
-    this.reconnectAttempts = 0;
+    console.log(`[Socket] Production reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
     
-    // Instead of using hard attempt limits, we'll use a time-based approach
-    // Only stop reconnection attempts if they've been running for too long
+    // EXTREMELY SIMPLIFIED: 
+    // If we're offline, just wait for online status
+    // Otherwise make ONE attempt with a fixed delay
+    // No recursive calls or complex logic that could lead to infinite loops
     
-    // Initialize start time if not set
-    if (!this._firstReconnectTime) {
-      this._firstReconnectTime = Date.now();
-    }
-    
-    // Check if we've been trying for over 30 minutes (extremely permissive)
-    const RECONNECT_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-    if (this._firstReconnectTime && (Date.now() - this._firstReconnectTime > RECONNECT_TIMEOUT)) {
-      console.error(`[Socket] Reconnection attempts have been running for over 30 minutes, stopping`);
+    // Check if the browser is offline
+    if (!navigator.onLine) {
+      console.log('[Socket] Device is offline. Waiting for online status...');
       
-      // Force clear ALL reconnection mechanisms
-      this.clearConnectionTimeout();
-      this.clearPingInterval();
-      this.clearReconnectTimeout();
-      
-      if (this._recoveryIntervalId) {
-        window.clearInterval(this._recoveryIntervalId);
-        this._recoveryIntervalId = null;
-      }
-      
-      // Notify user of timeout
+      // Show a clear message to the user
       this.notifyError({ 
-        message: `Connection attempts timed out. Please refresh the page to try again.` 
+        message: "You appear to be offline. Please check your internet connection."
       });
       
-      return;
-    }
-    
-    // EMERGENCY FIX: Removed the max immediate attempts check
-    // Instead, we'll continue trying indefinitely with increasingly longer delays
-    
-    // Reset the URL counter occasionally to try different URLs
-    if (this.reconnectAttempts % 10 === 0) {
-      this.urlAttempt = 0;
-      console.log('[Socket] Reset URL attempt counter to try all URLs again');
-    }
-    
-    // Only set up recovery interval if we don't already have one
-    if (!this._recoveryIntervalId && this.reconnectAttempts >= 5) {
-      console.log('[Socket] Setting up backup recovery interval to check for server availability');
-      
-      // Setup a periodic check that runs less frequently than the main reconnect attempts
-      const RECOVERY_CHECK_INTERVAL = 120000; // 2 minutes
-      
-      this._recoveryIntervalId = window.setInterval(() => {
-        console.log(`[Socket] Recovery check: attempting to reconnect...`);
-        
-        // Try to connect with a fresh attempt
-        this.init().then(success => {
-          if (success) {
-            console.log('[Socket] Recovery successful! Clearing recovery interval.');
-            if (this._recoveryIntervalId) {
-              window.clearInterval(this._recoveryIntervalId);
-              this._recoveryIntervalId = null;
-            }
-            
-            // Reset reconnection tracking
-            this._firstReconnectTime = null;
-            
-            // Notify user of recovery
-            this.notifyError({ message: "Connection recovered! Real-time updates resumed." });
-          }
-        }).catch(err => {
-          console.log(`[Socket] Recovery attempt encountered an error:`, err);
-        });
-      }, RECOVERY_CHECK_INTERVAL);
-    }
-    
-    this.reconnectAttempts++;
-    
-    // Enhanced backoff strategy with URL rotation
-    // After a few attempts with the same URL, try the next one
-    if (this.reconnectAttempts > 3 && this.reconnectAttempts % 3 === 1) {
-      // Every 3 attempts, try a different URL in the list
-      this.urlAttempt++;
-      console.log(`[Socket] Switching to next URL option (${this.urlAttempt % this.alternativeUrls.length + 1}/${this.alternativeUrls.length})`);
-    }
-    
-    // Dynamic backoff strategy based on connection attempt
-    let reconnectInterval;
-    
-    if (this.reconnectAttempts <= 3) {
-      // Quick retries for the first few attempts (2-3 seconds)
-      reconnectInterval = 2000 + (this.reconnectAttempts * 500);
-    } else if (this.reconnectAttempts <= 6) {
-      // Medium delay for next few attempts (5-8 seconds)
-      reconnectInterval = 5000 + ((this.reconnectAttempts - 3) * 1000);
-    } else {
-      // Longer delays for later attempts, capped at 30 seconds
-      reconnectInterval = Math.min(10000 + ((this.reconnectAttempts - 6) * 2000), 30000);
-    }
-    
-    // Add a small random jitter to prevent thundering herd
-    const jitter = Math.random() * 0.2 * reconnectInterval;
-    reconnectInterval = Math.round(reconnectInterval + jitter);
-    
-    console.log(`[Socket] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${Math.round(reconnectInterval/1000)}s...`);
-    
-    // Check if browser is online before attempting reconnection
-    const isOnline = window.navigator && window.navigator.onLine !== false;
-    
-    if (!isOnline) {
-      console.log(`[Socket] Browser reports offline status. Waiting for online status before reconnecting.`);
-      
-      // Show a more specific message for offline status
-      this.notifyError({ message: "You appear to be offline. Reconnection will resume when your connection is restored." });
-      
-      // Listen for online event to trigger reconnection
+      // Set up a listener for when we come back online
       const onlineHandler = () => {
-        console.log(`[Socket] Browser back online, resuming reconnection.`);
+        console.log('[Socket] Device is back online. Attempting reconnection...');
         window.removeEventListener('online', onlineHandler);
         
-        // Try to reconnect immediately when we come back online
-        this.init().then((success) => {
-          if (!success && this.reconnectAttempts < this.maxReconnectAttempts) {
-            // Continue trying to reconnect with the normal flow
-            this.attemptReconnect();
-          } else if (success) {
-            this.notifyError({ message: "Connected to server successfully!" });
-          }
-        });
+        // Wait a moment for the connection to stabilize
+        setTimeout(() => {
+          // Reset attempt counter on network change
+          this.reconnectAttempts = 0;
+          this.init();
+        }, 2000);
       };
       
       window.addEventListener('online', onlineHandler);
       return;
     }
     
-    // Show fewer messages to the user to avoid spam
-    if (this.reconnectAttempts % 3 === 1 || this.reconnectAttempts === this.maxReconnectAttempts - 1) {
-      this.notifyError({ 
-        message: `Still trying to connect to the game server (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})...` 
+    // Check if we've reached the maximum number of attempts
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.error(`[Socket] Maximum reconnection attempts (${this.maxReconnectAttempts}) reached`);
+      
+      // Show a final error message to the user
+      this.notifyError({
+        message: "Unable to connect after multiple attempts. Please refresh the page to try again."
       });
+      
+      return;
     }
     
-    // Make sure we clear any existing timeout before setting a new one
-    this.clearReconnectTimeout();
+    // Use a fixed delay - no randomization, extremely simple approach
+    const RECONNECT_DELAY = 5000; // 5 seconds
     
-    this._reconnectTimeoutId = window.setTimeout(() => {
-      // Clear the timeout ID since we're processing it now
-      this._reconnectTimeoutId = null;
-      
-      this.init().then((success) => {
-        if (!success && this.reconnectAttempts < this.maxReconnectAttempts) {
-          // Continue trying to reconnect, but make sure we're not in an infinite loop
-          console.log(`[Socket] Reconnect attempt ${this.reconnectAttempts} failed, will try again...`);
+    console.log(`[Socket] Will attempt to reconnect in ${RECONNECT_DELAY/1000} seconds...`);
+    
+    // Set up a single attempt after the delay
+    // IMPORTANT: We're using a local variable for the timeout ID so we can cancel it
+    const timeoutId = setTimeout(() => {
+      // Try to connect again
+      this.init().then(success => {
+        if (success) {
+          console.log('[Socket] Reconnection successful!');
           
-          // Make sure we're not stuck in a reconnect loop by checking time
-          const now = Date.now();
-          if (!this._firstReconnectTime) {
-            this._firstReconnectTime = now;
-          } else {
-            // If we've been trying to reconnect for more than 5 minutes, stop
-            if (now - this._firstReconnectTime > 5 * 60 * 1000) {
-              console.error(`[Socket] Reconnection attempts have been running for over 5 minutes, stopping.`);
-              this.notifyError({ 
-                message: `Connection attempts timed out. Please refresh the page to try again.` 
-              });
-              return;
-            }
-          }
+          // Reset attempt counter on success
+          this.reconnectAttempts = 0;
           
-          this.attemptReconnect();
-        } else if (success) {
-          // Connection successful, reset our reconnection tracking
-          this._firstReconnectTime = null;
+          // Clear the session storage counters to avoid issues in MultiplayerContext
+          sessionStorage.removeItem('coven_reconnect_attempt_counter');
+          sessionStorage.removeItem('coven_reconnect_start_time');
+          sessionStorage.removeItem('coven_reconnect_start_time_v2');
           
-          // Clear any error messages since we're connected now
+          // Show success message
           this.notifyError({ message: "Connected to server successfully!" });
-          
-          // Clear any recovery interval if it exists
-          if (this._recoveryIntervalId) {
-            window.clearInterval(this._recoveryIntervalId);
-            this._recoveryIntervalId = null;
-          }
         }
-      }).catch(err => {
-        // If init throws an exception, log it and try again if appropriate
-        console.error(`[Socket] Error during reconnection attempt:`, err);
-        
-        // Safely try again if we haven't reached max attempts
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          this.attemptReconnect();
-        }
+        // We do NOT recursively call attemptReconnect here - the MultiplayerContext 
+        // will handle future reconnection attempts if needed
+      }).catch((err) => {
+        // Just log the error - no recursive calls
+        console.error('[Socket] Reconnection error:', err?.message || 'Unknown');
       });
-    }, reconnectInterval);
+    }, RECONNECT_DELAY);
+    
+    // Add one to the attempt counter
+    this.reconnectAttempts++;
+    
+    // Store the timeout ID in a class property so we can cancel it later if needed
+    this._reconnectTimeoutId = timeoutId as any;
   }
   
-  // Add properties for tracking reconnection and recovery
-  private _recoveryIntervalId: number | null = null;
-  private _reconnectTimeoutId: number | null = null;
-  private _totalRecoveryAttempts: number = 0;
-  private _firstReconnectTime: number | null = null;
+  // Simple tracking properties
+  private _socketInitTime: number = 0;
   
   /**
    * Set up all event listeners

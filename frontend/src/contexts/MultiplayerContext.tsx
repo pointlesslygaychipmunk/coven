@@ -612,128 +612,96 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     };
   }, [connect, isJoined, attemptReconnection]);
   
-  // Enhanced periodic reconnection system with online status awareness and EMERGENCY anti-loop protection
+  // ULTRA-SIMPLIFIED reconnection system with absolute minimal complexity
   useEffect(() => {
-    // EMERGENCY FIX: Clear existing counters to allow connection to work immediately 
-    // This is a complete reset of the connection attempt limits to fix the "too many attempts" error
+    // EMERGENCY: Clear ALL connection counters on every render
+    // This ensures we never get stuck in a "too many attempts" scenario
     
-    // Define all key names to fix TS errors
-    const OLD_COUNTER_KEY = 'coven_reconnect_attempt_counter';
-    const OLD_TIME_KEY = 'coven_reconnect_start_time';
+    // Define all key names in one place
+    const ALL_COUNTER_KEYS = [
+      'coven_reconnect_attempt_counter',
+      'coven_reconnect_start_time',
+      'coven_reconnect_start_time_v2'
+    ];
     
-    // Clear any existing counters that might have accumulated
-    sessionStorage.removeItem(OLD_COUNTER_KEY);
-    sessionStorage.removeItem(OLD_TIME_KEY);
-    
-    // Implementing a less aggressive anti-loop protection
-    // Only blocks if we've been trying for more than 15 minutes (extremely long time)
-    const reconnectStartTimeKey = 'coven_reconnect_start_time_v2'; // New key to avoid conflicts
-    
-    // Reset the start time if we're connected
-    if (isConnected) {
-      sessionStorage.removeItem(reconnectStartTimeKey);
-    } else {
-      // Store start time if not already set
-      if (!sessionStorage.getItem(reconnectStartTimeKey)) {
-        sessionStorage.setItem(reconnectStartTimeKey, Date.now().toString());
+    // Clear ALL counters unconditionally to avoid potential infinite loops
+    ALL_COUNTER_KEYS.forEach(key => {
+      try {
+        sessionStorage.removeItem(key);
+      } catch (err) {
+        console.error(`[MultiplayerContext] Error clearing ${key}:`, err);
       }
-    }
+    });
     
-    // Get reconnection start time
-    const reconnectStartTime = parseInt(sessionStorage.getItem(reconnectStartTimeKey) || '0', 10);
-    const reconnectDuration = reconnectStartTime > 0 ? Date.now() - reconnectStartTime : 0;
+    console.log('[MultiplayerContext] EMERGENCY: Cleared all reconnection counters');
     
-    // Only block if we've been trying for more than 15 minutes (extremely permissive)
-    const MAX_RECONNECT_DURATION = 15 * 60 * 1000; // 15 minutes
-    if (reconnectStartTime > 0 && reconnectDuration > MAX_RECONNECT_DURATION) {
-      console.error(`[MultiplayerContext] EMERGENCY: Connection attempts have been running for over 15 minutes (${Math.round(reconnectDuration/1000)}s), stopping automatic reconnection`);
-      setError("Connection process timed out. Please refresh the page to try again.");
-      return () => {}; // Return empty cleanup function
-    }
+    // Handle online/offline detection - this is the most reliable approach
+    let onlineHandler: (() => void) | null = null;
+    let reconnectTimer: NodeJS.Timeout | null = null;
     
-    let reconnectInterval: NodeJS.Timeout | null = null;
-    let onlineStateChanged = false;
-    
-    // Function to handle online/offline status changes
-    const handleOnlineStatusChange = () => {
-      onlineStateChanged = true;
-      const isOnline = navigator.onLine;
-      console.log(`[MultiplayerContext] Network status changed: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+    // Register for online events only - this is the most important case
+    onlineHandler = () => {
+      console.log('[MultiplayerContext] Network came online, attempting reconnection');
       
-      if (isOnline && !isConnected) {
-        // When we come back online and aren't connected, try to reconnect immediately
-        console.log('[MultiplayerContext] Device came back online, attempting immediate reconnection...');
-        
-        // Wait a brief moment for network to stabilize
-        setTimeout(() => {
-          connect().then((success) => {
+      // Wait for network to stabilize
+      setTimeout(() => {
+        // Only attempt if we're not already connected
+        if (!isConnected) {
+          connect().then(success => {
             if (success) {
-              // Reset emergency counters since we succeeded
-              sessionStorage.removeItem(OLD_COUNTER_KEY);
-              sessionStorage.removeItem(reconnectStartTimeKey);
-              
+              // Reset counters
+              ALL_COUNTER_KEYS.forEach(key => sessionStorage.removeItem(key));
+              // Attempt to rejoin if needed
               attemptReconnection();
             }
+          }).catch(err => {
+            console.error('[MultiplayerContext] Reconnection error:', err);
           });
-        }, 2000);
-      }
+        }
+      }, 2000);
     };
     
-    // Register online/offline event listeners
-    window.addEventListener('online', handleOnlineStatusChange);
-    window.addEventListener('offline', handleOnlineStatusChange);
+    // Add online listener
+    window.addEventListener('online', onlineHandler);
     
-    // Set up periodic reconnection attempts when disconnected (less aggressive with EMERGENCY protection)
-    if (!isConnected) {
-      // If we're not connected, try to reconnect periodically
-      // Use a simpler approach without counters
-      // Just use a fixed interval with small random jitter for variety
-      const baseDelay = isJoined ? 15000 : 30000; // More aggressive base delay if we were joined before
-      const jitter = Math.random() * 0.3 * baseDelay; // 30% random variation
-      const reconnectAttemptDelay = Math.min(baseDelay + jitter, 120000); // Cap at 2 minutes
+    // Set up a single reconnection attempt if we're not connected
+    // This is extremely simple - just ONE attempt with a fixed delay
+    if (!isConnected && navigator.onLine) {
+      // Use a simple fixed delay - no complexity
+      const FIXED_RECONNECT_DELAY = 20000; // 20 seconds
       
-      console.log(`[MultiplayerContext] Setting up periodic reconnection every ${Math.round(reconnectAttemptDelay/1000)}s`);
+      console.log(`[MultiplayerContext] Will attempt reconnection in ${FIXED_RECONNECT_DELAY/1000} seconds`);
       
-      reconnectInterval = setInterval(() => {
-        // Don't attempt reconnection if we're offline unless the online state just changed
-        if (!navigator.onLine && !onlineStateChanged) {
-          console.log('[MultiplayerContext] Device is offline, skipping reconnection attempt');
-          return;
+      reconnectTimer = setTimeout(() => {
+        console.log('[MultiplayerContext] Attempting single reconnection...');
+        
+        // Make sure we're still not connected and online before trying
+        if (!isConnected && navigator.onLine) {
+          connect().then(success => {
+            if (success) {
+              // Reset counters
+              ALL_COUNTER_KEYS.forEach(key => sessionStorage.removeItem(key));
+              // Attempt to rejoin
+              attemptReconnection();
+            }
+          }).catch(err => {
+            console.error('[MultiplayerContext] Reconnection error:', err);
+          });
         }
-        
-        // Reset the online state change flag
-        onlineStateChanged = false;
-        
-        console.log('[MultiplayerContext] Attempting periodic reconnection...');
-        connect().then((success) => {
-          if (success) {
-            // Reset emergency counters since we succeeded
-            sessionStorage.removeItem(OLD_COUNTER_KEY);
-            sessionStorage.removeItem(reconnectStartTimeKey);
-            
-            attemptReconnection();
-          }
-        }).catch(err => {
-          // Catch errors to prevent infinite failure loops
-          console.error('[MultiplayerContext] Error during reconnection:', err);
-        });
-      }, reconnectAttemptDelay);
-    } else if (reconnectInterval) {
-      // Clear the interval if we're connected
-      clearInterval(reconnectInterval);
-      reconnectInterval = null;
+      }, FIXED_RECONNECT_DELAY);
     }
     
-    // Clean up when component unmounts or dependencies change
+    // Clear everything on unmount or when dependencies change
     return () => {
-      window.removeEventListener('online', handleOnlineStatusChange);
-      window.removeEventListener('offline', handleOnlineStatusChange);
+      if (onlineHandler) {
+        window.removeEventListener('online', onlineHandler);
+      }
       
-      if (reconnectInterval) {
-        clearInterval(reconnectInterval);
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
       }
     };
-  }, [isConnected, isJoined, connect, attemptReconnection]);
+  }, [isConnected, connect, attemptReconnection]);
   
   // Context value
   const value: MultiplayerContextType = {
