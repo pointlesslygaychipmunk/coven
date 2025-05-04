@@ -76,16 +76,18 @@ const App90s: React.FC = () => {
     );
   }
   
-  // Main game
+  // Main game with pixelated Sierra UI
   return (
-    <MainGameFrame
-      playerName={mockGameData.playerName}
-      gold={mockGameData.gold}
-      day={mockGameData.day}
-      lunarPhase={mockGameData.lunarPhase}
-      reputation={mockGameData.reputation}
-      playerLevel={mockGameData.playerLevel}
-    />
+    <div className="pixelated">
+      <MainGameFrame
+        playerName={mockGameData.playerName}
+        gold={mockGameData.gold}
+        day={mockGameData.day}
+        lunarPhase={mockGameData.lunarPhase}
+        reputation={mockGameData.reputation}
+        playerLevel={mockGameData.playerLevel}
+      />
+    </div>
   );
 };
 

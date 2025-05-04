@@ -1,5 +1,8 @@
 /* frontend/src/index.css */
-/* Global styles - Redesigned for 90s Adventure Game Aesthetic */
+/* Global styles - Redesigned for 90s Adventure Game Aesthetic with Pixelated Sierra Look */
+
+/* Import pixelated Sierra UI base styles for universal application */
+@import './components/pixelatedSierra.css';
 
 /* Font Imports (Assume already in index.html or managed via build tool) */
 /* Example: @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Courier+New&display=swap'); */
