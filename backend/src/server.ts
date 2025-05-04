@@ -409,12 +409,13 @@ app.get('/health-check', (req: Request, res: Response) => {
   res.header('Pragma', 'no-cache');
   
   // Enhanced response with Cloudflare diagnostic info
-  const cfHeaders = {};
+  const cfHeaders: Record<string, string> = {};
   
   // Extract all Cloudflare-related headers
   Object.keys(req.headers).forEach(key => {
     if (key.toLowerCase().startsWith('cf-') || key.toLowerCase().startsWith('x-')) {
-      cfHeaders[key] = req.headers[key];
+      // Use type assertion for TypeScript
+      cfHeaders[key] = req.headers[key] as string;
     }
   });
   

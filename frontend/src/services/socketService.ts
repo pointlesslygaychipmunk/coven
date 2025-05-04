@@ -131,18 +131,22 @@ class SocketService {
         forceNew: true,                       // Always create a new connection
         autoConnect: true,                    // Connect immediately
         path: '/socket.io/',                  // Default Socket.IO path
-        extraHeaders: {                       // Add extra headers for Cloudflare
+        // Combine all headers into a single extraHeaders object
+        extraHeaders: {                       // All headers for better Cloudflare compatibility
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'X-Cloudflare-Skip-Cache': 'true',
-          'X-Socket-Retry': retryCount.toString()
+          'X-Socket-Retry': retryCount.toString(),
+          'X-Socket-Transport': 'polling',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': '*/*'
         },
         query: {                              // Query params with cache busting
           client: 'cloudflare-fix-v2',        // Identify as new client version 
           retry: retryCount.toString(),       // Track retry attempts
           time: timestamp,                    // Cache-busting timestamp
           nocache: timestamp,                 // Explicit cache busting
-          // Add browser and environment info to help with debugging
+          // Add browser and environment info for debugging
           ua: encodeURIComponent(navigator.userAgent.substring(0, 50)),
           protocol: window.location.protocol,
           host: window.location.host
@@ -151,15 +155,7 @@ class SocketService {
         upgrade: false,                       // Disable transport upgrade attempts
         rememberUpgrade: false,               // Don't remember transport upgrades
         timestampRequests: true,              // Add timestamps to requests to avoid caching
-        rejectUnauthorized: false,            // Accept self-signed certs through Cloudflare
-        // Set headers directly at the root level instead of using polling
-        extraHeaders: {                       // Additional headers for better compatibility
-          'X-Socket-Transport': 'polling',
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': '*/*',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
+        rejectUnauthorized: false             // Accept self-signed certs through Cloudflare
       });
       
       console.log('[Socket] Socket connection created, waiting for connection...');
@@ -288,11 +284,15 @@ class SocketService {
               forceNew: true,
               autoConnect: true,
               path: '/socket.io/',
-              extraHeaders: {                  // Add extra headers for Cloudflare
+              // Consolidated headers in a single extraHeaders object
+              extraHeaders: {                  // All headers for extreme compatibility
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
                 'X-Cloudflare-Skip-Cache': 'true',
-                'X-Socket-Retry': 'emergency'  // Flag this as an emergency attempt
+                'X-Socket-Retry': 'emergency',  // Flag this as an emergency attempt
+                'X-Socket-Transport': 'polling',
+                'Accept': '*/*',
+                'X-Socket-Emergency': 'true'
               },
               query: {
                 client: 'cloudflare-emergency', // Emergency client identifier
@@ -308,15 +308,7 @@ class SocketService {
               rememberUpgrade: false,          // Don't remember transport upgrades
               timestampRequests: true,         // Add timestamps to requests to avoid caching
               rejectUnauthorized: false,       // Accept self-signed certs through Cloudflare
-              withCredentials: false,          // Don't send cookies
-              // Set headers directly at the root level
-              extraHeaders: {
-                'X-Socket-Transport': 'polling',
-                'Accept': '*/*',
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'X-Socket-Emergency': 'true'
-              }
+              withCredentials: false           // Don't send cookies
             });
             
             // Setup this new socket
