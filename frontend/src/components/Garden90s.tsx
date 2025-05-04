@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Garden90s.css';
+import './Garden90sSierra.css'; // Import pixelated Sierra styles
 import type { GardenSlot, InventoryItem, Season, WeatherFate, DisplayPlant } from 'coven-shared';
 import { adaptPlantForDisplay } from '../utils';
 
@@ -433,7 +434,7 @@ const Garden90s: React.FC<Garden90sProps> = ({
   };
   
   return (
-    <div className={`garden90s-container ${season.toLowerCase()}`}>
+    <div className={`garden90s-container pixelated ${season.toLowerCase()}`}>
       <div className="garden-header">
         <h2>Witch's Garden</h2>
         {renderGardenInfo()}

@@ -1,0 +1,563 @@
+/* Market90sSierra.css - Sierra-style UI for the market component */
+
+/* Import the base pixelated Sierra styles */
+@import './pixelatedSierra.css';
+
+/* Market container with Sierra-style */
+.market90s-container.pixelated {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: var(--sierra-bg);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  /* Pixelated background pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8d5b0"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.2"/></svg>');
+  image-rendering: pixelated;
+}
+
+/* Seasonal variations */
+.market90s-container.pixelated.summer {
+  --sierra-bg: var(--sierra-summer-bg);
+  --sierra-accent: var(--sierra-summer-accent);
+}
+
+/* Market header - Sierra style */
+.market90s-container.pixelated .market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 2px solid var(--sierra-accent);
+  color: var(--sierra-text-highlight);
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.market90s-container.pixelated .market-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  color: var(--sierra-text-highlight);
+}
+
+.market90s-container.pixelated .player-gold {
+  display: flex;
+  align-items: center;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  padding: 5px 10px;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.market90s-container.pixelated .gold-amount {
+  color: var(--sierra-accent);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+}
+
+/* Market tabs - Sierra style */
+.market90s-container.pixelated .market-tabs {
+  display: flex;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 1px solid var(--sierra-accent);
+}
+
+.market90s-container.pixelated .market-tab {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text);
+  border: 1px solid var(--sierra-accent);
+  border-bottom: none;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  cursor: pointer;
+  /* Pixel-perfect button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.market90s-container.pixelated .market-tab:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.market90s-container.pixelated .market-tab.active {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+  /* Invert inset for active tabs */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Main market layout - Sierra style */
+.market90s-container.pixelated .market-main {
+  display: flex;
+  flex: 1;
+  padding: 10px;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.market90s-container.pixelated .market-content {
+  flex: 3;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.market90s-container.pixelated .market-sidebar {
+  flex: 1;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  max-width: 250px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Black market toggle - Sierra style */
+.market90s-container.pixelated .black-market-toggle {
+  padding: 8px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 1px solid var(--sierra-accent);
+  text-align: center;
+}
+
+.market90s-container.pixelated .toggle-button {
+  padding: 5px 10px;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text);
+  border: 1px solid var(--sierra-accent);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  cursor: pointer;
+  /* Pixel-perfect button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.market90s-container.pixelated .toggle-button:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.market90s-container.pixelated .toggle-button.active {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+  /* Invert inset for active state */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Market sections - Sierra style */
+.market90s-container.pixelated .shop-section,
+.market90s-container.pixelated .sell-section,
+.market90s-container.pixelated .requests-section,
+.market90s-container.pixelated .rumors-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Market items - Sierra style */
+.market90s-container.pixelated .market-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  cursor: pointer;
+  margin-bottom: 6px;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.market90s-container.pixelated .market-item:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.market90s-container.pixelated .market-item.selected {
+  border-color: var(--sierra-accent);
+  background-color: var(--sierra-bg-accent);
+}
+
+.market90s-container.pixelated .market-item.unaffordable {
+  opacity: 0.7;
+  background-color: var(--sierra-bg-dark);
+}
+
+.market90s-container.pixelated .item-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.market90s-container.pixelated .item-name {
+  font-size: 12px;
+  color: var(--sierra-text-highlight);
+}
+
+.market90s-container.pixelated .item-type {
+  font-size: 10px;
+  color: var(--sierra-text);
+}
+
+.market90s-container.pixelated .item-price,
+.market90s-container.pixelated .item-quantity {
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  color: var(--sierra-accent);
+  margin-left: 10px;
+  font-size: 12px;
+}
+
+/* Town request styling - Sierra style */
+.market90s-container.pixelated .request-item {
+  padding: 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  margin-bottom: 10px;
+  cursor: pointer;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.market90s-container.pixelated .request-item:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.market90s-container.pixelated .request-item.selected {
+  border-color: var(--sierra-accent);
+  background-color: var(--sierra-bg-accent);
+}
+
+.market90s-container.pixelated .request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+
+.market90s-container.pixelated .request-title {
+  font-size: 14px;
+  color: var(--sierra-text-highlight);
+}
+
+.market90s-container.pixelated .request-reward {
+  color: var(--sierra-accent);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+}
+
+.market90s-container.pixelated .request-requester {
+  font-size: 10px;
+  color: var(--sierra-text);
+  margin-bottom: 5px;
+}
+
+.market90s-container.pixelated .request-description {
+  font-size: 12px;
+  color: var(--sierra-text);
+  margin-bottom: 5px;
+}
+
+.market90s-container.pixelated .request-requirements {
+  display: flex;
+  font-size: 10px;
+  border-top: 1px dashed var(--sierra-accent);
+  padding-top: 5px;
+}
+
+.market90s-container.pixelated .req-label {
+  font-weight: bold;
+  margin-right: 5px;
+  color: var(--sierra-accent);
+}
+
+/* Rumors styling - Sierra style */
+.market90s-container.pixelated .rumor-item {
+  padding: 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  margin-bottom: 10px;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.market90s-container.pixelated .rumor-text {
+  font-size: 12px;
+  color: var(--sierra-text);
+  margin-bottom: 5px;
+}
+
+.market90s-container.pixelated .rumor-source {
+  text-align: right;
+  font-size: 10px;
+  color: var(--sierra-accent);
+}
+
+/* Empty state messages - Sierra style */
+.market90s-container.pixelated .empty-market,
+.market90s-container.pixelated .empty-inventory,
+.market90s-container.pixelated .empty-requests,
+.market90s-container.pixelated .empty-rumors {
+  padding: 20px;
+  text-align: center;
+  color: var(--sierra-text);
+}
+
+/* Item details panel - Sierra style */
+.market90s-container.pixelated .item-details-panel,
+.market90s-container.pixelated .request-details-panel {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: var(--sierra-text);
+}
+
+.market90s-container.pixelated .item-details-panel.empty,
+.market90s-container.pixelated .request-details-panel.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sierra-text-muted);
+}
+
+.market90s-container.pixelated .item-details-panel h3,
+.market90s-container.pixelated .request-details-panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  text-align: center;
+  color: var(--sierra-text-highlight);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  font-weight: normal;
+}
+
+.market90s-container.pixelated .large-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  margin: 0 auto 10px;
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.market90s-container.pixelated .detail-type {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--sierra-text-muted);
+}
+
+.market90s-container.pixelated .detail-description {
+  font-size: 12px;
+  margin-bottom: 10px;
+  flex: 1;
+}
+
+.market90s-container.pixelated .detail-price {
+  font-size: 12px;
+  color: var(--sierra-accent);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Request detail specific - Sierra style */
+.market90s-container.pixelated .detail-requirements {
+  margin: 10px 0;
+  padding: 5px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  font-size: 12px;
+}
+
+.market90s-container.pixelated .req-header {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--sierra-text-highlight);
+}
+
+.market90s-container.pixelated .req-list li.has-item {
+  color: #7d9153; /* Green for available items */
+}
+
+.market90s-container.pixelated .req-list li.missing-item {
+  color: #b06040; /* Red for missing items */
+}
+
+.market90s-container.pixelated .detail-reward {
+  text-align: center;
+  color: var(--sierra-accent);
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+/* Market ambience panel - Sierra style */
+.market90s-container.pixelated .market-ambience {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.market90s-container.pixelated .market-ambience h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  text-align: center;
+  color: var(--sierra-text-highlight);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  width: 100%;
+  font-weight: normal;
+}
+
+.market90s-container.pixelated .market-ambience p {
+  text-align: center;
+  margin: 10px 0;
+  color: var(--sierra-text);
+  font-size: 12px;
+}
+
+.market90s-container.pixelated .sound-toggle {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.market90s-container.pixelated .toggle-label {
+  font-size: 12px;
+  color: var(--sierra-text);
+}
+
+/* Market buttons - Sierra style */
+.market90s-container.pixelated .market-button {
+  padding: 6px 12px;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 10px;
+  min-width: 120px;
+  text-align: center;
+  /* Pixel-perfect button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.market90s-container.pixelated .market-button:hover:not(.disabled) {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.market90s-container.pixelated .market-button:active:not(.disabled) {
+  /* Invert inset for pressed effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(1px);
+}
+
+.market90s-container.pixelated .market-button.disabled {
+  background-color: var(--sierra-bg-dark);
+  color: var(--sierra-text-muted);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.market90s-container.pixelated .market-button.buy {
+  background-color: var(--sierra-spring-bg);
+  border: 1px solid var(--sierra-spring-accent);
+  color: var(--sierra-text-highlight);
+}
+
+.market90s-container.pixelated .market-button.sell {
+  background-color: var(--sierra-summer-bg);
+  border: 1px solid var(--sierra-summer-accent);
+  color: var(--sierra-text-highlight);
+}
+
+.market90s-container.pixelated .market-button.fulfill {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+}
+
+/* Decorative corners - Sierra style */
+.market90s-container.pixelated .corner-decoration {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.market90s-container.pixelated .corner-decoration.top-left {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.market90s-container.pixelated .corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+.market90s-container.pixelated .corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.market90s-container.pixelated .corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}

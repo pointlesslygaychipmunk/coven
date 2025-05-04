@@ -1,0 +1,258 @@
+/* pixelatedSierra.css - Pixelated Sierra-style UI for the workshop components */
+
+/* Pixel art font - this simulates the look of Sierra games */
+@font-face {
+  font-family: 'PixelSierra';
+  src: local('Times New Roman');
+  font-weight: normal;
+  font-style: normal;
+  letter-spacing: 0.5px;
+}
+
+/* Base styles for Sierra pixelated UI */
+.pixelated {
+  font-family: 'PixelSierra', 'Times New Roman', serif !important;
+  image-rendering: pixelated;
+  /* Apply pixel-perfect scaling */
+  transform-origin: top left;
+  transform: scale(1);
+}
+
+/* Sierra UI variables with pixelated feel */
+:root {
+  --pixel-size: 1px;
+  --sierra-bg: #e8d5b0;
+  --sierra-bg-dark: #d0b990;
+  --sierra-bg-light: #f0e6d2;
+  --sierra-bg-highlight: #fff7e0;
+  --sierra-bg-accent: #eac682;
+  --sierra-accent: #8b6d45;
+  --sierra-accent-light: #c9a97d;
+  --sierra-text: #5a4930;
+  --sierra-text-highlight: #3a2910;
+  --sierra-text-muted: #7d6b4e;
+  
+  /* Seasonal variations */
+  --sierra-spring-bg: #e8d8b0;
+  --sierra-spring-accent: #7d9153;
+  --sierra-summer-bg: #e6d5a5;
+  --sierra-summer-accent: #b06040;
+  --sierra-fall-bg: #e8cba0;
+  --sierra-fall-accent: #9c5a2d;
+  --sierra-winter-bg: #e0e0e8;
+  --sierra-winter-accent: #5c7b9c;
+}
+
+.pixelated.sierra-container {
+  background-color: var(--sierra-bg);
+  color: var(--sierra-text);
+  border: var(--pixel-size) solid var(--sierra-accent);
+  /* Pixelated background pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8d5b0"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.2"/></svg>');
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Sierra Panel with pixelated style */
+.pixelated .sierra-panel {
+  background-color: var(--sierra-bg-light);
+  border: var(--pixel-size) solid var(--sierra-accent);
+  /* Pixel perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Pixelated button styles */
+.pixelated .tab-button {
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  border: var(--pixel-size) solid var(--sierra-accent);
+  /* Pixel perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+  /* Remove rounded corners for pixel perfect look */
+  border-radius: 0;
+}
+
+.pixelated .tab-button.active {
+  /* Invert inset for active state */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Pixelated UI for input elements */
+.pixelated input, 
+.pixelated select, 
+.pixelated button {
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  border: var(--pixel-size) solid var(--sierra-accent);
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+  border-radius: 0;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text);
+}
+
+.pixelated button {
+  /* Button style is outset by default */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.pixelated button:active {
+  /* Button pressed state is inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(1px);
+}
+
+/* Decorative corner elements */
+.pixelated .corner-decoration {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.pixelated .corner-decoration.top-left {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.pixelated .corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+.pixelated .corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.pixelated .corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+/* Moon display pixelated style */
+.pixelated .moon-display {
+  border: var(--pixel-size) solid var(--sierra-accent);
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.pixelated .moon-symbol {
+  color: var(--sierra-accent-light);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Pixelated garden plot style */
+.pixelated .garden-plot {
+  background-color: var(--sierra-bg-light);
+  border: var(--pixel-size) solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 24px;
+  color: var(--sierra-accent);
+  aspect-ratio: 1;
+  /* Pixel-perfect inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+  /* Pixelated soil texture */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8e0c8"/><path d="M1,1 h1 v1 h-1 Z M3,3 h1 v1 h-1 Z M5,5 h1 v1 h-1 Z M7,7 h1 v1 h-1 Z" fill="%23dac9a9" opacity="0.5"/></svg>');
+}
+
+/* Pixelated scrollbar for Sierra theme */
+.pixelated ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.pixelated ::-webkit-scrollbar-track {
+  background: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+}
+
+.pixelated ::-webkit-scrollbar-thumb {
+  background: var(--sierra-accent-light);
+  border: 1px solid var(--sierra-accent);
+  border-radius: 0; /* Remove rounded corners for pixelated look */
+}
+
+.pixelated ::-webkit-scrollbar-thumb:hover {
+  background: var(--sierra-accent);
+}
+
+.pixelated ::-webkit-scrollbar-corner {
+  background: var(--sierra-bg-light);
+}
+
+/* Brewing section pixelated styles */
+.pixelated .brewing-section .cauldron {
+  background-color: var(--sierra-bg-dark);
+  border: var(--pixel-size) solid var(--sierra-accent);
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.pixelated .brewing-section .bubble {
+  border-radius: 0; /* Square bubbles for pixelated look */
+}
+
+/* Atelier section pixelated styles */
+.pixelated .atelier-section .crafting-circle {
+  border: var(--pixel-size) solid var(--sierra-accent);
+  background-color: var(--sierra-bg-dark);
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Packaging section pixelated styles */
+.pixelated .packaging-section .package-container {
+  border: var(--pixel-size) solid var(--sierra-accent);
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Apply seasonal themes */
+.pixelated.spring {
+  --sierra-bg: var(--sierra-spring-bg);
+  --sierra-accent: var(--sierra-spring-accent);
+}
+
+.pixelated.summer {
+  --sierra-bg: var(--sierra-summer-bg);
+  --sierra-accent: var(--sierra-summer-accent);
+}
+
+.pixelated.fall {
+  --sierra-bg: var(--sierra-fall-bg);
+  --sierra-accent: var(--sierra-fall-accent);
+}
+
+.pixelated.winter {
+  --sierra-bg: var(--sierra-winter-bg);
+  --sierra-accent: var(--sierra-winter-accent);
+}

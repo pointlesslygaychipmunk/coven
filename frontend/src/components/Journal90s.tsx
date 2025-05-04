@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Journal90s.css';
+import './Journal90sSierra.css'; // Import pixelated Sierra styles
 
 // Custom JournalEntry type for our UI component
 // This differs from the shared type but works for our UI
@@ -440,7 +441,7 @@ const Journal90s: React.FC<Journal90sProps> = ({
   };
   
   return (
-    <div className="journal90s-container">
+    <div className="journal90s-container pixelated">
       <div className="journal-header">
         <h2>Witch's Journal</h2>
         <div className="journal-date">{formatDate()}</div>

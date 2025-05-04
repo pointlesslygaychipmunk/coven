@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Market90s.css';
+import './Market90sSierra.css'; // Import pixelated Sierra styles
 import type { InventoryItem } from 'coven-shared';
 
 interface MarketItem {
@@ -402,7 +403,7 @@ const Market90s: React.FC<Market90sProps> = ({
   };
   
   return (
-    <div className="market90s-container">
+    <div className="market90s-container pixelated">
       <div className="market-header">
         <h2>Town Market</h2>
         <div className="player-gold">

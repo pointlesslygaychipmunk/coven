@@ -1,0 +1,731 @@
+/* Journal90sSierra.css - Sierra-style UI for the journal component */
+
+/* Import the base pixelated Sierra styles */
+@import './pixelatedSierra.css';
+
+/* Journal container with Sierra-style */
+.journal90s-container.pixelated {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: var(--sierra-bg);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  /* Pixelated background pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8d5b0"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.2"/></svg>');
+  image-rendering: pixelated;
+}
+
+/* Seasonal variations */
+.journal90s-container.pixelated.fall {
+  --sierra-bg: var(--sierra-fall-bg);
+  --sierra-accent: var(--sierra-fall-accent);
+}
+
+/* Journal header - Sierra style */
+.journal90s-container.pixelated .journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 2px solid var(--sierra-accent);
+  color: var(--sierra-text-highlight);
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.journal90s-container.pixelated .journal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  color: var(--sierra-text-highlight);
+}
+
+.journal90s-container.pixelated .journal-date {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  padding: 5px 10px;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Journal tabs - Sierra style */
+.journal90s-container.pixelated .journal-tabs {
+  display: flex;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .journal-tab {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text);
+  border: 1px solid var(--sierra-accent);
+  border-bottom: none;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  cursor: pointer;
+  /* Pixel-perfect button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.journal90s-container.pixelated .journal-tab:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.journal90s-container.pixelated .journal-tab.active {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+  /* Invert inset for active tabs */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Main journal layout - Sierra style */
+.journal90s-container.pixelated .journal-main {
+  display: flex;
+  flex: 1;
+  padding: 10px;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.journal90s-container.pixelated .journal-sidebar {
+  flex: 1;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.journal90s-container.pixelated .journal-content {
+  flex: 2;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  overflow: hidden;
+  display: flex;
+  position: relative;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Filter dropdown - Sierra style */
+.journal90s-container.pixelated .filter-container {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .filter-label {
+  margin-right: 8px;
+  font-size: 12px;
+  color: var(--sierra-text-light);
+}
+
+.journal90s-container.pixelated .filter-dropdown {
+  flex: 1;
+  padding: 4px 8px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Journal entries styling - Sierra style */
+.journal90s-container.pixelated .journal-entries {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.journal90s-container.pixelated .journal-entry {
+  padding: 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  margin-bottom: 8px;
+  cursor: pointer;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.journal90s-container.pixelated .journal-entry:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.journal90s-container.pixelated .journal-entry.selected {
+  border-color: var(--sierra-accent);
+  background-color: var(--sierra-bg-accent);
+}
+
+/* Entry type indicators - Sierra style */
+.journal90s-container.pixelated .journal-entry::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.journal90s-container.pixelated .journal-entry.quest::before {
+  background-color: #7d9153; /* Green for quests */
+}
+
+.journal90s-container.pixelated .journal-entry.event::before {
+  background-color: #5c7b9c; /* Blue for events */
+}
+
+.journal90s-container.pixelated .journal-entry.discovery::before {
+  background-color: #8e5abc; /* Purple for discoveries */
+}
+
+.journal90s-container.pixelated .journal-entry.lore::before {
+  background-color: #9c5a2d; /* Brown for lore */
+}
+
+.journal90s-container.pixelated .entry-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+}
+
+.journal90s-container.pixelated .entry-title {
+  font-size: 12px;
+  color: var(--sierra-text-highlight);
+}
+
+.journal90s-container.pixelated .entry-date {
+  font-size: 10px;
+  color: var(--sierra-text);
+}
+
+.journal90s-container.pixelated .entry-preview {
+  font-size: 10px;
+  color: var(--sierra-text);
+  margin-bottom: 5px;
+  padding-left: 5px;
+}
+
+.journal90s-container.pixelated .entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-left: 5px;
+}
+
+.journal90s-container.pixelated .entry-tag {
+  font-size: 8px;
+  padding: 2px 4px;
+  background-color: var(--sierra-bg-dark);
+  color: var(--sierra-text-light);
+}
+
+/* Empty state messages - Sierra style */
+.journal90s-container.pixelated .empty-entries,
+.journal90s-container.pixelated .empty-quests,
+.journal90s-container.pixelated .empty-rituals {
+  padding: 20px;
+  text-align: center;
+  color: var(--sierra-text);
+}
+
+/* Quest styling - Sierra style */
+.journal90s-container.pixelated .quests-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal90s-container.pixelated .quest-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.journal90s-container.pixelated .section-header {
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 3px;
+  margin-bottom: 5px;
+  color: var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .empty-section {
+  font-size: 10px;
+  color: var(--sierra-text);
+  text-align: center;
+  margin: 5px 0;
+}
+
+.journal90s-container.pixelated .quest-item {
+  padding: 8px 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  cursor: pointer;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.journal90s-container.pixelated .quest-item:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.journal90s-container.pixelated .quest-item.selected {
+  border-color: var(--sierra-accent);
+  background-color: var(--sierra-bg-accent);
+}
+
+/* Quest status indicators - Sierra style */
+.journal90s-container.pixelated .quest-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.journal90s-container.pixelated .quest-item.active::before {
+  background-color: #7d9153; /* Green for active quests */
+}
+
+.journal90s-container.pixelated .quest-item.completed::before {
+  background-color: var(--sierra-accent); /* Gold for completed quests */
+}
+
+.journal90s-container.pixelated .quest-item.failed::before {
+  background-color: #b06040; /* Red for failed quests */
+}
+
+.journal90s-container.pixelated .quest-title {
+  font-size: 12px;
+  color: var(--sierra-text);
+  padding-left: 5px;
+}
+
+.journal90s-container.pixelated .quest-progress {
+  margin-top: 5px;
+  padding-left: 5px;
+}
+
+.journal90s-container.pixelated .progress-bar {
+  height: 6px;
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+  margin-bottom: 2px;
+}
+
+.journal90s-container.pixelated .progress-fill {
+  height: 100%;
+  background-color: #7d9153;
+}
+
+.journal90s-container.pixelated .progress-value {
+  font-size: 8px;
+  text-align: right;
+  color: var(--sierra-text);
+}
+
+/* Ritual styling - Sierra style */
+.journal90s-container.pixelated .rituals-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal90s-container.pixelated .ritual-points {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 1px solid var(--sierra-accent);
+  margin-bottom: 10px;
+}
+
+.journal90s-container.pixelated .points-label {
+  font-size: 12px;
+  color: var(--sierra-text-light);
+}
+
+.journal90s-container.pixelated .points-value {
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  color: var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .ritual-item {
+  padding: 8px 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  cursor: pointer;
+  /* Pixel-perfect shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.journal90s-container.pixelated .ritual-item:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.journal90s-container.pixelated .ritual-item.selected {
+  border-color: var(--sierra-accent);
+  background-color: var(--sierra-bg-accent);
+}
+
+/* Ritual status indicators - Sierra style */
+.journal90s-container.pixelated .ritual-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.journal90s-container.pixelated .ritual-item.available::before {
+  background-color: #7d9153; /* Green for available rituals */
+}
+
+.journal90s-container.pixelated .ritual-item.completed::before {
+  background-color: var(--sierra-accent); /* Gold for completed rituals */
+}
+
+.journal90s-container.pixelated .ritual-item.locked::before {
+  background-color: #7d7d7d; /* Gray for locked rituals */
+}
+
+.journal90s-container.pixelated .ritual-title {
+  font-size: 12px;
+  color: var(--sierra-text);
+  padding-left: 5px;
+}
+
+/* Journal page styling - Sierra style */
+.journal90s-container.pixelated .journal-page {
+  flex: 1;
+  padding: 20px;
+  color: var(--sierra-text);
+  background-color: var(--sierra-bg-light);
+  /* Pixelated paper texture */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23f4eee2"/><rect width="1" height="1" fill="%23e4d9b9" opacity="0.3"/></svg>');
+  overflow-y: auto;
+  position: relative;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+}
+
+.journal90s-container.pixelated .journal-page.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sierra-text-muted);
+  text-align: center;
+}
+
+.journal90s-container.pixelated .journal-page-date {
+  font-size: 10px;
+  color: var(--sierra-text-muted);
+  text-align: right;
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.journal90s-container.pixelated .journal-page-title {
+  font-size: 16px;
+  color: var(--sierra-text-highlight);
+  text-align: center;
+  margin: 0 0 15px 0;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  position: relative;
+}
+
+.journal90s-container.pixelated .journal-page-content {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  text-align: justify;
+  position: relative;
+}
+
+.journal90s-container.pixelated .journal-page-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 15px;
+  border-top: 1px dashed var(--sierra-accent);
+  padding-top: 10px;
+}
+
+.journal90s-container.pixelated .page-tag {
+  font-size: 10px;
+  padding: 2px 4px;
+  background-color: var(--sierra-bg-dark);
+  color: var(--sierra-text-light);
+}
+
+/* Quest details styling - Sierra style */
+.journal90s-container.pixelated .quest-status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--sierra-text-light);
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .quest-steps {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .quest-steps h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--sierra-text-highlight);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  font-weight: normal;
+}
+
+.journal90s-container.pixelated .steps-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.journal90s-container.pixelated .steps-list li {
+  padding: 5px 0 5px 20px;
+  position: relative;
+  font-size: 12px;
+}
+
+.journal90s-container.pixelated .steps-list li::before {
+  content: '□';
+  position: absolute;
+  left: 5px;
+  color: var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .steps-list li.completed {
+  color: var(--sierra-text-muted);
+  text-decoration: line-through;
+}
+
+.journal90s-container.pixelated .steps-list li.completed::before {
+  content: '☑';
+  color: var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .quest-rewards {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .quest-rewards h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--sierra-text-highlight);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  font-weight: normal;
+}
+
+.journal90s-container.pixelated .rewards-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.journal90s-container.pixelated .rewards-list li {
+  padding: 5px 0 5px 20px;
+  position: relative;
+  font-size: 12px;
+}
+
+.journal90s-container.pixelated .rewards-list li::before {
+  content: '✦';
+  position: absolute;
+  left: 5px;
+  color: var(--sierra-accent);
+}
+
+/* Ritual details styling - Sierra style */
+.journal90s-container.pixelated .ritual-status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--sierra-text-light);
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .ritual-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.journal90s-container.pixelated .ritual-requirements,
+.journal90s-container.pixelated .ritual-rewards {
+  padding: 10px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .ritual-requirements h4,
+.journal90s-container.pixelated .ritual-rewards h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--sierra-text-highlight);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 5px;
+  font-weight: normal;
+}
+
+.journal90s-container.pixelated .requirements-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.journal90s-container.pixelated .requirements-list li {
+  padding: 5px 0 5px 20px;
+  position: relative;
+  font-size: 12px;
+}
+
+.journal90s-container.pixelated .requirements-list li::before {
+  content: '◆';
+  position: absolute;
+  left: 5px;
+  color: var(--sierra-accent);
+}
+
+/* Journal button - Sierra style */
+.journal90s-container.pixelated .journal-button {
+  padding: 6px 12px;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 15px auto 0;
+  display: block;
+  min-width: 120px;
+  text-align: center;
+  /* Pixel-perfect button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.journal90s-container.pixelated .journal-button:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.journal90s-container.pixelated .journal-button:active {
+  /* Invert inset for pressed effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(1px);
+}
+
+.journal90s-container.pixelated .journal-button.claim-ritual {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+}
+
+/* Decorative corners - Sierra style */
+.journal90s-container.pixelated .corner-decoration {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.journal90s-container.pixelated .corner-decoration.top-left {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.journal90s-container.pixelated .corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}

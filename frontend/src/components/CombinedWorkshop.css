@@ -1,0 +1,301 @@
+/* CombinedWorkshop.css - Sierra-style UI for the integrated workshop */
+
+.combined-workshop-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  color: var(--sierra-text);
+  background-color: var(--sierra-bg);
+  font-family: 'Sierra', 'Times New Roman', serif;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0e6d2"/><path d="M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100" stroke="%23e6d2b3" stroke-width="0.5" opacity="0.3"/></svg>');
+  padding: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid var(--sierra-accent);
+  box-shadow: 
+    inset 1px 1px 3px rgba(255, 255, 255, 0.7),
+    inset -1px -1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Header styling */
+.workshop-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 2px solid var(--sierra-accent);
+  position: relative;
+  height: 60px;
+}
+
+.workshop-title {
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: normal;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  flex: 0 0 auto;
+  color: var(--sierra-accent);
+}
+
+/* Tab styling */
+.workshop-tabs {
+  display: flex;
+  margin-left: 2rem;
+  flex-grow: 1;
+  align-items: center;
+  height: 100%;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  margin-right: 0.25rem;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  cursor: pointer;
+  font-family: 'Sierra', 'Times New Roman', serif;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  position: relative;
+  min-width: 150px;
+  text-align: center;
+  /* Pixelated inset */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tab-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.tab-button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.tab-button:hover {
+  background-color: var(--sierra-bg-highlight);
+}
+
+.tab-button.active {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+  border-bottom-color: var(--sierra-bg-accent);
+  border-top-width: 2px;
+  font-weight: bold;
+}
+
+/* Moon phase display */
+.workshop-phase {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.moon-display {
+  display: flex;
+  align-items: center;
+  background-color: var(--sierra-bg-dark);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--sierra-accent);
+  border-radius: 4px;
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.3),
+    1px 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.moon-symbol {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  color: var(--sierra-accent-light);
+}
+
+.phase-name {
+  font-size: 0.9rem;
+  color: var(--sierra-text-highlight);
+}
+
+/* Main content area */
+.workshop-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem;
+  /* Ensures no margin issues */
+  margin: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Recent products panel styling */
+.recent-products-panel {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.recent-products-panel h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: var(--sierra-accent);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--sierra-accent);
+  padding-bottom: 0.25rem;
+}
+
+.recent-products-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.recent-product {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  box-shadow: 
+    1px 1px 3px rgba(0, 0, 0, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3);
+  width: calc(33.33% - 0.5rem);
+  min-width: 200px;
+}
+
+.product-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.product-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.product-name {
+  font-weight: bold;
+  color: var(--sierra-text-highlight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-type {
+  font-size: 0.8rem;
+  color: var(--sierra-text-muted);
+}
+
+.package-now-button {
+  background-color: var(--sierra-bg-highlight);
+  border: 1px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  padding: 0.25rem 0.5rem;
+  font-family: 'Sierra', 'Times New Roman', serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  box-shadow: 
+    1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.package-now-button:hover {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+}
+
+.package-now-button:active {
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+  transform: translateY(1px);
+}
+
+/* Sierra UI panel base style */
+.sierra-panel {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  box-shadow: 
+    1px 1px 3px rgba(0, 0, 0, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Pixelated UI variables */
+:root {
+  --sierra-bg: #e8d5b0;
+  --sierra-bg-dark: #d0b990;
+  --sierra-bg-light: #f0e6d2;
+  --sierra-bg-highlight: #fff7e0;
+  --sierra-bg-accent: #eac682;
+  --sierra-accent: #8b6d45;
+  --sierra-accent-light: #c9a97d;
+  --sierra-text: #5a4930;
+  --sierra-text-highlight: #3a2910;
+  --sierra-text-muted: #7d6b4e;
+  
+  /* Seasonal variations - can be toggled with classes */
+  --sierra-spring-bg: #e8d8b0;
+  --sierra-spring-accent: #7d9153;
+  --sierra-summer-bg: #e6d5a5;
+  --sierra-summer-accent: #b06040;
+  --sierra-fall-bg: #e8cba0;
+  --sierra-fall-accent: #9c5a2d;
+  --sierra-winter-bg: #e0e0e8;
+  --sierra-winter-accent: #5c7b9c;
+}
+
+/* Section-specific styling */
+.brewing-section, .atelier-section, .packaging-section {
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar styling for sierra theme */
+.combined-workshop-container ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.combined-workshop-container ::-webkit-scrollbar-track {
+  background: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+}
+
+.combined-workshop-container ::-webkit-scrollbar-thumb {
+  background: var(--sierra-accent-light);
+  border: 1px solid var(--sierra-accent);
+}
+
+.combined-workshop-container ::-webkit-scrollbar-thumb:hover {
+  background: var(--sierra-accent);
+}
+
+.combined-workshop-container ::-webkit-scrollbar-corner {
+  background: var(--sierra-bg-light);
+}

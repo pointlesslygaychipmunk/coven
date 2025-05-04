@@ -1,0 +1,439 @@
+/* MainGameFrame90s.css - Pixelated Sierra style game UI */
+
+/* Import the base pixelated Sierra styles */
+@import './pixelatedSierra.css';
+
+.game-window {
+  width: 900px;
+  height: 700px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--sierra-bg);
+  color: var(--sierra-text);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--sierra-accent);
+  /* Add subtle background pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e8d5b0"/><path d="M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100" stroke="%23e6d2b3" stroke-width="0.5" opacity="0.3"/></svg>');
+  image-rendering: pixelated;
+}
+
+/* Pixelated Sierra style game header */
+.game-header {
+  height: 40px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 2px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  color: var(--sierra-accent);
+  /* Pixel-perfect inset shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 2;
+}
+
+.game-header h1 {
+  font-size: 20px;
+  margin: 0;
+  font-weight: normal;
+  letter-spacing: 2px;
+  color: var(--sierra-text-highlight);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Main game content area - Sierra style */
+.game-content {
+  display: flex;
+  height: calc(100% - 80px);
+  position: relative;
+  z-index: 1;
+}
+
+/* Left sidebar - Sierra style */
+.left-sidebar {
+  width: 180px;
+  background-color: var(--sierra-bg-light);
+  border-right: 2px solid var(--sierra-accent);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Main viewport - Sierra style */
+.main-viewport {
+  flex: 1;
+  background-color: var(--sierra-bg);
+  overflow: hidden;
+  position: relative;
+  border-left: 1px solid var(--sierra-accent);
+  border-right: 1px solid var(--sierra-accent);
+  /* Pixel-perfect inset shadow */
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Right sidebar - Sierra style */
+.right-sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--sierra-bg-light);
+  border-left: 2px solid var(--sierra-accent);
+  overflow: hidden;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Game footer - Sierra style */
+.game-footer {
+  height: 40px;
+  background-color: var(--sierra-bg-dark);
+  border-top: 2px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 5px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Sierra-style panels */
+.game-panel {
+  background-color: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+  margin: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Panel header - Sierra style */
+.panel-header {
+  background-color: var(--sierra-bg-accent);
+  padding: 5px 10px;
+  color: var(--sierra-text-highlight);
+  text-align: center;
+  border-bottom: 1px solid var(--sierra-accent);
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  color: var(--sierra-text-highlight);
+}
+
+.panel-content {
+  padding: 8px;
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  z-index: 0;
+}
+
+/* Sierra-style navigation buttons */
+.nav-button {
+  padding: 6px 15px;
+  margin: 0 5px;
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-text);
+  border: 1px solid var(--sierra-accent);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  height: 32px;
+  min-width: 80px;
+  /* Pixel-perfect button effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.nav-button:hover {
+  background-color: var(--sierra-bg-highlight);
+  color: var(--sierra-text-highlight);
+}
+
+.nav-button:active {
+  /* Invert inset for pressed effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(1px);
+}
+
+.nav-button.active {
+  background-color: var(--sierra-bg-accent);
+  color: var(--sierra-text-highlight);
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Character panel - Sierra style */
+.character-panel {
+  flex: 1;
+}
+
+.character-portrait {
+  width: 120px;
+  height: 120px;
+  margin: 10px auto;
+  border: 2px solid var(--sierra-accent);
+  background-color: var(--sierra-bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  /* Pixel-perfect border effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.character-initial {
+  color: var(--sierra-accent-light);
+  font-size: 48px;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+.character-name {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--sierra-text-highlight);
+  margin: 5px 0;
+}
+
+.character-level {
+  text-align: center;
+  font-size: 14px;
+  color: var(--sierra-text);
+  margin-bottom: 10px;
+}
+
+/* Status bars - Sierra style */
+.status-bar {
+  height: 15px;
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+  position: relative;
+  margin: 5px 0;
+  /* Pixelated inset effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.status-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.status-fill.health {
+  background-color: #5a783e;
+  /* Pixelated pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%235a783e"/><rect width="1" height="1" fill="%236a884e"/></svg>');
+}
+
+.status-fill.mana {
+  background-color: #7b4dab;
+  /* Pixelated pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><rect width="4" height="4" fill="%237b4dab"/><rect width="1" height="1" fill="%238b5dbb"/></svg>');
+}
+
+.status-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--sierra-text-highlight);
+}
+
+/* Character stats - Sierra style */
+.character-stats {
+  margin-top: 10px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.stat-label {
+  font-weight: bold;
+  color: var(--sierra-text);
+}
+
+.stat-value {
+  color: var(--sierra-text-highlight);
+}
+
+/* Inventory panel - Sierra style */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+  padding: 5px;
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+  /* Pixelated inset effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.inventory-slot {
+  width: 40px;
+  height: 40px;
+  background-color: var(--sierra-bg);
+  border: 1px solid var(--sierra-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  /* Pixelated inset effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.inventory-slot.has-item {
+  background-color: var(--sierra-bg-light);
+  /* Raised effect for slots with items */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Moon panel - Sierra style */
+.moon-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.moon-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  background-color: var(--sierra-bg-dark);
+  border-radius: 50%; /* Keep circular for moon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--sierra-accent);
+  position: relative;
+  /* Pixelated inset effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.moon-symbol {
+  font-size: 48px;
+  color: var(--sierra-accent-light);
+}
+
+.moon-phase {
+  font-size: 14px;
+  color: var(--sierra-text-highlight);
+  text-align: center;
+}
+
+.day-counter {
+  font-size: 12px;
+  color: var(--sierra-text);
+  text-align: center;
+  padding: 3px 10px;
+  background-color: var(--sierra-bg-dark);
+  border: 1px solid var(--sierra-accent);
+  margin-top: 5px;
+  /* Pixelated inset effect */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Viewport placeholder - Sierra style */
+.viewport-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--sierra-text-highlight);
+  position: relative;
+}
+
+/* Add decorative corner elements */
+.corner-decoration {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.corner-decoration.top-left {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+.corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}

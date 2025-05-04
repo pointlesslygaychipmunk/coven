@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './MainGameFrame.css';
-import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization } from 'coven-shared';
+import './MainGameFrame90s.css'; // Import pixelated Sierra styles
+import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization, Material, DesignStyle, SpecialEffect, Brand, PackageType, Product } from 'coven-shared';
 import { createDefaultInventoryItem, createDefaultGardenSlot } from '../utils/playerStateMocks';
 
 // Import updated 90s-style components
@@ -9,6 +10,7 @@ import Brewing90s from './Brewing90s';
 // import Atelier90s from './Atelier90s'; // We'll implement this later
 import Market90s from './Market90s';
 import Journal90s from './Journal90s';
+import CombinedWorkshop90s from './CombinedWorkshop90s';
 
 interface MainGameFrameProps {
   playerName: string;
@@ -322,7 +324,116 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
           />
         );
       case "atelier":
-        return <div className="viewport-placeholder atelier">Atelier View (Coming Soon)</div>;
+        return (
+          <CombinedWorkshop90s
+            playerInventory={mockInventory}
+            knownRecipes={knownRecipes.filter(r => r.type !== 'request')}
+            lunarPhase={lunarPhase}
+            playerLevel={playerLevel}
+            playerSpecialization={"Essence" as AtelierSpecialization}
+            playerCraftSkill={alchemySkill}
+            playerArtistrySkill={herbalKnowledge}
+            products={[
+              {
+                id: "product1",
+                name: "Healing Tonic",
+                description: "Restores vitality and health.",
+                type: "potion",
+                category: "healing",
+                rarity: "common",
+                value: 50,
+                icon: "🧪",
+                quality: 80
+              },
+              {
+                id: "product2",
+                name: "Lunar Essence",
+                description: "Captures moonlight energy in liquid form.",
+                type: "potion",
+                category: "essence",
+                rarity: "uncommon",
+                value: 75,
+                icon: "✨",
+                quality: 85
+              }
+            ]}
+            packagingMaterials={[
+              {
+                id: "m1",
+                name: "Glass",
+                description: "Clear glass material for bottles.",
+                materialType: "glass",
+                icon: "🧪",
+                durability: 7,
+                qualityLevel: 8,
+                quantity: 3
+              },
+              {
+                id: "m2",
+                name: "Wood",
+                description: "Polished wooden material for boxes.",
+                materialType: "wood",
+                icon: "🪵",
+                durability: 8,
+                qualityLevel: 7,
+                quantity: 2
+              }
+            ]}
+            designStyles={[
+              {
+                id: "d1",
+                name: "Elegant",
+                description: "A refined, sophisticated design style.",
+                designStyle: "elegant",
+                icon: "🎨",
+                complexityLevel: 7,
+                customerAppeal: 8
+              },
+              {
+                id: "d2",
+                name: "Rustic",
+                description: "A charming, natural design style.",
+                designStyle: "rustic",
+                icon: "🏡",
+                complexityLevel: 5,
+                customerAppeal: 7
+              }
+            ]}
+            specialEffects={[
+              {
+                id: "e1",
+                name: "Shimmer",
+                description: "Adds a subtle shimmer effect.",
+                effectType: "shimmer",
+                icon: "✨",
+                rarity: 6,
+                power: 5,
+                quantity: 2
+              }
+            ]}
+            brands={[
+              {
+                id: "b1",
+                name: "Moonlight Brews",
+                description: "Your personal brand for magical potions.",
+                icon: "🌙",
+                reputation: 7,
+                recognition: 6
+              }
+            ]}
+            packagingDesigns={[]}
+            onBrew={handleBrew}
+            onCraftItem={(ingredientIds, resultItemId) => console.log(`Crafting ${resultItemId} with ingredients ${ingredientIds.join(', ')}`)}
+            onDesignCreate={(design) => {
+              console.log("Created design:", design);
+              return Promise.resolve();
+            }}
+            onApplyToProduct={(design, product) => {
+              console.log("Applied design to product:", design, product);
+              return Promise.resolve();
+            }}
+          />
+        );
       case "market":
         return (
           <Market90s
@@ -380,7 +491,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   
   // Main component render
   return (
-    <div className="game-window">
+    <div className="game-window pixelated">
       {/* Game Header */}
       <div className="game-header">
         <h1>COVEN: GLOW BRIGHTLY</h1>
