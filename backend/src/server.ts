@@ -389,14 +389,36 @@ app.get('/socketio-debug', (_req: Request, res: Response) => {
   });
 });
 
-// EMERGENCY: Add very simple health check endpoint
-app.get('/health-check', (_req: Request, res: Response) => {
+// EMERGENCY: Add very simple health check endpoint with Cloudflare diagnostic info
+app.get('/health-check', (req: Request, res: Response) => {
   // Set CORS headers for maximum compatibility
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.header('Pragma', 'no-cache');
   
-  // Basic OK response
-  res.send('OK');
+  // Enhanced response with Cloudflare diagnostic info
+  const cfHeaders = {};
+  
+  // Extract all Cloudflare-related headers
+  Object.keys(req.headers).forEach(key => {
+    if (key.toLowerCase().startsWith('cf-') || key.toLowerCase().startsWith('x-')) {
+      cfHeaders[key] = req.headers[key];
+    }
+  });
+  
+  // Return diagnostic info
+  res.json({
+    status: 'OK',
+    timestamp: Date.now(),
+    cloudflare: cfHeaders,
+    protocol: req.protocol,
+    secure: req.secure,
+    host: req.headers.host || 'unknown',
+    ip: req.ip,
+    originalUrl: req.originalUrl,
+    socketPath: '/socket.io/'
+  });
 });
 
 app.post('/api/plant', (req: Request, res: Response): void => {

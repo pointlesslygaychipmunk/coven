@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Witch's Coven - Basic Connection Tester</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #6a0dad; }
+        button {
+            background: #6a0dad;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            overflow: auto;
+            border-radius: 4px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        #status { 
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Witch's Coven - Ultra Basic Connection Tester</h1>
+    <p>This is a bare-bones connection test for diagnosing Cloudflare Tunnel issues.</p>
+    
+    <div id="status">Status: Not connected</div>
+    
+    <div>
+        <button onclick="testFetch()">Test Basic Fetch</button>
+        <button onclick="testXhr()">Test XHR</button>
+        <button onclick="testPolling()">Test Polling Only</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+    </div>
+    
+    <h2>Results</h2>
+    <pre id="results">No tests run yet</pre>
+    
+    <h2>Connection Log</h2>
+    <pre id="log"></pre>
+
+    <script>
+        // Log function
+        function log(message, isError = false) {
+            const logElem = document.getElementById('log');
+            const time = new Date().toISOString().substring(11, 19);
+            logElem.innerHTML = `${time} ${isError ? '❌' : '✅'} ${message}\n` + logElem.innerHTML;
+            console.log(`${isError ? 'ERROR' : 'INFO'}: ${message}`);
+        }
+
+        // Update status
+        function updateStatus(message, isSuccess = false, isError = false) {
+            const statusElem = document.getElementById('status');
+            statusElem.textContent = `Status: ${message}`;
+            statusElem.className = '';
+            if (isSuccess) statusElem.className = 'success';
+            if (isError) statusElem.className = 'error';
+        }
+
+        // Show results
+        function showResults(data) {
+            const resultsElem = document.getElementById('results');
+            if (typeof data === 'object') {
+                resultsElem.textContent = JSON.stringify(data, null, 2);
+            } else {
+                resultsElem.textContent = data;
+            }
+        }
+
+        // Test basic fetch
+        async function testFetch() {
+            updateStatus('Testing fetch...'); 
+            log('Starting fetch test');
+            
+            try {
+                const startTime = Date.now();
+                // Add cache-busting parameter
+                const response = await fetch(`/health-check?nocache=${Date.now()}`);
+                const responseTime = Date.now() - startTime;
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    log(`Fetch successful in ${responseTime}ms: ${text}`);
+                    updateStatus(`Fetch successful in ${responseTime}ms`, true);
+                    showResults({
+                        status: response.status,
+                        text: text,
+                        time: responseTime,
+                        headers: Object.fromEntries([...response.headers])
+                    });
+                } else {
+                    log(`Fetch failed with status ${response.status}`, true);
+                    updateStatus(`Fetch failed: ${response.status}`, false, true);
+                    showResults(`Failed with status: ${response.status}`);
+                }
+            } catch (err) {
+                log(`Fetch error: ${err.message}`, true);
+                updateStatus(`Fetch error: ${err.message}`, false, true);
+                showResults(err.stack || err.message);
+            }
+        }
+
+        // Test XHR
+        function testXhr() {
+            updateStatus('Testing XHR...');
+            log('Starting XHR test'); 
+            
+            const xhr = new XMLHttpRequest();
+            const startTime = Date.now();
+            
+            xhr.onload = function() {
+                const responseTime = Date.now() - startTime;
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    log(`XHR successful in ${responseTime}ms: ${xhr.responseText}`);
+                    updateStatus(`XHR successful in ${responseTime}ms`, true);
+                    showResults({
+                        status: xhr.status,
+                        text: xhr.responseText,
+                        time: responseTime,
+                        headers: xhr.getAllResponseHeaders()
+                    });
+                } else {
+                    log(`XHR failed with status ${xhr.status}`, true);
+                    updateStatus(`XHR failed: ${xhr.status}`, false, true);
+                    showResults(`Failed with status: ${xhr.status}`);
+                }
+            };
+            
+            xhr.onerror = function(err) {
+                log(`XHR error: ${err || 'Unknown error'}`, true);
+                updateStatus('XHR error', false, true);
+                showResults('Network error occurred');
+            };
+            
+            xhr.open('GET', `/health-check?nocache=${Date.now()}`);
+            xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            xhr.setRequestHeader('Pragma', 'no-cache');
+            xhr.send();
+        }
+
+        // Test polling only transport
+        function testPolling() {
+            updateStatus('Testing polling...');
+            log('Attempting direct polling connection');
+            
+            // Check if Socket.IO is included
+            if (typeof io === 'undefined') {
+                log('Socket.IO not available!', true);
+                updateStatus('Socket.IO not available!', false, true);
+                showResults('ERROR: Socket.IO not available. This test needs Socket.IO client.');
+                
+                // Try to dynamically load Socket.IO client
+                const script = document.createElement('script');
+                script.src = '/socket.io/socket.io.js';
+                script.onload = function() {
+                    log('Socket.IO client loaded dynamically');
+                    testPolling(); // Try again after loading
+                };
+                script.onerror = function() {
+                    log('Failed to load Socket.IO client', true);
+                };
+                document.head.appendChild(script);
+                return;
+            }
+            
+            // Add timestamp for cache busting
+            const serverUrl = window.location.origin + '?nocache=' + Date.now();
+            log(`Connecting to: ${serverUrl}`);
+            
+            try {
+                // Create Socket.IO connection with minimal config
+                const socket = io(serverUrl, {
+                    transports: ['polling'],     // Polling only - critical
+                    reconnection: false,
+                    timeout: 30000,              // 30 second timeout
+                    forceNew: true,
+                    autoConnect: true,
+                    path: '/socket.io/',
+                    query: {
+                        time: Date.now(),
+                        test: 'direct'
+                    }
+                });
+                
+                // Store socket for debugging
+                window._debugSocket = socket;
+                log('Socket created and stored in window._debugSocket');
+                
+                // Event handlers
+                socket.on('connect', () => {
+                    log(`Connected successfully! Socket ID: ${socket.id}`);
+                    updateStatus(`Connected! Socket ID: ${socket.id}`, true);
+                    showResults({
+                        connected: true,
+                        socketId: socket.id,
+                        transport: socket.io?.engine?.transport?.name || 'unknown',
+                        protocol: window.location.protocol,
+                        eventHandlers: Object.keys(socket._callbacks || {})
+                    });
+                });
+                
+                socket.on('connect_error', (err) => {
+                    log(`Connection error: ${err.message}`, true);
+                    updateStatus(`Connection error: ${err.message}`, false, true);
+                    showResults({
+                        error: err.message,
+                        type: err.type,
+                        description: 'Socket.IO connection error'
+                    });
+                });
+                
+                socket.on('error', (err) => {
+                    log(`Socket error: ${err}`, true);
+                    updateStatus('Socket error', false, true);
+                });
+                
+                log('Waiting for connection...');
+            } catch (err) {
+                log(`Error creating socket: ${err.message}`, true);
+                updateStatus(`Error creating socket: ${err.message}`, false, true);
+                showResults(err.stack || err.message);
+            }
+        }
+        
+        // Clear storage
+        function clearStorage() {
+            try {
+                sessionStorage.clear();
+                log('Session storage cleared');
+                
+                // Only clear game-specific localStorage items
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('coven_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                log('Game localStorage items cleared');
+                updateStatus('Storage cleared', true);
+            } catch (err) {
+                log(`Error clearing storage: ${err.message}`, true);
+                updateStatus(`Error clearing storage: ${err.message}`, false, true);
+            }
+        }
+        
+        // Initialize
+        window.onload = function() {
+            log('Page loaded, ready for testing');
+            updateStatus('Ready for testing');
+        };
+    </script>
+</body>
+</html>
