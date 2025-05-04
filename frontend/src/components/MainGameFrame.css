@@ -1,328 +1,304 @@
-/* MainGameFrame.css - Sierra adventure game styled container */
+/* MainGameFrame.css - Main container styling for 90s fantasy game aesthetic */
 
 :root {
-  /* Sierra-style color palette */
-  --sierra-bg: #e8d5b0;
-  --sierra-bg-dark: #d0b990;
-  --sierra-bg-light: #f0e6d2;
-  --sierra-bg-highlight: #fff7e0;
-  --sierra-bg-accent: #eac682;
-  --sierra-accent: #8b6d45;
-  --sierra-accent-light: #c9a97d;
-  --sierra-text: #5a4930;
-  --sierra-text-highlight: #3a2910;
-  --sierra-text-muted: #7d6b4e;
+  /* 90s Sierra/LucasArts-inspired palette - softer and more harmonious */
+  --color-primary-dark: #2a2a3a;    /* Dark gray-blue base */
+  --color-primary: #3a3a4a;         /* Medium gray-blue */
+  --color-primary-light: #4a4a5a;   /* Light gray-blue */ 
+  --color-secondary: #5a5a48;       /* Earthy gray-green */
+  --color-tertiary: #6a5a48;        /* Warm gray-brown */
+  --color-accent: #7a6a58;          /* Muted gold for accents */
+  --color-accent-green: #4a5a3a;    /* Muted green */
   
-  /* Seasonal variations */
-  --sierra-spring-bg: #e8d8b0;
-  --sierra-spring-accent: #7d9153;
-  --sierra-summer-bg: #e6d5a5;
-  --sierra-summer-accent: #b06040;
-  --sierra-fall-bg: #e8cba0;
-  --sierra-fall-accent: #9c5a2d;
-  --sierra-winter-bg: #e0e0e8;
-  --sierra-winter-accent: #5c7b9c;
+  /* Background colors */
+  --color-bg-dark: #222230;         /* Dark backdrop */
+  --color-bg-medium: #2a2a3a;       /* Medium panels */
+  --color-bg-light: #d0c8b0;        /* Light parchment - less yellow */
+  --color-bg-panel: #b8b090;        /* Panel background - more gray */
+  
+  /* Text colors */
+  --color-text-dark: #202020;       /* Dark text - nearly black */
+  --color-text-medium: #404040;     /* Medium text */
+  --color-text-light: #e0e0d0;      /* Light text - slight cream tint */
+  --color-text-gold: #c0a060;       /* More muted gold text */
+  
+  /* Border colors */
+  --color-border-dark: #282838;     /* Dark borders */
+  --color-border-light: #5a5a6a;    /* Light borders - more contrast */
+  --color-border-gold: #8a7a5a;     /* Gold borders - more muted */
+  
+  /* Fonts */
+  --font-primary: 'VT323', 'Courier New', monospace;    /* Main font - pixelated */
+  --font-secondary: 'Courier New', monospace; /* For emphasis */
   
   /* UI Element Sizes */
   --border-width: 2px;
   --border-radius: 0px;
   --panel-spacing: 8px;
-  
-  /* Font family */
-  --sierra-font: 'PixelSierra', 'Times New Roman', serif;
 }
 
-/* Game window container - Sierra adventure style */
+/* Game window container - fixed size for authentic 90s feel, but larger */
 .game-window {
-  width: 1024px;
-  height: 768px;
+  width: 100%;
+  max-width: var(--game-width, 1024px); /* Use global style var if available */
+  height: 100vh; /* Full viewport height */
   margin: 0 auto;
   position: relative;
   overflow: hidden;
-  background-color: var(--sierra-bg);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8d5b0"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.2"/></svg>');
-  color: var(--sierra-text);
-  font-family: var(--sierra-font);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
-  border: 4px solid var(--sierra-accent);
+  background-color: var(--color-bg-darkest, var(--color-bg-dark));
+  color: var(--color-text-light);
+  font-family: var(--font-primary, var(--font-secondary));
+  box-shadow: var(--shadow-lg, 0 0 20px rgba(0, 0, 0, 0.5));
+  border: var(--border-width-thick, var(--border-width)) solid var(--color-primary-lighter, var(--color-border-dark));
   
-  /* Sierra pixel-perfect style */
+  /* Better image rendering */
   image-rendering: pixelated;
   position: relative;
 }
 
-/* Add a Sierra-style inner border for that classic look */
-.game-window::before {
-  content: '';
+/* Scanlines overlay for DOS CRT monitor effect */
+.game-window::after {
+  content: "";
   position: absolute;
-  top: 5px;
-  left: 5px;
-  right: 5px;
-  bottom: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
   pointer-events: none;
   z-index: 10;
+  opacity: 0.3;
 }
 
 /* Main layout sections */
 .game-header {
-  height: 50px;
-  background-color: var(--sierra-accent);
-  border-bottom: 4px solid var(--sierra-accent);
+  height: 40px;
+  background-color: var(--color-primary-dark);
+  background-image: linear-gradient(to bottom, var(--color-primary), var(--color-primary-dark));
+  border-bottom: 2px solid var(--color-border-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 15px;
-  color: var(--sierra-bg-light);
+  padding: 0 10px;
+  color: var(--color-text-light);
   position: relative;
   z-index: 2;
-}
-
-.game-header::before {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .game-header h1 {
-  font-size: 24px;
+  font-size: 20px;
   margin: 0;
-  font-weight: bold;
+  font-weight: normal;
   letter-spacing: 2px;
-  color: var(--sierra-bg-light);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  font-family: var(--sierra-font);
-  text-transform: uppercase;
+  color: var(--color-text-light);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-primary);
 }
 
 /* Communication Icons */
 .communication-icons {
   position: absolute;
-  right: 15px;
-  top: 10px;
+  right: 10px;
+  top: 5px;
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .comm-button {
-  width: 32px;
-  height: 32px;
-  background-color: var(--sierra-bg-light);
-  border: 2px solid var(--sierra-text);
-  border-radius: 0;
+  width: 30px;
+  height: 30px;
+  background-color: var(--color-primary-light);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius);
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s;
+  font-size: 16px;
+  transition: background-color 0.2s;
   position: relative;
   overflow: visible;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
 }
 
 .comm-button:hover {
-  background-color: var(--sierra-bg-highlight);
-  transform: translateY(-1px);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  background-color: var(--color-accent);
 }
 
 .comm-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.4);
+  background-color: var(--color-primary-dark);
 }
 
 .comm-button.active {
-  background-color: var(--sierra-accent-light);
-  border-color: var(--sierra-accent);
-  color: var(--sierra-bg-light);
-}
-
-.comm-button::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
+  background-color: var(--color-accent);
+  border-color: var(--color-text-gold);
+  color: var(--color-text-light);
 }
 
 /* Communication Panels */
 .communication-panel {
   position: absolute;
-  top: 60px;
-  right: 15px;
-  width: 450px;
+  top: 50px;
+  right: 10px;
+  width: 400px;
   z-index: 100;
-  background-color: var(--sierra-bg);
-  border: 4px solid var(--sierra-accent);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+  background-color: var(--color-bg-medium);
+  border: var(--border-width) solid var(--color-border-dark);
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 }
 
 .communication-panel.mail-panel {
-  top: 60px;
+  top: 50px;
 }
 
 .communication-panel.chat-panel {
-  top: 60px;
-  height: 450px;
+  top: 50px;
+  height: 400px;
 }
 
 .game-content {
   display: flex;
-  height: calc(100% - 100px); /* Adjusted for Sierra header + footer height */
+  height: calc(100% - 80px); /* Adjusted for new header + footer height */
   position: relative;
   z-index: 1;
-  background-color: var(--sierra-bg-light);
 }
 
 .left-sidebar {
-  width: 200px;
-  background-color: var(--sierra-bg);
-  border-right: 3px solid var(--sierra-accent);
+  width: 180px; /* Slightly narrower */
+  background-color: var(--color-bg-medium);
+  border-right: var(--border-width) solid var(--color-border-dark);
+  box-shadow: inset 1px 0 0 var(--color-border-light);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* Prevent overflow */
   position: relative;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8d5b0"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.1"/></svg>');
+  /* Add subtle grid pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="none"/><path d="M20 0v20M0 20h20" stroke="%23222" stroke-width="1" opacity="0.1"/></svg>');
 }
 
-/* Add Sierra-style separator between sidebar panels */
+/* Add subtle separator between sidebar panels */
 .left-sidebar > div:not(:last-child)::after {
   content: "";
   display: block;
-  height: 3px;
-  margin: 5px 10px;
-  background-color: var(--sierra-accent);
+  height: 2px;
+  margin: 0 10px;
+  background: linear-gradient(to right, 
+                transparent 0%, 
+                var(--color-border-dark) 20%, 
+                var(--color-border-dark) 80%, 
+                transparent 100%);
   opacity: 0.3;
 }
 
 .main-viewport {
   flex: 1;
-  background-color: var(--sierra-bg-light);
+  background-color: var(--color-bg-medium);
   overflow: hidden;
   position: relative;
-  border-left: 2px solid var(--sierra-accent);
-  border-right: 2px solid var(--sierra-accent);
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0e6d2"/><path d="M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100" stroke="%23e6d2b3" stroke-width="0.5" opacity="0.4"/></svg>');
+  border-left: 1px solid var(--color-border-dark);
+  border-right: 1px solid var(--color-border-dark);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); /* Inset shadow for depth */
+  /* Add subtle grid pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="none"/><path d="M40 0v40M0 40h40" stroke="%23222" stroke-width="1" opacity="0.1"/></svg>');
 }
 
 .right-sidebar {
-  width: 220px;
+  width: 200px; /* Narrower for better fit */
   display: flex;
   flex-direction: column;
-  border-left: 3px solid var(--sierra-accent);
-  overflow: hidden;
+  border-left: var(--border-width) solid var(--color-border-dark);
+  box-shadow: inset -1px 0 0 var(--color-border-light);
+  overflow: hidden; /* Prevent overflow */
   position: relative;
-  background-color: var(--sierra-bg);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23e8d5b0"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.1"/></svg>');
+  /* Add subtle grid pattern */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="none"/><path d="M20 0v20M0 20h20" stroke="%23222" stroke-width="1" opacity="0.1"/></svg>');
 }
 
-/* Add Sierra-style separator between sidebar panels */
+/* Add subtle separator between sidebar panels */
 .right-sidebar > div:not(:last-child)::after {
   content: "";
   display: block;
-  height: 3px;
-  margin: 5px 10px;
-  background-color: var(--sierra-accent);
+  height: 2px;
+  margin: 0 10px;
+  background: linear-gradient(to right, 
+                transparent 0%, 
+                var(--color-border-dark) 20%, 
+                var(--color-border-dark) 80%, 
+                transparent 100%);
   opacity: 0.3;
 }
 
 .game-footer {
-  height: 50px;
-  background-color: var(--sierra-accent);
-  border-top: 4px solid var(--sierra-accent);
+  height: 40px; /* Fixed height for better DOS look */
+  background-color: var(--color-primary-dark);
+  /* Pixelated gradient look */
+  background-image: linear-gradient(to bottom, var(--color-primary), var(--color-primary-dark));
+  border-top: var(--border-width) solid var(--color-border-gold);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 15px;
+  padding: 0 5px;
   position: relative;
   z-index: 2;
+  box-shadow: 0 -1px 0 var(--color-border-light);
 }
 
-/* Add Sierra-style inner border to footer */
-.game-footer::before {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
-}
-
-/* Panel styling - Sierra style UI */
+/* Panel styling - used throughout the UI */
 .game-panel {
-  background-color: var(--sierra-bg-light);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="%23f0e6d2"/><path d="M0,0 h1 v1 h-1 Z M2,2 h1 v1 h-1 Z M4,4 h1 v1 h-1 Z M6,6 h1 v1 h-1 Z" fill="%23e0d6c2" opacity="0.2"/></svg>');
-  border: 3px solid var(--sierra-accent);
-  margin: 8px;
+  background-color: var(--color-bg-panel);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23b8b090"/><path d="M25 0v100M50 0v100M75 0v100M0 25h100M0 50h100M0 75h100" stroke="%23a9a284" stroke-width="1" opacity="0.5"/></svg>');
+  border: var(--border-width) solid var(--color-border-dark);
+  margin: var(--panel-spacing);
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 1px 1px 0 var(--color-border-light), 
+              inset -1px -1px 0 var(--color-border-dark);
   position: relative;
-}
-
-.game-panel::before {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
-  z-index: 1;
+  /* Double-border effect common in DOS games */
+  outline: 1px solid var(--color-border-dark);
+  outline-offset: -3px;
 }
 
 .panel-header {
-  background-color: var(--sierra-accent);
-  padding: 8px 12px;
-  color: var(--sierra-bg-light);
+  background-color: var(--color-primary);
+  background-image: linear-gradient(to bottom, var(--color-primary-light), var(--color-primary));
+  padding: 5px 10px;
+  color: var(--color-text-light);
+  font-variant: small-caps;
   text-align: center;
-  border-bottom: 2px solid var(--sierra-accent);
-  height: 30px;
+  border-bottom: var(--border-width) solid var(--color-border-dark);
+  text-shadow: 1px 1px 0 #000; /* Sharper pixel-style shadow */
+  height: 24px; /* Fixed height for consistent header sizing */
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-}
-
-.panel-header::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), 
+              inset -1px -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 .panel-header h2 {
   margin: 0;
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px; /* Slightly smaller for DOS aesthetic */
+  font-weight: normal;
   letter-spacing: 1px;
   text-transform: uppercase;
-  font-family: var(--sierra-font);
-  color: var(--sierra-bg-light);
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  font-family: var(--font-primary);
 }
 
 .panel-content {
-  padding: 10px;
+  padding: var(--panel-spacing);
   flex: 1;
   overflow: auto;
+  background: linear-gradient(rgba(255, 255, 255, 0.05), transparent 15px);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 0;
 }
@@ -333,186 +309,187 @@
 }
 
 .character-portrait {
-  width: 140px;
-  height: 140px;
-  margin: 15px auto;
-  border: 3px solid var(--sierra-accent);
-  background-color: var(--sierra-bg-dark);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%23d0b990"/><circle cx="60" cy="50" r="25" fill="%238b6d45" opacity="0.3"/><path d="M60 75 C 40 75, 30 100, 30 120 L 90 120 C 90 100, 80 75, 60 75 Z" fill="%238b6d45" opacity="0.3"/></svg>');
+  width: 120px;
+  height: 120px;
+  margin: 10px auto;
+  border: 0;
+  background-color: var(--color-primary-light);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%233a3a4a"/><circle cx="60" cy="50" r="25" fill="%234a4a5a"/><path d="M60 75 C 40 75, 30 100, 30 120 L 90 120 C 90 100, 80 75, 60 75 Z" fill="%234a4a5a"/></svg>');
   position: relative;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  
+  /* Pixelated DOS-style borders */
+  box-shadow: 
+    0 0 0 2px var(--color-border-dark),
+    0 0 0 4px var(--color-border-gold),
+    0 0 0 6px var(--color-border-dark),
+    2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Sierra-style inner border */
+/* Pixelated inner border */
 .character-portrait::before {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   pointer-events: none;
 }
 
 .character-initial {
-  color: var(--sierra-text-highlight);
-  font-size: 60px;
+  color: var(--color-text-light);
+  font-size: 48px;
   font-weight: bold;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
   position: relative;
   z-index: 2;
-  font-family: var(--sierra-font);
+  font-family: var(--font-primary);
 }
 
 .character-name {
   text-align: center;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
-  color: var(--sierra-text-highlight);
-  margin: 10px 0 5px 0;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
-  font-family: var(--sierra-font);
+  color: var(--color-text-gold);
+  margin: 5px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-primary);
 }
 
 .character-level {
   text-align: center;
-  font-size: 16px;
-  color: var(--sierra-text);
-  margin-bottom: 12px;
-  font-family: var(--sierra-font);
+  font-size: 14px;
+  color: var(--color-text-light);
+  margin-bottom: 10px;
+  font-family: var(--font-primary);
 }
 
 .character-stats {
-  margin-top: 15px;
-  padding: 0 10px;
+  margin-top: 10px;
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 16px;
-  font-family: var(--sierra-font);
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-family: var(--font-primary);
 }
 
 .stat-label {
   font-weight: bold;
-  color: var(--sierra-text);
+  color: var(--color-text-medium);
 }
 
 .stat-value {
-  color: var(--sierra-text-highlight);
-  font-weight: bold;
+  color: var(--color-text-gold);
+  font-family: var(--font-secondary);
 }
 
 /* Resource panel styling */
 .resources-panel {
-  height: 220px;
+  height: 200px;
 }
 
 .resource-item {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .resource-icon {
-  width: 28px;
-  height: 28px;
-  background-color: var(--sierra-accent-light);
-  margin-right: 12px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-accent);
+  margin-right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--sierra-accent);
-  color: var(--sierra-bg-light);
+  border: 2px solid var(--color-border-dark);
+  color: var(--color-text-light);
   font-weight: bold;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-  font-family: var(--sierra-font);
+  font-family: var(--font-primary);
 }
 
 .resource-label {
   flex: 1;
-  color: var(--sierra-text);
-  font-size: 16px;
-  font-family: var(--sierra-font);
+  color: var(--color-text-medium);
+  font-size: 14px;
+  font-family: var(--font-primary);
 }
 
 .resource-value {
   font-weight: bold;
-  color: var(--sierra-text-highlight);
-  font-size: 16px;
-  font-family: var(--sierra-font);
+  color: var(--color-text-gold);
+  font-size: 14px;
+  font-family: var(--font-secondary);
 }
 
 /* Moon phase panel styling */
 .moon-panel {
-  height: 220px;
+  height: 200px;
 }
 
 .moon-display {
   text-align: center;
-  padding: 15px 0;
 }
 
 .moon-icon {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 15px;
-  background-color: var(--sierra-bg-dark);
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 10px;
+  background-color: var(--color-bg-dark);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid var(--sierra-accent);
+  border: 2px solid var(--color-border-gold);
   position: relative;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 20px rgba(123, 77, 171, 0.4), 0 0 10px rgba(192, 145, 84, 0.5);
 }
 
 .moon-icon::before {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 90%;
+  height: 90%;
   border-radius: 50%;
+  border: 1px solid var(--color-primary-light);
+  opacity: 0.5;
 }
 
 .moon-symbol {
-  font-size: 70px;
-  color: var(--sierra-accent);
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  font-size: 60px;
+  color: var(--color-text-light);
+  text-shadow: 0 0 10px var(--color-primary-light);
   font-family: 'Arial Unicode MS', 'Arial', sans-serif;
 }
 
 .moon-phase {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: var(--sierra-text-highlight);
-  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: var(--color-text-medium);
+  font-variant: small-caps;
   letter-spacing: 1px;
   text-align: center;
-  font-family: var(--sierra-font);
+  font-family: var(--font-primary);
 }
 
 .day-counter {
-  font-size: 16px;
-  color: var(--sierra-text);
+  font-size: 12px;
+  font-family: var(--font-secondary);
+  color: var(--color-text-light);
   text-align: center;
-  padding: 5px 15px;
-  background-color: var(--sierra-bg-dark);
+  padding: 3px 10px;
+  background-color: var(--color-primary-dark);
   display: inline-block;
   margin: 0 auto;
-  border: 2px solid var(--sierra-accent);
-  font-family: var(--sierra-font);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border-light);
 }
 
 /* Brewing panel styling */
@@ -527,44 +504,28 @@
 }
 
 .recipe-item {
-  padding: 10px;
-  margin-bottom: 8px;
-  border: 2px solid var(--sierra-accent);
-  background-color: var(--sierra-bg-light);
+  padding: 5px;
+  margin-bottom: 5px;
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-light);
   cursor: pointer;
-  font-family: var(--sierra-font);
-  transition: all 0.15s;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-.recipe-item::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
+  font-family: var(--font-secondary);
 }
 
 .recipe-item:hover {
-  background-color: var(--sierra-bg-highlight);
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+  background-color: var(--color-bg-panel);
 }
 
 .recipe-name {
   font-weight: bold;
-  color: var(--sierra-text-highlight);
-  font-size: 16px;
+  color: var(--color-text-dark);
+  font-size: 14px;
 }
 
 .recipe-difficulty {
-  color: var(--sierra-text);
-  font-size: 14px;
-  margin-top: 5px;
+  color: var(--color-text-medium);
+  font-size: 12px;
+  margin-top: 3px;
 }
 
 /* Quest log styling */
@@ -574,173 +535,183 @@
 
 .quest-scroll {
   height: 100%;
-  padding: 15px;
-  font-size: 16px;
-  color: var(--sierra-text);
-  font-family: var(--sierra-font);
-  background-color: var(--sierra-bg-light);
-  border: 2px solid var(--sierra-accent);
+  padding: 10px;
+  font-size: 14px;
+  color: var(--color-text-dark);
+  font-family: var(--font-secondary);
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-border-light);
   overflow-y: auto;
 }
 
 .quest-entry {
-  margin-bottom: 15px;
-  padding: 10px;
-  background-color: var(--sierra-bg);
-  border: 2px solid var(--sierra-accent);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: var(--color-bg-panel);
+  border: 1px solid var(--color-border-light);
   position: relative;
-}
-
-.quest-entry::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  pointer-events: none;
 }
 
 .quest-title {
   font-weight: bold;
-  font-size: 18px;
-  color: var(--sierra-text-highlight);
-  margin-bottom: 5px;
+  font-size: 15px;
+  color: var(--color-text-gold);
+  margin-bottom: 4px;
 }
 
 .quest-description {
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
 .quest-status {
   font-style: italic;
-  color: var(--sierra-accent);
-  font-weight: bold;
+  color: var(--color-text-medium);
 }
 
-/* Navigation buttons - Sierra adventure style */
+/* Navigation buttons - with more authentic DOS pixelated style */
 .nav-button {
-  padding: 8px 15px;
+  padding: 5px 10px;
   margin: 0 5px;
-  background-color: var(--sierra-bg-light);
-  color: var(--sierra-text);
-  border: 2px solid var(--sierra-accent);
-  font-family: var(--sierra-font);
-  font-size: 16px;
+  background-color: var(--color-primary);
+  background-image: linear-gradient(to bottom, var(--color-primary-light), var(--color-primary));
+  color: var(--color-text-light);
+  border: 0;
+  font-family: var(--font-primary);
+  font-size: 14px;
   cursor: pointer;
+  text-shadow: 1px 1px 0 #000; /* Sharper pixel-style shadow */
   position: relative;
   letter-spacing: 1px;
   text-transform: uppercase;
-  height: 36px;
-  min-width: 100px;
+  height: 32px; /* Fixed height for consistency */
+  min-width: 80px; /* Minimum width for better proportions */
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
-  transition: all 0.15s;
+  gap: 5px;
+  
+  /* Pixelated border effect using box-shadow */
+  box-shadow: 
+    2px 2px 0 0 var(--color-border-dark),
+    inset 1px 1px 0 0 var(--color-border-light), 
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.5);
 }
 
+/* Pixelated button highlight at top and left */
 .nav-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.2) 0%, 
+                rgba(255, 255, 255, 0.2) 20%, 
+                transparent 20.1%, 
+                transparent 100%);
+}
+
+.nav-button:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-text-gold);
+}
+
+.nav-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 
+    0 0 0 0 var(--color-border-dark),
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.5), 
+    inset -1px -1px 0 0 var(--color-border-light);
+}
+
+.nav-button.active {
+  background-color: var(--color-accent);
+  color: var(--color-text-light);
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 0 var(--color-border-light);
+  transform: translate(1px, 1px);
+}
+
+/* Special focus effect for active buttons */
+.nav-button.active::after {
   content: '';
   position: absolute;
   top: 2px;
   left: 2px;
   right: 2px;
   bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px dotted rgba(255, 255, 255, 0.3);
   pointer-events: none;
-}
-
-.nav-button:hover {
-  background-color: var(--sierra-bg-highlight);
-  transform: translateY(-2px);
-  box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.3);
-}
-
-.nav-button:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0.3);
-}
-
-.nav-button.active {
-  background-color: var(--sierra-accent-light);
-  color: var(--sierra-bg-light);
-  border-color: var(--sierra-accent);
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3);
-  transform: translate(1px, 1px);
 }
 
 /* Display icons in navigation buttons */
 .nav-button .pixel-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 2px;
+  width: 16px;
+  height: 16px;
 }
 
-/* Decorative elements - Sierra-style corners */
+/* Decorative elements - fixed to prevent overlapping */
 .corner-decoration {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background-color: transparent;
-  z-index: 5;
+  width: 32px; /* Slightly smaller to prevent overlap */
+  height: 32px; /* Slightly smaller to prevent overlap */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M32 0v32H0V0h32zM30 2H2v28h28V2z" fill="%234a2c6f"/><path d="M30 2v28H2V2h28zM28 4H4v24h24V4z" fill="%237b4dab"/><path d="M12 12L4 4v8h8zM20 12l8-8v8h-8zM12 20l-8 8v-8h8zM20 20l8 8v-8h-8z" fill="%234a2c6f"/></svg>');
   pointer-events: none;
+  z-index: 5; /* Ensure these stay above content but below other UI elements */
 }
 
 .corner-decoration.top-left {
-  top: 0;
-  left: 0;
-  border-top: 3px solid var(--sierra-accent);
-  border-left: 3px solid var(--sierra-accent);
+  top: 2px;
+  left: 2px;
 }
 
 .corner-decoration.top-right {
-  top: 0;
-  right: 0;
-  border-top: 3px solid var(--sierra-accent);
-  border-right: 3px solid var(--sierra-accent);
+  top: 2px;
+  right: 2px;
+  transform: rotate(90deg);
 }
 
 .corner-decoration.bottom-left {
-  bottom: 0;
-  left: 0;
-  border-bottom: 3px solid var(--sierra-accent);
-  border-left: 3px solid var(--sierra-accent);
+  bottom: 2px;
+  left: 2px;
+  transform: rotate(270deg);
 }
 
 .corner-decoration.bottom-right {
-  bottom: 0;
-  right: 0;
-  border-bottom: 3px solid var(--sierra-accent);
-  border-right: 3px solid var(--sierra-accent);
+  bottom: 2px;
+  right: 2px;
+  transform: rotate(180deg);
 }
 
 /* Status bars styling */
 .status-bar {
-  height: 18px;
-  background-color: var(--sierra-bg-dark);
-  border: 2px solid var(--sierra-accent);
+  height: 15px;
+  background-color: var(--color-bg-dark);
+  border: 1px solid var(--color-border-dark);
   position: relative;
-  margin: 8px 0;
+  margin: 5px 0;
 }
 
 .status-fill {
   height: 100%;
-  background-color: var(--sierra-accent-light);
+  background-color: var(--color-primary-light);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%234a4a5a"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%235a5a6a"/><path d="M0 5h20M0 10h20" stroke="%235a5a6a" stroke-width="1"/></svg>');
   transition: width 0.3s ease;
 }
 
 .status-fill.health {
-  background-color: var(--sierra-spring-accent);
+  background-color: var(--color-accent-green);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%234a5a3a"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%235a6a4a"/><path d="M0 5h20M0 10h20" stroke="%235a6a4a" stroke-width="1"/></svg>');
 }
 
 .status-fill.mana {
-  background-color: var(--sierra-winter-accent);
+  background-color: var(--color-primary-light);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="%234a4a5a"/><path d="M0 0h20v1H0zM0 14h20v1H0z" fill="%235a5a6a"/><path d="M0 5h20M0 10h20" stroke="%235a5a6a" stroke-width="1"/></svg>');
 }
 
 .status-label {
@@ -752,75 +723,80 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  color: var(--sierra-bg-light);
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.7);
-  font-family: var(--sierra-font);
-  font-weight: bold;
+  font-size: 10px;
+  color: var(--color-text-light);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+  font-family: var(--font-secondary);
 }
 
 /* Inventory grid styling */
 .inventory-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-top: 15px;
-  padding: 8px;
-  background-color: var(--sierra-bg-dark);
-  border: 2px solid var(--sierra-accent);
+  gap: 4px;
+  margin-top: 10px;
+  padding: 5px;
+  background-color: var(--color-border-dark);
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 .inventory-slot {
-  width: 42px;
-  height: 42px;
-  background-color: var(--sierra-bg-light);
-  border: 2px solid var(--sierra-accent);
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-bg-dark);
+  border: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: pointer;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s;
+  /* Inset effect for empty slots */
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.8),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.15);
+  /* Pixelated grid background for empty slots */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="%23222"/><path d="M0 0h10v1H0z" fill="%23333" opacity="0.5"/></svg>');
 }
 
 .inventory-slot:hover {
-  background-color: var(--sierra-bg-highlight);
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+  outline: 1px solid var(--color-border-gold);
 }
 
 .inventory-slot::before {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(0, 0, 0, 0.5);
   pointer-events: none;
 }
 
 .inventory-slot.has-item {
-  background-color: var(--sierra-bg);
-  border: 2px solid var(--sierra-accent);
+  background-color: var(--color-bg-medium);
+  /* Raised effect for slots with items */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.5);
+  /* Replace grid with subtle pattern for slots with items */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%233a3a4a"/><path d="M0 0h40v1H0z" fill="%234a4a5a" opacity="0.5"/></svg>');
 }
 
 .inventory-slot.has-item:hover {
-  background-color: var(--sierra-bg-highlight);
+  outline: 2px solid var(--color-border-gold);
 }
 
 .item-count {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  font-size: 10px;
-  color: var(--sierra-bg-light);
-  background-color: var(--sierra-accent);
-  padding: 0 3px;
-  font-family: var(--sierra-font);
-  font-weight: bold;
-  border: 1px solid var(--sierra-text);
+  bottom: 1px;
+  right: 1px;
+  font-size: 9px;
+  color: var(--color-text-light);
+  background-color: var(--color-primary-dark);
+  padding: 0 2px;
+  font-family: var(--font-secondary);
+  border: 1px solid var(--color-border-dark);
   box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 }
 
@@ -899,6 +875,45 @@
 
 .glow-effect:hover {
   animation: glow 2s infinite;
+}
+
+/* Keyboard shortcuts help button */
+.keyboard-help-button {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background-color: var(--color-primary);
+  background-image: linear-gradient(to bottom, var(--color-primary-light), var(--color-primary));
+  color: var(--color-text-light);
+  border: var(--border-width) solid var(--color-border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--shadow-md, 0 2px 4px rgba(0, 0, 0, 0.4));
+  z-index: calc(var(--z-tooltip, 1000) - 1);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  /* Pixelated border effect using box-shadow */
+  box-shadow: 
+    2px 2px 0 0 var(--color-border-dark),
+    inset 1px 1px 0 0 var(--color-border-light), 
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.keyboard-help-button:hover {
+  background-color: var(--color-primary-light);
+}
+
+.keyboard-help-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 
+    0 0 0 0 var(--color-border-dark),
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.5), 
+    inset -1px -1px 0 0 var(--color-border-light);
 }
 
 /* Media queries - for display only, not for responsive design */

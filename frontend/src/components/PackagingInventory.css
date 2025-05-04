@@ -1,27 +1,27 @@
 .packaging-inventory-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
+  gap: var(--space-md);
+  padding: var(--space-md);
   min-height: 500px;
-  background-color: rgba(249, 243, 230, 0.7);
-  border-radius: 10px;
-  border: 1px solid #d4c5a8;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-bg-card);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width) solid var(--color-primary-lighter);
+  box-shadow: var(--shadow-md);
 }
 
 .inventory-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
 }
 
 .inventory-header h2 {
   margin: 0;
-  color: #5d4433;
-  font-size: 1.8rem;
-  font-family: 'Cinzel', serif;
+  color: var(--color-text-light);
+  font-size: var(--font-size-2xl);
+  font-family: var(--font-family-display);
 }
 
 .search-container {
@@ -30,51 +30,51 @@
 }
 
 .search-input {
-  padding: 8px 12px;
-  border: 1px solid #d4c5a8;
-  border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.8);
-  color: #5d4433;
-  font-size: 0.9rem;
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--border-width) solid var(--color-primary-lighter);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-bg-medium);
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
   width: 200px;
-  transition: all 0.3s;
+  transition: all var(--transition-fast);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #8b6b3d;
-  box-shadow: 0 0 5px rgba(139, 107, 61, 0.3);
+  border-color: var(--color-accent-tertiary);
+  box-shadow: var(--shadow-glow);
   width: 220px;
 }
 
 /* Inventory Tabs */
 .inventory-tabs {
   display: flex;
-  border-bottom: 1px solid #d4c5a8;
-  margin-bottom: 20px;
+  border-bottom: var(--border-width) solid var(--color-primary-lighter);
+  margin-bottom: var(--space-md);
 }
 
 .tab-button {
-  padding: 10px 15px;
+  padding: var(--space-xs) var(--space-md);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #8b6b3d;
-  font-size: 1rem;
+  color: var(--color-text-medium);
+  font-size: var(--font-size-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all var(--transition-medium);
 }
 
 .tab-button:hover {
-  background-color: rgba(139, 107, 61, 0.05);
-  color: #5d4433;
+  background-color: var(--color-primary-darker);
+  color: var(--color-text-light);
 }
 
 .tab-button.active {
-  color: #5d4433;
-  border-bottom-color: #8b6b3d;
-  background-color: rgba(139, 107, 61, 0.1);
+  color: var(--color-text-light);
+  border-bottom-color: var(--color-accent-secondary);
+  background-color: var(--color-primary-darker);
 }
 
 .inventory-content {
@@ -204,21 +204,22 @@
 }
 
 .create-design-button {
-  background-color: #6b9668;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  background-color: var(--color-success);
+  color: var(--color-text-light);
+  border: var(--border-width) solid var(--color-success-light);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--duration-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .create-design-button:hover {
-  background-color: #5c8959;
+  background-color: var(--color-success-light);
   transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .designs-grid {

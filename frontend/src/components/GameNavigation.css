@@ -1,0 +1,196 @@
+/* GameNavigation.css - Styles for the consistent navigation component */
+
+.game-navigation {
+  --nav-item-height: 40px;
+  --nav-item-padding: var(--space-xs) var(--space-md);
+  --nav-active-bg: var(--color-primary-lighter);
+  --nav-hover-bg: var(--color-primary-darker);
+  --nav-active-border: var(--color-accent-secondary);
+  --nav-transition: all var(--duration-fast) var(--easing-standard);
+}
+
+/* Navigation List */
+.navigation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 2px;
+}
+
+/* Orientation Styles */
+.game-navigation.horizontal .navigation-list {
+  flex-direction: row;
+}
+
+.game-navigation.vertical .navigation-list {
+  flex-direction: column;
+}
+
+/* Navigation Item */
+.navigation-item-wrapper {
+  flex: 0 1 auto;
+}
+
+.navigation-item {
+  height: var(--nav-item-height);
+  padding: var(--nav-item-padding);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-medium);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  transition: var(--nav-transition);
+  position: relative;
+  outline: none;
+}
+
+/* Navigation Focus */
+.navigation-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent-tertiary);
+  z-index: 1;
+}
+
+/* Icon, Label, and Shortcut Styles */
+.item-icon {
+  font-size: 1.25em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-label {
+  flex: 1;
+}
+
+.item-shortcut {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-left: var(--space-xs);
+  opacity: 0.8;
+  border: 1px solid currentColor;
+  padding: 1px 4px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Disabled State */
+.navigation-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tabs Navigation Style */
+.game-navigation.tabs .navigation-item {
+  border-bottom: 3px solid transparent;
+}
+
+.game-navigation.tabs .navigation-item:hover:not(.disabled) {
+  color: var(--color-text-light);
+  background-color: var(--nav-hover-bg);
+}
+
+.game-navigation.tabs .navigation-item.active {
+  color: var(--color-text-light);
+  border-bottom-color: var(--nav-active-border);
+  background-color: var(--nav-active-bg);
+}
+
+/* Buttons Navigation Style */
+.game-navigation.buttons .navigation-item {
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  margin: 2px;
+  box-shadow: var(--shadow-sm);
+}
+
+.game-navigation.buttons .navigation-item:hover:not(.disabled) {
+  background-color: var(--nav-hover-bg);
+  transform: translateY(-1px);
+}
+
+.game-navigation.buttons .navigation-item.active {
+  background-color: var(--nav-active-bg);
+  color: var(--color-text-light);
+  box-shadow: var(--shadow-inner);
+  transform: translateY(1px);
+}
+
+/* Icons Navigation Style */
+.game-navigation.icons .navigation-item {
+  flex-direction: column;
+  text-align: center;
+  padding: var(--space-sm);
+}
+
+.game-navigation.icons .item-icon {
+  font-size: 1.75em;
+  margin-bottom: var(--space-xxs);
+}
+
+.game-navigation.icons .item-label {
+  font-size: var(--font-size-xs);
+}
+
+.game-navigation.icons .item-shortcut {
+  display: none;
+}
+
+.game-navigation.icons .navigation-item:hover:not(.disabled) {
+  color: var(--color-text-light);
+  background-color: var(--nav-hover-bg);
+}
+
+.game-navigation.icons .navigation-item.active {
+  color: var(--color-text-light);
+  background-color: var(--nav-active-bg);
+}
+
+/* Vertical Styles */
+.game-navigation.vertical.tabs .navigation-item {
+  border-bottom: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+}
+
+.game-navigation.vertical.tabs .navigation-item.active {
+  border-left-color: var(--nav-active-border);
+}
+
+/* Responsive Styles */
+@media (max-width: 640px) {
+  .game-navigation.horizontal .navigation-list {
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  .game-navigation.horizontal .navigation-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  
+  .game-navigation.horizontal:not(.icons) .item-shortcut {
+    display: none;
+  }
+  
+  .game-navigation.horizontal.tabs .navigation-item {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-navigation.horizontal:not(.icons) .navigation-item {
+    padding: var(--space-xs);
+  }
+  
+  .game-navigation.horizontal:not(.icons) .item-icon {
+    margin-right: 0;
+  }
+  
+  .game-navigation.horizontal:not(.icons) .item-label {
+    font-size: var(--font-size-sm);
+  }
+}

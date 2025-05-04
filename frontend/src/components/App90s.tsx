@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import './loadingScreen.css';
+import '../styles/global-styles.css'; // Import global styles
+import '../styles/a11y.css'; // Import accessibility styles
 import MainGameFrame from './MainGameFrame';
+import LandingPage from './LandingPage';
+import MatchSystem from './MatchSystem';
+import SkipLinks from './SkipLinks';
 import { MoonPhase } from 'coven-shared';
 
 // Mock game data for development - in a real app this would come from your backend
@@ -46,6 +52,7 @@ const mockGameData = {
 // Main App Component
 const App90s: React.FC = () => {
   const [gameLoaded, setGameLoaded] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   
   // Simulate loading data from backend
   useEffect(() => {
@@ -57,6 +64,12 @@ const App90s: React.FC = () => {
     };
     
     loadGameData();
+    
+    // Check if user has a saved coven name
+    const savedUsername = localStorage.getItem('covenUsername');
+    if (savedUsername) {
+      setIsAuthenticated(true);
+    }
   }, []);
   
   // Loading screen
@@ -64,7 +77,7 @@ const App90s: React.FC = () => {
     return (
       <div className="loading-screen">
         <div className="loading-content">
-          <h1>Witch's Coven</h1>
+          <h1>New Coven</h1>
           <div className="loading-cauldron">
             <div className="loading-bubble"></div>
             <div className="loading-bubble"></div>
@@ -76,18 +89,67 @@ const App90s: React.FC = () => {
     );
   }
   
-  // Main game with pixelated Sierra UI
+  // Main application with router for navigation
   return (
-    <div className="pixelated">
-      <MainGameFrame
-        playerName={mockGameData.playerName}
-        gold={mockGameData.gold}
-        day={mockGameData.day}
-        lunarPhase={mockGameData.lunarPhase}
-        reputation={mockGameData.reputation}
-        playerLevel={mockGameData.playerLevel}
+    <Router>
+      <SkipLinks 
+        links={[
+          { id: 'main-content', label: 'Skip to main content' },
+          { id: 'main-navigation', label: 'Skip to navigation' }
+        ]} 
       />
-    </div>
+      <div className="pixelated">
+        <Routes>
+          {/* Landing page route */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Match system routes */}
+          <Route path="/game/:gameId" element={<MatchSystem />} />
+          <Route path="/game/setup" element={<MatchSystem />} />
+          
+          {/* Main game route */}
+          <Route 
+            path="/game/active" 
+            element={
+              isAuthenticated ? (
+                <MainGameFrame
+                  playerName={mockGameData.playerName}
+                  gold={mockGameData.gold}
+                  day={mockGameData.day}
+                  lunarPhase={mockGameData.lunarPhase}
+                  reputation={mockGameData.reputation}
+                  playerLevel={mockGameData.playerLevel}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+          
+          {/* Single player game route */}
+          <Route 
+            path="/game/single-player" 
+            element={
+              isAuthenticated ? (
+                <MainGameFrame
+                  playerName={localStorage.getItem('covenUsername') || mockGameData.playerName}
+                  gold={mockGameData.gold}
+                  day={mockGameData.day}
+                  lunarPhase={mockGameData.lunarPhase}
+                  reputation={mockGameData.reputation}
+                  playerLevel={mockGameData.playerLevel}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+          
+          {/* Fallback route - redirect to landing page */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 

@@ -1,16 +1,16 @@
-/* MultiplayerMail.css - Sierra Adventure Game styled mail component */
+/* MultiplayerMail.css - Styled mail component for the game */
 
 .multiplayer-mail {
   position: relative;
-  background-color: var(--sierra-bg);
-  border: 4px solid var(--sierra-accent);
+  background-color: var(--color-bg-medium);
+  border: var(--border-width) solid var(--color-border-dark);
   margin: 10px;
   width: 100%;
   max-width: 600px;
-  font-family: 'PixelSierra', 'Times New Roman', serif;
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
-  color: var(--sierra-text);
-  image-rendering: pixelated;
+  font-family: var(--font-secondary);
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+  color: var(--color-text-light);
+  image-rendering: auto;
 }
 
 /* Header styling */

@@ -17,6 +17,7 @@ import type {
   PackageType
 } from 'coven-shared';
 import './pixelatedSierra.css';
+import './packagingSystemSierraCompat.css'; // Import Sierra compatibility for packaging system
 
 // Import 90s-style components (or base components to be styled with 90s UI)
 import Brewing90s from './Brewing90s';

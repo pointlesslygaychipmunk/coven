@@ -1,0 +1,97 @@
+/* Accessibility (a11y) Utility Classes */
+
+/* Visually hide an element while keeping it accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Make a visually hidden element visible on focus - useful for skip links */
+.sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Improved focus styles for keyboard navigation */
+.focus-visible-outline {
+  outline: 2px solid var(--color-accent-tertiary);
+  outline-offset: 2px;
+}
+
+/* Apply this to containers that need outline on focus but have their own visual focus styling */
+.focus-visible-outline:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion styles for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .reduced-motion-disable {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode improvements */
+@media (forced-colors: active) {
+  /* Ensure borders show up in high contrast mode */
+  .high-contrast-border {
+    border: 1px solid currentColor;
+  }
+  
+  /* Ensure focus indicators show in high contrast mode */
+  .high-contrast-focus:focus {
+    outline: 2px solid;
+    outline-offset: 2px;
+  }
+  
+  /* Fix for buttons that might lose their button appearance */
+  button.high-contrast-button {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Font size adjustment utility classes for improved readability */
+.text-size-adjust {
+  font-size: max(1rem, min(1.2rem, 2vmin));
+  line-height: 1.5;
+}
+
+/* Contrast adjustment utility class */
+.high-contrast-text {
+  color: var(--color-text-light);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Live region for screen reader announcements */
+.screen-reader-announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

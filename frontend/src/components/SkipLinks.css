@@ -1,0 +1,42 @@
+/* SkipLinks.css - Styles for the skip navigation links */
+
+.skip-links-container {
+  position: relative;
+  z-index: var(--z-tooltip);
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-tooltip);
+  border-radius: 0 0 var(--border-radius-md) 0;
+  
+  /* Hide visually but remain accessible to screen readers */
+  transform: translateY(-100%);
+  transition: transform var(--duration-fast) var(--easing-standard);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--color-accent-tertiary);
+  outline-offset: 2px;
+}
+
+.skip-link:active {
+  background-color: var(--color-primary-lighter);
+}
+
+/* Style for when the target is focused */
+[id]:target {
+  outline: 2px solid var(--color-accent-tertiary);
+  outline-offset: 2px;
+  scroll-margin-top: var(--space-xl);
+}

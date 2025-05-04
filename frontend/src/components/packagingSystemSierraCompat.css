@@ -1,0 +1,334 @@
+/* packagingSystemSierraCompat.css
+ * This file provides compatibility between the modern packaging system components
+ * and the pixelated Sierra-style UI of the game.
+ */
+
+/* Override font family for packaging components to match Sierra style */
+.packaging-inventory-container,
+.packaging-designer-container,
+.packaged-product {
+  font-family: 'PixelSierra', 'Times New Roman', serif !important;
+  color: var(--sierra-text);
+}
+
+/* Apply Sierra pixelated rendering */
+.packaging-inventory-container,
+.packaging-designer-container,
+.packaged-product,
+.packaging-inventory-container img,
+.packaging-designer-container img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Override colors to use Sierra CSS variables */
+.packaging-inventory-container,
+.packaging-designer-modal {
+  background-color: var(--sierra-bg) !important;
+  border-color: var(--sierra-accent) !important;
+}
+
+.modal-header,
+.inventory-header,
+.panel-header,
+.tab-button.active {
+  background-color: var(--sierra-bg-accent) !important;
+  color: var(--sierra-text-highlight) !important;
+}
+
+.inventory-item,
+.material-card,
+.design-style-card,
+.effect-card,
+.brand-card,
+.design-card,
+.product-card {
+  background-color: var(--sierra-bg-light) !important;
+  border-color: var(--sierra-accent) !important;
+}
+
+/* Sierra-style box shadows */
+.packaging-designer-modal,
+.inventory-item,
+.material-card,
+.design-style-card,
+.effect-card,
+.brand-card,
+.design-card,
+.product-card {
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3) !important;
+  border-radius: 0 !important;
+}
+
+.material-card.selected,
+.design-style-card.selected,
+.effect-card.selected,
+.brand-card.selected {
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Sierra-style buttons */
+.packaging-inventory-container button,
+.packaging-designer-container button {
+  background-color: var(--sierra-bg-light) !important;
+  border: 1px solid var(--sierra-accent) !important;
+  color: var(--sierra-text) !important;
+  font-family: 'PixelSierra', 'Times New Roman', serif !important;
+  border-radius: 0 !important;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.packaging-inventory-container button:hover,
+.packaging-designer-container button:hover {
+  background-color: var(--sierra-bg-highlight) !important;
+}
+
+.packaging-inventory-container button:active,
+.packaging-designer-container button:active {
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(1px) !important;
+}
+
+/* Sierra-style form inputs */
+.packaging-inventory-container input,
+.packaging-designer-container input,
+.packaging-inventory-container select,
+.packaging-designer-container select {
+  background-color: var(--sierra-bg-light) !important;
+  border: 1px solid var(--sierra-accent) !important;
+  color: var(--sierra-text) !important;
+  font-family: 'PixelSierra', 'Times New Roman', serif !important;
+  border-radius: 0 !important;
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Override border-radius on containers */
+.packaging-designer-container .packaging-designer-modal,
+.packaging-inventory-container,
+.packaging-inventory-container .tab-button,
+.materials-grid,
+.designs-grid,
+.products-grid,
+.packaging-preview,
+.product-details,
+.package-container {
+  border-radius: 0 !important;
+}
+
+/* Add decorative corner elements to packaging inventory */
+.packaging-inventory-container {
+  position: relative;
+}
+
+.packaging-inventory-container::before,
+.packaging-inventory-container::after,
+.packaging-designer-modal::before,
+.packaging-designer-modal::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.packaging-inventory-container::before {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.packaging-inventory-container::after {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+.packaging-designer-modal::before {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-left: 2px solid var(--sierra-accent);
+}
+
+.packaging-designer-modal::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--sierra-accent);
+  border-right: 2px solid var(--sierra-accent);
+}
+
+/* Add pixelated background patterns */
+.packaging-inventory-container {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e8d5b0"/><path d="M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100" stroke="%23e6d2b3" stroke-width="0.5" opacity="0.3"/></svg>') !important;
+}
+
+.inventory-header,
+.inventory-tabs,
+.tab-button.active,
+.modal-header {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23d0b990"/><path d="M0,0 L64,64 M0,32 L32,64 M32,0 L64,32" stroke="%23c9a97d" stroke-width="1" opacity="0.3"/></svg>') !important;
+}
+
+/* Sierra-style customized scrollbars */
+.packaging-inventory-container ::-webkit-scrollbar,
+.packaging-designer-container ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.packaging-inventory-container ::-webkit-scrollbar-track,
+.packaging-designer-container ::-webkit-scrollbar-track {
+  background: var(--sierra-bg-light);
+  border: 1px solid var(--sierra-accent);
+}
+
+.packaging-inventory-container ::-webkit-scrollbar-thumb,
+.packaging-designer-container ::-webkit-scrollbar-thumb {
+  background: var(--sierra-accent-light);
+  border: 1px solid var(--sierra-accent);
+}
+
+.packaging-inventory-container ::-webkit-scrollbar-thumb:hover,
+.packaging-designer-container ::-webkit-scrollbar-thumb:hover {
+  background: var(--sierra-accent);
+}
+
+.packaging-inventory-container ::-webkit-scrollbar-corner,
+.packaging-designer-container ::-webkit-scrollbar-corner {
+  background: var(--sierra-bg-light);
+}
+
+/* Packaged product specific styling */
+.packaged-product .package-container {
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Replace standard quality color indicators with Sierra palette */
+.quality-basic {
+  color: var(--sierra-text-muted) !important;
+}
+
+.quality-standard {
+  color: var(--sierra-text) !important;
+}
+
+.quality-quality {
+  color: var(--sierra-accent) !important;
+}
+
+.quality-premium {
+  color: var(--sierra-accent-light) !important;
+}
+
+.quality-masterpiece {
+  color: var(--sierra-text-highlight) !important;
+  text-shadow: 1px 1px 0 var(--sierra-accent) !important;
+}
+
+/* Adapt animations to be more subtle */
+@keyframes pixel-pulse {
+  0% { transform: none; }
+  50% { transform: translateY(1px); }
+  100% { transform: none; }
+}
+
+.preview-effect,
+.effect-element {
+  animation: pixel-pulse 2s infinite !important;
+}
+
+/* Ensure status/meter bars match Sierra style */
+.meter-bar,
+.status-bar {
+  height: 15px !important;
+  background-color: var(--sierra-bg-dark) !important;
+  border: 1px solid var(--sierra-accent) !important;
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Make sure tabs appear properly */
+.tab-button {
+  border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+  border-bottom-color: var(--sierra-bg-accent);
+}
+
+/* Styling for packaging design preview */
+.packaging-preview {
+  border: 2px solid var(--sierra-accent) !important;
+  box-shadow: 
+    2px 2px 0 rgba(0, 0, 0, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Fix overlap issues */
+.packaging-section .workshop-active-area {
+  overflow: visible !important;
+}
+
+/* Packaging integration within combined workshop */
+.combined-workshop-container .packaging-inventory-container {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.combined-workshop-container .packaging-inventory-container::before,
+.combined-workshop-container .packaging-inventory-container::after {
+  display: none !important;
+}
+
+/* Text shadows for headers to match Sierra style */
+.packaging-inventory-container h2,
+.packaging-inventory-container h3,
+.packaging-designer-container h2,
+.packaging-designer-container h3 {
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+  color: var(--sierra-accent);
+}
+
+/* Fix meter bars */
+.meter-fill {
+  transition: width 0.5s ease-out;
+}
+
+.meter-fill.basic {
+  background-color: #a8a8a8;
+}
+
+.meter-fill.standard {
+  background-color: var(--sierra-accent);
+}
+
+.meter-fill.quality {
+  background-color: var(--sierra-accent-light);
+}
+
+.meter-fill.premium {
+  background-color: var(--sierra-text-highlight);
+}
+
+.meter-fill.masterpiece {
+  background: var(--sierra-bg-accent);
+}

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MainGameFrame.css';
 import './MainGameFrame90s.css'; // Import pixelated Sierra styles
 import './pixelatedSierra.css'; // Import the base pixelated Sierra styles
 import './pixelIcons.css'; // Import the pixel art icons
+import '../styles/global-styles.css'; // Import global styles
+import '../styles/a11y.css'; // Import accessibility styles
+import registerGameShortcuts, { getGameShortcutsHelp } from '../utils/gameKeyboardShortcuts';
 import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization, Material, DesignStyle, SpecialEffect, Brand, PackageType, Product, Rarity } from 'coven-shared';
 import { createDefaultInventoryItem, createDefaultGardenSlot } from '../utils/playerStateMocks';
 
@@ -17,6 +21,7 @@ import CombinedWorkshop90s from './CombinedWorkshop90s';
 // Import multiplayer communication components
 import MultiplayerMail from './MultiplayerMail';
 import MultiplayerChat from './MultiplayerChat';
+import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 interface MainGameFrameProps {
@@ -44,9 +49,45 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   const [showMail, setShowMail] = useState<boolean>(false);
   const [showChat, setShowChat] = useState<boolean>(false);
   
+  // Keyboard shortcuts help dialog
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState<boolean>(false);
+  
   // Mock notification states
   const [hasMailNotification, setHasMailNotification] = useState<boolean>(true);
   const [hasChatNotification, setHasChatNotification] = useState<boolean>(false);
+  
+  // Set up keyboard shortcuts
+  useEffect(() => {
+    // Create shortcut callbacks
+    const shortcutCallbacks = {
+      navigateToGarden: () => handleChangeView('garden'),
+      navigateToWorkshop: () => handleChangeView('workshop'),
+      navigateToMarket: () => handleChangeView('market'),
+      navigateToJournal: () => handleChangeView('journal'),
+      toggleMail: () => {
+        setShowMail(!showMail);
+        if (hasMailNotification) setHasMailNotification(false);
+      },
+      toggleChat: () => {
+        setShowChat(!showChat);
+        if (hasChatNotification) setHasChatNotification(false);
+      },
+      backToLobby: () => {
+        if (window.confirm("Are you sure you want to leave the game and return to the lobby?")) {
+          navigate('/');
+        }
+      },
+      openHelp: () => setShowShortcutsHelp(true)
+    };
+    
+    // Register shortcuts and get cleanup function
+    const unregisterShortcuts = registerGameShortcuts(shortcutCallbacks);
+    
+    // Cleanup when component unmounts
+    return () => {
+      unregisterShortcuts();
+    };
+  }, [showMail, showChat, hasMailNotification, hasChatNotification]);
   
   // Character stats (read-only in this demo)
   const health = 100;
@@ -534,47 +575,77 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     }
   };
   
+  const navigate = useNavigate();
+
+  const handleBackToLobby = () => {
+    if (window.confirm("Are you sure you want to leave the game and return to the lobby?")) {
+      navigate('/');
+    }
+  };
+
   // Main component render
   return (
     <MultiplayerProvider>
-      <div className="game-window pixelated sierra-container">
-        {/* Sierra-style decorative corner elements */}
-        <div className="corner-decoration top-left"></div>
-        <div className="corner-decoration top-right"></div>
-        <div className="corner-decoration bottom-left"></div>
-        <div className="corner-decoration bottom-right"></div>
+      <div className="game-window">
+        {/* Decorative corner elements */}
+        <div className="corner-decoration top-left" aria-hidden="true"></div>
+        <div className="corner-decoration top-right" aria-hidden="true"></div>
+        <div className="corner-decoration bottom-left" aria-hidden="true"></div>
+        <div className="corner-decoration bottom-right" aria-hidden="true"></div>
         
         {/* Game Header */}
-        <div className="game-header">
-          <h1>COVEN: GLOW BRIGHTLY</h1>
+        <header className="game-header">
+          <h1>NEW COVEN</h1>
           
-          {/* Communication icons */}
-          <div className="communication-icons">
+          {/* Header controls */}
+          <div className="header-controls">
             <button 
-              className={`comm-button mail-button ${showMail ? 'active' : ''}`}
-              onClick={() => {
-                setShowMail(!showMail);
-                if (hasMailNotification) setHasMailNotification(false);
-              }}
-              title="Toggle Mail"
+              className="lobby-button focus-visible-outline"
+              onClick={handleBackToLobby}
+              title="Back to Lobby"
+              aria-label="Back to Lobby"
             >
-              <div className={`pixel-icon pixel-icon-mail ${hasMailNotification ? 'has-notification' : ''}`}></div>
+              Back to Lobby
             </button>
-            <button 
-              className={`comm-button chat-button ${showChat ? 'active' : ''}`}
-              onClick={() => {
-                setShowChat(!showChat);
-                if (hasChatNotification) setHasChatNotification(false);
-              }}
-              title="Toggle Chat"
-            >
-              <div className={`pixel-icon pixel-icon-chat ${hasChatNotification ? 'has-notification' : ''}`}></div>
-            </button>
+          
+            {/* Communication icons */}
+            <div className="communication-icons">
+              <button 
+                className={`comm-button mail-button focus-visible-outline ${showMail ? 'active' : ''}`}
+                onClick={() => {
+                  setShowMail(!showMail);
+                  if (hasMailNotification) setHasMailNotification(false);
+                }}
+                title="Toggle Mail"
+                aria-label={`Mail ${hasMailNotification ? 'has new messages' : ''}`}
+                aria-pressed={showMail}
+              >
+                <AccessibleIcon 
+                  icon={<div className={`pixel-icon pixel-icon-mail ${hasMailNotification ? 'has-notification' : ''}`}></div>}
+                  label={`Mail ${hasMailNotification ? '(new messages)' : ''}`}
+                />
+              </button>
+              <button 
+                className={`comm-button chat-button focus-visible-outline ${showChat ? 'active' : ''}`}
+                onClick={() => {
+                  setShowChat(!showChat);
+                  if (hasChatNotification) setHasChatNotification(false);
+                }}
+                title="Toggle Chat"
+                aria-label={`Chat ${hasChatNotification ? 'has new messages' : ''}`}
+                aria-pressed={showChat}
+              >
+                <AccessibleIcon 
+                  icon={<div className={`pixel-icon pixel-icon-chat ${hasChatNotification ? 'has-notification' : ''}`}></div>}
+                  label={`Chat ${hasChatNotification ? '(new messages)' : ''}`}
+                />
+              </button>
+            </div>
           </div>
-        </div>
+        </header>
       
       {/* Main Game Content */}
-      <div className="game-content">
+      <main id="main-content" className="game-content">
         {/* Left Sidebar - Character & Resources */}
         <div className="left-sidebar">
           {/* Character Panel */}
@@ -730,59 +801,160 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
       </div>
       
       {/* Game Footer - Navigation */}
-      <div className="game-footer">
+      <nav id="main-navigation" className="game-footer" aria-label="Main game navigation">
         <button
-          className={`nav-button ${currentView === 'garden' ? 'active' : ''}`}
+          className={`nav-button focus-visible-outline ${currentView === 'garden' ? 'active' : ''}`}
           onClick={() => handleChangeView('garden')}
+          aria-pressed={currentView === 'garden'}
+          aria-label="Garden view"
         >
-          <div className="pixel-icon pixel-icon-garden"></div>
+          <AccessibleIcon 
+            icon={<div className="pixel-icon pixel-icon-garden"></div>}
+            label="Garden"
+          />
           <span>Garden</span>
         </button>
         <button
-          className={`nav-button ${currentView === 'workshop' ? 'active' : ''}`}
+          className={`nav-button focus-visible-outline ${currentView === 'workshop' ? 'active' : ''}`}
           onClick={() => handleChangeView('workshop')}
+          aria-pressed={currentView === 'workshop'}
+          aria-label="Workshop view"
         >
-          <div className="pixel-icon pixel-icon-workshop"></div>
+          <AccessibleIcon 
+            icon={<div className="pixel-icon pixel-icon-workshop"></div>}
+            label="Workshop"
+          />
           <span>Workshop</span>
         </button>
         <button
-          className={`nav-button ${currentView === 'market' ? 'active' : ''}`}
+          className={`nav-button focus-visible-outline ${currentView === 'market' ? 'active' : ''}`}
           onClick={() => handleChangeView('market')}
+          aria-pressed={currentView === 'market'}
+          aria-label="Market view"
         >
-          <div className="pixel-icon pixel-icon-market"></div>
+          <AccessibleIcon 
+            icon={<div className="pixel-icon pixel-icon-market"></div>}
+            label="Market"
+          />
           <span>Market</span>
         </button>
         <button
-          className={`nav-button ${currentView === 'journal' ? 'active' : ''}`}
+          className={`nav-button focus-visible-outline ${currentView === 'journal' ? 'active' : ''}`}
           onClick={() => handleChangeView('journal')}
+          aria-pressed={currentView === 'journal'}
+          aria-label="Journal view"
         >
-          <div className="pixel-icon pixel-icon-journal"></div>
+          <AccessibleIcon 
+            icon={<div className="pixel-icon pixel-icon-journal"></div>}
+            label="Journal"
+          />
           <span>Journal</span>
         </button>
-        <button className="nav-button end-day">
-          <div className="pixel-icon pixel-icon-end-day"></div>
+        <button className="nav-button end-day focus-visible-outline" aria-label="End day">
+          <AccessibleIcon 
+            icon={<div className="pixel-icon pixel-icon-end-day"></div>}
+            label="End Day"
+          />
           <span>End Day</span>
         </button>
-      </div>
+      </nav>
       
       {/* Multiplayer Communication Panels */}
       {showMail && (
-        <div className="communication-panel mail-panel">
-          <MultiplayerMail 
-            isExpanded={true} 
-            onToggleExpand={() => setShowMail(!showMail)} 
-          />
+        <div id="mail-panel-container">
+          {React.createElement(
+            withFocusManagement(
+              ({ focusContainerRef }) => (
+                <div 
+                  ref={focusContainerRef as React.RefObject<HTMLDivElement>}
+                  className="communication-panel mail-panel"
+                  role="dialog"
+                  aria-labelledby="mail-panel-title"
+                  aria-modal="true"
+                >
+                  <MultiplayerMail 
+                    isExpanded={true} 
+                    onToggleExpand={() => setShowMail(!showMail)} 
+                  />
+                </div>
+              ),
+              {
+                autoFocus: true,
+                trapFocus: true,
+                restoreFocus: true,
+                ariaLabel: "Mail panel"
+              }
+            ),
+            {}
+          )}
         </div>
       )}
       
       {showChat && (
-        <div className="communication-panel chat-panel">
-          <MultiplayerChat 
-            isExpanded={true} 
-            onToggleExpand={() => setShowChat(!showChat)} 
-          />
+        <div id="chat-panel-container">
+          {React.createElement(
+            withFocusManagement(
+              ({ focusContainerRef }) => (
+                <div 
+                  ref={focusContainerRef as React.RefObject<HTMLDivElement>}
+                  className="communication-panel chat-panel"
+                  role="dialog"
+                  aria-labelledby="chat-panel-title"
+                  aria-modal="true"
+                >
+                  <MultiplayerChat 
+                    isExpanded={true} 
+                    onToggleExpand={() => setShowChat(!showChat)} 
+                  />
+                </div>
+              ),
+              {
+                autoFocus: true,
+                trapFocus: true,
+                restoreFocus: true,
+                ariaLabel: "Chat panel"
+              }
+            ),
+            {}
+          )}
         </div>
       )}
+      
+      {/* Keyboard Shortcuts Help Dialog */}
+      {showShortcutsHelp && (
+        <div id="shortcuts-help-container">
+          {React.createElement(
+            withFocusManagement(
+              ({ focusContainerRef }) => (
+                <div ref={focusContainerRef as React.RefObject<HTMLDivElement>}>
+                  <KeyboardShortcutsHelp
+                    isOpen={showShortcutsHelp}
+                    onClose={() => setShowShortcutsHelp(false)}
+                    categories={getGameShortcutsHelp()}
+                  />
+                </div>
+              ),
+              {
+                autoFocus: true,
+                trapFocus: true,
+                restoreFocus: true,
+                ariaLabel: "Keyboard shortcuts help"
+              }
+            ),
+            {}
+          )}
+        </div>
+      )}
+      
+      {/* Help button for keyboard shortcuts */}
+      <button 
+        className="keyboard-help-button focus-visible-outline"
+        onClick={() => setShowShortcutsHelp(true)}
+        aria-label="Show keyboard shortcuts"
+        title="Keyboard Shortcuts (Press ? for help)"
+      >
+        <span aria-hidden="true">⌨</span>
+      </button>
     </div>
     </MultiplayerProvider>
   );
