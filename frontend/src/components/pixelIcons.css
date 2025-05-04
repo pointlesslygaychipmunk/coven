@@ -1,0 +1,108 @@
+/* pixelIcons.css - Sierra-style pixelated icons for the game interface */
+
+/* Base icon class for consistent styling */
+.pixel-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: transparent;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* Mail icon - pixelated envelope */
+.pixel-icon-mail {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" fill="%23e8d5b0"/><path d="M1,3 L8,9 L15,3" stroke="%238b6d45" stroke-width="1" fill="none"/><path d="M1,13 L6,8 M15,13 L10,8" stroke="%238b6d45" stroke-width="1" fill="none"/><rect x="1" y="3" width="14" height="10" stroke="%238b6d45" stroke-width="1" fill="none"/></svg>');
+}
+
+/* Mail icon with notification */
+.pixel-icon-mail.has-notification::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  background-color: #c9302c;
+  border: 1px solid #e8d5b0;
+}
+
+/* Chat icon - pixelated speech bubble */
+.pixel-icon-chat {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M3,3 h10 v7 h-4 l-3,3 v-3 h-3 z" fill="%23e8d5b0" stroke="%238b6d45" stroke-width="1"/></svg>');
+}
+
+/* Chat icon with notification */
+.pixel-icon-chat.has-notification::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  background-color: #c9302c;
+  border: 1px solid #e8d5b0;
+}
+
+/* Garden icon - pixelated plant */
+.pixel-icon-garden {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="7" y="8" width="2" height="5" fill="%238b6d45"/><path d="M3,8 C3,5 6,3 8,5 C10,3 13,5 13,8 L3,8 Z" fill="%237d9153" stroke="%238b6d45" stroke-width="1"/></svg>');
+}
+
+/* Workshop icon - pixelated cauldron */
+.pixel-icon-workshop {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M5,6 C5,4 7,3 8,4 C9,3 11,4 11,6 L5,6 Z" fill="%237b4dab" stroke="%238b6d45" stroke-width="1"/><path d="M4,6 h8 l1,6 h-10 z" fill="%23e8d5b0" stroke="%238b6d45" stroke-width="1"/><path d="M6,8 v2 M8,7 v2 M10,8 v2" stroke="%238b6d45" stroke-width="1"/></svg>');
+}
+
+/* Market icon - pixelated shop */
+.pixel-icon-market {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M3,7 h10 v6 h-10 z" fill="%23e8d5b0" stroke="%238b6d45" stroke-width="1"/><path d="M2,7 L8,3 L14,7" fill="%23c9a97d" stroke="%238b6d45" stroke-width="1"/><rect x="5" y="9" width="2" height="4" fill="%238b6d45"/><rect x="9" y="9" width="2" height="2" fill="%238b6d45"/></svg>');
+}
+
+/* Journal icon - pixelated book */
+.pixel-icon-journal {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4,3 h9 v10 h-9 z" fill="%23c9a97d" stroke="%238b6d45" stroke-width="1"/><path d="M4,3 v10 c0,0 -1,0 -1,-1 v-8 c0,-1 1,-1 1,-1" fill="%238b6d45" stroke="%238b6d45" stroke-width="1"/><path d="M6,5 h5 M6,7 h5 M6,9 h5 M6,11 h5" stroke="%238b6d45" stroke-width="1"/></svg>');
+}
+
+/* Calendar icon - pixelated calendar */
+.pixel-icon-calendar {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" fill="%23e8d5b0" stroke="%238b6d45" stroke-width="1"/><path d="M3,6 h10 M6,3 v3 M10,3 v3" stroke="%238b6d45" stroke-width="1"/><rect x="5" y="8" width="2" height="2" fill="%238b6d45"/><rect x="9" y="8" width="2" height="2" fill="%238b6d45"/></svg>');
+}
+
+/* Clock icon - pixelated clock */
+.pixel-icon-clock {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23e8d5b0" stroke="%238b6d45" stroke-width="1"/><path d="M8,4 v4 h3" stroke="%238b6d45" stroke-width="1" fill="none"/></svg>');
+}
+
+/* End Day icon - pixelated moon and stars */
+.pixel-icon-end-day {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="10" cy="6" r="4" fill="%23e8d5b0" stroke="%238b6d45" stroke-width="1"/><path d="M6,6 C6,9 9,11 12,10" stroke="%238b6d45" stroke-width="1" fill="none"/><path d="M4,4 l1,1 M7,3 l-1,1 M3,8 l1,-1" stroke="%238b6d45" stroke-width="1"/></svg>');
+}
+
+/* Larger icon variants for buttons */
+.pixel-icon-large {
+  width: 24px;
+  height: 24px;
+}
+
+/* Icon color variants */
+.pixel-icon-dark {
+  filter: brightness(0.8);
+}
+
+.pixel-icon-light {
+  filter: brightness(1.2);
+}
+
+/* Animated notification indicator */
+@keyframes pixel-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.pixel-icon.has-notification::after {
+  animation: pixel-pulse 1s infinite;
+}

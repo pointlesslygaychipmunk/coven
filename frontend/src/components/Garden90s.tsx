@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Garden90s.css';
 import './Garden90sSierra.css'; // Import pixelated Sierra styles
-import type { GardenSlot, InventoryItem, Season, WeatherFate, DisplayPlant } from 'coven-shared';
-import { adaptPlantForDisplay } from '../utils';
+import type { GardenSlot, InventoryItem, Season, WeatherFate } from 'coven-shared';
+import { adaptPlantForDisplay, DisplayPlant, getPlantIcon, getGrowthStage, getPlantCategoryClass } from '../utils/frontendCompatibility';
 
 interface Garden90sProps {
   plots: GardenSlot[];
@@ -212,18 +212,7 @@ const Garden90s: React.FC<Garden90sProps> = ({
     );
   };
   
-  // Helper to get plant icon based on name
-  const getPlantIcon = (plantName: string) => {
-    // In a real implementation, you'd have specific icons for each plant
-    const firstChar = plantName.charAt(0).toUpperCase();
-    switch (plantName.toLowerCase()) {
-      case 'moonflower': return '✧';
-      case 'ginseng': return 'G';
-      case 'chamomile': return 'C';
-      case 'lavender': return 'L';
-      default: return firstChar;
-    }
-  };
+  // Using the imported getPlantIcon from utils/frontendCompatibility
   
   // Render seed inventory 
   const renderSeedInventory = () => {

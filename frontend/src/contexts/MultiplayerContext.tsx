@@ -16,6 +16,25 @@ interface ChatMessage {
   timestamp: number;
 }
 
+interface MailAttachment {
+  id: string;
+  type: 'item' | 'recipe' | 'gold' | 'image';
+  data: any; // Could be an item, gold amount, image URL, etc.
+}
+
+interface MailMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  recipientId: string;
+  subject: string;
+  content: string;
+  attachments?: MailAttachment[];
+  isRead: boolean;
+  timestamp: number;
+  expiresAt?: number; // Optional expiration timestamp
+}
+
 interface MultiplayerContextType {
   // Connection state
   isConnected: boolean;
@@ -34,14 +53,25 @@ interface MultiplayerContextType {
   // Chat
   messages: ChatMessage[];
   
+  // Mail
+  mailbox: MailMessage[];
+  unreadMailCount: number;
+  
   // Error handling
   error: string | null;
   
-  // Actions
+  // Connection Actions
   connect: () => void;
   disconnect: () => void;
   joinGame: (playerName: string, playerId?: string) => void;
+  
+  // Chat Actions
   sendMessage: (message: string) => void;
+  
+  // Mail Actions
+  sendMail: (recipientId: string, subject: string, content: string, attachments?: MailAttachment[]) => void;
+  readMail: (mailId: string) => void;
+  deleteMail: (mailId: string) => void;
   
   // Game actions (proxied through WebSocket)
   plantSeed: (slotId: number, seedItemId: string) => void;
@@ -76,6 +106,10 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   
   // Chat
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  
+  // Mail
+  const [mailbox, setMailbox] = useState<MailMessage[]>([]);
+  const [unreadMailCount, setUnreadMailCount] = useState<number>(0);
   
   // Error handling
   const [error, setError] = useState<string | null>(null);
@@ -147,6 +181,19 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       setMessages(prev => [...prev, data]);
     });
     
+    // Mail related events
+    newSocket.on('mail:received', (data: MailMessage) => {
+      setMailbox(prev => [data, ...prev]);
+      if (!data.isRead) {
+        setUnreadMailCount(count => count + 1);
+      }
+    });
+    
+    newSocket.on('mail:updated', (data: { mailbox: MailMessage[] }) => {
+      setMailbox(data.mailbox);
+      setUnreadMailCount(data.mailbox.filter(mail => !mail.isRead).length);
+    });
+    
     // Save the socket instance
     setSocket(newSocket);
     
@@ -185,6 +232,58 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
     
     socket.emit('chat:message', { message });
+  };
+  
+  // Send a mail message
+  const sendMail = (recipientId: string, subject: string, content: string, attachments?: MailAttachment[]) => {
+    if (!socket || !isConnected || !isJoined) {
+      setError('Not connected to server or not joined to game');
+      return;
+    }
+    
+    socket.emit('mail:send', { recipientId, subject, content, attachments });
+  };
+  
+  // Mark a mail as read
+  const readMail = (mailId: string) => {
+    if (!socket || !isConnected || !isJoined) {
+      setError('Not connected to server or not joined to game');
+      return;
+    }
+    
+    // Update locally for immediate UI feedback
+    setMailbox(prev => {
+      const updatedMailbox = prev.map(mail => 
+        mail.id === mailId ? { ...mail, isRead: true } : mail
+      );
+      return updatedMailbox;
+    });
+    
+    // Update unread count
+    setUnreadMailCount(prev => Math.max(0, prev - 1));
+    
+    // Send to server
+    socket.emit('mail:read', { mailId });
+  };
+  
+  // Delete a mail
+  const deleteMail = (mailId: string) => {
+    if (!socket || !isConnected || !isJoined) {
+      setError('Not connected to server or not joined to game');
+      return;
+    }
+    
+    // Check if mail is unread first
+    const mailToDelete = mailbox.find(mail => mail.id === mailId);
+    if (mailToDelete && !mailToDelete.isRead) {
+      setUnreadMailCount(prev => Math.max(0, prev - 1));
+    }
+    
+    // Update locally for immediate UI feedback
+    setMailbox(prev => prev.filter(mail => mail.id !== mailId));
+    
+    // Send to server
+    socket.emit('mail:delete', { mailId });
   };
   
   // Game actions (proxied through WebSocket)
@@ -303,11 +402,16 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     players,
     gameState,
     messages,
+    mailbox,
+    unreadMailCount,
     error,
     connect,
     disconnect,
     joinGame,
     sendMessage,
+    sendMail,
+    readMail,
+    deleteMail,
     plantSeed,
     waterPlants,
     harvestPlant,

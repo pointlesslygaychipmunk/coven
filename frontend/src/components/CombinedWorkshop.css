@@ -41,55 +41,86 @@
   box-shadow: 
     inset 1px 1px 3px rgba(255, 255, 255, 0.7),
     inset -1px -1px 3px rgba(0, 0, 0, 0.3);
+  
+  /* Integration with Main Game Frame */
+  max-height: calc(100vh - 200px); /* Account for game header/footer */
+  overflow: auto;
+  
+  /* Ensure pixelated rendering */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 /* Header styling */
 .workshop-header {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   background-color: var(--sierra-bg-dark);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23d0b990"/><path d="M0,0 L64,64 M0,32 L32,64 M32,0 L64,32" stroke="%23c9a97d" stroke-width="1" opacity="0.3"/></svg>');
   border-bottom: 2px solid var(--sierra-accent);
   position: relative;
-  height: 60px;
+  height: 80px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .workshop-title {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   margin: 0;
   font-weight: normal;
   letter-spacing: 1px;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.3);
   flex: 0 0 auto;
   color: var(--sierra-accent);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  position: relative;
+}
+
+.workshop-title::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--sierra-accent-light);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* Tab styling */
 .workshop-tabs {
   display: flex;
-  margin-left: 2rem;
+  margin-left: 3rem;
   flex-grow: 1;
   align-items: center;
   height: 100%;
+  gap: 0.75rem;
 }
 
 .tab-button {
-  padding: 0.5rem 1rem;
-  margin-right: 0.25rem;
+  padding: 0.75rem 1.25rem;
   background-color: var(--sierra-bg-light);
-  border: 1px solid var(--sierra-accent);
+  border: 2px solid var(--sierra-accent);
   color: var(--sierra-text);
   cursor: pointer;
   font-family: 'PixelSierra', 'Times New Roman', serif;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
+  font-size: 1rem;
+  transition: all 0.15s ease-in-out;
   position: relative;
-  min-width: 150px;
+  min-width: 180px;
   text-align: center;
   /* Pixelated inset */
   box-shadow: 
     inset 1px 1px 0 rgba(255, 255, 255, 0.5),
-    inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+    inset -1px -1px 0 rgba(0, 0, 0, 0.3),
+    0 2px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  outline: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
 }
 
 .tab-button::before {
@@ -120,11 +151,25 @@
   background-color: var(--sierra-bg-accent);
   color: var(--sierra-text-highlight);
   box-shadow: 
-    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset 1px 1px 3px rgba(0, 0, 0, 0.3),
     inset -1px -1px 0 rgba(255, 255, 255, 0.5);
   border-bottom-color: var(--sierra-bg-accent);
   border-top-width: 2px;
+  border-bottom-width: 2px;
   font-weight: bold;
+  transform: translateY(2px);
+  position: relative;
+  z-index: 2;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--sierra-bg-accent);
 }
 
 /* Moon phase display */
@@ -163,12 +208,17 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.5rem;
+  padding: 1rem;
   /* Ensures no margin issues */
   margin: 0;
   position: relative;
   display: flex;
   flex-direction: column;
+  
+  /* Adjusted for main game integration */
+  height: 100%;
+  min-height: 400px;
+  max-height: calc(100vh - 270px); /* Account for header, footer, tabs */
 }
 
 /* Pixelated image rendering for all images in the workshop */
@@ -178,15 +228,33 @@
   image-rendering: crisp-edges;
 }
 
+/* Default message when no tab is selected */
+.default-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--sierra-text-muted);
+  font-style: italic;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--sierra-bg-light);
+  border: 1px dashed var(--sierra-accent-light);
+}
+
 /* Recent products panel styling */
 .recent-products-panel {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
   background-color: var(--sierra-bg-light);
   border: 1px solid var(--sierra-accent);
   box-shadow: 
     inset 1px 1px 0 rgba(255, 255, 255, 0.3),
     inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  /* Add a pixelated pattern background */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="%23f0e6d2"/><path d="M0,0 h1 v1 h-1 Z M7,7 h1 v1 h-1 Z M14,14 h1 v1 h-1 Z" fill="%23d0b990" opacity="0.2"/></svg>');
 }
 
 .recent-products-panel h3 {
@@ -208,14 +276,24 @@
 .recent-product {
   display: flex;
   align-items: center;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background-color: var(--sierra-bg);
-  border: 1px solid var(--sierra-accent);
+  border: 2px solid var(--sierra-accent);
   box-shadow: 
-    1px 1px 3px rgba(0, 0, 0, 0.2),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.3);
-  width: calc(33.33% - 0.5rem);
-  min-width: 200px;
+    2px 2px 0 rgba(0, 0, 0, 0.15),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5);
+  width: calc(33.33% - 0.7rem);
+  min-width: 220px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.recent-product:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    3px 3px 0 rgba(0, 0, 0, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: var(--sierra-accent-light);
 }
 
 .product-icon {
@@ -244,16 +322,24 @@
 
 .package-now-button {
   background-color: var(--sierra-bg-highlight);
-  border: 1px solid var(--sierra-accent);
+  border: 2px solid var(--sierra-accent);
   color: var(--sierra-text);
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.65rem;
   font-family: 'PixelSierra', 'Times New Roman', serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   cursor: pointer;
   margin-left: 0.5rem;
   box-shadow: 
-    1px 1px 0 rgba(255, 255, 255, 0.3),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.3);
+    1px 1px 0 rgba(0, 0, 0, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  border-radius: 0;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .package-now-button:hover {
@@ -282,12 +368,45 @@
 .brewing-section, .atelier-section, .packaging-section {
   height: 100%;
   overflow-y: auto;
-  padding: 10px;
+  padding: 15px;
   border: 1px solid var(--sierra-accent);
   background-color: var(--sierra-bg-light);
   box-shadow: 
     inset 1px 1px 0 rgba(255, 255, 255, 0.5),
     inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Section title styles */
+.section-title {
+  font-size: 1.3rem;
+  color: var(--sierra-accent);
+  margin: 0 0 5px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--sierra-accent-light);
+  text-align: center;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Section description styles */
+.section-description {
+  font-size: 0.9rem;
+  color: var(--sierra-text);
+  margin: 0 0 15px 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Active area for workshop components */
+.workshop-active-area {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--sierra-accent-light);
+  background-color: var(--sierra-bg);
+  padding: 10px;
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Sierra-style buttons for all sections */

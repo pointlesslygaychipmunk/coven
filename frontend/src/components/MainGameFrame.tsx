@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import './MainGameFrame.css';
 import './MainGameFrame90s.css'; // Import pixelated Sierra styles
 import './pixelatedSierra.css'; // Import the base pixelated Sierra styles
-import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization, Material, DesignStyle, SpecialEffect, Brand, PackageType, Product } from 'coven-shared';
+import './pixelIcons.css'; // Import the pixel art icons
+import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization, Material, DesignStyle, SpecialEffect, Brand, PackageType, Product, Rarity } from 'coven-shared';
 import { createDefaultInventoryItem, createDefaultGardenSlot } from '../utils/playerStateMocks';
 
 // Import updated 90s-style components
@@ -12,6 +13,11 @@ import Brewing90s from './Brewing90s';
 import Market90s from './Market90s';
 import Journal90s from './Journal90s';
 import CombinedWorkshop90s from './CombinedWorkshop90s';
+
+// Import multiplayer communication components
+import MultiplayerMail from './MultiplayerMail';
+import MultiplayerChat from './MultiplayerChat';
+import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 interface MainGameFrameProps {
   playerName: string;
@@ -33,6 +39,14 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
 }) => {
   // Current view/location state
   const [currentView, setCurrentView] = useState<string>("workshop");
+  
+  // Multiplayer communication toggles
+  const [showMail, setShowMail] = useState<boolean>(false);
+  const [showChat, setShowChat] = useState<boolean>(false);
+  
+  // Mock notification states
+  const [hasMailNotification, setHasMailNotification] = useState<boolean>(true);
+  const [hasChatNotification, setHasChatNotification] = useState<boolean>(false);
   
   // Character stats (read-only in this demo)
   const health = 100;
@@ -181,6 +195,31 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
     { id: "rum1", text: "They say the old witch who lived in the mountains knew how to speak with the stars.", source: "Old Tom at the Tavern", discovered: true },
     { id: "rum2", text: "The moonflowers that grow in the hidden grove are said to possess twice the magical potency.", source: "Herbalist Mabel", discovered: true }
   ];
+  
+  // Demo function to simulate receiving a new message
+  const simulateIncomingMessage = () => {
+    // 50% chance of a mail, 50% chance of a chat
+    const messageType = Math.random() > 0.5 ? 'mail' : 'chat';
+    
+    if (messageType === 'mail' && !showMail) {
+      setHasMailNotification(true);
+      console.log('New mail received');
+    } else if (messageType === 'chat' && !showChat) {
+      setHasChatNotification(true);
+      console.log('New chat message received');
+    }
+  };
+  
+  // Simulate message every 20-30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.7) { // 30% chance to receive a message
+        simulateIncomingMessage();
+      }
+    }, 20000 + Math.random() * 10000);
+    
+    return () => clearInterval(interval);
+  }, [showMail, showChat]);
   
   // For demo purposes, we'll adapt to the schema used in our Journal90s component
   // This doesn't perfectly match the shared types but works with our component
@@ -497,17 +536,42 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   
   // Main component render
   return (
-    <div className="game-window pixelated sierra-container">
-      {/* Decorative corner elements */}
-      <div className="corner-decoration top-left"></div>
-      <div className="corner-decoration top-right"></div>
-      <div className="corner-decoration bottom-left"></div>
-      <div className="corner-decoration bottom-right"></div>
-      
-      {/* Game Header */}
-      <div className="game-header">
-        <h1>COVEN: GLOW BRIGHTLY</h1>
-      </div>
+    <MultiplayerProvider>
+      <div className="game-window pixelated sierra-container">
+        {/* Decorative corner elements */}
+        <div className="corner-decoration top-left"></div>
+        <div className="corner-decoration top-right"></div>
+        <div className="corner-decoration bottom-left"></div>
+        <div className="corner-decoration bottom-right"></div>
+        
+        {/* Game Header */}
+        <div className="game-header">
+          <h1>COVEN: GLOW BRIGHTLY</h1>
+          
+          {/* Communication icons */}
+          <div className="communication-icons">
+            <button 
+              className={`comm-button mail-button ${showMail ? 'active' : ''}`}
+              onClick={() => {
+                setShowMail(!showMail);
+                if (hasMailNotification) setHasMailNotification(false);
+              }}
+              title="Toggle Mail"
+            >
+              <div className={`pixel-icon pixel-icon-mail ${hasMailNotification ? 'has-notification' : ''}`}></div>
+            </button>
+            <button 
+              className={`comm-button chat-button ${showChat ? 'active' : ''}`}
+              onClick={() => {
+                setShowChat(!showChat);
+                if (hasChatNotification) setHasChatNotification(false);
+              }}
+              title="Toggle Chat"
+            >
+              <div className={`pixel-icon pixel-icon-chat ${hasChatNotification ? 'has-notification' : ''}`}></div>
+            </button>
+          </div>
+        </div>
       
       {/* Main Game Content */}
       <div className="game-content">
@@ -671,31 +735,56 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
           className={`nav-button ${currentView === 'garden' ? 'active' : ''}`}
           onClick={() => handleChangeView('garden')}
         >
-          Garden
+          <div className="pixel-icon pixel-icon-garden"></div>
+          <span>Garden</span>
         </button>
         <button
           className={`nav-button ${currentView === 'workshop' ? 'active' : ''}`}
           onClick={() => handleChangeView('workshop')}
         >
-          Workshop
+          <div className="pixel-icon pixel-icon-workshop"></div>
+          <span>Workshop</span>
         </button>
         <button
           className={`nav-button ${currentView === 'market' ? 'active' : ''}`}
           onClick={() => handleChangeView('market')}
         >
-          Market
+          <div className="pixel-icon pixel-icon-market"></div>
+          <span>Market</span>
         </button>
         <button
           className={`nav-button ${currentView === 'journal' ? 'active' : ''}`}
           onClick={() => handleChangeView('journal')}
         >
-          Journal
+          <div className="pixel-icon pixel-icon-journal"></div>
+          <span>Journal</span>
         </button>
         <button className="nav-button end-day">
-          End Day
+          <div className="pixel-icon pixel-icon-end-day"></div>
+          <span>End Day</span>
         </button>
       </div>
+      
+      {/* Multiplayer Communication Panels */}
+      {showMail && (
+        <div className="communication-panel mail-panel">
+          <MultiplayerMail 
+            isExpanded={true} 
+            onToggleExpand={() => setShowMail(!showMail)} 
+          />
+        </div>
+      )}
+      
+      {showChat && (
+        <div className="communication-panel chat-panel">
+          <MultiplayerChat 
+            isExpanded={true} 
+            onToggleExpand={() => setShowChat(!showChat)} 
+          />
+        </div>
+      )}
     </div>
+    </MultiplayerProvider>
   );
 };
 

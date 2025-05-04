@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CombinedWorkshop.css'; // Reuse the base styles
 import type { 
   InventoryItem, 
@@ -16,6 +16,7 @@ import type {
   PackagingDesign,
   PackageType
 } from 'coven-shared';
+import './pixelatedSierra.css';
 
 // Import 90s-style components (or base components to be styled with 90s UI)
 import Brewing90s from './Brewing90s';
@@ -73,8 +74,35 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
   // State for recently created products (to facilitate workflow between sections)
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   
-  // Handle tab change
+  // Handle tab change with better state management
   const handleTabChange = (tab: WorkshopTab) => {
+    // Perform any cleanup needed for old tab
+    switch (activeTab) {
+      case 'brewing':
+        console.log('Leaving brewing tab');
+        break;
+      case 'atelier':
+        console.log('Leaving atelier tab');
+        break;
+      case 'packaging':
+        console.log('Leaving packaging tab');
+        break;
+    }
+    
+    // Initialize the new tab
+    switch (tab) {
+      case 'brewing':
+        console.log('Entering brewing tab');
+        break;
+      case 'atelier':
+        console.log('Entering atelier tab');
+        break;
+      case 'packaging':
+        console.log('Entering packaging tab');
+        break;
+    }
+    
+    // Set the new active tab
     setActiveTab(tab);
   };
   
@@ -88,9 +116,9 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
       id: `product_${Date.now()}`,
       name: recipeId ? knownRecipes.find(r => r.id === recipeId)?.name || "Mystery Potion" : "Experimental Brew",
       description: "A freshly brewed potion awaiting packaging.",
-      type: "potion",
-      category: "potion",
-      rarity: puzzleBonus > 30 ? "rare" : puzzleBonus > 15 ? "uncommon" : "common",
+      type: "potion" as ItemType,
+      category: "potion" as ItemCategory,
+      rarity: puzzleBonus > 30 ? "rare" as Rarity : puzzleBonus > 15 ? "uncommon" as Rarity : "common" as Rarity,
       value: 50 + puzzleBonus * 2,
       icon: "🧪",
       potencyBoost: 70 + puzzleBonus // Using potencyBoost instead of quality
@@ -113,9 +141,9 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
       id: `product_${Date.now()}`,
       name: resultItemId.includes('charm') ? "Magical Charm" : "Powerful Talisman",
       description: "A newly crafted magical item awaiting packaging.",
-      type: resultItemId.includes('charm') ? "charm" : "talisman",
-      category: resultItemId.includes('charm') ? "charm" : "talisman",
-      rarity: resultItemId.includes('rare') ? "rare" : "uncommon",
+      type: resultItemId.includes('charm') ? "charm" as ItemType : "talisman" as ItemType,
+      category: resultItemId.includes('charm') ? "charm" as ItemCategory : "talisman" as ItemCategory,
+      rarity: resultItemId.includes('rare') ? "rare" as Rarity : "uncommon" as Rarity,
       value: resultItemId.includes('rare') ? 120 : 75,
       icon: resultItemId.includes('charm') ? "🔮" : "🧿",
       potencyBoost: resultItemId.includes('rare') ? 85 : 70 // Using potencyBoost instead of quality
@@ -228,52 +256,89 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
     switch (activeTab) {
       case 'brewing':
         return (
-          <div className="brewing-section">
-            <Brewing90s
-              playerInventory={playerInventory}
-              knownRecipes={knownRecipes.filter(r => r.type === 'potion')}
-              lunarPhase={lunarPhase}
-              playerSpecialization={playerSpecialization}
-              onBrew={handleBrewComplete}
-            />
+          <div className="brewing-section sierra-panel">
+            <h3 className="section-title">Brewing Workshop</h3>
+            <p className="section-description">Mix ingredients and brew potions aligned with the lunar phase.</p>
+            
+            <div className="workshop-active-area">
+              <Brewing90s
+                playerInventory={playerInventory}
+                knownRecipes={knownRecipes.filter(r => r.type === 'potion')}
+                lunarPhase={lunarPhase}
+                playerSpecialization={playerSpecialization}
+                onBrew={handleBrewComplete}
+              />
+            </div>
           </div>
         );
       case 'atelier':
         return (
-          <div className="atelier-section">
-            <Atelier
-              playerItems={playerInventory}
-              onCraftItem={handleCraftComplete}
-              lunarPhase={lunarPhase}
-              playerLevel={playerLevel}
-              playerSpecialization={playerSpecialization}
-              knownRecipes={knownRecipes.filter(r => r.type === 'charm' || r.type === 'talisman')}
-            />
+          <div className="atelier-section sierra-panel">
+            <h3 className="section-title">Atelier Crafting</h3>
+            <p className="section-description">Create magical charms and talismans with your crafting skills.</p>
+            
+            <div className="workshop-active-area">
+              <Atelier
+                playerItems={playerInventory}
+                onCraftItem={handleCraftComplete}
+                lunarPhase={lunarPhase}
+                playerLevel={playerLevel}
+                playerSpecialization={playerSpecialization}
+                knownRecipes={knownRecipes.filter(r => r.type === 'charm' || r.type === 'talisman')}
+              />
+            </div>
           </div>
         );
       case 'packaging':
         return (
-          <div className="packaging-section">
-            <PackagingInventory
-              playerInventory={{
-                materials: packagingMaterials,
-                designStyles: designStyles,
-                specialEffects: specialEffects,
-                brands: brands,
-                designs: packagingDesigns
-              }}
-              products={[...recentProducts, ...products]}
-              playerCraftSkill={playerCraftSkill}
-              playerArtistrySkill={playerArtistrySkill}
-              onDesignCreate={onDesignCreate}
-              onApplyToProduct={onApplyToProduct}
-            />
+          <div className="packaging-section sierra-panel">
+            <h3 className="section-title">Packaging & Design</h3>
+            <p className="section-description">Create beautiful, effective packaging to enhance your products.</p>
+            
+            <div className="workshop-active-area">
+              <PackagingInventory
+                playerInventory={{
+                  materials: packagingMaterials,
+                  designStyles: designStyles,
+                  specialEffects: specialEffects,
+                  brands: brands,
+                  designs: packagingDesigns
+                }}
+                products={[...recentProducts, ...products]}
+                playerCraftSkill={playerCraftSkill}
+                playerArtistrySkill={playerArtistrySkill}
+                onDesignCreate={onDesignCreate}
+                onApplyToProduct={onApplyToProduct}
+              />
+            </div>
           </div>
         );
       default:
-        return <div>Select a workshop section</div>;
+        return <div className="default-message">Select a workshop section from the tabs above</div>;
     }
   };
+
+  // Add integration with main game
+  useEffect(() => {
+    console.log('CombinedWorkshop90s initialized');
+    // This could trigger animations or load saved state
+  }, []);
+
+  // Add auto-switching to packaging when products are created
+  useEffect(() => {
+    if (recentProducts.length > 0 && recentProducts[0]?.packaging === undefined) {
+      // If we just created a new product that isn't packaged yet, consider switching to packaging
+      const timer = setTimeout(() => {
+        if (activeTab !== 'packaging') {
+          console.log('Auto-switching to packaging tab after product creation');
+          // Uncomment the line below to enable auto-tab switching 
+          // setActiveTab('packaging');
+        }
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [recentProducts, activeTab]);
 
   return (
     <div className="combined-workshop-container sierra-container pixelated">
@@ -284,7 +349,8 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
         {renderContent()}
       </div>
       
-      {renderRecentProducts()}
+      {/* Only show recent products if we have any */}
+      {recentProducts.length > 0 && renderRecentProducts()}
     </div>
   );
 };

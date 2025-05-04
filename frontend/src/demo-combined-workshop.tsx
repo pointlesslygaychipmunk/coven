@@ -211,16 +211,19 @@ const Demo = () => {
       justifyContent: 'center',
       alignItems: 'center',
       background: '#e8d5b0',
-      padding: '20px',
-      boxSizing: 'border-box'
+      padding: '10px',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+      backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%23e8d5b0\'/><path d=\'M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100\' stroke=\'%23d0b990\' stroke-width=\'0.5\' opacity=\'0.3\'/></svg>")'
     }}>
       <div style={{
-        width: '1024px',
-        height: '768px',
-        border: '3px outset #8b6d45',
-        borderRadius: '8px',
+        width: '90%',
+        maxWidth: '1200px',
+        height: '90vh',
+        border: '4px solid #8b6d45',
+        borderRadius: '0',
         overflow: 'hidden',
-        boxShadow: '0 0 20px rgba(0, 0, 0, 0.3)'
+        boxShadow: '0 0 20px rgba(0, 0, 0, 0.3), inset 0 0 50px rgba(255, 255, 255, 0.2)'
       }} className="pixelated">
         <CombinedWorkshop90s {...mockData} />
       </div>

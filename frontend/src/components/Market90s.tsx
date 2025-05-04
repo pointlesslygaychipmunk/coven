@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Market90s.css';
 import './Market90sSierra.css'; // Import pixelated Sierra styles
-import type { InventoryItem } from 'coven-shared';
+import type { InventoryItem, ItemType, ItemCategory, Rarity } from 'coven-shared';
 
 interface MarketItem {
   id: string;

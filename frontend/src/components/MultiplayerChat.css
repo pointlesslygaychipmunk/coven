@@ -1,89 +1,126 @@
+/* MultiplayerChat.css - Sierra Adventure Game styled chat component */
+
 .multiplayer-chat {
-  position: fixed;
-  bottom: 0;
-  right: 20px;
-  width: 400px;
-  background-color: var(--color-bg-window);
-  border: 2px solid var(--color-border-active);
-  border-bottom: none;
-  transition: height 0.2s ease;
-  z-index: 1000;
-  font-family: var(--font-dos);
-  box-shadow: 0 -5px 20px var(--color-shadow);
+  position: relative;
+  background-color: var(--sierra-bg);
+  border: 4px solid var(--sierra-accent);
+  margin: 10px;
+  width: 100%;
+  max-width: 600px;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  color: var(--sierra-text);
+  image-rendering: pixelated;
 }
 
-.multiplayer-chat.collapsed {
-  height: 24px;
-}
-
-.multiplayer-chat.expanded {
-  height: 400px;
-  display: flex;
-  flex-direction: column;
-}
-
+/* Header styling */
 .chat-header {
+  background-color: var(--sierra-accent);
+  color: var(--sierra-bg-light);
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2px 8px;
-  height: 24px;
-  background-color: var(--color-button-bg);
-  border-bottom: 2px solid var(--color-border-active);
   cursor: pointer;
   user-select: none;
+  font-weight: bold;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-title .pixel-icon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(1.5);
 }
 
 .chat-header h3 {
   margin: 0;
-  font-size: 16px;
-  color: var(--color-text-highlight);
-  font-family: var(--font-dos);
-  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
 .online-indicator {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-dos-bright-green);
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ff3333;
 }
 
-.status-dot.offline {
-  background-color: var(--color-dos-red);
-  animation: statusBlink 1.5s infinite;
+.status-dot.online {
+  background-color: #33ff33;
 }
 
 .online-count {
-  font-size: 16px;
-  color: var(--color-text-primary);
+  background-color: var(--sierra-bg-light);
+  color: var(--sierra-accent);
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 0;
+  min-width: 16px;
+  text-align: center;
 }
 
-@keyframes statusBlink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0.5; }
-}
-
-.chat-content {
-  flex: 1;
+/* Chat container */
+.chat-container {
+  height: 400px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  background-color: var(--color-bg-tertiary);
+  padding: 0;
+  position: relative;
 }
 
+/* Chat options (filters, users) */
+.chat-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 2px solid var(--sierra-accent);
+}
+
+.chat-filter, 
+.chat-users-dropdown {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.chat-filter span, 
+.chat-users-dropdown span {
+  margin-right: 5px;
+}
+
+.filter-select, 
+.users-select {
+  padding: 2px 4px;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  font-size: 0.75rem;
+}
+
+/* Messages container */
 .messages-container {
   flex: 1;
-  padding: 8px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  padding: 8px;
+  background-color: var(--sierra-bg);
 }
 
 .empty-chat {
@@ -91,94 +128,93 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: var(--color-text-secondary);
+  color: var(--sierra-text-muted);
   text-align: center;
   padding: 20px;
 }
 
+/* Message bubbles */
 .message-bubble {
-  background-color: var(--color-bg-window);
-  border: 1px solid var(--color-border-inactive);
-  padding: 8px;
-  max-width: 90%;
-  word-break: break-word;
+  margin-bottom: 8px;
+  padding: 6px;
+  border: 2px solid var(--sierra-accent);
+  background-color: var(--sierra-bg-light);
+  max-width: 80%;
+  position: relative;
 }
 
 .message-bubble.self {
   align-self: flex-end;
-  border-color: var(--color-dos-bright-cyan);
+  margin-left: auto;
+  border-color: var(--sierra-accent-light);
+  background-color: var(--sierra-bg-highlight);
 }
 
-.message-bubble.other {
-  align-self: flex-start;
+.message-bubble.whisper {
+  border-style: dashed;
+  border-width: 2px;
+  background-color: var(--sierra-spring-bg);
 }
 
 .message-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 4px;
-  border-bottom: 1px solid var(--color-border-inactive);
-  padding-bottom: 4px;
+  font-size: 0.75rem;
+  color: var(--sierra-text-muted);
 }
 
 .sender-name {
-  font-size: 16px;
-  color: var(--color-text-highlight);
+  font-weight: bold;
+  color: var(--sierra-accent);
+}
+
+.message-bubble.self .sender-name {
+  color: var(--sierra-text-highlight);
 }
 
 .message-time {
-  font-size: 14px;
-  color: var(--color-text-secondary);
+  font-size: 0.7rem;
 }
 
 .message-content {
-  font-size: 16px;
-  color: var(--color-text-primary);
-  line-height: 1.2;
+  word-break: break-word;
+  font-size: 0.85rem;
+  line-height: 1.3;
 }
 
+/* Message input form */
 .message-input-form {
   display: flex;
-  border-top: 2px solid var(--color-border-inactive);
   padding: 8px;
+  border-top: 2px solid var(--sierra-accent);
+  background-color: var(--sierra-bg-dark);
 }
 
 .message-input {
   flex: 1;
-  padding: 4px 8px;
-  font-size: 16px;
-  background-color: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border-inactive);
-  color: var(--color-text-primary);
-  font-family: var(--font-dos);
-}
-
-.message-input:focus {
-  outline: none;
-  border-color: var(--color-border-active);
-}
-
-.message-input::placeholder {
-  color: var(--color-text-secondary);
+  padding: 6px;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  background-color: var(--sierra-bg-light);
+  border: 2px solid var(--sierra-accent);
+  color: var(--sierra-text);
+  font-size: 0.8rem;
 }
 
 .send-button {
-  margin-left: 8px;
-  padding: 4px 12px;
-  background-color: var(--color-button-bg);
-  border: 2px outset var(--color-border-inactive);
-  color: var(--color-text-primary);
+  padding: 0 10px;
+  background-color: var(--sierra-accent);
+  color: var(--sierra-bg-light);
+  border: 2px outset var(--sierra-accent-light);
   cursor: pointer;
-  transition: all 0.1s ease;
-  font-family: var(--font-dos);
-  text-transform: uppercase;
-  font-size: 16px;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  margin-left: 5px;
 }
 
 .send-button:hover {
-  background-color: var(--color-button-active);
-  color: var(--color-text-highlight);
+  background-color: var(--sierra-accent-light);
 }
 
 .send-button:active {
@@ -186,86 +222,84 @@
 }
 
 .send-button:disabled {
-  background-color: var(--color-dos-dark-gray);
-  color: var(--color-dos-light-gray);
-  border-color: var(--color-dos-dark-gray);
+  background-color: #888;
+  border-color: #666;
   cursor: not-allowed;
 }
 
-.chat-players-list {
-  background-color: var(--color-bg-window);
-  border-top: 2px solid var(--color-border-active);
-  padding: 8px;
-  max-height: 150px;
-  overflow-y: auto;
+/* Chat help */
+.chat-help {
+  padding: 5px 8px;
+  font-size: 0.75rem;
+  background-color: var(--sierra-bg-dark);
+  border-top: 1px solid var(--sierra-accent);
+  color: var(--sierra-text-muted);
 }
 
-.chat-players-list h4 {
-  font-size: 16px;
-  margin: 0 0 8px 0;
-  color: var(--color-text-highlight);
-  font-family: var(--font-dos);
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--color-border-inactive);
-  padding-bottom: 4px;
+.help-title {
+  font-weight: bold;
+  margin-bottom: 3px;
 }
 
-.chat-players-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Decorative corners for Sierra aesthetic */
+.corner-decoration {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  z-index: 10;
+  border-width: 2px;
+  border-color: var(--sierra-accent);
+  border-style: solid;
 }
 
-.chat-players-list li {
-  font-size: 16px;
-  padding: 4px 0;
-  color: var(--color-text-primary);
-  display: flex;
-  align-items: center;
+.corner-decoration.top-left {
+  top: 0;
+  left: 0;
+  border-bottom: none;
+  border-right: none;
 }
 
-.chat-players-list li:before {
-  content: ">";
-  margin-right: 8px;
-  color: var(--color-dos-bright-cyan);
+.corner-decoration.top-right {
+  top: 0;
+  right: 0;
+  border-bottom: none;
+  border-left: none;
 }
 
-.chat-players-list li.current-player {
-  color: var(--color-dos-yellow);
+.corner-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-top: none;
+  border-right: none;
 }
 
-/* Scrollbar styling */
-.messages-container::-webkit-scrollbar,
-.chat-players-list::-webkit-scrollbar {
-  width: 8px;
+.corner-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-top: none;
+  border-left: none;
 }
 
-.messages-container::-webkit-scrollbar-track,
-.chat-players-list::-webkit-scrollbar-track {
-  background: var(--color-bg-tertiary);
-}
-
-.messages-container::-webkit-scrollbar-thumb,
-.chat-players-list::-webkit-scrollbar-thumb {
-  background-color: var(--color-border-inactive);
-}
-
-/* Responsive styling */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .multiplayer-chat {
-    width: 320px;
-    right: 10px;
+  .chat-options {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .multiplayer-chat.expanded {
-    height: 350px;
+  .chat-filter, 
+  .chat-users-dropdown {
+    margin-bottom: 5px;
+    width: 100%;
+  }
+  
+  .message-bubble {
+    max-width: 90%;
   }
 }
 
-@media (max-width: 480px) {
-  .multiplayer-chat {
-    width: 100%;
-    right: 0;
-    left: 0;
-  }
+/* Collapsed state */
+.multiplayer-chat.collapsed .chat-container {
+  display: none;
 }

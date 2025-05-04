@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Journal90s.css';
 import './Journal90sSierra.css'; // Import pixelated Sierra styles
+import type { AtelierSpecialization } from 'coven-shared';
 
 // Custom JournalEntry type for our UI component
 // This differs from the shared type but works for our UI
@@ -37,7 +38,7 @@ interface PlayerData {
   id: string;
   name: string;
   atelierLevel: number;
-  atelierSpecialization?: string;
+  atelierSpecialization?: AtelierSpecialization;
   reputation: number;
   ritualPoints: number;
 }
