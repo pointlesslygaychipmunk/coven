@@ -167,9 +167,9 @@ class SocketService {
     // Create connection timeout to prevent hanging indefinitely
     this.connectionTimeoutId = window.setTimeout(() => {
       console.error(`[Socket] Connection attempt to ${url} timed out`);
-      if (this.socket) {
-        this.socket.close();
-        this.socket = null;
+      if (this._socket) {
+        this._socket.close();
+        this._socket = null;
       }
       this.connecting = false;
       this.connected = false;
@@ -204,13 +204,15 @@ class SocketService {
         this.connecting = false;
         this.reconnectAttempts = 0;
         this.lastSuccessfulUrl = url; // Remember the successful URL
-        this.notifyConnectionStatus(true);
         
         // Setup ping interval to keep connection alive
         this.setupPingInterval();
         
         // Setup event listeners
         this.setupEventListeners();
+        
+        // Notify connection status AFTER event listeners are set up
+        this.notifyConnectionStatus(true);
         
         resolve(true);
       });
