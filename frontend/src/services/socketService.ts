@@ -93,7 +93,8 @@ class SocketService {
       // Determine the backend URL based on the environment
       // Use the same domain and protocol as the frontend
       const host = window.location.hostname;
-      const useSecure = window.location.protocol === 'https:';
+      const protocol = window.location.protocol;
+      const useSecure = protocol === 'https:';
       
       // Set up all possible URLs to try
       this.alternativeUrls = [];
@@ -102,6 +103,9 @@ class SocketService {
       if (this.lastSuccessfulUrl) {
         this.alternativeUrls.push(this.lastSuccessfulUrl);
       }
+      
+      // IMPORTANT: In production with HTTPS, only use secure WebSockets (WSS)
+      // otherwise browsers will block mixed content
       
       // For development environment (localhost), try these URLs in order
       if (host === 'localhost' || host === '127.0.0.1') {
@@ -121,38 +125,42 @@ class SocketService {
         this.alternativeUrls.push(`http://${host}:3000`); // Common Vite dev server port
         this.alternativeUrls.push(`http://${host}:5000`); // Another common port
         
-        // Finally try the opposite security protocol
-        this.alternativeUrls.push(!useSecure 
-          ? `https://${host}:8443` // Try secure if we started with non-secure
-          : `http://${host}:8080`  // Try non-secure if we started with secure
-        );
+        // Finally try the opposite security protocol (only if not HTTPS)
+        if (!useSecure) {
+          this.alternativeUrls.push(`https://${host}:8443`); // Try secure if we started with non-secure
+        }
       } else {
-        // For production, try these URLs in order
-        
-        // First try with no specific port (most common in production)
-        this.alternativeUrls.push(useSecure 
-          ? `https://${host}` // Secure connection using default port
-          : `http://${host}`  // Non-secure connection using default port
-        );
-        
-        // Then try with specific ports (in case the server uses non-standard ports)
-        this.alternativeUrls.push(useSecure 
-          ? `https://${host}:8443` // Secure connection with specific port
-          : `http://${host}:8080`  // Non-secure connection with specific port
-        );
-        
-        // Add relative path to current URL
+        // For production, only use the current protocol to avoid mixed content warnings
+        // Try current origin first (best option)
         this.alternativeUrls.push(window.location.origin);
         
-        // Finally try the opposite security protocol
-        this.alternativeUrls.push(!useSecure 
-          ? `https://${host}` // Try secure if we started with non-secure
-          : `http://${host}` // Try non-secure if we started with secure
-        );
+        // Then try standard ports with same protocol
+        if (useSecure) {
+          // Only add HTTPS options if we're on HTTPS
+          this.alternativeUrls.push(`https://${host}`); // Standard HTTPS port
+          this.alternativeUrls.push(`https://${host}:443`); // Explicit HTTPS port
+          this.alternativeUrls.push(`https://${host}:8443`); // Alternative HTTPS port
+          
+          // Try adding an explicit path
+          this.alternativeUrls.push(`${window.location.origin}/socket.io`);
+        } else {
+          // Only add HTTP options if we're on HTTP
+          this.alternativeUrls.push(`http://${host}`); // Standard HTTP port
+          this.alternativeUrls.push(`http://${host}:80`); // Explicit HTTP port
+          this.alternativeUrls.push(`http://${host}:8080`); // Alternative HTTP port
+        }
       }
       
-      // Remove duplicates
-      this.alternativeUrls = [...new Set(this.alternativeUrls)];
+      // Remove duplicates and ensure protocol compatibility
+      this.alternativeUrls = [...new Set(this.alternativeUrls)].filter(url => {
+        // If we're on HTTPS, only allow HTTPS URLs to avoid mixed content
+        if (useSecure) {
+          return url.startsWith('https:');
+        }
+        return true;
+      });
+      
+      console.log(`[Socket] Will try the following URLs: ${this.alternativeUrls.join(', ')}`);
     }
     
     // Get the next URL to try
@@ -178,15 +186,34 @@ class SocketService {
     }, 15000); // 15 second timeout
     
     // Initialize socket connection
-    this._socket = io(url, {
-      reconnection: false, // We'll handle reconnection manually
-      autoConnect: true, // Connect immediately
-      transports: ['websocket', 'polling'], // Try websocket first, then fallback to polling
-      path: '/socket.io', // Ensure correct socket.io path
-      timeout: 10000, // Increase timeout to 10 seconds (default is 5s)
-      forceNew: true, // Force a new connection
-      query: { clientTime: Date.now().toString() } // Add timestamp to prevent caching issues
-    });
+    try {
+      console.log(`[Socket] Creating connection to ${url}`);
+      
+      // Determine if we're using /socket.io path explicitly in the URL
+      const hasExplicitPath = url.includes('/socket.io');
+      
+      this._socket = io(url, {
+        reconnection: false, // We'll handle reconnection manually
+        autoConnect: true, // Connect immediately
+        transports: ['polling', 'websocket'], // Start with polling for more reliable initial connection
+        path: hasExplicitPath ? undefined : '/socket.io', // Only set path if not in URL already
+        timeout: 15000, // Increase timeout to 15 seconds for more reliability
+        forceNew: true, // Force a new connection
+        query: { clientTime: Date.now().toString() }, // Add timestamp to prevent caching issues
+        withCredentials: false, // Don't send cookies for cross-origin requests
+        extraHeaders: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+    } catch (err) {
+      console.error(`[Socket] Error creating socket: ${err.message}`);
+      this._socket = null;
+      this.connecting = false;
+      this.notifyError({ message: `Failed to create socket connection: ${err.message}` });
+      this.notifyConnectionStatus(false);
+      this.attemptReconnect();
+      return Promise.resolve(false);
+    }
     
     // Set up event listeners
     return new Promise((resolve) => {
@@ -223,7 +250,18 @@ class SocketService {
         this.clearConnectionTimeout();
         this.connected = false;
         this.connecting = false;
-        this.notifyError({ message: `Failed to connect to server: ${error.message}` });
+        
+        // Simplify error message for the user
+        let userMessage;
+        if (error.message.includes('xhr poll error') || error.message.includes('websocket error')) {
+          userMessage = 'Could not reach the game server. Please check your connection or try again later.';
+        } else if (error.message.includes('timeout')) {
+          userMessage = 'Connection to server timed out. Please try again later.';
+        } else {
+          userMessage = `Connection error: ${error.message}`;
+        }
+        
+        this.notifyError({ message: userMessage });
         this.notifyConnectionStatus(false);
         this.attemptReconnect();
         resolve(false);
@@ -311,28 +349,47 @@ class SocketService {
   private attemptReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error(`[Socket] Max reconnect attempts (${this.maxReconnectAttempts}) reached`);
-      // Notify the user with a more helpful error
+      
+      // Check if we can fallback to REST API mode
       this.notifyError({ 
-        message: `Unable to connect to the server after ${this.maxReconnectAttempts} attempts. Please check your internet connection and refresh the page.` 
+        message: `Unable to establish a real-time connection. The game will use a limited mode that requires refreshing to see updates.` 
       });
+      
+      // If you have a REST API fallback, you could enable it here
+      // this.enableRestApiFallback();
+      
       return;
     }
     
     this.reconnectAttempts++;
     
-    // Use exponential backoff to increase wait time between attempts
-    // Formula: baseInterval * 2^(attemptNumber-1) with a bit of randomness
-    const exponentialInterval = this.baseReconnectInterval * Math.pow(1.5, this.reconnectAttempts - 1);
-    // Add some jitter to prevent all clients reconnecting simultaneously
-    const jitter = Math.random() * 0.3 * exponentialInterval; 
-    const reconnectInterval = Math.min(exponentialInterval + jitter, 30000); // Cap at 30 seconds
+    // Use a more gentle backoff strategy to improve UX
+    // Start with quick retries, then get slower
+    let reconnectInterval;
+    
+    if (this.reconnectAttempts <= 3) {
+      // Quick retries for the first few attempts (2-3 seconds)
+      reconnectInterval = 2000 + (this.reconnectAttempts * 500);
+    } else if (this.reconnectAttempts <= 6) {
+      // Medium delay for next few attempts (5-8 seconds)
+      reconnectInterval = 5000 + ((this.reconnectAttempts - 3) * 1000);
+    } else {
+      // Longer delays for later attempts, capped at 30 seconds
+      reconnectInterval = Math.min(10000 + ((this.reconnectAttempts - 6) * 2000), 30000);
+    }
+    
+    // Add a small random jitter to prevent thundering herd
+    const jitter = Math.random() * 0.2 * reconnectInterval;
+    reconnectInterval = Math.round(reconnectInterval + jitter);
     
     console.log(`[Socket] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${Math.round(reconnectInterval/1000)}s...`);
     
-    // Update the UI to show reconnection attempt
-    this.notifyError({ 
-      message: `Connection lost. Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...` 
-    });
+    // Show fewer messages to the user to avoid spam
+    if (this.reconnectAttempts % 3 === 1 || this.reconnectAttempts === this.maxReconnectAttempts - 1) {
+      this.notifyError({ 
+        message: `Still trying to connect to the game server (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})...` 
+      });
+    }
     
     setTimeout(() => {
       this.init().then((success) => {

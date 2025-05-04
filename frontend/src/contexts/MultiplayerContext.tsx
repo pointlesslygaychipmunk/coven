@@ -147,8 +147,11 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         setError(null);
       } else if (!status && wasConnected) {
         // Connection lost
-        addStatusMessage('Connection to server lost. Attempting to reconnect...', true);
+        addStatusMessage('Connection to server lost. The game will automatically try to reconnect...', true);
         setIsJoined(false);
+      } else if (!status && !wasConnected && connecting) {
+        // Initial connection failed
+        addStatusMessage('Unable to connect to the game server. Please check your internet connection.', true);
       }
     });
 
