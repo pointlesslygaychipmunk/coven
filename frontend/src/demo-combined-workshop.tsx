@@ -2,58 +2,182 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import CombinedWorkshop90s from './components/CombinedWorkshop90s';
 import './components/pixelatedSierra.css';
-import { 
-  ItemType, 
-  ItemCategory, 
-  MoonPhase, 
-  AtelierSpecialization, 
-  ElementType, 
-  Rarity,
-  PackagingDesign,
-  Product,
-  PackagingMaterial,
-  DesignStyle,
-  PackagingEffect
-} from 'coven-shared';
 
 // Demo standalone page for the combined workshop
 const Demo = () => {
-  // Demo data for workshop
+  // Import types for proper typing
+  // Note: We're using direct imports with relative paths to ensure TypeScript compatibility
+  import type { 
+    MoonPhase, 
+    AtelierSpecialization, 
+    Material, 
+    DesignStyle, 
+    SpecialEffect, 
+    Brand, 
+    PackageType,
+    ItemType,
+    ItemCategory,
+    Rarity,
+    Product,
+    PackagingDesign
+  } from '../../shared/src/types';
+
+  // Create some basic mock inventory items
+  const mockInventory = [
+    {
+      id: "ingr_lavender_001",
+      baseId: "ingr_lavender",
+      name: "Lavender",
+      type: "ingredient" as ItemType,
+      category: "herb" as ItemCategory,
+      quantity: 10,
+      quality: 80,
+      value: 15,
+      rarity: "common" as Rarity,
+      description: "Aromatic lavender with calming properties",
+      tarotCardId: "tarot_lavender",
+      elementalPower: 60,
+      moonAlignment: 70,
+      seasonalPotency: 80,
+      essenceCharge: 50,
+      activeEffects: [],
+      combosPotential: 75
+    },
+    {
+      id: "ingr_moonstone_002",
+      baseId: "ingr_moonstone",
+      name: "Moonstone",
+      type: "ingredient" as ItemType,
+      category: "crystal" as ItemCategory,
+      quantity: 5,
+      quality: 90,
+      value: 45,
+      rarity: "rare" as Rarity,
+      description: "Luminous stone that resonates with lunar energy",
+      tarotCardId: "tarot_moonstone",
+      elementalPower: 85,
+      moonAlignment: 95,
+      seasonalPotency: 65,
+      essenceCharge: 80,
+      activeEffects: [],
+      combosPotential: 90
+    }
+  ];
+
+  // Create some basic recipes
+  const mockRecipes = [
+    {
+      id: "recipe_calming_potion",
+      name: "Calming Potion",
+      category: "potion" as ItemCategory,
+      description: "A soothing potion that calms the nerves",
+      type: "potion" as ItemType
+    },
+    {
+      id: "recipe_moonlight_charm",
+      name: "Moonlight Charm",
+      category: "charm" as ItemCategory,
+      description: "A charm that glows with the power of moonlight",
+      type: "charm" as ItemType
+    }
+  ];
+
+  // Create some mock products
+  const mockProducts = [
+    {
+      id: "prod_energy_potion_003",
+      name: "Energy Potion",
+      description: "Reinvigorates the spirit and body",
+      icon: "🧪",
+      type: "potion" as ItemType,
+      category: "potion" as ItemCategory,
+      value: 75,
+      rarity: "uncommon" as Rarity,
+      potencyBoost: 65
+    }
+  ];
+
+  // Mock packaging materials
+  const mockMaterials = [
+    {
+      id: "mat_glass_001",
+      name: "Fine Glass",
+      description: "Clear glass that showcases contents beautifully",
+      durability: 6,
+      qualityLevel: 7,
+      icon: "🧪",
+      materialType: "glass",
+      materialQuality: "fine",
+      elementalAffinity: "Water" as const,
+      value: 30
+    }
+  ];
+
+  // Mock design styles
+  const mockDesignStyles = [
+    {
+      id: "style_mystical_001",
+      name: "Mystical Style",
+      description: "Esoteric symbols and cosmic imagery suggest magical potency",
+      complexityLevel: 7,
+      customerAppeal: 8,
+      marketBonus: "Increases market value by 35",
+      icon: "🔮",
+      designStyle: "mystical",
+      elementalAffinity: "Spirit" as const,
+      specializationAffinity: "Crystallization" as AtelierSpecialization
+    }
+  ];
+
+  // Mock special effects
+  const mockEffects = [
+    {
+      id: "effect_glow_001",
+      name: "Glow Effect",
+      description: "Package softly illuminates, brighter when contents are potent",
+      rarity: 7,
+      power: 8,
+      duration: "Medium",
+      icon: "🌟",
+      effectType: "glow",
+      potencyBonus: 10,
+      durabilityEffect: 0,
+      specializationAffinity: "Essence" as AtelierSpecialization
+    }
+  ];
+
+  // Mock brands
+  const mockBrands = [
+    {
+      id: "brand_moonrays_001",
+      name: "Moonrays Essentials",
+      description: "Crafting ethereal products with celestial influence",
+      reputation: 7,
+      recognition: 6,
+      signature: "Lunar motif in celestial style",
+      icon: "🏷️",
+      tagline: "Connected to the cosmos",
+      colorPalette: ["#5b3e8f", "#372261", "#140f33", "#c4a5ff", "#ece9f5"],
+      brandValues: ["Purity", "Celestial", "Harmony"],
+      specialization: "Essence" as AtelierSpecialization,
+      elementalAffinity: "Spirit" as const
+    }
+  ];
+
   const mockData = {
-    playerInventory: [
-      {id: "1", baseId: "herb1", name: "Chamomile", type: "ingredient" as ItemType, category: "herb" as ItemCategory, quantity: 5, tarotCardId: "herb_chamomile", elementalPower: 50, moonAlignment: 60, seasonalPotency: 70, essenceCharge: 40, activeEffects: [], combosPotential: 60},
-      {id: "2", baseId: "herb2", name: "Lavender", type: "ingredient" as ItemType, category: "herb" as ItemCategory, quantity: 3, tarotCardId: "herb_lavender", elementalPower: 55, moonAlignment: 65, seasonalPotency: 75, essenceCharge: 45, activeEffects: [], combosPotential: 65},
-      {id: "3", baseId: "root1", name: "Ginseng", type: "ingredient" as ItemType, category: "root" as ItemCategory, quantity: 2, tarotCardId: "root_ginseng", elementalPower: 70, moonAlignment: 40, seasonalPotency: 60, essenceCharge: 80, activeEffects: [], combosPotential: 50}
-    ],
-    knownRecipes: [
-      {id: "1", name: "Healing Tonic", type: "potion" as ItemType},
-      {id: "2", name: "Dream Essence", type: "potion" as ItemType},
-      {id: "3", name: "Charm of Protection", type: "charm" as ItemType}
-    ],
+    playerInventory: mockInventory,
+    knownRecipes: mockRecipes,
     lunarPhase: "Full Moon" as MoonPhase,
     playerLevel: 5,
     playerSpecialization: "Essence" as AtelierSpecialization,
     playerCraftSkill: 7,
     playerArtistrySkill: 8,
-    products: [
-      {id: "product1", name: "Healing Tonic", description: "Restores vitality and health.", type: "potion" as ItemType, category: "potion" as ItemCategory, rarity: "common" as Rarity, value: 50, icon: "🧪", potencyBoost: 80},
-      {id: "product2", name: "Lunar Essence", description: "Captures moonlight energy in liquid form.", type: "potion" as ItemType, category: "essence" as ItemCategory, rarity: "uncommon" as Rarity, value: 75, icon: "✨", potencyBoost: 85}
-    ],
-    packagingMaterials: [
-      {id: "m1", name: "Glass", description: "Clear glass material for bottles.", materialType: "glass" as unknown as PackagingMaterial, icon: "🧪", durability: 7, qualityLevel: 8, quantity: 3, materialQuality: "fine" as unknown as any, value: 25, elementalAffinity: "Water" as ElementType},
-      {id: "m2", name: "Wood", description: "Polished wooden material for boxes.", materialType: "wood" as unknown as PackagingMaterial, icon: "🪵", durability: 8, qualityLevel: 7, quantity: 2, materialQuality: "common" as unknown as any, value: 15, elementalAffinity: "Earth" as ElementType}
-    ],
-    designStyles: [
-      {id: "d1", name: "Elegant", description: "A refined, sophisticated design style.", designStyle: "elegant" as unknown as DesignStyle, icon: "🎨", complexityLevel: 7, customerAppeal: 8, elementalAffinity: "Water" as ElementType, specializationAffinity: "Distillation" as AtelierSpecialization},
-      {id: "d2", name: "Rustic", description: "A charming, natural design style.", designStyle: "rustic" as unknown as DesignStyle, icon: "🏡", complexityLevel: 5, customerAppeal: 7, elementalAffinity: "Earth" as ElementType, specializationAffinity: "Fermentation" as AtelierSpecialization}
-    ],
-    specialEffects: [
-      {id: "e1", name: "Shimmer", description: "Adds a subtle shimmer effect.", effectType: "shimmer" as unknown as PackagingEffect, icon: "✨", rarity: 6, power: 5, quantity: 2, potencyBonus: 10, durabilityEffect: 5, specializationAffinity: "Crystallization" as AtelierSpecialization}
-    ],
-    brands: [
-      {id: "b1", name: "Moonlight Brews", description: "Your personal brand for magical potions.", icon: "🌙", reputation: 7, recognition: 6, tagline: "Brewing with celestial magic", colorPalette: ["#5d4e7b", "#8b7dac", "#e0d5f2"], brandValues: ["Quality", "Tradition", "Effectiveness"], specialization: "Essence" as AtelierSpecialization, elementalAffinity: "Spirit" as ElementType}
-    ],
-    packagingDesigns: [],
+    products: mockProducts,
+    packagingMaterials: mockMaterials,
+    designStyles: mockDesignStyles,
+    specialEffects: mockEffects,
+    brands: mockBrands,
+    packagingDesigns: [] as PackagingDesign[],
     onBrew: (ingredientIds: string[], puzzleBonus: number, recipeId?: string) => console.log('Brewing:', ingredientIds, puzzleBonus, recipeId),
     onCraftItem: (ingredientIds: string[], resultItemId: string) => console.log('Crafting:', ingredientIds, resultItemId),
     onDesignCreate: (design: PackagingDesign) => { console.log('Design created:', design); return Promise.resolve(); },

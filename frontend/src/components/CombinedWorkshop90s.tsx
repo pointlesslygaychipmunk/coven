@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './CombinedWorkshop.css'; // Reuse the base styles
-import { 
+import type { 
   InventoryItem, 
   BasicRecipeInfo, 
   AtelierSpecialization, 
@@ -15,7 +15,7 @@ import {
   Brand,
   PackagingDesign,
   PackageType
-} from 'coven-shared';
+} from '../../../shared/src/types';
 
 // Import 90s-style components (or base components to be styled with 90s UI)
 import Brewing90s from './Brewing90s';

@@ -8,7 +8,7 @@ import {
   PackagingDesign,
   Product,
   PackageType
-} from 'coven-shared';
+} from '../../../shared/src/types';
 
 // Use the shared PackageType interface which is already compatible with both frontend and backend formats
 type CompatibleDesign = PackageType;

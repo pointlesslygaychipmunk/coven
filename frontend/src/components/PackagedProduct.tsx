@@ -5,7 +5,7 @@ import {
   Product,
   PackagingEffect,
   PackageType
-} from 'coven-shared';
+} from '../../../shared/src/types';
 
 interface PackagedProductProps {
   product: Product;
