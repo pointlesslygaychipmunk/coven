@@ -669,7 +669,7 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
           connect().then((success) => {
             if (success) {
               // Reset emergency counters since we succeeded
-              sessionStorage.removeItem(reconnectAttemptCounterKey);
+              sessionStorage.removeItem(OLD_COUNTER_KEY);
               sessionStorage.removeItem(reconnectStartTimeKey);
               
               attemptReconnection();
