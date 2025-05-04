@@ -221,8 +221,9 @@ class SocketService {
         console.log(`[Socket:EMERGENCY] Initial transport: ${this._socket.io.engine.transport.name}`);
         
         // Listen for transport changes
-        this._socket.io.engine.on('upgrade', (transport: string) => {
-          console.log(`[Socket:EMERGENCY] Transport upgraded to: ${transport}`);
+        this._socket.io.engine.on('upgrade', (transport) => {
+          // Using any type to avoid type errors with Socket.IO Transport type
+          console.log(`[Socket:EMERGENCY] Transport upgraded to: ${typeof transport === 'string' ? transport : 'unknown'}`);
         });
       }
       
@@ -259,8 +260,9 @@ class SocketService {
         
         // Try to get more debug info
         console.log(`[Socket:EMERGENCY] Connection error details:`);
-        console.log(`- Message: ${err.message}`);
-        console.log(`- Type: ${err.type}`);
+        console.log(`- Message: ${err.message || 'Unknown error'}`);
+        // Use safe property access for type - might not exist on all errors
+        console.log(`- Type: ${(err as any).type || 'N/A'}`);
         console.log(`- Online: ${navigator.onLine}`);
         
         // Clear timeout
