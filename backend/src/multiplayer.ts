@@ -72,6 +72,15 @@ export class MultiplayerManager {
     const isProduction = process.env.NODE_ENV === 'production';
     console.log(`[Multiplayer] Initializing in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode`);
     
+    // EMERGENCY: Add verbose debugging
+    console.log(`[Multiplayer:DEBUG] Server type: ${server.constructor.name}`);
+    console.log(`[Multiplayer:DEBUG] Server listening: ${server.listening}`);
+    try {
+      console.log(`[Multiplayer:DEBUG] Server address:`, server.address());
+    } catch (e) {
+      console.error('[Multiplayer:DEBUG] Error getting server address:', e);
+    }
+    
     // Determine allowed origins based on environment - FIXED FOR PLAYCOVEN.COM
     const allowedOrigins = isProduction ? 
       // Production domains - MUST match your actual domain exactly
@@ -112,9 +121,37 @@ export class MultiplayerManager {
       serveClient: false,                   // Don't serve client files in production
     });
     
+    // Add additional DEBUG error handlers
+    this.io.engine.on('connection_error', (err: any) => {
+      console.error('[Multiplayer:CRITICAL] Socket.IO Engine connection error:', err);
+      
+      // Log detailed error info
+      console.error('[Multiplayer:CRITICAL] Error details:', {
+        message: err.message,
+        code: err.code,
+        type: err.type,
+        stack: err.stack,
+        req: err.req ? {
+          method: err.req.method,
+          url: err.req.url,
+          headers: err.req.headers
+        } : 'No request object'
+      });
+    });
+    
+    // Monitor all socket connections
+    this.io.on('new_socket', (socket: any) => {
+      console.log(`[Multiplayer:DEBUG] Raw socket connected: ${socket.id}`);
+    });
+    
+    // Error handler for general Socket.IO errors
+    this.io.on('error', (err: any) => {
+      console.error('[Multiplayer:CRITICAL] Socket.IO server error:', err);
+    });
+    
     this.setupSocketHandlers();
     this.startConnectionHealthCheck();
-    console.log("[Multiplayer] WebSocket server initialized");
+    console.log("[Multiplayer] WebSocket server initialized with extended error debugging");
   }
   
   /**

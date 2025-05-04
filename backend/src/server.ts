@@ -338,6 +338,8 @@ app.get('/socketio-debug', (_req: Request, res: Response) => {
   res.json({
     status: 'online',
     timestamp: Date.now(),
+    environment: process.env.NODE_ENV || 'development',
+    hostname: require('os').hostname(),
     socketio: {
       http: multiplayerManager ? {
         connected: true,
@@ -351,6 +353,16 @@ app.get('/socketio-debug', (_req: Request, res: Response) => {
       } : null
     }
   });
+});
+
+// EMERGENCY: Add very simple health check endpoint
+app.get('/health-check', (_req: Request, res: Response) => {
+  // Set CORS headers for maximum compatibility
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  
+  // Basic OK response
+  res.send('OK');
 });
 
 app.post('/api/plant', (req: Request, res: Response): void => {

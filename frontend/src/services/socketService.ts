@@ -220,8 +220,43 @@ class SocketService {
         // Debug socket object state
         debugSocketConnection(this._socket);
         
-        // Handle CORS errors specially
-        if (err.message && err.message.includes('CORS')) {
+        // SPECIAL HANDLING FOR "server error" - This usually means Socket.IO version mismatch
+        // or server configuration issue. Try with different transport methods.
+        if (err.message === 'server error') {
+          console.log('[Socket:EMERGENCY] Server error detected - trying alternate connection strategy');
+          
+          // Cleanup current socket
+          if (this._socket) {
+            this._socket.close();
+            this._socket = null;
+          }
+          
+          // Try to connect with only polling transport (more compatible)
+          try {
+            console.log('[Socket:EMERGENCY] Attempting connection with polling transport only');
+            this._socket = io(serverUrl, {
+              transports: ['polling'],         // Polling only - no websocket
+              reconnection: false,
+              timeout: 60000,
+              forceNew: true,
+              autoConnect: true,
+              path: '/socket.io/',
+              query: {
+                client: 'polling-only',
+                time: Date.now().toString()
+              }
+            });
+            
+            // Setup this new socket
+            this._setupEmergencySocket(this._socket, resolve);
+            
+            // Don't resolve yet - let the new socket's handlers do it
+            return;
+          } catch (pollingError) {
+            console.error('[Socket:EMERGENCY] Polling transport attempt failed:', pollingError);
+            this._notifyError({ message: 'Unable to connect to server: ' + pollingError.message });
+          }
+        } else if (err.message && err.message.includes('CORS')) {
           console.error('[Socket:EMERGENCY] CORS ERROR DETECTED. Check server configuration.');
           this._notifyError({ message: 'Server connection blocked by CORS policy. Please contact support.' });
         } else {
@@ -256,6 +291,54 @@ class SocketService {
         console.error('[Socket:EMERGENCY] Socket error:', error);
         this._notifyError({ message: 'Socket error: ' + (error?.message || 'Unknown error') });
       });
+    });
+  }
+  
+  // Emergency socket setup for fallback connection attempts
+  private _setupEmergencySocket(socket: Socket, resolve: (value: boolean) => void): void {
+    if (!socket) {
+      console.error('[Socket:EMERGENCY] Invalid socket object in emergency setup');
+      resolve(false);
+      return;
+    }
+    
+    console.log('[Socket:EMERGENCY] Setting up emergency socket handlers');
+    
+    // Connection success
+    socket.on('connect', () => {
+      console.log(`[Socket:EMERGENCY] EMERGENCY SOCKET CONNECTED! ID: ${socket.id}`);
+      
+      // Set connected state
+      this._connected = true;
+      this._connecting = false;
+      
+      // Set up event listeners
+      this._setupEventListeners();
+      
+      // Notify about successful connection
+      this._notifyConnectionStatus(true);
+      this._notifyError({ message: 'Connected to server (fallback method)' });
+      
+      resolve(true);
+    });
+    
+    // Connection error
+    socket.on('connect_error', (fallbackErr) => {
+      console.error('[Socket:EMERGENCY] Emergency socket also failed:', fallbackErr);
+      
+      // Clean up
+      socket.close();
+      this._socket = null;
+      this._connected = false;
+      this._connecting = false;
+      
+      // Notify about error
+      this._notifyConnectionStatus(false);
+      this._notifyError({ 
+        message: 'Unable to connect using any method. Please check your internet connection and try again.' 
+      });
+      
+      resolve(false);
     });
   }
   
