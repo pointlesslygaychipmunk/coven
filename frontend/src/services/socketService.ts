@@ -108,7 +108,7 @@ class SocketService {
     
     // Attempt to create a socket connection with production-optimized settings
     try {
-      // Create socket with Cloudflare Tunnel compatible settings
+      // Create socket with enhanced Cloudflare Tunnel compatible settings
       // CRITICAL FIX: Cloudflare Tunnels require polling transport
       this._socket = io(serverUrl, {
         transports: ['polling'],              // POLLING ONLY - critical for Cloudflare Tunnels
@@ -119,8 +119,17 @@ class SocketService {
         path: '/socket.io/',                  // Default Socket.IO path
         query: {                              // Query params for debugging
           client: 'cloudflare-compatible',
-          time: Date.now().toString()
-        }
+          time: Date.now().toString(),
+          // Add browser and environment info to help with debugging
+          ua: navigator.userAgent.substring(0, 100),
+          protocol: window.location.protocol,
+          host: window.location.host
+        },
+        // Disable features that might cause issues with Cloudflare Tunnels
+        upgrade: false,                       // Disable transport upgrade attempts
+        rememberUpgrade: false,               // Don't remember transport upgrades
+        timestampRequests: true,              // Add timestamps to requests to avoid caching
+        rejectUnauthorized: false,            // Accept self-signed certs through Cloudflare
       });
       
       console.log('[Socket] Socket connection created, waiting for connection...');
@@ -244,8 +253,18 @@ class SocketService {
               path: '/socket.io/',
               query: {
                 client: 'cloudflare-tunnel',   // Identify as Cloudflare Tunnel client
-                time: Date.now().toString()
-              }
+                time: Date.now().toString(),
+                // Add diagnostic info
+                ua: navigator.userAgent.substring(0, 100),
+                protocol: window.location.protocol,
+                host: window.location.host,
+                fallback: 'true'
+              },
+              // Disable features that might cause issues with Cloudflare Tunnels
+              upgrade: false,                   // Disable transport upgrade attempts
+              rememberUpgrade: false,           // Don't remember transport upgrades
+              timestampRequests: true,          // Add timestamps to requests to avoid caching
+              rejectUnauthorized: false,        // Accept self-signed certs through Cloudflare
             });
             
             // Setup this new socket

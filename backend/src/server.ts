@@ -24,7 +24,7 @@ const gameHandler = new GameHandler();
 const isProduction = process.env.NODE_ENV === 'production';
 console.log(`[Server] Running in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode`);
 
-// PRODUCTION CORS CONFIGURATION - FIXED FOR PLAYCOVEN.COM
+// PRODUCTION CORS CONFIGURATION - FIXED FOR PLAYCOVEN.COM AND CLOUDFLARE TUNNELS
 const corsOptions = {
   // Set specific allowed origins for production
   origin: isProduction ? 
@@ -34,6 +34,8 @@ const corsOptions = {
       'http://playcoven.com',
       'https://www.playcoven.com',
       'http://www.playcoven.com',
+      // Allow any Cloudflare Tunnel domains if used
+      'https://*.trycloudflare.com',
       // Allow direct IP access if needed
       'http://localhost:3000',
       'http://localhost:8080',
@@ -41,7 +43,7 @@ const corsOptions = {
     ] : 
     '*', // In development, allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Forwarded-For', 'X-Forwarded-Proto', 'CF-Connecting-IP', 'CF-Ray', 'CF-IPCountry'],
   credentials: true,
   // Add cache control for preflight requests in production
   maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development
@@ -67,13 +69,28 @@ if (!fs.existsSync(frontendDistPath)) {
     }));
 }
 
-// Logging Middleware
+// Logging Middleware with Cloudflare support
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
+  
+  // Extract Cloudflare-specific headers for logging and diagnostics
+  const cfRay = req.headers['cf-ray'] || '';
+  const cfIP = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip;
+  const cfCountry = req.headers['cf-ipcountry'] || '';
+  
+  // Forward protocol info - important for socket.io handling
+  if (req.headers['x-forwarded-proto']) {
+    // Add custom property to request object for internal use
+    (req as any).forwardedProtocol = req.headers['x-forwarded-proto'];
+  }
+  
+  // Log request completion with Cloudflare details if available
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(`[Server] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
+    const cfInfo = cfRay ? ` [CF:${cfRay.toString().substring(0, 8)}..${cfCountry}]` : '';
+    console.log(`[Server] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)${cfInfo}`);
   });
+  
   next();
 });
 

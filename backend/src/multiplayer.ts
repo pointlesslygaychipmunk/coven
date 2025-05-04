@@ -99,12 +99,14 @@ export class MultiplayerManager {
     console.log(`[Multiplayer] Initializing with allowed origins:`, 
       isProduction ? (allowedOrigins as string[]).join(', ') : 'all origins');
     
-    // Initialize Socket.IO with Cloudflare Tunnel optimized configuration
+    // Initialize Socket.IO with Enhanced Cloudflare Tunnel optimized configuration
     this.io = new Server(server, {
       cors: {
         origin: allowedOrigins,
         methods: ["GET", "POST"],
         credentials: true,
+        // Add all cloudflare headers to allowed headers
+        allowHeaders: ['Content-Type', 'Authorization', 'X-Forwarded-For', 'X-Forwarded-Proto', 'CF-Connecting-IP', 'CF-Ray', 'CF-IPCountry'],
         // Add cache control for preflight requests in production
         maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development
       },
@@ -124,15 +126,20 @@ export class MultiplayerManager {
       cookie: {                            // Use secure cookies in production
         name: 'coven_io',
         httpOnly: true,
-        secure: isProduction
-      }
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax' // Allow cross-site cookies for Cloudflare Tunnels
+      },
+      // Support handling of proxied websocket connections via Cloudflare
+      allowUpgrades: false,                // Disable transport upgrades with cloudflare
+      perMessageDeflate: false,            // Disable compression for better compatibility
+      httpCompression: false,              // Disable HTTP compression as it can cause issues
     });
     
-    // Add additional DEBUG error handlers
+    // Add additional DEBUG error handlers with Cloudflare Tunnel diagnostics
     this.io.engine.on('connection_error', (err: any) => {
       console.error('[Multiplayer:CRITICAL] Socket.IO Engine connection error:', err);
       
-      // Log detailed error info
+      // Log detailed error info with Cloudflare-specific diagnostics
       console.error('[Multiplayer:CRITICAL] Error details:', {
         message: err.message,
         code: err.code,
@@ -141,14 +148,33 @@ export class MultiplayerManager {
         req: err.req ? {
           method: err.req.method,
           url: err.req.url,
-          headers: err.req.headers
+          // Include Cloudflare specific headers for diagnostics
+          headers: err.req.headers,
+          cfRay: err.req.headers?.['cf-ray'] || 'N/A',
+          cfIP: err.req.headers?.['cf-connecting-ip'] || err.req.headers?.['x-forwarded-for'] || 'N/A',
+          cfCountry: err.req.headers?.['cf-ipcountry'] || 'N/A',
+          xForwardedProto: err.req.headers?.['x-forwarded-proto'] || 'N/A',
+          forwarded: err.req.headers?.forwarded || 'N/A'
         } : 'No request object'
       });
     });
     
-    // Monitor all socket connections
+    // Monitor all socket connections with Cloudflare info
     this.io.on('new_socket', (socket: any) => {
       console.log(`[Multiplayer:DEBUG] Raw socket connected: ${socket.id}`);
+      
+      // Log Cloudflare-specific info if available
+      if (socket.handshake?.headers) {
+        const headers = socket.handshake.headers;
+        console.log(`[Multiplayer:CF-DEBUG] Connection info:`, {
+          id: socket.id,
+          cfRay: headers['cf-ray'] || 'N/A',
+          cfIP: headers['cf-connecting-ip'] || headers['x-forwarded-for'] || 'N/A',
+          cfCountry: headers['cf-ipcountry'] || 'N/A',
+          proto: headers['x-forwarded-proto'] || 'direct',
+          transport: socket.conn?.transport?.name || 'unknown'
+        });
+      }
     });
     
     // Error handler for general Socket.IO errors

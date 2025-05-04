@@ -1,213 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Witch Coven - Emergency Mode</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: #1a1a2e;
-      color: #e2dbff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 800px;
-      width: 90%;
-      padding: 30px;
-      background-color: #27224a;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      text-align: center;
-    }
-    
-    h1 {
-      margin-top: 0;
-      color: #c1b3ff;
-      font-size: 2rem;
-    }
-    
-    .button-container {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 20px 0;
-    }
-    
-    button {
-      padding: 12px 20px;
-      background-color: #4a3674;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.2s;
-    }
-    
-    button:hover {
-      background-color: #643b68;
-    }
-    
-    .section {
-      margin-top: 20px;
-      padding: 20px;
-      border: 1px solid #695e9e;
-      border-radius: 4px;
-      text-align: left;
-    }
-    
-    ul {
-      text-align: left;
-      line-height: 1.6;
-    }
-    
-    pre {
-      background-color: #1a1a2e;
-      padding: 15px;
-      border-radius: 4px;
-      overflow-x: auto;
-      color: #c1b3ff;
-      text-align: left;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    
-    .debug {
-      display: none;
-      margin-top: 20px;
-    }
-    
-    .version {
-      font-size: 0.8rem;
-      margin-top: 20px;
-      color: #8a7fc0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Witch's Coven - Emergency Connection</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f3f0;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #5d4037;
+            border-bottom: 2px solid #8d6e63;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #6d4c41;
+            margin-top: 30px;
+        }
+        .emergency-box {
+            background-color: #ffebee;
+            border-left: 5px solid #d32f2f;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box {
+            background-color: #e8f5e9;
+            border-left: 5px solid #43a047;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #795548;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #5d4037;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+        .status-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        #status-message {
+            font-weight: bold;
+        }
+        #connection-info {
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        .success {
+            color: #43a047;
+        }
+        footer {
+            margin-top: 40px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Witch Coven - Emergency Mode</h1>
-    <p>This is a standalone emergency interface when the main application cannot render.</p>
+    <h1>Witch's Coven - Emergency Connection Tool</h1>
     
-    <div class="button-container">
-      <button onclick="window.location.href='/'">Try Main App</button>
-      <button onclick="window.location.href='/?minimal=true'">Try Minimal Version</button>
-      <button onclick="window.location.reload()">Reload Page</button>
-      <button onclick="toggleDebug()">Show Debug Info</button>
-      <button onclick="clearLocalStorage()">Clear Local Storage</button>
+    <div class="emergency-box">
+        <h2>⚠️ Emergency Connection Mode</h2>
+        <p>This page provides tools to troubleshoot connection issues with the Witch's Coven game server, specifically when using Cloudflare Tunnels.</p>
     </div>
-    
-    <div class="section">
-      <h2>Troubleshooting</h2>
-      <p>The main Witch Coven application encountered a rendering issue. Here are some steps you can try:</p>
-      <ul>
-        <li>Clear your browser cache and cookies</li>
-        <li>Try using a different browser</li>
-        <li>Inspect the developer console for specific errors (F12)</li>
-        <li>Try the minimal version option above</li>
-      </ul>
-    </div>
-    
-    <div id="debug-section" class="section debug">
-      <h2>Debug Information</h2>
-      <pre id="debug-info">Loading diagnostic info...</pre>
-    </div>
-    
-    <p class="version">Emergency Interface v1.0</p>
-  </div>
 
-  <script>
-    // Toggle debug info visibility
-    function toggleDebug() {
-      const debugSection = document.getElementById('debug-section');
-      if (debugSection.style.display === 'block') {
-        debugSection.style.display = 'none';
-      } else {
-        debugSection.style.display = 'block';
-        gatherDebugInfo();
-      }
-    }
+    <div class="status-container">
+        <div>Connection Status: <span id="status-message">Not connected</span></div>
+        <div id="connection-info"></div>
+    </div>
     
-    // Clear localStorage
-    function clearLocalStorage() {
-      try {
-        localStorage.clear();
-        alert('Local storage cleared successfully.');
-        window.location.reload();
-      } catch (err) {
-        alert('Error clearing local storage: ' + err.message);
-      }
-    }
+    <h2>Connection Tools</h2>
     
-    // Gather diagnostic information
-    function gatherDebugInfo() {
-      const debugElement = document.getElementById('debug-info');
-      let info = '';
-      
-      // Browser info
-      info += '--- Browser Info ---\n';
-      info += `User Agent: ${navigator.userAgent}\n`;
-      info += `Window Size: ${window.innerWidth}x${window.innerHeight}\n`;
-      info += `URL: ${window.location.href}\n\n`;
-      
-      // URL Parameters
-      info += '--- URL Parameters ---\n';
-      const params = new URLSearchParams(window.location.search);
-      if (params.toString()) {
-        for (const [key, value] of params.entries()) {
-          info += `${key}: ${value}\n`;
+    <button id="connect-polling" onclick="connectWithPolling()">Connect (Polling Only)</button>
+    <button id="clear-storage" onclick="clearStorage()">Clear Browser Storage</button>
+    <button id="go-to-game" onclick="window.location.href='/'">Go To Game</button>
+
+    <h2>Connection Information</h2>
+    
+    <div id="player-info" class="info-box">
+        <h3>Player Info</h3>
+        <div id="player-data">Loading player data...</div>
+    </div>
+    
+    <div class="info-box">
+        <h3>Browser Information</h3>
+        <div id="browser-info">Loading browser info...</div>
+    </div>
+    
+    <h2>Manual Connection Test</h2>
+    
+    <p>Use the browser console (F12) to run manual connection tests. Here's a sample snippet:</p>
+    
+    <pre id="test-script-code">const socket = io(window.location.origin, {
+  transports: ['polling'],
+  reconnection: false,
+  timeout: 60000,
+  forceNew: true,
+  path: '/socket.io/'
+});
+
+socket.on('connect', () => {
+  console.log("✅ CONNECTED SUCCESSFULLY", socket.id);
+});
+
+socket.on('connect_error', (err) => {
+  console.error("❌ CONNECTION ERROR", err);
+});</pre>
+    
+    <button onclick="copyCode()">Copy Code to Clipboard</button>
+    
+    <h2>Troubleshooting Steps</h2>
+    
+    <ol>
+        <li>Click "Clear Browser Storage" to reset all game data</li>
+        <li>Try "Connect (Polling Only)" to establish a direct Socket.IO connection optimized for Cloudflare</li>
+        <li>If successful, click "Go To Game" to return to the main game</li>
+        <li>If unsuccessful, check the browser console (F12) for detailed error messages</li>
+        <li>If still having issues, see the additional diagnostics section below</li>
+    </ol>
+    
+    <h2>Additional Diagnostics</h2>
+    
+    <h3>Server Diagnostics</h3>
+    <button id="check-health" onclick="checkServerHealth()">Check Server Health</button>
+    <button id="check-socket" onclick="checkSocketServer()">Check Socket.IO Server</button>
+    <div id="server-diagnostics" class="status-container">No diagnostics run yet</div>
+    
+    <footer>
+        Witch's Coven Emergency Connection Tool
+    </footer>
+
+    <!-- Socket.IO Client Library -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Main script for emergency page -->
+    <script>
+        // Variables to store the socket connection
+        let socket = null;
+        
+        // Initialize page
+        window.onload = function() {
+            updatePlayerInfo();
+            updateBrowserInfo();
+        };
+        
+        // Update player info from local storage
+        function updatePlayerInfo() {
+            const playerId = localStorage.getItem('coven_player_id');
+            const playerName = localStorage.getItem('coven_player_name');
+            
+            const playerDataElem = document.getElementById('player-data');
+            
+            if (playerId && playerName) {
+                playerDataElem.innerHTML = `
+                    <p><strong>Player Name:</strong> ${playerName}</p>
+                    <p><strong>Player ID:</strong> ${playerId}</p>
+                `;
+            } else {
+                playerDataElem.innerHTML = `
+                    <p class="error">No player information found in local storage.</p>
+                    <p>You may need to log in to the game first.</p>
+                `;
+            }
         }
-      } else {
-        info += 'No URL parameters\n';
-      }
-      info += '\n';
-      
-      // LocalStorage
-      info += '--- LocalStorage Keys ---\n';
-      try {
-        const keys = Object.keys(localStorage);
-        if (keys.length > 0) {
-          keys.forEach(key => {
-            const value = localStorage.getItem(key);
-            // Truncate long values
-            const displayValue = value && value.length > 50 
-              ? value.substring(0, 47) + '...' 
-              : value;
-            info += `${key}: ${displayValue}\n`;
-          });
-        } else {
-          info += 'No items in localStorage\n';
+        
+        // Update browser info
+        function updateBrowserInfo() {
+            const browserInfoElem = document.getElementById('browser-info');
+            
+            browserInfoElem.innerHTML = `
+                <p><strong>Browser:</strong> ${navigator.userAgent}</p>
+                <p><strong>Online:</strong> ${navigator.onLine ? 'Yes' : 'No'}</p>
+                <p><strong>Current URL:</strong> ${window.location.href}</p>
+                <p><strong>Server URL:</strong> ${window.location.origin}</p>
+                <p><strong>WebSocket Support:</strong> ${'WebSocket' in window ? 'Yes' : 'No'}</p>
+            `;
         }
-      } catch (err) {
-        info += `Error accessing localStorage: ${err.message}\n`;
-      }
-      info += '\n';
-      
-      // Session Storage
-      info += '--- SessionStorage Keys ---\n';
-      try {
-        const keys = Object.keys(sessionStorage);
-        if (keys.length > 0) {
-          keys.forEach(key => {
-            info += `${key}\n`;
-          });
-        } else {
-          info += 'No items in sessionStorage\n';
+        
+        // Connect using polling transport
+        function connectWithPolling() {
+            // Update status
+            updateStatus('Attempting to connect...', 'connecting');
+            
+            // Get player info
+            const playerId = localStorage.getItem('coven_player_id');
+            const playerName = localStorage.getItem('coven_player_name');
+            
+            // Disconnect any existing socket
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            
+            try {
+                // Create new socket with Cloudflare-optimized settings
+                socket = io(window.location.origin, {
+                    transports: ['polling'],       // Polling only - critical for Cloudflare
+                    reconnection: false,           // Handle reconnection manually
+                    timeout: 60000,                // 60 second timeout
+                    forceNew: true,                // Always create new connection
+                    path: '/socket.io/',           // Default Socket.IO path
+                    query: {
+                        client: 'emergency-page',  // Identify client
+                        time: Date.now().toString(),
+                        cf: '1'                    // Cloudflare flag
+                    }
+                });
+                
+                // Log connection attempt
+                console.log('Attempting connection to', window.location.origin);
+                console.log('Socket created:', socket);
+                
+                // Set up event listeners
+                socket.on('connect', () => {
+                    console.log('Socket connected!', socket.id);
+                    updateStatus('Connected successfully!', 'success');
+                    
+                    // Update connection info
+                    const connInfoElem = document.getElementById('connection-info');
+                    connInfoElem.innerHTML = `
+                        <p><strong>Socket ID:</strong> ${socket.id}</p>
+                        <p><strong>Transport:</strong> ${socket.io?.engine?.transport?.name || 'unknown'}</p>
+                    `;
+                    
+                    // Auto-join if we have player info
+                    if (playerId && playerName) {
+                        console.log('Attempting to join as', playerName);
+                        socket.emit('player:join', { playerId, playerName });
+                    }
+                });
+                
+                socket.on('connect_error', (err) => {
+                    console.error('Connection error:', err);
+                    updateStatus(`Connection error: ${err.message}`, 'error');
+                });
+                
+                socket.on('player:joined', (data) => {
+                    if (data.success) {
+                        console.log('Joined successfully:', data);
+                        updateStatus(`Joined as ${data.playerName}`, 'success');
+                    } else {
+                        console.error('Failed to join:', data);
+                        updateStatus(`Failed to join: ${data.message}`, 'error');
+                    }
+                });
+                
+                socket.on('disconnect', (reason) => {
+                    console.log('Disconnected:', reason);
+                    updateStatus(`Disconnected: ${reason}`, 'error');
+                });
+                
+                socket.on('error', (error) => {
+                    console.error('Socket error:', error);
+                    updateStatus(`Socket error: ${error.message || 'Unknown error'}`, 'error');
+                });
+                
+                // Make socket accessible in console for debugging
+                window.emergencySocket = socket;
+                console.log('Socket accessible at window.emergencySocket');
+                
+            } catch (err) {
+                console.error('Error creating socket:', err);
+                updateStatus(`Error creating socket: ${err.message}`, 'error');
+            }
         }
-      } catch (err) {
-        info += `Error accessing sessionStorage: ${err.message}\n`;
-      }
-      
-      debugElement.textContent = info;
-    }
-  </script>
+        
+        // Clear browser storage
+        function clearStorage() {
+            try {
+                // Get player info before clearing
+                const playerId = localStorage.getItem('coven_player_id');
+                const playerName = localStorage.getItem('coven_player_name');
+                
+                // Clear storage
+                sessionStorage.clear();
+                
+                // Only clear game-specific local storage items, preserve player ID
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('coven_') && key !== 'coven_player_id' && key !== 'coven_player_name') {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                console.log('Browser storage cleared (preserved player info)');
+                updateStatus('Browser storage cleared', 'success');
+                
+                // Update player info display
+                updatePlayerInfo();
+                
+            } catch (err) {
+                console.error('Error clearing storage:', err);
+                updateStatus(`Error clearing storage: ${err.message}`, 'error');
+            }
+        }
+        
+        // Copy code to clipboard
+        function copyCode() {
+            const codeElem = document.getElementById('test-script-code');
+            const textArea = document.createElement('textarea');
+            textArea.value = codeElem.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Show temporary success message
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
+        
+        // Update status message
+        function updateStatus(message, type) {
+            const statusElem = document.getElementById('status-message');
+            statusElem.textContent = message;
+            
+            // Remove existing classes
+            statusElem.classList.remove('error', 'success', 'connecting');
+            
+            // Add appropriate class
+            if (type) {
+                statusElem.classList.add(type);
+            }
+        }
+        
+        // Check server health
+        async function checkServerHealth() {
+            const diagElem = document.getElementById('server-diagnostics');
+            diagElem.innerHTML = 'Checking server health...';
+            
+            try {
+                const response = await fetch('/health-check');
+                if (response.ok) {
+                    diagElem.innerHTML = `
+                        <p class="success">Server is online and responding to health checks.</p>
+                        <p>Response: ${await response.text()}</p>
+                    `;
+                } else {
+                    diagElem.innerHTML = `
+                        <p class="error">Server responded with status: ${response.status}</p>
+                        <p>Response: ${await response.text()}</p>
+                    `;
+                }
+            } catch (err) {
+                diagElem.innerHTML = `
+                    <p class="error">Failed to connect to server: ${err.message}</p>
+                `;
+            }
+        }
+        
+        // Check Socket.IO server
+        async function checkSocketServer() {
+            const diagElem = document.getElementById('server-diagnostics');
+            diagElem.innerHTML = 'Checking Socket.IO server...';
+            
+            try {
+                const response = await fetch('/socketio-debug');
+                if (response.ok) {
+                    const data = await response.json();
+                    diagElem.innerHTML = `
+                        <p class="success">Socket.IO server is online.</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    diagElem.innerHTML = `
+                        <p class="error">Socket.IO diagnostic endpoint returned status: ${response.status}</p>
+                        <p>Response: ${await response.text()}</p>
+                    `;
+                }
+            } catch (err) {
+                diagElem.innerHTML = `
+                    <p class="error">Failed to connect to Socket.IO diagnostic endpoint: ${err.message}</p>
+                `;
+            }
+        }
+    </script>
+    
+    <!-- Load emergency script -->
+    <script src="/emergency.js"></script>
 </body>
 </html>
