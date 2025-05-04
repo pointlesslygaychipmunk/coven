@@ -22,6 +22,8 @@ import CombinedWorkshop90s from './CombinedWorkshop90s';
 import MultiplayerMail from './MultiplayerMail';
 import MultiplayerChat from './MultiplayerChat';
 import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
+import AccessibleIcon from './AccessibleIcon';
+import withFocusManagement from './withFocusManagement';
 import { MultiplayerProvider } from '../contexts/MultiplayerContext';
 
 interface MainGameFrameProps {
@@ -798,7 +800,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </main>
       
       {/* Game Footer - Navigation */}
       <nav id="main-navigation" className="game-footer" aria-label="Main game navigation">
@@ -864,9 +866,9 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
         <div id="mail-panel-container">
           {React.createElement(
             withFocusManagement(
-              ({ focusContainerRef }) => (
+              (props: { focusContainerRef?: React.RefObject<HTMLDivElement> }) => (
                 <div 
-                  ref={focusContainerRef as React.RefObject<HTMLDivElement>}
+                  ref={props.focusContainerRef}
                   className="communication-panel mail-panel"
                   role="dialog"
                   aria-labelledby="mail-panel-title"
@@ -894,9 +896,9 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
         <div id="chat-panel-container">
           {React.createElement(
             withFocusManagement(
-              ({ focusContainerRef }) => (
+              (props: { focusContainerRef?: React.RefObject<HTMLDivElement> }) => (
                 <div 
-                  ref={focusContainerRef as React.RefObject<HTMLDivElement>}
+                  ref={props.focusContainerRef}
                   className="communication-panel chat-panel"
                   role="dialog"
                   aria-labelledby="chat-panel-title"
@@ -925,8 +927,8 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
         <div id="shortcuts-help-container">
           {React.createElement(
             withFocusManagement(
-              ({ focusContainerRef }) => (
-                <div ref={focusContainerRef as React.RefObject<HTMLDivElement>}>
+              (props: { focusContainerRef?: React.RefObject<HTMLDivElement> }) => (
+                <div ref={props.focusContainerRef}>
                   <KeyboardShortcutsHelp
                     isOpen={showShortcutsHelp}
                     onClose={() => setShowShortcutsHelp(false)}

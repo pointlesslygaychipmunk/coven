@@ -4,6 +4,7 @@
  * This utility helps implement keyboard navigation by trapping focus within a container
  * element, which is crucial for modal dialogs and similar UI patterns for accessibility.
  */
+import React from 'react';
 
 /**
  * Creates a focus trap within the specified element
