@@ -7,6 +7,19 @@
   font-weight: normal;
   font-style: normal;
   letter-spacing: 0.5px;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+/* Bold variant */
+@font-face {
+  font-family: 'PixelSierra';
+  src: local('Times New Roman Bold');
+  font-weight: bold;
+  font-style: normal;
+  letter-spacing: 0.5px;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
 }
 
 /* Base styles for Sierra pixelated UI */

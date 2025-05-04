@@ -538,7 +538,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   return (
     <MultiplayerProvider>
       <div className="game-window pixelated sierra-container">
-        {/* Decorative corner elements */}
+        {/* Sierra-style decorative corner elements */}
         <div className="corner-decoration top-left"></div>
         <div className="corner-decoration top-right"></div>
         <div className="corner-decoration bottom-left"></div>
@@ -666,7 +666,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
             {/* Render current view content */}
             {renderViewContent()}
             
-            {/* Decorative corner elements */}
+            {/* Sierra-style decorative corner elements for viewport */}
             <div className="corner-decoration top-left"></div>
             <div className="corner-decoration top-right"></div>
             <div className="corner-decoration bottom-left"></div>
