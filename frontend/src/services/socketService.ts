@@ -110,57 +110,20 @@ class SocketService {
       
       console.log(`[Socket] Current environment: ${protocol}//${host}:${port || (useSecure ? '443' : '80')}`);
       
-      // ENHANCED PRODUCTION STRATEGY
-      // 1. First, always try the exact origin that served this page (most reliable for deployed environments)
-      this.alternativeUrls.push(window.location.origin);
+      // LIVE PRODUCTION-ONLY STRATEGY
+      // For a production deployment, we ONLY want to use the exact origin
+      // This is critical for WebSocket security and reliability in production
       
-      // 2. If we're on a custom port, also try without it
-      if (port) {
-        this.alternativeUrls.push(`${protocol}//${host}`);
-      }
+      console.log(`[Socket] LIVE PRODUCTION MODE DETECTED: ${protocol}//${host}:${port || (useSecure ? '443' : '80')}`);
       
-      // 3. If we're NOT on standard ports (80/443), add those as fallbacks
-      if (port !== '80' && port !== '443' && port !== '') {
-        this.alternativeUrls.push(useSecure ? `https://${host}:443` : `http://${host}:80`);
-      }
+      // PRODUCTION SINGLE-URL STRATEGY: Only use the exact current origin
+      // This is the most reliable approach for production deployments
+      this.alternativeUrls = [window.location.origin];
       
-      // IMPORTANT: In production with HTTPS, only use secure WebSockets (WSS)
-      // otherwise browsers will block mixed content
+      console.log(`[Socket] Using STRICT production URL: ${window.location.origin}`);
       
-      // If on localhost, include additional development-specific options
-      if (host === 'localhost' || host === '127.0.0.1') {
-        // For local development, also try specific ports
-        if (port !== '8080' && port !== '8443') {
-          this.alternativeUrls.push(useSecure 
-            ? `https://${host}:8443` // Secure dev connection with specific port
-            : `http://${host}:8080`  // Non-secure dev connection with specific port
-          );
-        }
-        
-        // Add specific port alternatives for dev servers
-        if (!useSecure && port !== '3000') {
-          this.alternativeUrls.push(`http://${host}:3000`); // Common Vite dev server port
-        }
-      } else {
-        // For production, ensure we have appropriate protocol options
-        if (useSecure) {
-          // Only add HTTPS options if we're on HTTPS
-          if (!this.alternativeUrls.includes(`https://${host}`)) {
-            this.alternativeUrls.push(`https://${host}`); // Standard HTTPS port
-          }
-          if (!this.alternativeUrls.includes(`https://${host}:443`)) {
-            this.alternativeUrls.push(`https://${host}:443`); // Explicit HTTPS port
-          }
-        } else {
-          // Only add HTTP options if we're on HTTP
-          if (!this.alternativeUrls.includes(`http://${host}`)) {
-            this.alternativeUrls.push(`http://${host}`); // Standard HTTP port
-          }
-          if (!this.alternativeUrls.includes(`http://${host}:80`)) {
-            this.alternativeUrls.push(`http://${host}:80`); // Explicit HTTP port
-          }
-        }
-      }
+      // CRITICAL: Do not attempt to connect to any other URLs in production
+      // This prevents mixed-content warnings, CORS issues, and security problems
       
       // Remove duplicates and ensure protocol compatibility
       this.alternativeUrls = [...new Set(this.alternativeUrls)].filter(url => {
@@ -182,21 +145,15 @@ class SocketService {
       return Promise.resolve(false);
     }
     
-    // Calculate which URL to try next - ensure we wrap properly
-    const urlIndex = this.urlAttempt % this.alternativeUrls.length;
-    const url = this.alternativeUrls[urlIndex];
+    // In production, we only use a single URL (the origin)
+    // This simplifies the connection process and makes it more reliable
+    const url = this.alternativeUrls[0]; // Always use the first URL (current origin)
     
-    // Only increment URL attempt if we haven't tried all URLs yet
-    if (this.urlAttempt < this.alternativeUrls.length) {
-      this.urlAttempt++;
-    } else {
-      // If we've tried all URLs in the list, randomly select one
-      // This makes subsequent attempts less predictable and potentially more successful
-      this.urlAttempt = Math.floor(Math.random() * this.alternativeUrls.length);
-      console.log(`[Socket] All URLs tried, randomly trying URL at index ${this.urlAttempt} next time`);
-    }
+    // Reset all counters - this is an emergency fix for production
+    this.urlAttempt = 0;
+    this.reconnectAttempts = 0;
     
-    console.log(`[Socket] Connecting to ${url} (URL ${urlIndex + 1}/${this.alternativeUrls.length}, overall attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
+    console.log(`[Socket] PRODUCTION: Connecting to ${url} (using strict production configuration)`);
     
     // Clear any existing socket and timeout
     this.cleanupExistingConnection();
@@ -204,15 +161,26 @@ class SocketService {
     // Create connection timeout to prevent hanging indefinitely
     this.connectionTimeoutId = window.setTimeout(() => {
       console.error(`[Socket] Connection attempt to ${url} timed out`);
+      
+      // In production, a timeout likely means the server is unreachable
+      // We'll clear the socket and try again once with a clear message to the user
       if (this._socket) {
         this._socket.close();
         this._socket = null;
       }
+      
       this.connecting = false;
       this.connected = false;
       this.notifyConnectionStatus(false);
+      
+      // Show a clear error message
+      this.notifyError({ 
+        message: `Connection to server timed out. The server may be temporarily unavailable. Attempting reconnection...` 
+      });
+      
+      // Make a single retry after timeout
       this.attemptReconnect();
-    }, 15000); // 15 second timeout
+    }, 30000); // 30 second timeout for production
     
     // Initialize socket connection
     try {
@@ -237,22 +205,17 @@ class SocketService {
       this._socket = io(url, {
         reconnection: false, // We'll handle reconnection manually
         autoConnect: true, // Connect immediately
-        // Use appropriate transports based on environment
-        // In production, try websocket first for better performance
-        // In development or fallback, start with polling for better compatibility
-        transports: window.location.hostname === 'localhost' ? 
-          ['polling', 'websocket'] : // Dev: polling first for reliability
-          ['websocket', 'polling'],  // Prod: websocket first for performance
+        // STRICT PRODUCTION CONFIGURATION
+        // In live production, ALWAYS use websocket first for better performance
+        transports: ['websocket', 'polling'],  // Strongly prefer WebSocket in production
         path: hasExplicitPath ? undefined : '/socket.io', // Only set path if not in URL already
-        timeout: 20000, // Increase timeout to 20 seconds for more reliability in production
+        timeout: 30000, // Longer timeout (30s) for more reliable production connections
         forceNew: true, // Force a new connection
         query: { 
           clientTime: Date.now().toString(),
-          mode: 'production',
-          protocol: isSecure ? 'secure' : 'non-secure',
-          clientPort: window.location.port || (isSecure ? '443' : '80'),
+          mode: 'live-production',
           origin: window.location.origin
-        }, // Enhanced diagnostics data
+        }, // Minimal query parameters for production
         withCredentials: false, // Don't send cookies for cross-origin requests
         extraHeaders: {
           'Cache-Control': 'no-cache',
