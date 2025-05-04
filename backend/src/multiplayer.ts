@@ -140,8 +140,8 @@ export class MultiplayerManager {
       // Disable ALL compression
       perMessageDeflate: false,            // No WebSocket compression
       httpCompression: false               // No HTTP compression
-      // Socket.IO Server doesn't support polling property in options
-      // We'll set headers on the Express side instead
+      // The 'polling' property has been removed to fix TypeScript errors
+      // We've added polling-specific headers in the Express middleware instead
     });
     
     // Add additional DEBUG error handlers with Cloudflare Tunnel diagnostics

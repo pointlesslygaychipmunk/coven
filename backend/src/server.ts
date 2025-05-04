@@ -78,8 +78,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   const cfConnectingIP = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip;
   const cfCountry = req.headers['cf-ipcountry'] || '';
   
-  // Use the Cloudflare headers for additional logs if needed
-  req.socket.remoteAddress = cfConnectingIP as string || req.socket.remoteAddress;
+  // Store Cloudflare IP in request object for internal use
+  // We can't modify remoteAddress directly as it's readonly
+  (req as any).cloudflareIP = cfConnectingIP;
   
   // Forward protocol info - important for socket.io handling
   if (req.headers['x-forwarded-proto']) {
@@ -94,11 +95,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`[Server] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)${cfInfo} IP:${cfConnectingIP}`);
     
     // Add special handling for Socket.IO polling requests
-    if (req.originalUrl.includes('/socket.io/') && req.originalUrl.includes('&transport=polling')) {
-      // Add custom headers to help with Cloudflare caching issues for Socket.IO polling
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('X-Cloudflare-Skip-Cache', 'true');
+    // Headers can only be set if the response hasn't been sent yet
+    try {
+      if (req.originalUrl.includes('/socket.io/') && !res.headersSent) {
+        // Add custom headers to help with Cloudflare caching issues for Socket.IO polling
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('X-Cloudflare-Skip-Cache', 'true');
+      }
+    } catch (err) {
+      // Ignore header setting errors
     }
   });
   
