@@ -73,11 +73,18 @@ class SocketService {
     }
   }
   
-  // SIMPLIFIED CONNECTION FUNCTION FOR PRODUCTION ENVIRONMENT
-  public async init(): Promise<boolean> {
+  // ENHANCED CONNECTION FUNCTION WITH CLOUDFLARE COMPATIBILITY
+  public async init(retryCount = 0): Promise<boolean> {
+    // Max retries to avoid infinite loops
+    const MAX_RETRIES = 3;
+    
     // Clear session storage but preserve player data in local storage
     try {
-      sessionStorage.clear();
+      // Only clear session storage on first attempt to avoid losing state during retries
+      if (retryCount === 0) {
+        console.log('[Socket:EMERGENCY] Clearing session storage for clean connection');
+        sessionStorage.clear();
+      }
     } catch (err) {
       console.warn('[Socket] Error clearing session storage:', err);
     }
@@ -100,28 +107,43 @@ class SocketService {
     this._connecting = true;
     
     // Clean up any existing connection
-    this.disconnect();
+    if (retryCount === 0) { // Only disconnect on first try
+      this.disconnect();
+    } else {
+      console.log(`[Socket:EMERGENCY] Retry attempt ${retryCount} of ${MAX_RETRIES}`);
+    }
     
     // Production fix: Always use the current page origin
     const serverUrl = window.location.origin;
-    console.log(`[Socket] Connecting to server at ${serverUrl}`);
+    console.log(`[Socket] Connecting to server at ${serverUrl} (retry: ${retryCount})`);
+    
+    // For Cloudflare, add a cache-busting query parameter to avoid cached responses
+    const timestamp = Date.now().toString();
     
     // Attempt to create a socket connection with production-optimized settings
     try {
-      // Create socket with enhanced Cloudflare Tunnel compatible settings
-      // CRITICAL FIX: Cloudflare Tunnels require polling transport
+      // Create socket with Cloudflare Tunnel compatible settings with enhanced stability
+      // CRITICAL FIX: Cloudflare Tunnels require polling transport with specific settings
       this._socket = io(serverUrl, {
         transports: ['polling'],              // POLLING ONLY - critical for Cloudflare Tunnels
         reconnection: false,                  // We handle reconnection ourselves
-        timeout: 60000,                       // 60 second timeout (matching server)
+        timeout: 120000,                      // DOUBLED timeout for Cloudflare (120 seconds)
         forceNew: true,                       // Always create a new connection
         autoConnect: true,                    // Connect immediately
         path: '/socket.io/',                  // Default Socket.IO path
-        query: {                              // Query params for debugging
-          client: 'cloudflare-compatible',
-          time: Date.now().toString(),
+        extraHeaders: {                       // Add extra headers for Cloudflare
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'X-Cloudflare-Skip-Cache': 'true',
+          'X-Socket-Retry': retryCount.toString()
+        },
+        query: {                              // Query params with cache busting
+          client: 'cloudflare-fix-v2',        // Identify as new client version 
+          retry: retryCount.toString(),       // Track retry attempts
+          time: timestamp,                    // Cache-busting timestamp
+          nocache: timestamp,                 // Explicit cache busting
           // Add browser and environment info to help with debugging
-          ua: navigator.userAgent.substring(0, 100),
+          ua: encodeURIComponent(navigator.userAgent.substring(0, 50)),
           protocol: window.location.protocol,
           host: window.location.host
         },
@@ -130,6 +152,14 @@ class SocketService {
         rememberUpgrade: false,               // Don't remember transport upgrades
         timestampRequests: true,              // Add timestamps to requests to avoid caching
         rejectUnauthorized: false,            // Accept self-signed certs through Cloudflare
+        // Add polling-specific options
+        polling: {
+          extraHeaders: {                     // Additional headers for polling transport
+            'X-Socket-Transport': 'polling',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': '*/*'
+          }
+        }
       });
       
       console.log('[Socket] Socket connection created, waiting for connection...');
@@ -210,7 +240,7 @@ class SocketService {
         resolve(true);
       });
       
-      // Connection error event
+      // Connection error event with enhanced recovery
       this._socket.on('connect_error', (err) => {
         console.error(`[Socket:EMERGENCY] Connection error:`, err);
         
@@ -224,47 +254,68 @@ class SocketService {
         // Clear timeout
         clearTimeout(connectionTimeout);
         
-        this._connected = false;
+        // Don't immediately set connected to false - we'll try recovery first
         this._connecting = false;
         
         // Debug socket object state
         debugSocketConnection(this._socket);
         
-        // SPECIAL HANDLING FOR "server error" - This usually means Socket.IO version mismatch
-        // or server configuration issue. Try with different transport methods.
-        if (err.message === 'server error') {
-          console.log('[Socket:EMERGENCY] Server error detected - trying alternate connection strategy');
+        // SPECIAL HANDLING FOR "server error" or "xhr poll error"
+        // These are typical Cloudflare errors
+        if (err.message === 'server error' || err.message.includes('xhr poll error')) {
+          console.log('[Socket:EMERGENCY] Server/XHR error detected - trying alternate connection strategy');
           
-          // Cleanup current socket
+          // Cleanup current socket but keep _connected true until we've tried all options
           if (this._socket) {
+            // Don't emit any events, just clean up the socket object
+            this._socket.removeAllListeners();
             this._socket.close();
             this._socket = null;
           }
           
-          // Try to connect with Cloudflare-optimized settings
+          // Try to connect with hyper-aggressive Cloudflare-optimized settings
           try {
-            console.log('[Socket:EMERGENCY] Attempting connection with Cloudflare-compatible settings');
-            this._socket = io(serverUrl, {
+            console.log('[Socket:EMERGENCY] Attempting connection with ultra-aggressive Cloudflare settings');
+            
+            // Attempt to bypass potential caching issues with a completely fresh URL
+            const freshUrl = `${serverUrl}?nocache=${Date.now()}&rand=${Math.random().toString().substring(2)}`;
+            console.log('[Socket:EMERGENCY] Using fresh URL:', freshUrl);
+            
+            this._socket = io(freshUrl, {
               transports: ['polling'],         // Polling only - REQUIRED for Cloudflare Tunnels
               reconnection: false,
-              timeout: 60000,
+              timeout: 180000,                 // 3 minutes timeout for extreme patience
               forceNew: true,
               autoConnect: true,
               path: '/socket.io/',
+              extraHeaders: {                  // Add extra headers for Cloudflare
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'X-Cloudflare-Skip-Cache': 'true',
+                'X-Socket-Retry': 'emergency'  // Flag this as an emergency attempt
+              },
               query: {
-                client: 'cloudflare-tunnel',   // Identify as Cloudflare Tunnel client
-                time: Date.now().toString(),
-                // Add diagnostic info
-                ua: navigator.userAgent.substring(0, 100),
-                protocol: window.location.protocol,
-                host: window.location.host,
+                client: 'cloudflare-emergency', // Emergency client identifier
+                time: Date.now().toString(),   // Timestamp for cache busting
+                random: Math.random().toString().substring(2),
+                // Add minimal diagnostic info (avoid large headers)
+                ua: encodeURIComponent(navigator.userAgent.substring(0, 50)),
+                emergency: 'true',
                 fallback: 'true'
               },
-              // Disable features that might cause issues with Cloudflare Tunnels
-              upgrade: false,                   // Disable transport upgrade attempts
-              rememberUpgrade: false,           // Don't remember transport upgrades
-              timestampRequests: true,          // Add timestamps to requests to avoid caching
-              rejectUnauthorized: false,        // Accept self-signed certs through Cloudflare
+              // Disable all features that might cause issues
+              upgrade: false,                  // Disable transport upgrade attempts
+              rememberUpgrade: false,          // Don't remember transport upgrades
+              timestampRequests: true,         // Add timestamps to requests to avoid caching
+              rejectUnauthorized: false,       // Accept self-signed certs through Cloudflare
+              withCredentials: false,          // Don't send cookies
+              // Polling-specific settings
+              polling: {
+                extraHeaders: {
+                  'X-Socket-Transport': 'polling',
+                  'Accept': '*/*'
+                }
+              }
             });
             
             // Setup this new socket

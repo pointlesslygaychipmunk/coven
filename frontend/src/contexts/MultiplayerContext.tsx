@@ -149,26 +149,50 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
   
-  // ULTRA-SIMPLIFIED CONNECT FUNCTION
-  const connect = async (): Promise<boolean> => {
+  // ENHANCED CONNECT FUNCTION WITH AUTO-RETRY
+  const connect = async (retryCount = 0): Promise<boolean> => {
+    // Limit retries to prevent infinite loops
+    const MAX_AUTO_RETRIES = 2;
+    
     if (isConnected) return true;
     
     setConnecting(true);
-    setError("Connecting to server...");
+    setError(retryCount > 0 ? `Retry attempt ${retryCount}...` : "Connecting to server...");
     
     try {
-      console.log('[MultiplayerContext:EMERGENCY] Attempting server connection...');
-      const success = await socketService.init();
+      console.log(`[MultiplayerContext:EMERGENCY] Attempting server connection (retry: ${retryCount})...`);
       
-      setConnecting(false);
+      // Pass the retry count to socketService for specialized connection behavior
+      const success = await socketService.init(retryCount);
+      
+      // If this isn't a retry attempt, update connection state immediately
+      if (retryCount === 0) {
+        setConnecting(false);
+      }
       
       if (success) {
         console.log('[MultiplayerContext:EMERGENCY] Connection success!');
         setError(null);
+        setConnecting(false); // Ensure connecting is set to false on success
         return true;
+      } else if (retryCount < MAX_AUTO_RETRIES) {
+        // Auto-retry with exponential backoff
+        console.log(`[MultiplayerContext:EMERGENCY] Connection failed, retrying in ${(retryCount + 1) * 2} seconds...`);
+        
+        // Show retry message to user
+        setError(`Connection attempt failed. Retrying in ${(retryCount + 1) * 2} seconds...`);
+        
+        // Wait with exponential backoff (2s, then 4s)
+        return new Promise(resolve => {
+          setTimeout(() => {
+            // Try again with incremented retry count
+            resolve(connect(retryCount + 1));
+          }, (retryCount + 1) * 2000);
+        });
       } else {
-        console.error('[MultiplayerContext:EMERGENCY] Connection failed');
-        setError("Unable to connect to server. Please refresh the page.");
+        console.error('[MultiplayerContext:EMERGENCY] All connection attempts failed');
+        setConnecting(false);
+        setError("Unable to connect to server after multiple attempts. Please try again later.");
         return false;
       }
     } catch (err) {
@@ -201,8 +225,27 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         addSystemMessage('Connected to server');
         setError(null);
       } else {
-        addSystemMessage('Connection lost. The game will try to reconnect.', true);
-        setIsJoined(false);
+        // Don't immediately mark as disconnected - wait for reconnection attempt
+        addSystemMessage('Connection issue detected. Attempting to recover...', true);
+        
+        // Try reconnecting immediately (without changing game state yet)
+        console.log('[MultiplayerContext:EMERGENCY] Connection status change detected, attempting immediate reconnection');
+        
+        // Delay the state change to give reconnection a chance
+        setTimeout(() => {
+          // Only update state if still disconnected after delay
+          if (!socketService.isConnected()) {
+            console.log('[MultiplayerContext:EMERGENCY] Still disconnected after delay, updating state');
+            setIsJoined(false);
+            connect().then(success => {
+              if (success) {
+                console.log('[MultiplayerContext:EMERGENCY] Reconnection successful');
+              } else {
+                addSystemMessage('Connection lost. Please refresh the page.', true);
+              }
+            });
+          }
+        }, 5000); // 5 second delay
       }
     });
     

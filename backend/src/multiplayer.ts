@@ -99,40 +99,55 @@ export class MultiplayerManager {
     console.log(`[Multiplayer] Initializing with allowed origins:`, 
       isProduction ? (allowedOrigins as string[]).join(', ') : 'all origins');
     
-    // Initialize Socket.IO with Enhanced Cloudflare Tunnel optimized configuration
+    // Initialize Socket.IO with EXTREME Cloudflare Tunnel compatibility
     this.io = new Server(server, {
       cors: {
         origin: allowedOrigins,
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "OPTIONS"],  // Ensure OPTIONS requests are handled
         credentials: true,
-        // Add all cloudflare headers to allowed headers
-        allowHeaders: ['Content-Type', 'Authorization', 'X-Forwarded-For', 'X-Forwarded-Proto', 'CF-Connecting-IP', 'CF-Ray', 'CF-IPCountry'],
+        // Add ALL Cloudflare headers to allowed headers (expanded list)
+        allowedHeaders: [
+          'Content-Type', 'Authorization', 'X-Requested-With',
+          'X-Forwarded-For', 'X-Forwarded-Proto', 'CF-Connecting-IP', 
+          'CF-Ray', 'CF-IPCountry', 'X-Cloudflare-Skip-Cache', 
+          'X-Socket-Retry', 'Cache-Control', 'Pragma', 'X-Socket-Transport',
+          'Accept'
+        ],
         // Add cache control for preflight requests in production
         maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development
       },
-      // Increase timeouts for more reliability in production and Cloudflare compatibility
-      pingTimeout: 60000,                  // 60 seconds ping timeout
-      pingInterval: 25000,                 // 25 seconds ping interval
-      connectTimeout: 60000,               // 60 seconds connection timeout
-      upgradeTimeout: 30000,               // 30 seconds upgrade timeout
-      maxHttpBufferSize: 1e8,              // 100 MB (default 1e6, or 1 MB)
-      // CRITICAL: Force polling only for Cloudflare Tunnel compatibility
-      // Cloudflare Tunnels have issues with WebSocket connections
-      transports: ['polling'],             // POLLING ONLY - required for Cloudflare Tunnels
-      allowEIO3: true,                     // Allow both v3 and v4 clients to connect
-      serveClient: false,                  // Don't serve client files in production
+      // EXTREME timeouts for absolute maximum Cloudflare Tunnel reliability
+      pingTimeout: 120000,                 // 120 seconds ping timeout (doubled)
+      pingInterval: 15000,                 // 15 seconds ping interval (more frequent)
+      connectTimeout: 180000,              // 180 seconds connection timeout (tripled) 
+      upgradeTimeout: 10000,               // 10 seconds upgrade timeout (reduced)
+      maxHttpBufferSize: 1e8,              // 100 MB buffer
+      // CRITICAL: Force polling only for Cloudflare Tunnel compatibility 
+      transports: ['polling'],             // POLLING ONLY - absolute requirement for Cloudflare
+      allowEIO3: true,                     // Allow both v3 and v4 clients
+      serveClient: false,                  // Don't serve client files
+      // Completely disable WebSocket attempts
+      allowUpgrades: false,                // Prevent ANY transport upgrades
       // Additional options for better Cloudflare compatibility
       path: '/socket.io/',                 // Standard Socket.IO path
-      cookie: {                            // Use secure cookies in production
+      cookie: {                            // Cookie configuration
         name: 'coven_io',
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax' // Allow cross-site cookies for Cloudflare Tunnels
+        sameSite: isProduction ? 'none' : 'lax', // Allow cross-site cookies in production
+        maxAge: 86400 * 30                 // 30 day cookie expiration
       },
-      // Support handling of proxied websocket connections via Cloudflare
-      allowUpgrades: false,                // Disable transport upgrades with cloudflare
-      perMessageDeflate: false,            // Disable compression for better compatibility
-      httpCompression: false,              // Disable HTTP compression as it can cause issues
+      // Disable ALL compression
+      perMessageDeflate: false,            // No WebSocket compression
+      httpCompression: false,              // No HTTP compression
+      // Add polling-specific settings
+      polling: {
+        extraHeaders: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'X-Cloudflare-Skip-Cache': 'true'
+        }
+      }
     });
     
     // Add additional DEBUG error handlers with Cloudflare Tunnel diagnostics
