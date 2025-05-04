@@ -108,16 +108,17 @@ class SocketService {
     
     // Attempt to create a socket connection with production-optimized settings
     try {
-      // Create socket with settings matching server configuration
+      // Create socket with Cloudflare Tunnel compatible settings
+      // CRITICAL FIX: Cloudflare Tunnels require polling transport
       this._socket = io(serverUrl, {
-        transports: ['polling', 'websocket'], // Try polling first, then websocket
+        transports: ['polling'],              // POLLING ONLY - critical for Cloudflare Tunnels
         reconnection: false,                  // We handle reconnection ourselves
         timeout: 60000,                       // 60 second timeout (matching server)
         forceNew: true,                       // Always create a new connection
         autoConnect: true,                    // Connect immediately
         path: '/socket.io/',                  // Default Socket.IO path
         query: {                              // Query params for debugging
-          client: 'production',
+          client: 'cloudflare-compatible',
           time: Date.now().toString()
         }
       });
@@ -231,18 +232,18 @@ class SocketService {
             this._socket = null;
           }
           
-          // Try to connect with only polling transport (more compatible)
+          // Try to connect with Cloudflare-optimized settings
           try {
-            console.log('[Socket:EMERGENCY] Attempting connection with polling transport only');
+            console.log('[Socket:EMERGENCY] Attempting connection with Cloudflare-compatible settings');
             this._socket = io(serverUrl, {
-              transports: ['polling'],         // Polling only - no websocket
+              transports: ['polling'],         // Polling only - REQUIRED for Cloudflare Tunnels
               reconnection: false,
               timeout: 60000,
               forceNew: true,
               autoConnect: true,
               path: '/socket.io/',
               query: {
-                client: 'polling-only',
+                client: 'cloudflare-tunnel',   // Identify as Cloudflare Tunnel client
                 time: Date.now().toString()
               }
             });

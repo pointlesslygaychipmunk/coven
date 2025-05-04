@@ -99,7 +99,7 @@ export class MultiplayerManager {
     console.log(`[Multiplayer] Initializing with allowed origins:`, 
       isProduction ? (allowedOrigins as string[]).join(', ') : 'all origins');
     
-    // Initialize Socket.IO with enhanced configuration for production
+    // Initialize Socket.IO with Cloudflare Tunnel optimized configuration
     this.io = new Server(server, {
       cors: {
         origin: allowedOrigins,
@@ -108,17 +108,24 @@ export class MultiplayerManager {
         // Add cache control for preflight requests in production
         maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development
       },
-      // Increase timeouts for more reliability in production
+      // Increase timeouts for more reliability in production and Cloudflare compatibility
       pingTimeout: 60000,                  // 60 seconds ping timeout
       pingInterval: 25000,                 // 25 seconds ping interval
       connectTimeout: 60000,               // 60 seconds connection timeout
       upgradeTimeout: 30000,               // 30 seconds upgrade timeout
       maxHttpBufferSize: 1e8,              // 100 MB (default 1e6, or 1 MB)
-      // CRITICAL: Allow both transport types but prefer POLLING in production
-      // This fixes connections on browsers with limited WebSocket support
-      transports: ['polling', 'websocket'], // Polling first is more compatible
-      allowEIO3: true,                      // Allow both v3 and v4 clients to connect
-      serveClient: false,                   // Don't serve client files in production
+      // CRITICAL: Force polling only for Cloudflare Tunnel compatibility
+      // Cloudflare Tunnels have issues with WebSocket connections
+      transports: ['polling'],             // POLLING ONLY - required for Cloudflare Tunnels
+      allowEIO3: true,                     // Allow both v3 and v4 clients to connect
+      serveClient: false,                  // Don't serve client files in production
+      // Additional options for better Cloudflare compatibility
+      path: '/socket.io/',                 // Standard Socket.IO path
+      cookie: {                            // Use secure cookies in production
+        name: 'coven_io',
+        httpOnly: true,
+        secure: isProduction
+      }
     });
     
     // Add additional DEBUG error handlers
