@@ -205,17 +205,24 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (connecting) return false;
     
     setConnecting(true);
-    setError(null);
+    setError("Connecting to server...");
     
     try {
       console.log('[MultiplayerContext] Attempting to connect to server...');
       const success = await socketService.init();
       console.log(`[MultiplayerContext] Connection ${success ? 'successful' : 'failed'}`);
+      
+      if (success) {
+        setError(null);
+      } else {
+        setError("Not connected to server. Please try refreshing the page or check your internet connection.");
+      }
+      
       return success;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown connection error';
       console.error('[MultiplayerContext] Connection error:', errorMessage);
-      setError(errorMessage);
+      setError(`Connection error: ${errorMessage}. Please check your internet connection and try again.`);
       setConnecting(false);
       return false;
     }
