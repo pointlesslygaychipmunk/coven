@@ -88,7 +88,7 @@ export class MultiplayerManager {
       "*"; // In development, allow all origins
     
     console.log(`[Multiplayer] Initializing with allowed origins:`, 
-      isProduction ? allowedOrigins.join(', ') : 'all origins');
+      isProduction ? (allowedOrigins as string[]).join(', ') : 'all origins');
     
     // Initialize Socket.IO with enhanced configuration for production
     this.io = new Server(server, {
