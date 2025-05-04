@@ -93,7 +93,7 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
       rarity: puzzleBonus > 30 ? "rare" : puzzleBonus > 15 ? "uncommon" : "common",
       value: 50 + puzzleBonus * 2,
       icon: "🧪",
-      quality: 70 + puzzleBonus
+      potencyBoost: 70 + puzzleBonus // Using potencyBoost instead of quality
     };
     
     // Add to recent products list
@@ -118,7 +118,7 @@ const CombinedWorkshop90s: React.FC<CombinedWorkshop90sProps> = ({
       rarity: resultItemId.includes('rare') ? "rare" : "uncommon",
       value: resultItemId.includes('rare') ? 120 : 75,
       icon: resultItemId.includes('charm') ? "🔮" : "🧿",
-      quality: resultItemId.includes('rare') ? 85 : 70
+      potencyBoost: resultItemId.includes('rare') ? 85 : 70 // Using potencyBoost instead of quality
     };
     
     // Add to recent products list

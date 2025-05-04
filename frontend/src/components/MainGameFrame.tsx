@@ -327,7 +327,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
         return (
           <CombinedWorkshop90s
             playerInventory={mockInventory}
-            knownRecipes={knownRecipes.filter(r => r.type !== 'request')}
+            knownRecipes={mockRecipes}
             lunarPhase={lunarPhase}
             playerLevel={playerLevel}
             playerSpecialization={"Essence" as AtelierSpecialization}
@@ -339,22 +339,22 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
                 name: "Healing Tonic",
                 description: "Restores vitality and health.",
                 type: "potion",
-                category: "healing",
+                category: "potion",
                 rarity: "common",
                 value: 50,
                 icon: "🧪",
-                quality: 80
+                potencyBoost: 80 // Using potencyBoost instead of quality
               },
               {
                 id: "product2",
                 name: "Lunar Essence",
                 description: "Captures moonlight energy in liquid form.",
                 type: "potion",
-                category: "essence",
+                category: "essence" as ItemCategory,
                 rarity: "uncommon",
                 value: 75,
                 icon: "✨",
-                quality: 85
+                potencyBoost: 85 // Using potencyBoost instead of quality
               }
             ]}
             packagingMaterials={[
@@ -366,7 +366,9 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
                 icon: "🧪",
                 durability: 7,
                 qualityLevel: 8,
-                quantity: 3
+                quantity: 3,
+                materialQuality: "fine" as const,
+                value: 25
               },
               {
                 id: "m2",
@@ -376,7 +378,9 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
                 icon: "🪵",
                 durability: 8,
                 qualityLevel: 7,
-                quantity: 2
+                quantity: 2,
+                materialQuality: "standard" as const,
+                value: 15
               }
             ]}
             designStyles={[
@@ -408,7 +412,9 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
                 icon: "✨",
                 rarity: 6,
                 power: 5,
-                quantity: 2
+                quantity: 2,
+                potencyBonus: 10,
+                durabilityEffect: 5
               }
             ]}
             brands={[
@@ -418,7 +424,11 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
                 description: "Your personal brand for magical potions.",
                 icon: "🌙",
                 reputation: 7,
-                recognition: 6
+                recognition: 6,
+                tagline: "Brewing with celestial magic",
+                colorPalette: ["#5d4e7b", "#8b7dac", "#e0d5f2"],
+                brandValues: ["Quality", "Tradition", "Effectiveness"],
+                specialization: "Essence"
               }
             ]}
             packagingDesigns={[]}
