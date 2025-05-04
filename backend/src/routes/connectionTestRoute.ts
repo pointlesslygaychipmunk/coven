@@ -1,0 +1,31 @@
+// Simple connection test route for diagnosing production issues
+import express, { Request, Response } from 'express';
+
+const router = express.Router();
+
+router.get('/status', (req: Request, res: Response) => {
+  // Return server status with CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  res.json({
+    status: 'online',
+    timestamp: Date.now(),
+    environment: process.env.NODE_ENV || 'development',
+    protocol: req.protocol,
+    host: req.get('host') || 'unknown',
+    socketio: true,
+    version: '1.0.0'
+  });
+});
+
+router.options('/status', (req: Request, res: Response) => {
+  // Handle CORS preflight requests
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.status(204).end();
+});
+
+export default router;

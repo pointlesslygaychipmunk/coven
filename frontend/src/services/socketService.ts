@@ -1,5 +1,5 @@
 /**
- * Emergency Ultra-Simple Socket Service - Complete Rewrite
+ * Emergency Ultra-Simple Socket Service - Complete Rewrite - v2
  * 
  * A single-purpose minimal Socket.IO wrapper for production use ONLY.
  * Designed with absolute simplicity and reliability.
@@ -7,6 +7,7 @@
 
 import { io, Socket } from 'socket.io-client';
 import { GameState } from 'coven-shared';
+import { clearAllStorageValues, debugSocketConnection, testServerConnection } from './connectionDebugger';
 
 // Minimal type definitions
 export interface PlayerJoinedEvent {
@@ -72,15 +73,20 @@ class SocketService {
     }
   }
   
-  // ULTRA-SIMPLE SINGLE-PURPOSE CONNECTION FUNCTION
-  public init(): Promise<boolean> {
+  // ULTRA-SIMPLIFIED SINGLE-PURPOSE CONNECTION FUNCTION WITH ENHANCED DEBUGGING
+  public async init(): Promise<boolean> {
+    // Clear ALL storage to start fresh
+    clearAllStorageValues();
+    
     // If already connected, return immediately
     if (this._connected && this._socket) {
-      return Promise.resolve(true);
+      console.log('[Socket:EMERGENCY] Already connected, returning true');
+      return true;
     }
     
     // If connecting, wait briefly then return current state
     if (this._connecting) {
+      console.log('[Socket:EMERGENCY] Connection in progress, waiting...');
       return new Promise(resolve => 
         setTimeout(() => resolve(this._connected), 100)
       );
@@ -93,45 +99,146 @@ class SocketService {
     this.disconnect();
     
     // Get server URL - always use the current page origin
-    const serverUrl = window.location.origin;
+    let serverUrl = window.location.origin;
     
-    // Log connection attempt
-    console.log(`[Socket:EMERGENCY] Connecting to WebSocket server at ${serverUrl}`);
+    // CRITICAL FIX: Override serverUrl if we're on localhost to use correct port
+    if (serverUrl.includes('localhost') && !serverUrl.includes(':8080')) {
+      serverUrl = 'http://localhost:8080';
+      console.log(`[Socket:EMERGENCY] Overriding server URL to use correct port: ${serverUrl}`);
+    }
+    
+    // Try alternative URLs in last-resort situations
+    const backupUrls = [serverUrl];
+    
+    // If not localhost, also try explicit HTTP and HTTPS versions
+    if (!serverUrl.includes('localhost')) {
+      const hostname = window.location.hostname;
+      backupUrls.push(`https://${hostname}:443`);
+      backupUrls.push(`http://${hostname}:80`);
+      backupUrls.push(`https://${hostname}:8443`);
+      backupUrls.push(`http://${hostname}:8080`);
+    }
+    
+    // First test server connectivity before attempting Socket.IO connection
+    let serverConnected = false;
+    let workingUrl = '';
+    
+    // Try each URL until we find one that works
+    for (const url of backupUrls) {
+      console.log(`[Socket:EMERGENCY] Testing server connection to ${url}...`);
+      
+      try {
+        const connectionTest = await testServerConnection(url);
+        if (connectionTest) {
+          console.log(`[Socket:EMERGENCY] Successfully connected to server at ${url}`);
+          serverConnected = true;
+          workingUrl = url;
+          break;
+        }
+      } catch (e) {
+        console.log(`[Socket:EMERGENCY] Failed to connect to ${url}:`, e);
+      }
+    }
+    
+    if (!serverConnected) {
+      console.error('[Socket:EMERGENCY] Failed to connect to any server endpoint.');
+      this._connecting = false;
+      this._notifyConnectionStatus(false);
+      this._notifyError({ message: 'Unable to reach the game server. Please check your internet connection.' });
+      return false;
+    }
+    
+    // Use the working URL for socket connection
+    serverUrl = workingUrl;
+    
+    // Log connection attempt with detailed debug info
+    console.log(`[Socket:EMERGENCY] Connecting to server at ${serverUrl}`);
+    console.log(`[Socket:EMERGENCY] Protocol: ${window.location.protocol}`);
+    console.log(`[Socket:EMERGENCY] Online status: ${navigator.onLine}`);
     
     // Attempt to create a socket connection
     try {
-      // Create a new socket with minimal options
+      // Create a new socket with MAXIMUM compatibility settings
+      console.log('[Socket:EMERGENCY] Creating socket with MAXIMUM COMPATIBILITY mode');
       this._socket = io(serverUrl, {
-        transports: ['websocket'], // WebSocket only
-        reconnection: false,       // We handle reconnection
-        timeout: 10000,            // 10 second timeout
-        forceNew: true,            // Always create a new connection
-        query: {                   // Query params to help debug
-          client: 'emergency-mode',
-          time: Date.now().toString()
+        transports: ['polling', 'websocket'], // Allow polling AND websocket - try both
+        reconnection: false,                  // We handle reconnection ourselves
+        timeout: 30000,                       // Longer timeout (30sec)
+        forceNew: true,                       // Always create a new connection
+        autoConnect: true,                    // Connect immediately
+        withCredentials: false,               // Don't send cookies - can cause CORS issues
+        path: '/socket.io/',                  // Use default Socket.IO path
+        query: {                              // Query params for debugging
+          client: 'emergency-v3',
+          time: Date.now().toString(),
+          transport: 'compatibility-mode'
         }
       });
+      
+      // Log success creating socket object
+      console.log('[Socket:EMERGENCY] Socket object created successfully');
     } catch (err) {
       console.error('[Socket:EMERGENCY] Failed to create socket:', err);
       this._connecting = false;
       this._notifyConnectionStatus(false);
-      this._notifyError({ message: 'Failed to create connection' });
-      return Promise.resolve(false);
+      this._notifyError({ message: 'Failed to create connection: ' + (err instanceof Error ? err.message : 'Unknown error') });
+      return false;
     }
     
     // Return a promise that resolves when connected
     return new Promise(resolve => {
       if (!this._socket) {
+        console.error('[Socket:EMERGENCY] Socket object is null after creation attempt');
         this._connecting = false;
         resolve(false);
         return;
       }
       
-      // Set up connection event
+      // Log detailed debugging info
+      console.log('[Socket:EMERGENCY] Socket connection attempt in progress...');
+      
+      // Add timeout to prevent hanging forever (30 seconds)
+      const connectionTimeout = setTimeout(() => {
+        if (!this._connected && this._socket) {
+          console.error('[Socket:EMERGENCY] Connection timeout after 30 seconds');
+          
+          // Debug the socket object state
+          debugSocketConnection(this._socket);
+          
+          // Force disconnect and cleanup
+          this.disconnect();
+          
+          // Notify about timeout
+          this._notifyConnectionStatus(false);
+          this._notifyError({ message: 'Connection timed out. Please try refreshing the page.' });
+          
+          resolve(false);
+        }
+      }, 30000);
+      
+      // Debug socket transport selection
+      if (this._socket.io && this._socket.io.engine) {
+        console.log(`[Socket:EMERGENCY] Initial transport: ${this._socket.io.engine.transport.name}`);
+        
+        // Listen for transport changes
+        this._socket.io.engine.on('upgrade', (transport: string) => {
+          console.log(`[Socket:EMERGENCY] Transport upgraded to: ${transport}`);
+        });
+      }
+      
+      // Connection successful event
       this._socket.on('connect', () => {
-        console.log(`[Socket:EMERGENCY] Connected successfully!`);
+        // Clear timeout
+        clearTimeout(connectionTimeout);
+        
+        console.log(`[Socket:EMERGENCY] Connected successfully with ID: ${this._socket?.id}`);
         this._connected = true;
         this._connecting = false;
+        
+        // Log detailed connection info
+        if (this._socket.io && this._socket.io.engine) {
+          console.log(`[Socket:EMERGENCY] Connected using transport: ${this._socket.io.engine.transport.name}`);
+        }
         
         // Set up all event listeners
         this._setupEventListeners();
@@ -140,29 +247,66 @@ class SocketService {
         this._notifyConnectionStatus(true);
         this._notifyError({ message: 'Connected successfully' });
         
+        // Full debug of socket object for reference
+        debugSocketConnection(this._socket);
+        
         resolve(true);
       });
       
-      // Handle connection error
+      // Connection error event
       this._socket.on('connect_error', (err) => {
         console.error(`[Socket:EMERGENCY] Connection error:`, err);
+        
+        // Try to get more debug info
+        console.log(`[Socket:EMERGENCY] Connection error details:`);
+        console.log(`- Message: ${err.message}`);
+        console.log(`- Type: ${err.type}`);
+        console.log(`- Online: ${navigator.onLine}`);
+        
+        // Clear timeout
+        clearTimeout(connectionTimeout);
+        
         this._connected = false;
         this._connecting = false;
         
-        // Notify about error
-        this._notifyConnectionStatus(false);
-        this._notifyError({ message: 'Unable to connect to server' });
+        // Debug socket object state
+        debugSocketConnection(this._socket);
         
+        // Handle CORS errors specially
+        if (err.message && err.message.includes('CORS')) {
+          console.error('[Socket:EMERGENCY] CORS ERROR DETECTED. Check server configuration.');
+          this._notifyError({ message: 'Server connection blocked by CORS policy. Please contact support.' });
+        } else {
+          // Notify about generic error
+          this._notifyError({ message: 'Unable to connect to server: ' + err.message });
+        }
+        
+        // Update connection status
+        this._notifyConnectionStatus(false);
+        
+        // Resolve promise with failure
         resolve(false);
       });
       
-      // Handle disconnection
+      // Disconnection event
       this._socket.on('disconnect', (reason) => {
         console.log(`[Socket:EMERGENCY] Disconnected: ${reason}`);
         this._connected = false;
         
         // Notify about disconnection
         this._notifyConnectionStatus(false);
+        
+        // If connection was never established, resolve with false
+        if (this._connecting) {
+          this._connecting = false;
+          resolve(false);
+        }
+      });
+      
+      // Additional error event
+      this._socket.on('error', (error: any) => {
+        console.error('[Socket:EMERGENCY] Socket error:', error);
+        this._notifyError({ message: 'Socket error: ' + (error?.message || 'Unknown error') });
       });
     });
   }

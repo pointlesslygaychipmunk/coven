@@ -9,6 +9,7 @@ import fs from 'fs';
 import { GameHandler } from './gameHandler.js';
 import { MultiplayerManager } from './multiplayer.js';
 import gardenRoutes from './routes/gardenRoutes.js';
+import connectionTestRoutes from './routes/connectionTestRoute.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,20 +24,10 @@ const gameHandler = new GameHandler();
 const isProduction = process.env.NODE_ENV === 'production';
 console.log(`[Server] Running in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode`);
 
-// Determine CORS configuration based on environment
+// EMERGENCY: Allow all origins for testing
 const corsOptions = {
-  // In production, be more restrictive with allowed origins
-  origin: isProduction ? 
-    // Allow the deployment URL and localhost for testing
-    [
-      'https://witchscoven.game', 
-      'https://www.witchscoven.game',
-      // Add other production domains here
-      'http://localhost:3000', 
-      'http://localhost:8080',
-      'https://localhost:8443'
-    ] : 
-    '*', // In development, allow all origins
+  // Allow all origins temporarily to debug connection issues
+  origin: '*', // Allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -321,6 +312,34 @@ app.get('/api/state', (_req: Request, res: Response): void => handleRequest(game
 
 // Add interactive garden routes
 app.use('/api/garden', gardenRoutes);
+
+// Add connection test routes with VERY permissive CORS for emergency debugging
+app.use('/api/connection-test', connectionTestRoutes);
+
+// EMERGENCY: Add socket.io debug endpoint with permissive CORS
+app.get('/socketio-debug', (req, res) => {
+  // Set CORS headers
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  
+  // Return detailed socket.io info
+  res.json({
+    status: 'online',
+    timestamp: Date.now(),
+    socketio: {
+      http: multiplayerManager ? {
+        connected: true,
+        clientsCount: multiplayerManager.connectedPlayers ? multiplayerManager.connectedPlayers.size : 0,
+        stats: multiplayerManager.getStats ? multiplayerManager.getStats() : null
+      } : null,
+      https: httpsMultiplayerManager ? {
+        connected: true,
+        clientsCount: httpsMultiplayerManager.connectedPlayers ? httpsMultiplayerManager.connectedPlayers.size : 0,
+        stats: httpsMultiplayerManager.getStats ? httpsMultiplayerManager.getStats() : null
+      } : null
+    }
+  });
+});
 
 app.post('/api/plant', (req: Request, res: Response): void => {
     const { playerId, slotId, seedItemId } = req.body;
