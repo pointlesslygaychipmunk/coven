@@ -174,11 +174,29 @@ class SocketService {
       console.log(`[Socket] Will try the following URLs: ${this.alternativeUrls.join(', ')}`);
     }
     
-    // Get the next URL to try
-    const url = this.alternativeUrls[this.urlAttempt % this.alternativeUrls.length];
-    this.urlAttempt++;
+    // Check if we've exhausted all URLs - if so, return false immediately to prevent looping
+    if (this.alternativeUrls.length === 0) {
+      console.error('[Socket] No URLs available to try!');
+      this.connecting = false;
+      this.notifyError({ message: 'No server addresses available to connect to. Please refresh the page.' });
+      return Promise.resolve(false);
+    }
     
-    console.log(`[Socket] Connecting to ${url} (attempt ${this.urlAttempt}/${this.alternativeUrls.length})`);
+    // Calculate which URL to try next - ensure we wrap properly
+    const urlIndex = this.urlAttempt % this.alternativeUrls.length;
+    const url = this.alternativeUrls[urlIndex];
+    
+    // Only increment URL attempt if we haven't tried all URLs yet
+    if (this.urlAttempt < this.alternativeUrls.length) {
+      this.urlAttempt++;
+    } else {
+      // If we've tried all URLs in the list, randomly select one
+      // This makes subsequent attempts less predictable and potentially more successful
+      this.urlAttempt = Math.floor(Math.random() * this.alternativeUrls.length);
+      console.log(`[Socket] All URLs tried, randomly trying URL at index ${this.urlAttempt} next time`);
+    }
+    
+    console.log(`[Socket] Connecting to ${url} (URL ${urlIndex + 1}/${this.alternativeUrls.length}, overall attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
     
     // Clear any existing socket and timeout
     this.cleanupExistingConnection();
@@ -417,18 +435,38 @@ class SocketService {
    * Close the socket connection and clean up all resources
    */
   public disconnect(): void {
+    // Log disconnect attempt
+    console.log('[Socket] Disconnecting...');
+    
     this.cleanupExistingConnection();
     
-    // Also clear the recovery interval if it exists
+    // Reset ALL reconnection-related state to prevent future reconnection attempts
+    
+    // Clear the recovery interval if it exists
     if (this._recoveryIntervalId !== null) {
       window.clearInterval(this._recoveryIntervalId);
       this._recoveryIntervalId = null;
     }
     
-    // Reset connection states
+    // Clear reconnect timeout
+    if (this._reconnectTimeoutId !== null) {
+      window.clearTimeout(this._reconnectTimeoutId);
+      this._reconnectTimeoutId = null;
+    }
+    
+    // Reset ALL connection states and counters
     this.connected = false;
     this.connecting = false;
     this.reconnectAttempts = 0;
+    this._totalRecoveryAttempts = 0;
+    this._firstReconnectTime = null;
+    this.urlAttempt = 0;
+    
+    // Empty the alternative URLs array to prevent reconnection attempts
+    this.alternativeUrls = [];
+    
+    // Clear the last successful URL to force a fresh search on next connect
+    this.lastSuccessfulUrl = null;
     
     this.notifyConnectionStatus(false);
     console.log('[Socket] Disconnected and all resources cleaned up');
@@ -438,12 +476,44 @@ class SocketService {
    * Attempt to reconnect to the server with enhanced resilience
    */
   private attemptReconnect(): void {
-    // Check if we've reached max attempts
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error(`[Socket] Max reconnect attempts (${this.maxReconnectAttempts}) reached`);
+    // CRITICAL FIX: Hard limit on total reconnection attempts to prevent infinite loops
+    // This tracks ALL reconnection attempts, including those from recovery
+    const ABSOLUTE_MAX_ATTEMPTS = 30; // Set an absolute maximum for all reconnect attempts
+    
+    // Store a static counter for recovery attempts if it doesn't exist yet
+    if (typeof this._totalRecoveryAttempts === 'undefined') {
+      this._totalRecoveryAttempts = 0;
+    }
+    
+    // Check if we've reached absolute maximum attempts
+    const totalAttempts = this.reconnectAttempts + this._totalRecoveryAttempts;
+    if (totalAttempts >= ABSOLUTE_MAX_ATTEMPTS) {
+      console.error(`[Socket] ABSOLUTE maximum reconnect attempts (${ABSOLUTE_MAX_ATTEMPTS}) reached`);
+      console.error(`[Socket] Regular attempts: ${this.reconnectAttempts}, Recovery attempts: ${this._totalRecoveryAttempts}`);
       
-      // When we've exhausted all connection attempts, try resetting our URL strategy
-      // This helps recover from situations where the first URLs aren't working
+      // Force clear ALL reconnection mechanisms to stop any loops
+      this.clearConnectionTimeout();
+      this.clearPingInterval();
+      this.clearReconnectTimeout();
+      
+      if (this._recoveryIntervalId) {
+        window.clearInterval(this._recoveryIntervalId);
+        this._recoveryIntervalId = null;
+      }
+      
+      // Notify user of final failure
+      this.notifyError({ 
+        message: `Unable to establish a connection after multiple attempts. Please refresh the page or try again later.` 
+      });
+      
+      return;
+    }
+    
+    // Check if we've reached max immediate attempts
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.error(`[Socket] Max immediate reconnect attempts (${this.maxReconnectAttempts}) reached`);
+      
+      // Reset URL attempt counter
       this.urlAttempt = 0;
       
       // Notify user about limited functionality
@@ -452,19 +522,25 @@ class SocketService {
       });
       
       // Set up a final backup timer that will keep checking for connectivity periodically
-      // This allows recovery if the server comes back online
+      // But limit how many recovery attempts we do to prevent infinite loops
       const RECOVERY_CHECK_INTERVAL = 60000; // 1 minute
+      const MAX_RECOVERY_ATTEMPTS = 5; // Maximum recovery attempts
       
-      // Set up periodic recovery check if we don't have one already
-      if (!this._recoveryIntervalId) {
+      // Only set up recovery if we haven't exceeded the recovery limit
+      if (!this._recoveryIntervalId && this._totalRecoveryAttempts < MAX_RECOVERY_ATTEMPTS) {
         console.log('[Socket] Setting up recovery interval to check for server availability');
+        console.log(`[Socket] Recovery attempts: ${this._totalRecoveryAttempts}/${MAX_RECOVERY_ATTEMPTS}`);
+        
         this._recoveryIntervalId = window.setInterval(() => {
-          console.log('[Socket] Recovery check: attempting to reconnect...');
+          // Increment total recovery attempts
+          this._totalRecoveryAttempts++;
           
-          // Reset reconnect attempts to allow a fresh sequence of connection attempts
-          this.reconnectAttempts = 0;
+          console.log(`[Socket] Recovery check: attempting to reconnect... (${this._totalRecoveryAttempts}/${MAX_RECOVERY_ATTEMPTS})`);
           
-          // Try to connect again
+          // IMPORTANT: We're not resetting reconnectAttempts to prevent starting a new full cycle
+          // Instead, we'll do just one connection attempt per recovery check
+          
+          // Try to connect just once
           this.init().then(success => {
             if (success) {
               console.log('[Socket] Recovery successful! Clearing recovery interval.');
@@ -476,10 +552,25 @@ class SocketService {
               // Notify user of recovery
               this.notifyError({ message: "Connection recovered! Real-time updates resumed." });
             } else {
-              console.log('[Socket] Recovery attempt failed, will try again later.');
+              console.log(`[Socket] Recovery attempt ${this._totalRecoveryAttempts} failed.`);
+              
+              // If we've reached max recovery attempts, clear the interval
+              if (this._totalRecoveryAttempts >= MAX_RECOVERY_ATTEMPTS) {
+                console.log('[Socket] Max recovery attempts reached, stopping recovery.');
+                if (this._recoveryIntervalId) {
+                  window.clearInterval(this._recoveryIntervalId);
+                  this._recoveryIntervalId = null;
+                }
+                
+                this.notifyError({ 
+                  message: `All connection attempts exhausted. Please refresh the page to try again.` 
+                });
+              }
             }
           });
         }, RECOVERY_CHECK_INTERVAL);
+      } else if (this._totalRecoveryAttempts >= MAX_RECOVERY_ATTEMPTS) {
+        console.log('[Socket] Max recovery attempts already reached, not starting recovery interval.');
       }
       
       return;
@@ -551,12 +642,38 @@ class SocketService {
       });
     }
     
+    // Make sure we clear any existing timeout before setting a new one
+    this.clearReconnectTimeout();
+    
     this._reconnectTimeoutId = window.setTimeout(() => {
+      // Clear the timeout ID since we're processing it now
+      this._reconnectTimeoutId = null;
+      
       this.init().then((success) => {
         if (!success && this.reconnectAttempts < this.maxReconnectAttempts) {
-          // Continue trying to reconnect
+          // Continue trying to reconnect, but make sure we're not in an infinite loop
+          console.log(`[Socket] Reconnect attempt ${this.reconnectAttempts} failed, will try again...`);
+          
+          // Make sure we're not stuck in a reconnect loop by checking time
+          const now = Date.now();
+          if (!this._firstReconnectTime) {
+            this._firstReconnectTime = now;
+          } else {
+            // If we've been trying to reconnect for more than 5 minutes, stop
+            if (now - this._firstReconnectTime > 5 * 60 * 1000) {
+              console.error(`[Socket] Reconnection attempts have been running for over 5 minutes, stopping.`);
+              this.notifyError({ 
+                message: `Connection attempts timed out. Please refresh the page to try again.` 
+              });
+              return;
+            }
+          }
+          
           this.attemptReconnect();
         } else if (success) {
+          // Connection successful, reset our reconnection tracking
+          this._firstReconnectTime = null;
+          
           // Clear any error messages since we're connected now
           this.notifyError({ message: "Connected to server successfully!" });
           
@@ -566,13 +683,23 @@ class SocketService {
             this._recoveryIntervalId = null;
           }
         }
+      }).catch(err => {
+        // If init throws an exception, log it and try again if appropriate
+        console.error(`[Socket] Error during reconnection attempt:`, err);
+        
+        // Safely try again if we haven't reached max attempts
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.attemptReconnect();
+        }
       });
     }, reconnectInterval);
   }
   
-  // Add property for recovery interval
+  // Add properties for tracking reconnection and recovery
   private _recoveryIntervalId: number | null = null;
   private _reconnectTimeoutId: number | null = null;
+  private _totalRecoveryAttempts: number = 0;
+  private _firstReconnectTime: number | null = null;
   
   /**
    * Set up all event listeners
