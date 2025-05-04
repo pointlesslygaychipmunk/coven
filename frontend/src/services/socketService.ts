@@ -48,7 +48,7 @@ class SocketService {
   private connected: boolean = false;
   private connecting: boolean = false;
   private reconnectAttempts: number = 0;
-  private maxReconnectAttempts: number = 10; // Increased from 5 to 10
+  private maxReconnectAttempts: number = 15; // Increased from 10 to 15
   private baseReconnectInterval: number = 1000; // Base interval for exponential backoff
   private gameStateCallbacks: Set<GameStateCallback> = new Set();
   private playerJoinedCallbacks: Set<PlayerJoinedCallback> = new Set();
@@ -58,16 +58,25 @@ class SocketService {
   private errorCallbacks: Set<ErrorCallback> = new Set();
   private connectionStatusCallbacks: Set<ConnectionStatusCallback> = new Set();
   
-  /**
-   * Initialize the socket connection
-   */
-  // Track which URL attempt we're on
+  // Track current URL and connection attempts
   private urlAttempt: number = 0;
   private alternativeUrls: string[] = [];
+  private connectionTimeoutId: number | null = null;
+  private pingIntervalId: number | null = null;
+  private lastSuccessfulUrl: string | null = null;
     
   public init(): Promise<boolean> {
-    if (this.connected || this.connecting) {
-      return Promise.resolve(this.connected);
+    if (this.connected) {
+      return Promise.resolve(true);
+    }
+    
+    if (this.connecting) {
+      return new Promise((resolve) => {
+        // Check again in a short time if we're still connecting
+        setTimeout(() => {
+          resolve(this.connected);
+        }, 500);
+      });
     }
     
     this.connecting = true;
@@ -84,6 +93,11 @@ class SocketService {
       // Set up all possible URLs to try
       this.alternativeUrls = [];
       
+      // If we have a previously successful URL, try that first
+      if (this.lastSuccessfulUrl) {
+        this.alternativeUrls.push(this.lastSuccessfulUrl);
+      }
+      
       // For development environment (localhost), try these URLs in order
       if (host === 'localhost' || host === '127.0.0.1') {
         // Try specific ports first
@@ -97,6 +111,10 @@ class SocketService {
           ? `https://${host}` // Secure dev connection with default port
           : `http://${host}`  // Non-secure dev connection with default port
         );
+        
+        // Add specific port alternatives
+        this.alternativeUrls.push(`http://${host}:3000`); // Common Vite dev server port
+        this.alternativeUrls.push(`http://${host}:5000`); // Another common port
         
         // Finally try the opposite security protocol
         this.alternativeUrls.push(!useSecure 
@@ -118,12 +136,18 @@ class SocketService {
           : `http://${host}:8080`  // Non-secure connection with specific port
         );
         
+        // Add relative path to current URL
+        this.alternativeUrls.push(window.location.origin);
+        
         // Finally try the opposite security protocol
         this.alternativeUrls.push(!useSecure 
           ? `https://${host}` // Try secure if we started with non-secure
           : `http://${host}` // Try non-secure if we started with secure
         );
       }
+      
+      // Remove duplicates
+      this.alternativeUrls = [...new Set(this.alternativeUrls)];
     }
     
     // Get the next URL to try
@@ -132,18 +156,37 @@ class SocketService {
     
     console.log(`[Socket] Connecting to ${url} (attempt ${this.urlAttempt}/${this.alternativeUrls.length})`);
     
+    // Clear any existing socket and timeout
+    this.cleanupExistingConnection();
+    
+    // Create connection timeout to prevent hanging indefinitely
+    this.connectionTimeoutId = window.setTimeout(() => {
+      console.error(`[Socket] Connection attempt to ${url} timed out`);
+      if (this.socket) {
+        this.socket.close();
+        this.socket = null;
+      }
+      this.connecting = false;
+      this.connected = false;
+      this.notifyConnectionStatus(false);
+      this.attemptReconnect();
+    }, 15000); // 15 second timeout
+    
+    // Initialize socket connection
     this.socket = io(url, {
       reconnection: false, // We'll handle reconnection manually
       autoConnect: true, // Connect immediately
-      transports: ['polling', 'websocket'], // Try polling first, then websocket for more reliable initial connection
+      transports: ['websocket', 'polling'], // Try websocket first, then fallback to polling
       path: '/socket.io', // Ensure correct socket.io path
       timeout: 10000, // Increase timeout to 10 seconds (default is 5s)
       forceNew: true, // Force a new connection
+      query: { clientTime: Date.now().toString() } // Add timestamp to prevent caching issues
     });
     
     // Set up event listeners
     return new Promise((resolve) => {
       if (!this.socket) {
+        this.clearConnectionTimeout();
         this.connecting = false;
         resolve(false);
         return;
@@ -151,17 +194,26 @@ class SocketService {
       
       this.socket.on('connect', () => {
         console.log(`[Socket] Connected with ID: ${this.socket?.id}`);
+        this.clearConnectionTimeout();
         this.connected = true;
         this.connecting = false;
         this.reconnectAttempts = 0;
+        this.lastSuccessfulUrl = url; // Remember the successful URL
         this.notifyConnectionStatus(true);
+        
+        // Setup ping interval to keep connection alive
+        this.setupPingInterval();
+        
+        // Setup event listeners
+        this.setupEventListeners();
+        
         resolve(true);
       });
       
       this.socket.on('connect_error', (error) => {
         console.error(`[Socket] Connection error: ${error.message}`, error);
-        // Don't try to access the private uri property
-        console.error(`[Socket] Failed to connect to server`);
+        console.error(`[Socket] Failed to connect to server at ${url}`);
+        this.clearConnectionTimeout();
         this.connected = false;
         this.connecting = false;
         this.notifyError({ message: `Failed to connect to server: ${error.message}` });
@@ -172,6 +224,7 @@ class SocketService {
       
       this.socket.on('disconnect', (reason) => {
         console.log(`[Socket] Disconnected: ${reason}`);
+        this.clearPingInterval();
         this.connected = false;
         this.notifyConnectionStatus(false);
         
@@ -181,21 +234,68 @@ class SocketService {
         }
       });
       
-      // Set up game event listeners
-      this.setupEventListeners();
+      this.socket.on('error', (error) => {
+        console.error('[Socket] Socket error:', error);
+        this.notifyError({ message: `Socket error: ${error}` });
+      });
     });
+  }
+  
+  /**
+   * Clean up any existing connection resources
+   */
+  private cleanupExistingConnection(): void {
+    this.clearConnectionTimeout();
+    this.clearPingInterval();
+    
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.close();
+      this.socket = null;
+    }
+  }
+  
+  /**
+   * Clear connection timeout
+   */
+  private clearConnectionTimeout(): void {
+    if (this.connectionTimeoutId !== null) {
+      window.clearTimeout(this.connectionTimeoutId);
+      this.connectionTimeoutId = null;
+    }
+  }
+  
+  /**
+   * Setup ping interval to keep connection alive
+   */
+  private setupPingInterval(): void {
+    this.clearPingInterval();
+    
+    // Send a ping every 30 seconds to keep the connection alive
+    this.pingIntervalId = window.setInterval(() => {
+      if (this.socket && this.connected) {
+        this.socket.emit('ping', { timestamp: Date.now() });
+      }
+    }, 30000);
+  }
+  
+  /**
+   * Clear ping interval
+   */
+  private clearPingInterval(): void {
+    if (this.pingIntervalId !== null) {
+      window.clearInterval(this.pingIntervalId);
+      this.pingIntervalId = null;
+    }
   }
   
   /**
    * Close the socket connection
    */
   public disconnect(): void {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-      this.connected = false;
-      this.notifyConnectionStatus(false);
-    }
+    this.cleanupExistingConnection();
+    this.connected = false;
+    this.notifyConnectionStatus(false);
   }
   
   /**
@@ -215,7 +315,7 @@ class SocketService {
     
     // Use exponential backoff to increase wait time between attempts
     // Formula: baseInterval * 2^(attemptNumber-1) with a bit of randomness
-    const exponentialInterval = this.baseReconnectInterval * Math.pow(2, this.reconnectAttempts - 1);
+    const exponentialInterval = this.baseReconnectInterval * Math.pow(1.5, this.reconnectAttempts - 1);
     // Add some jitter to prevent all clients reconnecting simultaneously
     const jitter = Math.random() * 0.3 * exponentialInterval; 
     const reconnectInterval = Math.min(exponentialInterval + jitter, 30000); // Cap at 30 seconds
@@ -246,15 +346,35 @@ class SocketService {
   private setupEventListeners(): void {
     if (!this.socket) return;
     
+    // First, ensure we remove any duplicate listeners
+    this.socket.removeAllListeners('game:state');
+    this.socket.removeAllListeners('game:update');
+    this.socket.removeAllListeners('player:joined');
+    this.socket.removeAllListeners('player:disconnected');
+    this.socket.removeAllListeners('player:list');
+    this.socket.removeAllListeners('player:reconnected');
+    this.socket.removeAllListeners('chat:message');
+    this.socket.removeAllListeners('error');
+    this.socket.removeAllListeners('player:forced-disconnect');
+    this.socket.removeAllListeners('pong');
+    
     // Game state events
     this.socket.on('game:state', (state: GameState) => {
       console.log('[Socket] Received initial game state');
-      this.notifyGameState(state);
+      if (state) {
+        this.notifyGameState(state);
+      } else {
+        console.warn('[Socket] Received empty game state');
+      }
     });
     
     this.socket.on('game:update', (state: GameState) => {
       console.log('[Socket] Received game state update');
-      this.notifyGameState(state);
+      if (state) {
+        this.notifyGameState(state);
+      } else {
+        console.warn('[Socket] Received empty game state update');
+      }
     });
     
     // Player events
@@ -268,9 +388,25 @@ class SocketService {
       this.notifyPlayerDisconnected(data);
     });
     
+    this.socket.on('player:reconnected', (data: { playerId: string, playerName: string }) => {
+      console.log(`[Socket] Player reconnected: ${data.playerName} (${data.playerId})`);
+      // Handle player reconnection - could use the same handler as player:joined for simplicity
+      this.notifyPlayerJoined({
+        success: true,
+        playerId: data.playerId,
+        playerName: data.playerName,
+        message: 'Player reconnected'
+      });
+    });
+    
     this.socket.on('player:list', (players: PlayerListEvent[]) => {
       console.log(`[Socket] Received player list (${players.length} players)`);
-      this.notifyPlayerList(players);
+      if (Array.isArray(players)) {
+        this.notifyPlayerList(players);
+      } else {
+        console.warn('[Socket] Received invalid player list');
+        this.notifyPlayerList([]);
+      }
     });
     
     // Chat events
@@ -289,6 +425,12 @@ class SocketService {
       console.warn(`[Socket] Forced disconnect: ${data.reason}`);
       // No need to attempt reconnection here, as this is an intentional disconnect
       this.notifyError({ message: `You were disconnected: ${data.reason}` });
+    });
+    
+    // Handle pong response (keep-alive)
+    this.socket.on('pong', (data: { serverTime: number, clientTime: number }) => {
+      const roundTripTime = Date.now() - data.clientTime;
+      console.log(`[Socket] Pong received. Round trip time: ${roundTripTime}ms`);
     });
   }
   

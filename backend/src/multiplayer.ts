@@ -11,6 +11,8 @@ interface ConnectedPlayer {
   playerName: string;
   joinedAt: number;
   lastActivity: number;
+  pingCount?: number;
+  lastPing?: number;
 }
 
 // Main multiplayer handler class
@@ -19,6 +21,7 @@ export class MultiplayerManager {
   private gameHandler: GameHandler;
   private connectedPlayers: Map<string, ConnectedPlayer> = new Map(); // socketId -> player info
   private playerIdToSocketId: Map<string, string> = new Map(); // playerId -> socketId (for quick lookups)
+  private connectionCheckIntervalId: NodeJS.Timeout | null = null;
   
   constructor(server: http.Server, gameHandler: GameHandler) {
     this.gameHandler = gameHandler;
@@ -29,10 +32,17 @@ export class MultiplayerManager {
         origin: "*", // For development, in production limit to your domain
         methods: ["GET", "POST"],
         credentials: true
-      }
+      },
+      pingTimeout: 30000, // Increase ping timeout (default 20000ms)
+      pingInterval: 25000, // Ping interval (default 25000ms)
+      connectTimeout: 20000, // Connection timeout (default 45000ms)
+      upgradeTimeout: 15000, // Upgrade timeout (default 10000ms)
+      maxHttpBufferSize: 1e8, // 100 MB (default 1e6, or 1 MB)
+      transports: ['websocket', 'polling'] // Prefer WebSocket over polling
     });
     
     this.setupSocketHandlers();
+    this.startConnectionHealthCheck();
     console.log("[Multiplayer] WebSocket server initialized");
   }
   
@@ -40,6 +50,15 @@ export class MultiplayerManager {
   private setupSocketHandlers(): void {
     this.io.on('connection', (socket: Socket) => {
       console.log(`[Multiplayer] New connection: ${socket.id}`);
+      
+      // Log socket transport method
+      const transport = socket.conn.transport.name; // 'websocket' or 'polling'
+      console.log(`[Multiplayer] Client ${socket.id} connected using: ${transport}`);
+      
+      // Handle transport upgrade (polling -> websocket)
+      socket.conn.on('upgrade', (newTransport: string) => {
+        console.log(`[Multiplayer] Client ${socket.id} upgraded transport: ${newTransport}`);
+      });
       
       // Handle player login/join
       socket.on('player:join', (data: { playerName: string, playerId?: string }) => {
@@ -72,8 +91,30 @@ export class MultiplayerManager {
       });
       
       // Handle disconnection
-      socket.on('disconnect', () => {
+      socket.on('disconnect', (reason) => {
+        console.log(`[Multiplayer] Socket ${socket.id} disconnected: ${reason}`);
         this.handlePlayerDisconnect(socket.id);
+      });
+      
+      // Handle connection errors
+      socket.on('error', (error) => {
+        console.error(`[Multiplayer] Socket ${socket.id} error:`, error);
+      });
+      
+      // Handle client pings (keep-alive)
+      socket.on('ping', (data: { timestamp: number }) => {
+        const player = this.connectedPlayers.get(socket.id);
+        if (player) {
+          player.lastActivity = Date.now();
+          player.lastPing = data.timestamp;
+          player.pingCount = (player.pingCount || 0) + 1;
+          
+          // Respond with pong
+          socket.emit('pong', { 
+            serverTime: Date.now(),
+            clientTime: data.timestamp
+          });
+        }
       });
       
       // Handle messages in the chat
@@ -83,6 +124,9 @@ export class MultiplayerManager {
           socket.emit('error', { message: 'You must join the game before sending messages' });
           return;
         }
+        
+        // Update last activity timestamp for this player
+        player.lastActivity = Date.now();
         
         this.io.emit('chat:message', {
           senderId: player.playerId,
@@ -97,58 +141,108 @@ export class MultiplayerManager {
     });
   }
   
+  /**
+   * Starts a periodic check for inactive connections
+   */
+  private startConnectionHealthCheck(): void {
+    // Clear any existing interval
+    if (this.connectionCheckIntervalId) {
+      clearInterval(this.connectionCheckIntervalId);
+    }
+    
+    // Check for stale connections every 60 seconds
+    this.connectionCheckIntervalId = setInterval(() => {
+      const now = Date.now();
+      const inactivityThreshold = 5 * 60 * 1000; // 5 minutes of inactivity
+      
+      for (const [socketId, player] of this.connectedPlayers.entries()) {
+        const timeSinceActivity = now - player.lastActivity;
+        
+        // If player has been inactive for too long
+        if (timeSinceActivity > inactivityThreshold) {
+          console.log(`[Multiplayer] Player ${player.playerName} (${player.playerId}) inactive for ${Math.round(timeSinceActivity/1000)}s, disconnecting`);
+          
+          const socket = this.io.sockets.sockets.get(socketId);
+          if (socket) {
+            socket.emit('player:forced-disconnect', { reason: 'Connection timed out due to inactivity' });
+            socket.disconnect(true);
+          }
+          
+          this.handlePlayerDisconnect(socketId);
+        }
+      }
+    }, 60000); // Check every minute
+  }
+  
   // Handle reconnecting an existing player
   private handlePlayerReconnect(socket: Socket, player: Player, newPlayerName: string): void {
-    // Remove any existing connection for this player
-    const existingSocketId = this.playerIdToSocketId.get(player.id);
-    if (existingSocketId && existingSocketId !== socket.id) {
-      const existingSocket = this.io.sockets.sockets.get(existingSocketId);
-      if (existingSocket) {
-        existingSocket.emit('player:forced-disconnect', { reason: 'You connected from another device' });
-        existingSocket.disconnect(true);
+    console.log(`[Multiplayer] Reconnecting player: ${player.name} (${player.id}) as ${newPlayerName}`);
+    
+    try {
+      // Remove any existing connection for this player
+      const existingSocketId = this.playerIdToSocketId.get(player.id);
+      if (existingSocketId && existingSocketId !== socket.id) {
+        console.log(`[Multiplayer] Player ${player.id} has an existing socket connection (${existingSocketId}), disconnecting it`);
+        const existingSocket = this.io.sockets.sockets.get(existingSocketId);
+        if (existingSocket) {
+          existingSocket.emit('player:forced-disconnect', { reason: 'You connected from another device or browser' });
+          existingSocket.disconnect(true);
+        }
+        this.connectedPlayers.delete(existingSocketId);
       }
-      this.connectedPlayers.delete(existingSocketId);
+      
+      // Update player name if it changed
+      if (player.name !== newPlayerName) {
+        // In a real implementation, you'd update the player's name in the game state
+        // For now, we'll just update our local tracking
+        console.log(`[Multiplayer] Player ${player.id} renamed from ${player.name} to ${newPlayerName}`);
+      }
+      
+      // Register the reconnection
+      const now = Date.now();
+      this.connectedPlayers.set(socket.id, {
+        socketId: socket.id,
+        playerId: player.id,
+        playerName: newPlayerName,
+        joinedAt: now,
+        lastActivity: now,
+        pingCount: 0,
+        lastPing: now
+      });
+      this.playerIdToSocketId.set(player.id, socket.id);
+      
+      // Join player to game rooms
+      socket.join('game');
+      socket.join(`player:${player.id}`);
+      
+      // Notify everyone of the reconnection
+      this.io.to('game').emit('player:reconnected', {
+        playerId: player.id,
+        playerName: newPlayerName
+      });
+      
+      // Send current game state to the reconnected player
+      const currentState = this.gameHandler.getState();
+      if (currentState) {
+        socket.emit('game:state', currentState);
+      } else {
+        console.error('[Multiplayer] Failed to get game state for reconnected player');
+        socket.emit('error', { message: 'Error retrieving game state' });
+      }
+      
+      socket.emit('player:joined', { 
+        success: true, 
+        playerId: player.id,
+        playerName: newPlayerName,
+        message: 'Reconnected to game session'
+      });
+      
+      // Broadcast updated player list
+      this.broadcastPlayerList();
+    } catch (error) {
+      console.error('[Multiplayer] Error reconnecting player:', error);
+      socket.emit('error', { message: 'Failed to reconnect to the game session' });
     }
-    
-    // Update player name if it changed
-    if (player.name !== newPlayerName) {
-      // In a real implementation, you'd update the player's name in the game state
-      // For now, we'll just update our local tracking
-      console.log(`[Multiplayer] Player ${player.id} renamed from ${player.name} to ${newPlayerName}`);
-    }
-    
-    // Register the reconnection
-    const now = Date.now();
-    this.connectedPlayers.set(socket.id, {
-      socketId: socket.id,
-      playerId: player.id,
-      playerName: newPlayerName,
-      joinedAt: now,
-      lastActivity: now
-    });
-    this.playerIdToSocketId.set(player.id, socket.id);
-    
-    // Join player to game rooms
-    socket.join('game');
-    socket.join(`player:${player.id}`);
-    
-    // Notify everyone of the reconnection
-    this.io.to('game').emit('player:reconnected', {
-      playerId: player.id,
-      playerName: newPlayerName
-    });
-    
-    // Send current game state to the reconnected player
-    socket.emit('game:state', this.gameHandler.getState());
-    socket.emit('player:joined', { 
-      success: true, 
-      playerId: player.id,
-      playerName: newPlayerName,
-      message: 'Reconnected to game session'
-    });
-    
-    // Broadcast updated player list
-    this.broadcastPlayerList();
   }
   
   // Handle adding a new player to the game
@@ -158,9 +252,8 @@ export class MultiplayerManager {
       // For now, we'll create a placeholder that would be replaced with actual logic
       // that adds a new player to gameHandler
       
-      // For demo purposes, we'll generate a random ID
-      // In reality, you'd use GameHandler's method to create a player
-      const playerId = `player_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      // For demo purposes, we'll generate a random ID with better uniqueness
+      const playerId = `player_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
       
       console.log(`[Multiplayer] New player joined: ${playerName} (${playerId})`);
       
@@ -171,7 +264,9 @@ export class MultiplayerManager {
         playerId: playerId,
         playerName: playerName,
         joinedAt: now,
-        lastActivity: now
+        lastActivity: now,
+        pingCount: 0,
+        lastPing: now
       });
       this.playerIdToSocketId.set(playerId, socket.id);
       
@@ -186,7 +281,14 @@ export class MultiplayerManager {
       });
       
       // Send current game state to the new player
-      socket.emit('game:state', this.gameHandler.getState());
+      const currentState = this.gameHandler.getState();
+      if (currentState) {
+        socket.emit('game:state', currentState);
+      } else {
+        console.error('[Multiplayer] Failed to get game state for new player');
+        socket.emit('error', { message: 'Error retrieving game state' });
+      }
+      
       socket.emit('player:joined', { 
         success: true, 
         playerId: playerId,
@@ -208,18 +310,29 @@ export class MultiplayerManager {
     if (player) {
       console.log(`[Multiplayer] Player disconnected: ${player.playerName} (${player.playerId})`);
       
-      // Remove from tracking maps
-      this.connectedPlayers.delete(socketId);
-      this.playerIdToSocketId.delete(player.playerId);
-      
-      // Notify other players
-      this.io.to('game').emit('player:disconnected', {
-        playerId: player.playerId,
-        playerName: player.playerName
-      });
-      
-      // Broadcast updated player list
-      this.broadcastPlayerList();
+      try {
+        // Remove from socket rooms
+        const socket = this.io.sockets.sockets.get(socketId);
+        if (socket) {
+          socket.leave('game');
+          socket.leave(`player:${player.playerId}`);
+        }
+        
+        // Remove from tracking maps
+        this.connectedPlayers.delete(socketId);
+        this.playerIdToSocketId.delete(player.playerId);
+        
+        // Notify other players
+        this.io.to('game').emit('player:disconnected', {
+          playerId: player.playerId,
+          playerName: player.playerName
+        });
+        
+        // Broadcast updated player list
+        this.broadcastPlayerList();
+      } catch (error) {
+        console.error('[Multiplayer] Error handling player disconnect:', error);
+      }
     }
   }
   
@@ -231,9 +344,24 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined) {
+          this.handleGameActionError(socket, 'plant seed', new Error('Invalid data provided'));
+          return;
+        }
+        
         const { slotId, seedItemId } = data;
+        
+        if (slotId === undefined || seedItemId === undefined) {
+          this.handleGameActionError(socket, 'plant seed', new Error('Missing required parameters'));
+          return;
+        }
+        
         const gameState = this.gameHandler.plantSeed(player.playerId, slotId, seedItemId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'plant seed', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'plant seed', error);
       }
@@ -245,9 +373,18 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        // Ensure data is not null
+        if (data === null || data === undefined) {
+          data = {}; // Default to empty object if data is null
+        }
+        
         const puzzleBonus = data.puzzleBonus || 0;
         const gameState = this.gameHandler.waterPlants(player.playerId, puzzleBonus);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'water plants', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'water plants', error);
       }
@@ -259,9 +396,18 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined || data.slotId === undefined) {
+          this.handleGameActionError(socket, 'harvest plant', new Error('Invalid slot ID provided'));
+          return;
+        }
+        
         const { slotId } = data;
         const gameState = this.gameHandler.harvestPlant(player.playerId, slotId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'harvest plant', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'harvest plant', error);
       }
@@ -273,9 +419,25 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined || !Array.isArray(data.ingredientInvItemIds)) {
+          this.handleGameActionError(socket, 'brew potion', new Error('Invalid ingredients provided'));
+          return;
+        }
+        
         const { ingredientInvItemIds, puzzleBonus } = data;
+        
+        // Check that we have exactly the correct number of ingredients
+        if (ingredientInvItemIds.length !== 2) {
+          this.handleGameActionError(socket, 'brew potion', new Error('Potion brewing requires exactly 2 ingredients'));
+          return;
+        }
+        
         const gameState = this.gameHandler.brewPotion(player.playerId, ingredientInvItemIds, puzzleBonus || 0);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'brew potion', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'brew potion', error);
       }
@@ -287,9 +449,18 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined || !data.itemId) {
+          this.handleGameActionError(socket, 'buy item', new Error('Invalid item ID provided'));
+          return;
+        }
+        
         const { itemId } = data;
         const gameState = this.gameHandler.buyItem(player.playerId, itemId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'buy item', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'buy item', error);
       }
@@ -301,9 +472,18 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined || !data.itemId) {
+          this.handleGameActionError(socket, 'sell item', new Error('Invalid item ID provided'));
+          return;
+        }
+        
         const { itemId } = data;
         const gameState = this.gameHandler.sellItem(player.playerId, itemId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'sell item', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'sell item', error);
       }
@@ -315,9 +495,18 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined || !data.requestId) {
+          this.handleGameActionError(socket, 'fulfill request', new Error('Invalid request ID provided'));
+          return;
+        }
+        
         const { requestId } = data;
         const gameState = this.gameHandler.fulfillRequest(player.playerId, requestId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'fulfill request', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'fulfill request', error);
       }
@@ -329,9 +518,18 @@ export class MultiplayerManager {
       if (!player) return;
       
       try {
+        if (data === null || data === undefined || !data.ritualId) {
+          this.handleGameActionError(socket, 'claim ritual', new Error('Invalid ritual ID provided'));
+          return;
+        }
+        
         const { ritualId } = data;
         const gameState = this.gameHandler.claimRitualReward(player.playerId, ritualId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'claim ritual', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'claim ritual', error);
       }
@@ -344,7 +542,11 @@ export class MultiplayerManager {
       
       try {
         const gameState = this.gameHandler.endTurn(player.playerId);
-        this.broadcastGameUpdate(gameState);
+        if (gameState) {
+          this.broadcastGameUpdate(gameState);
+        } else {
+          this.handleGameActionError(socket, 'end turn', new Error('Failed to update game state'));
+        }
       } catch (error) {
         this.handleGameActionError(socket, 'end turn', error);
       }
@@ -369,21 +571,83 @@ export class MultiplayerManager {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     console.error(`[Multiplayer] Error performing ${action}:`, error);
     socket.emit('error', { message: `Failed to ${action}: ${errorMessage}` });
+    
+    // Resend the current game state to ensure client is in sync
+    try {
+      const currentState = this.gameHandler.getState();
+      if (currentState) {
+        socket.emit('game:state', currentState);
+      }
+    } catch (stateError) {
+      console.error('[Multiplayer] Error getting game state after action error:', stateError);
+    }
   }
   
   // Broadcast game state updates to all connected players
   private broadcastGameUpdate(gameState: GameState): void {
-    this.io.to('game').emit('game:update', gameState);
+    if (!gameState) {
+      console.error('[Multiplayer] Attempted to broadcast invalid game state');
+      return;
+    }
+    
+    try {
+      this.io.to('game').emit('game:update', gameState);
+    } catch (error) {
+      console.error('[Multiplayer] Error broadcasting game update:', error);
+    }
   }
   
   // Broadcast the list of connected players to all clients
   private broadcastPlayerList(): void {
-    const playerList = Array.from(this.connectedPlayers.values()).map(player => ({
-      playerId: player.playerId,
-      playerName: player.playerName,
-      joinedAt: player.joinedAt
-    }));
+    try {
+      const playerList = Array.from(this.connectedPlayers.values()).map(player => ({
+        playerId: player.playerId,
+        playerName: player.playerName,
+        joinedAt: player.joinedAt
+      }));
+      
+      // Sort player list by joined time (oldest first)
+      playerList.sort((a, b) => a.joinedAt - b.joinedAt);
+      
+      console.log(`[Multiplayer] Broadcasting player list with ${playerList.length} players`);
+      this.io.to('game').emit('player:list', playerList);
+    } catch (error) {
+      console.error('[Multiplayer] Error broadcasting player list:', error);
+    }
+  }
+  
+  // Clean up resources on server shutdown
+  public shutdown(): void {
+    console.log('[Multiplayer] Shutting down multiplayer manager');
     
-    this.io.to('game').emit('player:list', playerList);
+    // Clear any intervals
+    if (this.connectionCheckIntervalId) {
+      clearInterval(this.connectionCheckIntervalId);
+      this.connectionCheckIntervalId = null;
+    }
+    
+    // Disconnect all clients
+    for (const [socketId, player] of this.connectedPlayers.entries()) {
+      try {
+        const socket = this.io.sockets.sockets.get(socketId);
+        if (socket) {
+          socket.emit('player:forced-disconnect', { reason: 'Server is shutting down' });
+          socket.disconnect(true);
+        }
+      } catch (error) {
+        console.error(`[Multiplayer] Error disconnecting player ${player.playerName}:`, error);
+      }
+    }
+    
+    // Clear player maps
+    this.connectedPlayers.clear();
+    this.playerIdToSocketId.clear();
+    
+    // Close the socket.io server
+    try {
+      this.io.close();
+    } catch (error) {
+      console.error('[Multiplayer] Error closing Socket.IO server:', error);
+    }
   }
 }

@@ -13,36 +13,86 @@ import gardenRoutes from './routes/gardenRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Create Express app
 const app: Application = express();
+
+// Initialize game handler
 const gameHandler = new GameHandler();
 
-app.use(cors());
-app.use(express.json());
+// Set up middleware
+app.use(cors({
+  origin: '*', // Allow all origins in development
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
+app.use(express.json({ limit: '50mb' })); // Increase payload limit for larger data transfers
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Serve static files from frontend build
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
 if (!fs.existsSync(frontendDistPath)) {
     console.error(`[Server ERROR] Frontend build directory not found: ${frontendDistPath}`);
 } else {
     console.log(`[Server] Serving static files from: ${frontendDistPath}`);
-    app.use(express.static(frontendDistPath));
+    app.use(express.static(frontendDistPath, {
+      maxAge: '1h', // Cache static assets for 1 hour
+      etag: true,   // Enable etag for caching
+    }));
 }
 
 // Logging Middleware
-app.use((req: Request, res: Response, next: NextFunction) => { // Added types
+app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    // Use req instead of _req if logging method/url
     console.log(`[Server] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
   });
   next();
 });
 
-// Handle 404 for /wordpress routes
+// Security middleware - block common attack paths
 app.use('/wordpress', (_req, res) => {
-    res.status(403).send('Forbidden');
-  });
+  res.status(403).send('Forbidden');
+});
 
+app.use('/wp-admin', (_req, res) => {
+  res.status(403).send('Forbidden');
+});
+
+app.use('/wp-login', (_req, res) => {
+  res.status(403).send('Forbidden');
+});
+
+// Add a health check endpoint
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: Date.now() });
+});
+
+// WebSocket status endpoint
+app.get('/websocket-status', (_req, res) => {
+  try {
+    const httpStatus = {
+      connected: Boolean(multiplayerManager),
+      playerCount: multiplayerManager ? Array.from(multiplayerManager['connectedPlayers'].values()).length : 0
+    };
+    
+    const httpsStatus = {
+      connected: Boolean(httpsMultiplayerManager),
+      playerCount: httpsMultiplayerManager ? Array.from(httpsMultiplayerManager['connectedPlayers'].values()).length : 0
+    };
+    
+    res.status(200).json({ 
+      http: httpStatus,
+      https: httpsStatus,
+      timestamp: Date.now()
+    });
+  } catch (error) {
+    console.error('[Server] Error getting WebSocket status:', error);
+    res.status(500).json({ error: 'Error getting WebSocket status' });
+  }
+});
 
 // Helper function for API responses
 const handleRequest = (handlerFn: () => any, res: Response, actionName: string): void => {
@@ -175,12 +225,18 @@ app.post('/api/load', (req: Request, res: Response): void => {
     }, res, 'load');
 });
 
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  console.log(`[Server] 404 Not Found: ${req.originalUrl}`);
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
 // Serve Frontend
 if (fs.existsSync(frontendDistPath)) {
-    app.get('*', (req: Request, res: Response) => { // Use req
+    app.get('*', (req: Request, res: Response) => {
         // Prevent serving API routes as static files
         if (req.originalUrl.startsWith('/api/')) {
-            return res.status(404).send('API route not found.');
+            return res.status(404).json({ error: 'API route not found' });
         }
         const indexPath = path.join(frontendDistPath, 'index.html');
         res.sendFile(indexPath, (err: any) => {
@@ -189,19 +245,15 @@ if (fs.existsSync(frontendDistPath)) {
                 if (!res.headersSent) {
                     res.status(500).send("Error serving application.");
                 }
-                return; // Explicitly return after handling the error
             }
-            return; // Explicitly return in the success case
         });
-        return; // Ensure all code paths return
     });
 } else {
     // Fallback if dist not found
-     app.get('/', (_req, res) => {
-       res.status(500).send('Frontend build not found. Please run `npm run build` in the frontend directory.');
-     });
+    app.get('*', (_req, res) => {
+      res.status(500).send('Frontend build not found. Please run `npm run build` in the frontend directory.');
+    });
 }
-
 
 // SSL Certificates
 let sslOptions: https.ServerOptions | undefined = undefined;
@@ -219,26 +271,54 @@ try {
     console.log("[Server] HTTP only.");
 }
 
-// Start Server
+// Configure HTTP server
 const HTTP_PORT = process.env.PORT || 8080;
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 
-// Create HTTP server and initialize multiplayer
-const httpServer = http.createServer(app);
+// Create HTTP server with proper timeouts
+const httpServer = http.createServer({
+  // Configure server timeouts
+  keepAlive: true,
+  keepAliveTimeout: 30000, // 30 seconds
+  headersTimeout: 65000, // 65 seconds (slightly higher than keepAliveTimeout)
+  requestTimeout: 300000, // 5 minutes for long-running requests
+}, app);
+
+// Add error handling for HTTP server
+httpServer.on('error', (error) => {
+  console.error('[Server] HTTP server error:', error);
+});
+
+// Initialize multiplayer managers
 export const multiplayerManager = new MultiplayerManager(httpServer, gameHandler);
 
+// Create a variable for the HTTPS multiplayer manager that we can export
+let httpsMultiplayerManager: MultiplayerManager | null = null;
+let httpsServer: https.Server | null = null;
+
+// Start HTTP server
 httpServer.listen(HTTP_PORT, () => {
   console.log(`\n Backend server listening at http://localhost:${HTTP_PORT} ✨`);
   console.log(`\n Multiplayer WebSocket server running on ws://localhost:${HTTP_PORT} 🌐`);
   console.log(`--------------------------------------------------`);
 });
 
-// Create a variable for the HTTPS multiplayer manager that we can export
-let httpsMultiplayerManager: MultiplayerManager | null = null;
-
 // If SSL is configured, set up HTTPS server as well
 if (sslOptions) {
-  const httpsServer = https.createServer(sslOptions, app);
+  httpsServer = https.createServer({
+    ...sslOptions,
+    // Configure server timeouts (same as HTTP)
+    keepAlive: true,
+    keepAliveTimeout: 30000, // 30 seconds
+    headersTimeout: 65000, // 65 seconds
+    requestTimeout: 300000, // 5 minutes
+  }, app);
+  
+  // Add error handling for HTTPS server
+  httpsServer.on('error', (error) => {
+    console.error('[Server] HTTPS server error:', error);
+  });
+  
   // Initialize another multiplayer manager for HTTPS
   httpsMultiplayerManager = new MultiplayerManager(httpsServer, gameHandler);
   
@@ -250,6 +330,65 @@ if (sslOptions) {
 } else {
   console.log(` (HTTPS server not started)`);
 }
+
+// Setup graceful shutdown
+const gracefulShutdown = () => {
+  console.log('\n[Server] Shutting down gracefully...');
+  
+  // First attempt to shut down HTTP server
+  let httpClosed = false;
+  let httpTimeout = setTimeout(() => {
+    if (!httpClosed) {
+      console.log('[Server] HTTP server failed to close in time, forcing shutdown');
+    }
+  }, 10000);
+  
+  httpServer.close(() => {
+    clearTimeout(httpTimeout);
+    httpClosed = true;
+    console.log('[Server] HTTP server closed');
+  });
+  
+  // Shut down the multiplayer manager for HTTP
+  if (multiplayerManager) {
+    try {
+      multiplayerManager.shutdown();
+      console.log('[Server] HTTP multiplayer manager shut down');
+    } catch (error) {
+      console.error('[Server] Error shutting down HTTP multiplayer manager:', error);
+    }
+  }
+  
+  // If HTTPS server exists, shut it down too
+  if (httpsServer) {
+    let httpsClosed = false;
+    let httpsTimeout = setTimeout(() => {
+      if (!httpsClosed) {
+        console.log('[Server] HTTPS server failed to close in time, forcing shutdown');
+      }
+    }, 10000);
+    
+    httpsServer.close(() => {
+      clearTimeout(httpsTimeout);
+      httpsClosed = true;
+      console.log('[Server] HTTPS server closed');
+    });
+    
+    // Shut down the multiplayer manager for HTTPS
+    if (httpsMultiplayerManager) {
+      try {
+        httpsMultiplayerManager.shutdown();
+        console.log('[Server] HTTPS multiplayer manager shut down');
+      } catch (error) {
+        console.error('[Server] Error shutting down HTTPS multiplayer manager:', error);
+      }
+    }
+  }
+};
+
+// Listen for termination signals
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
 
 // Export the HTTPS multiplayer manager if it was created
 export { httpsMultiplayerManager };

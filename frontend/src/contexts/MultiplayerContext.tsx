@@ -113,14 +113,41 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Error handling
   const [error, setError] = useState<string | null>(null);
   
+  // Create a function to add a connection status message
+  const addStatusMessage = useCallback((message: string, isError: boolean = false) => {
+    // Add a system message to the chat
+    const systemMessage: ChatMessage = {
+      senderId: 'system',
+      senderName: 'System',
+      message: message,
+      timestamp: Date.now()
+    };
+    
+    setMessages(prev => [...prev, systemMessage]);
+    
+    if (isError) {
+      setError(message);
+    }
+  }, []);
+  
   // Initialize socket event listeners
   useEffect(() => {
     // Set up connection status listener
     const connectionStatusUnsubscribe = socketService.onConnectionStatus((status) => {
       console.log(`[MultiplayerContext] Connection status changed: ${status}`);
+      
+      const wasConnected = isConnected;
       setIsConnected(status);
       setConnecting(false);
-      if (!status) {
+      
+      // Handle connection state change
+      if (status && !wasConnected) {
+        // Connection established
+        addStatusMessage('Connected to server');
+        setError(null);
+      } else if (!status && wasConnected) {
+        // Connection lost
+        addStatusMessage('Connection to server lost. Attempting to reconnect...', true);
         setIsJoined(false);
       }
     });
@@ -128,7 +155,11 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Set up game state listener
     const gameStateUnsubscribe = socketService.onGameState((state) => {
       console.log('[MultiplayerContext] Game state update received');
-      setGameState(state);
+      if (state) {
+        setGameState(state);
+      } else {
+        console.warn('[MultiplayerContext] Received empty game state');
+      }
     });
 
     // Set up player joined listener
@@ -146,19 +177,28 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         // Store player ID in local storage for potential reconnection
         localStorage.setItem('coven_player_id', event.playerId);
         localStorage.setItem('coven_player_name', event.playerName);
+        
+        // Add a system message
+        addStatusMessage(`Successfully joined as ${event.playerName}`);
       } else {
         setError(event.message || 'Failed to join game');
+        addStatusMessage(`Failed to join game: ${event.message}`, true);
       }
     });
 
     // Set up player list listener
     const playerListUnsubscribe = socketService.onPlayerList((playerList: PlayerListEvent[]) => {
       console.log(`[MultiplayerContext] Player list updated: ${playerList.length} players`);
-      setPlayers(playerList.map(p => ({
-        playerId: p.playerId,
-        playerName: p.playerName,
-        joinedAt: p.joinedAt
-      })));
+      if (Array.isArray(playerList)) {
+        setPlayers(playerList.map(p => ({
+          playerId: p.playerId,
+          playerName: p.playerName,
+          joinedAt: p.joinedAt
+        })));
+      } else {
+        console.warn('[MultiplayerContext] Received invalid player list');
+        setPlayers([]);
+      }
     });
 
     // Set up chat message listener
@@ -175,13 +215,29 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Set up error listener
     const errorUnsubscribe = socketService.onError((error: ErrorEvent) => {
       console.error(`[MultiplayerContext] Error: ${error.message}`);
-      setError(error.message);
+      if (error.message) {
+        setError(error.message);
+        
+        // Only add a system message if it's a meaningful error
+        // (not connection update messages which can be frequent during reconnection)
+        if (error.message !== 'Connected to server successfully!') {
+          addStatusMessage(`Error: ${error.message}`, true);
+        }
+      }
     });
 
     // Set up player disconnected listener
     const playerDisconnectedUnsubscribe = socketService.onPlayerDisconnected((data) => {
       console.log(`[MultiplayerContext] Player disconnected: ${data.playerName}`);
+      addStatusMessage(`Player ${data.playerName} disconnected`);
     });
+
+    // Set up player reconnected listener
+    const playerReconnectedCallback = (data: { playerId: string, playerName: string }) => {
+      console.log(`[MultiplayerContext] Player reconnected: ${data.playerName}`);
+      addStatusMessage(`Player ${data.playerName} reconnected`);
+    };
+    const playerReconnectedUnsubscribe = socketService.onConnectionStatus(playerReconnectedCallback);
 
     // Mail events - Placeholder for future implementation
     // Currently the backend doesn't support mail features,
@@ -196,8 +252,9 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       chatMessageUnsubscribe();
       errorUnsubscribe();
       playerDisconnectedUnsubscribe();
+      playerReconnectedUnsubscribe();
     };
-  }, []);
+  }, [isConnected, addStatusMessage]);
   
   // Connect to the WebSocket server
   const connect = async (): Promise<boolean> => {
@@ -399,28 +456,79 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     socketService.endTurn();
   };
   
-  // Try to auto-connect on first render
-  useEffect(() => {
-    // Auto-connect to the server
-    connect();
-    
+  // Handle automatic reconnection
+  const attemptReconnection = useCallback(() => {
     // Try to reconnect if we have saved credentials
     const savedPlayerId = localStorage.getItem('coven_player_id');
     const savedPlayerName = localStorage.getItem('coven_player_name');
     
     if (savedPlayerId && savedPlayerName) {
-      // We'll use a timeout to ensure the socket is connected first
-      const reconnectTimeout = setTimeout(() => {
-        if (isConnected && !isJoined) {
-          joinGame(savedPlayerName, savedPlayerId);
-        }
-      }, 1000);
-      
-      return () => clearTimeout(reconnectTimeout);
+      console.log(`[MultiplayerContext] Attempting to reconnect player: ${savedPlayerName} (${savedPlayerId})`);
+      joinGame(savedPlayerName, savedPlayerId);
+      return true;
     }
     
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected]);
+    return false;
+  }, [joinGame]);
+  
+  // Try to auto-connect on first render and set up auto-reconnect
+  useEffect(() => {
+    // Auto-connect to the server
+    connect().then((connected) => {
+      if (connected) {
+        // Try to reconnect immediately if we're connected
+        attemptReconnection();
+      }
+    });
+    
+    // Set up a reconnection handler for when connection status changes
+    const handleConnectionChange = (status: boolean) => {
+      if (status && !isJoined) {
+        // If we get connected but aren't joined yet, try to reconnect
+        console.log('[MultiplayerContext] Connection established, attempting reconnection...');
+        const reconnectTimeout = setTimeout(() => {
+          attemptReconnection();
+        }, 500);
+        return () => clearTimeout(reconnectTimeout);
+      }
+    };
+    
+    // Register the connection status listener
+    const unsubscribe = socketService.onConnectionStatus(handleConnectionChange);
+    
+    // Clean up when component unmounts
+    return () => {
+      unsubscribe();
+    };
+  }, [connect, isJoined, attemptReconnection]);
+  
+  // Set up a periodic reconnection attempt if we lose connection
+  useEffect(() => {
+    let reconnectInterval: NodeJS.Timeout | null = null;
+    
+    if (!isConnected && !isJoined) {
+      // Try to reconnect every 30 seconds if we're disconnected
+      reconnectInterval = setInterval(() => {
+        console.log('[MultiplayerContext] Attempting periodic reconnection...');
+        connect().then((success) => {
+          if (success) {
+            attemptReconnection();
+          }
+        });
+      }, 30000); // 30 seconds
+    } else if (reconnectInterval) {
+      // Clear the interval if we're connected or joined
+      clearInterval(reconnectInterval);
+      reconnectInterval = null;
+    }
+    
+    // Clean up when component unmounts
+    return () => {
+      if (reconnectInterval) {
+        clearInterval(reconnectInterval);
+      }
+    };
+  }, [isConnected, isJoined, connect, attemptReconnection]);
   
   // Context value
   const value: MultiplayerContextType = {
