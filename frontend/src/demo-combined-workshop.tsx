@@ -13,8 +13,7 @@ import {
   Product,
   PackagingMaterial,
   DesignStyle,
-  PackagingEffect,
-  MaterialQuality
+  PackagingEffect
 } from 'coven-shared';
 
 // Demo standalone page for the combined workshop
@@ -41,15 +40,15 @@ const Demo = () => {
       {id: "product2", name: "Lunar Essence", description: "Captures moonlight energy in liquid form.", type: "potion" as ItemType, category: "essence" as ItemCategory, rarity: "uncommon" as Rarity, value: 75, icon: "✨", potencyBoost: 85}
     ],
     packagingMaterials: [
-      {id: "m1", name: "Glass", description: "Clear glass material for bottles.", materialType: "glass" as const, icon: "🧪", durability: 7, qualityLevel: 8, quantity: 3, materialQuality: "fine" as const, value: 25, elementalAffinity: "Water" as ElementType},
-      {id: "m2", name: "Wood", description: "Polished wooden material for boxes.", materialType: "wood" as const, icon: "🪵", durability: 8, qualityLevel: 7, quantity: 2, materialQuality: "common" as const, value: 15, elementalAffinity: "Earth" as ElementType}
+      {id: "m1", name: "Glass", description: "Clear glass material for bottles.", materialType: "glass" as PackagingMaterial, icon: "🧪", durability: 7, qualityLevel: 8, quantity: 3, materialQuality: "fine", value: 25, elementalAffinity: "Water" as ElementType},
+      {id: "m2", name: "Wood", description: "Polished wooden material for boxes.", materialType: "wood" as PackagingMaterial, icon: "🪵", durability: 8, qualityLevel: 7, quantity: 2, materialQuality: "common", value: 15, elementalAffinity: "Earth" as ElementType}
     ],
     designStyles: [
-      {id: "d1", name: "Elegant", description: "A refined, sophisticated design style.", designStyle: "elegant" as const, icon: "🎨", complexityLevel: 7, customerAppeal: 8, elementalAffinity: "Water" as ElementType, specializationAffinity: "Distillation" as AtelierSpecialization},
-      {id: "d2", name: "Rustic", description: "A charming, natural design style.", designStyle: "rustic" as const, icon: "🏡", complexityLevel: 5, customerAppeal: 7, elementalAffinity: "Earth" as ElementType, specializationAffinity: "Fermentation" as AtelierSpecialization}
+      {id: "d1", name: "Elegant", description: "A refined, sophisticated design style.", designStyle: "elegant" as DesignStyle, icon: "🎨", complexityLevel: 7, customerAppeal: 8, elementalAffinity: "Water" as ElementType, specializationAffinity: "Distillation" as AtelierSpecialization},
+      {id: "d2", name: "Rustic", description: "A charming, natural design style.", designStyle: "rustic" as DesignStyle, icon: "🏡", complexityLevel: 5, customerAppeal: 7, elementalAffinity: "Earth" as ElementType, specializationAffinity: "Fermentation" as AtelierSpecialization}
     ],
     specialEffects: [
-      {id: "e1", name: "Shimmer", description: "Adds a subtle shimmer effect.", effectType: "shimmer" as const, icon: "✨", rarity: 6, power: 5, quantity: 2, potencyBonus: 10, durabilityEffect: 5, specializationAffinity: "Crystallization" as AtelierSpecialization}
+      {id: "e1", name: "Shimmer", description: "Adds a subtle shimmer effect.", effectType: "shimmer" as PackagingEffect, icon: "✨", rarity: 6, power: 5, quantity: 2, potencyBonus: 10, durabilityEffect: 5, specializationAffinity: "Crystallization" as AtelierSpecialization}
     ],
     brands: [
       {id: "b1", name: "Moonlight Brews", description: "Your personal brand for magical potions.", icon: "🌙", reputation: 7, recognition: 6, tagline: "Brewing with celestial magic", colorPalette: ["#5d4e7b", "#8b7dac", "#e0d5f2"], brandValues: ["Quality", "Tradition", "Effectiveness"], specialization: "Essence" as AtelierSpecialization, elementalAffinity: "Spirit" as ElementType}
