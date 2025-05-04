@@ -164,8 +164,8 @@ app.get('/websocket-status', (_req, res) => {
       let minActivity = now;
       let maxActivity = 0;
       
-      players.forEach(player => {
-        const lastActivity = player.lastActivity || 0;
+      players.forEach((player: any) => {
+        const lastActivity = player?.lastActivity || 0;
         totalActivity += (now - lastActivity);
         minActivity = Math.min(minActivity, lastActivity);
         maxActivity = Math.max(maxActivity, lastActivity);
@@ -178,11 +178,11 @@ app.get('/websocket-status', (_req, res) => {
         connected: Boolean(manager),
         playerCount: players.length,
         // Anonymize player data for privacy but retain useful info
-        players: players.map(p => ({
-          id: p.playerId.substring(0, 8) + '...', // Only show first 8 chars of ID
-          connectionTime: now - (p.joinedAt || now),
-          lastActiveSeconds: Math.round((now - (p.lastActivity || now)) / 1000),
-          pingCount: p.pingCount || 0
+        players: players.map((p: any) => ({
+          id: p?.playerId?.substring(0, 8) + '...', // Only show first 8 chars of ID
+          connectionTime: now - (p?.joinedAt || now),
+          lastActiveSeconds: Math.round((now - (p?.lastActivity || now)) / 1000),
+          pingCount: p?.pingCount || 0
         })),
         activity: {
           avgIdleTimeMs: avgActivityTime,
@@ -300,7 +300,7 @@ app.get('/multiplayer-diagnostics', (_req, res) => {
       status: 'error', 
       error: 'Error getting multiplayer diagnostics',
       timestamp: Date.now(),
-      errorMessage: error.message
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

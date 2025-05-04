@@ -220,10 +220,15 @@ export class MultiplayerManager {
           
           // Otherwise create a new player
           this.handleNewPlayer(socket, playerName);
-        } catch (error) {
+        } catch (error: any) {
           this.stats.connectionErrors++;
-          this.stats.lastError = { message: error.message || 'Unknown error', timestamp: Date.now() };
-          this.logEvent('player_join_exception', socket.id, { error: error.message });
+          this.stats.lastError = { 
+            message: error?.message || 'Unknown error', 
+            timestamp: Date.now() 
+          };
+          this.logEvent('player_join_exception', socket.id, { 
+            error: error?.message || 'Unknown error' 
+          });
           
           console.error('[Multiplayer] Error in player:join:', error);
           socket.emit('error', { message: 'Failed to join game' });
@@ -407,8 +412,7 @@ export class MultiplayerManager {
           oldSocketId: existingSocketId 
         });
         
-        // Get existing player data for history preservation
-        const existingPlayerData = this.connectedPlayers.get(existingSocketId);
+        // Get existing player data for history preservation - removing unused var
         
         // Disconnect the existing socket
         const existingSocket = this.io.sockets.sockets.get(existingSocketId);
@@ -493,18 +497,18 @@ export class MultiplayerManager {
         playerId: player.id, 
         playerName: newPlayerName 
       });
-    } catch (error) {
+    } catch (error: any) {
       // Update error stats
       this.stats.connectionErrors++;
       this.stats.lastError = { 
-        message: error.message || 'Reconnection error', 
+        message: error?.message || 'Reconnection error', 
         timestamp: Date.now() 
       };
       
       // Log the error
       console.error('[Multiplayer] Error reconnecting player:', error);
       this.logEvent('player_reconnect_error', socket.id, { 
-        error: error.message,
+        error: error?.message || 'Unknown error',
         playerId: player.id
       });
       
@@ -603,17 +607,17 @@ export class MultiplayerManager {
         playerId, 
         playerName 
       });
-    } catch (error) {
+    } catch (error: any) {
       // Update error stats
       this.stats.connectionErrors++;
       this.stats.lastError = { 
-        message: error.message || 'Player creation error', 
+        message: error?.message || 'Player creation error', 
         timestamp: Date.now() 
       };
       
       // Log the error
       console.error('[Multiplayer] Error creating new player:', error);
-      this.logEvent('new_player_error', socket.id, { error: error.message });
+      this.logEvent('new_player_error', socket.id, { error: error?.message || 'Unknown error' });
       
       socket.emit('error', { message: 'Failed to create new player' });
     }
@@ -663,14 +667,14 @@ export class MultiplayerManager {
         
         // Broadcast updated player list
         this.broadcastPlayerList();
-      } catch (error) {
+      } catch (error: any) {
         console.error('[Multiplayer] Error handling player disconnect:', error);
         this.stats.lastError = { 
-          message: error.message || 'Disconnect handling error', 
+          message: error?.message || 'Disconnect handling error', 
           timestamp: Date.now() 
         };
         this.logEvent('player_disconnect_error', socketId, { 
-          error: error.message,
+          error: error?.message || 'Unknown error',
           playerId: player ? player.playerId : 'unknown'
         });
       }
