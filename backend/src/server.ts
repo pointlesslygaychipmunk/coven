@@ -34,6 +34,11 @@ const corsOptions = {
       'http://playcoven.com',
       'https://www.playcoven.com',
       'http://www.playcoven.com',
+      // Standard ports
+      'https://playcoven.com:443',
+      'http://playcoven.com:80',
+      'https://www.playcoven.com:443',
+      'http://www.playcoven.com:80',
       // Allow any Cloudflare Tunnel domains if used
       'https://*.trycloudflare.com',
       // Allow direct IP access if needed
@@ -43,7 +48,13 @@ const corsOptions = {
     ] : 
     '*', // In development, allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Forwarded-For', 'X-Forwarded-Proto', 'CF-Connecting-IP', 'CF-Ray', 'CF-IPCountry'],
+  allowedHeaders: [
+    'Content-Type', 'Authorization', 'X-Requested-With',
+    'X-Forwarded-For', 'X-Forwarded-Proto', 'CF-Connecting-IP', 
+    'CF-Ray', 'CF-IPCountry', 'X-Cloudflare-Skip-Cache', 
+    'X-Socket-Retry', 'Cache-Control', 'Pragma', 'X-Socket-Transport',
+    'Accept', 'X-Socket-Emergency'
+  ],
   credentials: true,
   // Add cache control for preflight requests in production
   maxAge: isProduction ? 86400 : 3600 // 24 hours in production, 1 hour in development

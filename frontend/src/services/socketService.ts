@@ -151,10 +151,15 @@ class SocketService {
         upgrade: false,                       // Disable transport upgrade attempts
         rememberUpgrade: false,               // Don't remember transport upgrades
         timestampRequests: true,              // Add timestamps to requests to avoid caching
-        rejectUnauthorized: false            // Accept self-signed certs through Cloudflare
-        
-        // NOTE: The polling property was removed because it's not supported by Socket.IO TypeScript types
-        // Headers will be set via extraHeaders instead
+        rejectUnauthorized: false,            // Accept self-signed certs through Cloudflare
+        // Set headers directly at the root level instead of using polling
+        extraHeaders: {                       // Additional headers for better compatibility
+          'X-Socket-Transport': 'polling',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': '*/*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
       });
       
       console.log('[Socket] Socket connection created, waiting for connection...');
@@ -303,10 +308,15 @@ class SocketService {
               rememberUpgrade: false,          // Don't remember transport upgrades
               timestampRequests: true,         // Add timestamps to requests to avoid caching
               rejectUnauthorized: false,       // Accept self-signed certs through Cloudflare
-              withCredentials: false           // Don't send cookies
-              
-              // NOTE: The polling property was removed because it's not supported by Socket.IO TypeScript types
-              // Headers need to be set via extraHeaders instead
+              withCredentials: false,          // Don't send cookies
+              // Set headers directly at the root level
+              extraHeaders: {
+                'X-Socket-Transport': 'polling',
+                'Accept': '*/*',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'X-Socket-Emergency': 'true'
+              }
             });
             
             // Setup this new socket

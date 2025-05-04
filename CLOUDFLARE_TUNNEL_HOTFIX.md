@@ -46,6 +46,31 @@ ingress:
       proxyPort: true
       # Set HTTP/1.1 (not HTTP/2)
       http2Origin: false
+      # Force standard ports for consistency
+      tlsMode: "off"  # Do not require TLS between cloudflared and your service
+
+  # Add explicit HTTP/Socket.IO rule for Socket.IO traffic
+  - hostname: playcoven.com
+    path: /socket.io/*
+    service: http://localhost:8080
+    originRequest:
+      # Socket.IO-specific settings
+      disableChunkedEncoding: true
+      httpHostHeader: playcoven.com
+      noTLSVerify: true
+      # Maximum timeouts for Socket.IO
+      connectTimeout: 180s
+      idleTimeout: 240s
+      # Force HTTP/1.1
+      http2Origin: false
+      # Add important headers
+      originServerName: "playcoven.com"
+      # Disable caching
+      disableHeaderNormalisation: true
+      headers:
+        Cache-Control: "no-store, no-cache, must-revalidate, proxy-revalidate"
+        Pragma: "no-cache"
+        Expires: "0"
 
   # Catch-all rule
   - service: http_status:404
@@ -58,12 +83,19 @@ ingress:
    - TCP Turbo: **ENABLED**
    - Universal SSL: **ENABLED**
    - Cache Level: **BYPASS** (if possible)
+   - Ports 80 and 443: **ENABLED** (Essential!)
 
 2. Add these page rules for Socket.IO:
    - URL pattern: `https://playcoven.com/socket.io/*`
    - Cache Level: **Bypass**
    - Disable Security: **YES**
    - Disable Performance: **YES**
+   - Edge Cache TTL: **0**
+
+3. Set up correct SSL/TLS:
+   - SSL Mode: **Full (strict)** or **Full**
+   - Always use HTTPS: **On**
+   - Min TLS Version: **1.2**
 
 ## Frontend Browser Console Fix
 
