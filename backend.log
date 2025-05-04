@@ -1,0 +1,131 @@
+
+> new-coven@1.0.0 dev:backend
+> npm run dev --workspace=coven-backend
+
+
+> coven-backend@1.0.0 dev
+> tsc -p tsconfig.json --watch & node --watch dist/server.js
+
+(node:99028) ExperimentalWarning: Watch mode is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/cjs/loader:1143
+  throw err;
+  ^
+
+Error: Cannot find module '/Users/mileslefay/new coven/backend/dist/server.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)
+    at Module._load (node:internal/modules/cjs/loader:981:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v18.20.8
+Failed running 'dist/server.js'
+[2J[3J[H10:53:09 PM - Starting compilation in watch mode...
+
+
+10:53:12 PM - Found 0 errors. Watching for file changes.
+Restarting 'dist/server.js'
+[GameEngine] Initializing...
+[Starter] Giving items for Essence to Willow.
+[Inventory] Added 2x Glimmerroot Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 2x Silverleaf Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 1x Ancient Ginseng (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Sacred Lotus (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Mortar and Pestle (Q: 70) to Willow. Current total: 1
+Created player Willow (ID: player1), Specialization: Essence.
+[TownRequests] Generated 3 new requests for Spring.
+[GameEngine] Initialized/Ensured market demand/supply.
+[QuestSystem] Unlocked: essence_mastery_1
+[GameEngine] Initialization complete.
+GameHandler initialized.
+[GameEngine] Initializing...
+[Starter] Giving items for Essence to Willow.
+[Inventory] Added 2x Glimmerroot Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 2x Silverleaf Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 1x Ancient Ginseng (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Sacred Lotus (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Mortar and Pestle (Q: 70) to Willow. Current total: 1
+Created player Willow (ID: player1), Specialization: Essence.
+[TownRequests] Generated 1 new requests for Spring.
+[GameEngine] Initialized/Ensured market demand/supply.
+[QuestSystem] Unlocked: essence_mastery_1
+[GameEngine] Initialization complete.
+GameHandler initialized.
+[Server ERROR] Frontend build directory not found: /Users/mileslefay/new coven/backend/dist/frontend/dist
+[Server] SSL certificates not found. Starting HTTP only.
+[Multiplayer] WebSocket server initialized
+ (HTTPS server not started)
+
+ Backend server listening at http://localhost:8080 ✨
+
+ Multiplayer WebSocket server running on ws://localhost:8080 🌐
+--------------------------------------------------
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+Restarting 'dist/server.js'
+[GameEngine] Initializing...
+[Starter] Giving items for Essence to Willow.
+[Inventory] Added 2x Glimmerroot Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 2x Silverleaf Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 1x Ancient Ginseng (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Sacred Lotus (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Mortar and Pestle (Q: 70) to Willow. Current total: 1
+Created player Willow (ID: player1), Specialization: Essence.
+[TownRequests] Generated 1 new requests for Spring.
+[GameEngine] Initialized/Ensured market demand/supply.
+[QuestSystem] Unlocked: essence_mastery_1
+[GameEngine] Initialization complete.
+GameHandler initialized.
+[GameEngine] Initializing...
+[Starter] Giving items for Essence to Willow.
+[Inventory] Added 2x Glimmerroot Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 2x Silverleaf Seed (Q: 70) to Willow. Current total: 2
+[Inventory] Added 1x Ancient Ginseng (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Sacred Lotus (Q: 70) to Willow. Current total: 1
+[Inventory] Added 1x Mortar and Pestle (Q: 70) to Willow. Current total: 1
+Created player Willow (ID: player1), Specialization: Essence.
+[TownRequests] Generated 3 new requests for Spring.
+[GameEngine] Initialized/Ensured market demand/supply.
+[QuestSystem] Unlocked: essence_mastery_1
+[GameEngine] Initialization complete.
+GameHandler initialized.
+[Server ERROR] Frontend build directory not found: /Users/mileslefay/new coven/backend/dist/frontend/dist
+[Server] SSL certificates not found. Starting HTTP only.
+[Multiplayer] WebSocket server initialized
+ (HTTPS server not started)
+node:events:495
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::8080
+    at Server.setupListenHandle [as _listen2] (node:net:1817:16)
+    at listenInCluster (node:net:1865:12)
+    at Server.listen (node:net:1953:7)
+    at file:///Users/mileslefay/new%20coven/backend/dist/backend/src/server.js:217:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:337:24)
+    at async loadESM (node:internal/process/esm_loader:34:7)
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1844:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 8080
+}
+
+Node.js v18.20.8
+Failed running 'dist/server.js'

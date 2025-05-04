@@ -1,0 +1,13 @@
+
+> new-coven@1.0.0 dev:frontend
+> npm run dev --workspace=coven-frontend
+
+
+> coven-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.19  ready in 155 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
