@@ -41,12 +41,24 @@ const urlParams = new URLSearchParams(window.location.search);
 const useModernUI = urlParams.get('modern') === 'true';
 const useStandalone = urlParams.get('standalone') === 'true';
 const useMinimal = urlParams.get('minimal') === 'true';
+const useWorkshop = urlParams.get('workshop') === 'true';
 
 // Create the React root
 const root = ReactDOM.createRoot(rootElement);
 
 // Determine which version to render
-if (useStandalone) {
+if (useWorkshop) {
+  console.log('Starting in workshop demo mode');
+  // Import the workshop demo
+  import('./demo-combined-workshop').then(module => {
+    const Demo = module.default;
+    root.render(
+      <React.StrictMode>
+        <Demo />
+      </React.StrictMode>
+    );
+  });
+} else if (useStandalone) {
   console.log('Starting in standalone test mode');
   // Import dynamically to avoid loading unnecessary code
   import('./standalone').then(module => {

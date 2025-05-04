@@ -44,23 +44,20 @@
 
 /* Game window container - fixed size for authentic 90s feel, but larger */
 .game-window {
-  width: 900px; /* Increased from 800px for more viewing space */
-  height: 700px; /* Increased from 600px for more viewing space */
+  width: 1024px; /* Increased to better fit the combined workshop */
+  height: 768px; /* Increased to standard 4:3 ratio for retro games */
   margin: 0 auto;
   position: relative;
   overflow: hidden;
-  background-color: var(--color-bg-dark);
-  background-image: var(--pixel-pattern-dark); /* Use pixelated pattern */
-  color: var(--color-text-light);
-  font-family: var(--font-primary);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-  border: var(--border-width) solid var(--color-primary-dark);
+  background-color: var(--sierra-bg);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e8d5b0"/><path d="M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100" stroke="%23e6d2b3" stroke-width="0.5" opacity="0.3"/></svg>');
+  color: var(--sierra-text);
+  font-family: 'PixelSierra', 'Times New Roman', serif;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--sierra-accent);
   
-  /* Double-border effect common in DOS games */
-  outline: 1px solid var(--color-border-light);
-  outline-offset: -3px;
-  
-  /* Add scanlines for CRT effect */
+  /* Pixel-perfect style */
+  image-rendering: pixelated;
   position: relative;
 }
 
@@ -86,16 +83,18 @@
 
 /* Main layout sections */
 .game-header {
-  height: 36px; /* Shorter header - more space for content */
-  background-color: var(--color-primary-dark);
-  background-image: linear-gradient(to bottom, var(--color-primary), var(--color-primary-dark)); /* Simple gradient for DOS look */
-  border-bottom: var(--border-width) solid var(--color-border-gold);
+  height: 40px;
+  background-color: var(--sierra-bg-dark);
+  border-bottom: 2px solid var(--sierra-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 10px; /* Reduced padding */
-  color: var(--color-text-gold);
-  text-shadow: 1px 1px 0 #000; /* Sharper pixel-style shadow */
+  padding: 0 10px;
+  color: var(--sierra-accent);
+  /* Pixel-perfect inset shadow */
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
   position: relative;
   z-index: 2;
 }
@@ -114,12 +113,12 @@
 }
 
 .game-header h1 {
-  font-size: 20px; /* Slightly smaller */
+  font-size: 20px;
   margin: 0;
   font-weight: normal;
-  letter-spacing: 1px;
-  font-variant: small-caps;
-  text-transform: uppercase; /* More DOS-like */
+  letter-spacing: 2px;
+  color: var(--sierra-text-highlight);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .game-content {

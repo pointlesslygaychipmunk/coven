@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './MainGameFrame.css';
 import './MainGameFrame90s.css'; // Import pixelated Sierra styles
+import './pixelatedSierra.css'; // Import the base pixelated Sierra styles
 import type { InventoryItem, ItemType, ItemCategory, MoonPhase, AtelierSpecialization, Material, DesignStyle, SpecialEffect, Brand, PackageType, Product } from 'coven-shared';
 import { createDefaultInventoryItem, createDefaultGardenSlot } from '../utils/playerStateMocks';
 
@@ -496,7 +497,13 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   
   // Main component render
   return (
-    <div className="game-window pixelated">
+    <div className="game-window pixelated sierra-container">
+      {/* Decorative corner elements */}
+      <div className="corner-decoration top-left"></div>
+      <div className="corner-decoration top-right"></div>
+      <div className="corner-decoration bottom-left"></div>
+      <div className="corner-decoration bottom-right"></div>
+      
       {/* Game Header */}
       <div className="game-header">
         <h1>COVEN: GLOW BRIGHTLY</h1>

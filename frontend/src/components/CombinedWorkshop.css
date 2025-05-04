@@ -7,7 +7,7 @@
   width: 100%;
   color: var(--sierra-text);
   background-color: var(--sierra-bg);
-  font-family: 'Sierra', 'Times New Roman', serif;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0e6d2"/><path d="M0,0 L100,100 M20,0 L100,80 M40,0 L100,60 M60,0 L100,40 M80,0 L100,20 M0,20 L80,100 M0,40 L60,100 M0,60 L40,100 M0,80 L20,100" stroke="%23e6d2b3" stroke-width="0.5" opacity="0.3"/></svg>');
   padding: 0.5rem;
   overflow: hidden;
@@ -55,7 +55,7 @@
   border: 1px solid var(--sierra-accent);
   color: var(--sierra-text);
   cursor: pointer;
-  font-family: 'Sierra', 'Times New Roman', serif;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
   font-size: 0.9rem;
   transition: background-color 0.2s;
   position: relative;
@@ -215,7 +215,7 @@
   border: 1px solid var(--sierra-accent);
   color: var(--sierra-text);
   padding: 0.25rem 0.5rem;
-  font-family: 'Sierra', 'Times New Roman', serif;
+  font-family: 'PixelSierra', 'Times New Roman', serif;
   font-size: 0.8rem;
   cursor: pointer;
   margin-left: 0.5rem;
@@ -244,30 +244,6 @@
     inset 1px 1px 0 rgba(255, 255, 255, 0.3);
   padding: 0.5rem;
   margin-bottom: 0.5rem;
-}
-
-/* Pixelated UI variables */
-:root {
-  --sierra-bg: #e8d5b0;
-  --sierra-bg-dark: #d0b990;
-  --sierra-bg-light: #f0e6d2;
-  --sierra-bg-highlight: #fff7e0;
-  --sierra-bg-accent: #eac682;
-  --sierra-accent: #8b6d45;
-  --sierra-accent-light: #c9a97d;
-  --sierra-text: #5a4930;
-  --sierra-text-highlight: #3a2910;
-  --sierra-text-muted: #7d6b4e;
-  
-  /* Seasonal variations - can be toggled with classes */
-  --sierra-spring-bg: #e8d8b0;
-  --sierra-spring-accent: #7d9153;
-  --sierra-summer-bg: #e6d5a5;
-  --sierra-summer-accent: #b06040;
-  --sierra-fall-bg: #e8cba0;
-  --sierra-fall-accent: #9c5a2d;
-  --sierra-winter-bg: #e0e0e8;
-  --sierra-winter-accent: #5c7b9c;
 }
 
 /* Section-specific styling */
