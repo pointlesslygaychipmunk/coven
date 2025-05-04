@@ -84,7 +84,9 @@ body {
   height: 100%;
   width: 100%;
   display: flex; /* Base layout for sidebar + content */
-  flex-direction: row; /* Default to row, App.css might override if needed */
+  flex-direction: column; /* Change to column to center everything */
+  justify-content: center;
+  align-items: center;
 }
 
 /* Headings */

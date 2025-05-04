@@ -31,7 +31,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   playerLevel = 1,
 }) => {
   // Current view/location state
-  const [currentView, setCurrentView] = useState<string>("garden");
+  const [currentView, setCurrentView] = useState<string>("workshop");
   
   // Character stats (read-only in this demo)
   const health = 100;
@@ -68,7 +68,12 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
   
   // Handle view/location change
   const handleChangeView = (view: string) => {
-    setCurrentView(view);
+    // Redirect brewing and atelier to the combined workshop
+    if (view === 'brewing' || view === 'atelier') {
+      setCurrentView('workshop');
+    } else {
+      setCurrentView(view);
+    }
   };
   
   // Mock data creating GardenSlot objects conforming to shared types
@@ -313,17 +318,7 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
             season="Spring"
           />
         );
-      case "brewing":
-        return (
-          <Brewing90s
-            playerInventory={mockInventory}
-            knownRecipes={mockRecipes}
-            lunarPhase={lunarPhase}
-            playerSpecialization={"Essence" as AtelierSpecialization}
-            onBrew={handleBrew}
-          />
-        );
-      case "atelier":
+      case "workshop":
         return (
           <CombinedWorkshop90s
             playerInventory={mockInventory}
@@ -672,16 +667,10 @@ const MainGameFrame: React.FC<MainGameFrameProps> = ({
           Garden
         </button>
         <button
-          className={`nav-button ${currentView === 'brewing' ? 'active' : ''}`}
-          onClick={() => handleChangeView('brewing')}
+          className={`nav-button ${currentView === 'workshop' ? 'active' : ''}`}
+          onClick={() => handleChangeView('workshop')}
         >
-          Brewing
-        </button>
-        <button
-          className={`nav-button ${currentView === 'atelier' ? 'active' : ''}`}
-          onClick={() => handleChangeView('atelier')}
-        >
-          Atelier
+          Workshop
         </button>
         <button
           className={`nav-button ${currentView === 'market' ? 'active' : ''}`}
