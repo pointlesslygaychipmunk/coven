@@ -617,9 +617,13 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     // EMERGENCY FIX: Clear existing counters to allow connection to work immediately 
     // This is a complete reset of the connection attempt limits to fix the "too many attempts" error
     
+    // Define all key names to fix TS errors
+    const OLD_COUNTER_KEY = 'coven_reconnect_attempt_counter';
+    const OLD_TIME_KEY = 'coven_reconnect_start_time';
+    
     // Clear any existing counters that might have accumulated
-    sessionStorage.removeItem('coven_reconnect_attempt_counter');
-    sessionStorage.removeItem('coven_reconnect_start_time');
+    sessionStorage.removeItem(OLD_COUNTER_KEY);
+    sessionStorage.removeItem(OLD_TIME_KEY);
     
     // Implementing a less aggressive anti-loop protection
     // Only blocks if we've been trying for more than 15 minutes (extremely long time)
@@ -682,11 +686,13 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Set up periodic reconnection attempts when disconnected (less aggressive with EMERGENCY protection)
     if (!isConnected) {
       // If we're not connected, try to reconnect periodically
-      // Use exponential backoff based on the counter to progressively slow down reconnection attempts
+      // Use a simpler approach without counters
+      // Just use a fixed interval with small random jitter for variety
       const baseDelay = isJoined ? 15000 : 30000; // More aggressive base delay if we were joined before
-      const reconnectAttemptDelay = Math.min(baseDelay * Math.pow(1.5, reconnectCounter - 1), 120000); // Cap at 2 minutes
+      const jitter = Math.random() * 0.3 * baseDelay; // 30% random variation
+      const reconnectAttemptDelay = Math.min(baseDelay + jitter, 120000); // Cap at 2 minutes
       
-      console.log(`[MultiplayerContext] Setting up periodic reconnection every ${reconnectAttemptDelay/1000}s (attempt ${reconnectCounter})`);
+      console.log(`[MultiplayerContext] Setting up periodic reconnection every ${Math.round(reconnectAttemptDelay/1000)}s`);
       
       reconnectInterval = setInterval(() => {
         // Don't attempt reconnection if we're offline unless the online state just changed
@@ -702,7 +708,7 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         connect().then((success) => {
           if (success) {
             // Reset emergency counters since we succeeded
-            sessionStorage.removeItem(reconnectAttemptCounterKey);
+            sessionStorage.removeItem(OLD_COUNTER_KEY);
             sessionStorage.removeItem(reconnectStartTimeKey);
             
             attemptReconnection();
