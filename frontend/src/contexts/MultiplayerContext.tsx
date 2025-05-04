@@ -101,11 +101,17 @@ const MultiplayerContext = createContext<MultiplayerContextType | undefined>(und
 
 // Provider component - SIMPLIFIED FOR RELIABILITY
 export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // PURGE ALL SESSION STORAGE COUNTERS IMMEDIATELY
-  // This emergency step ensures we don't hit reconnection limits
+  // PRODUCTION ENVIRONMENT CHECK
+  const isProduction = window.location.hostname === 'playcoven.com' || 
+                      window.location.hostname === 'www.playcoven.com';
+  console.log(`[MultiplayerContext] Running in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} environment`);
+  console.log(`[MultiplayerContext] Hostname: ${window.location.hostname}`);
+  console.log(`[MultiplayerContext] Origin: ${window.location.origin}`);
+  
+  // Clear session storage but preserve player data
   try {
-    sessionStorage.clear(); // Completely clear all session storage
-    console.log('[MultiplayerContext:EMERGENCY] All session storage cleared to fix reconnection');
+    sessionStorage.clear();
+    console.log('[MultiplayerContext] Session storage cleared for clean connection');
   } catch (err) {
     // Ignore storage errors
   }

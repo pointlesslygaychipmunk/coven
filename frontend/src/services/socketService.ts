@@ -73,20 +73,24 @@ class SocketService {
     }
   }
   
-  // ULTRA-SIMPLIFIED SINGLE-PURPOSE CONNECTION FUNCTION WITH ENHANCED DEBUGGING
+  // SIMPLIFIED CONNECTION FUNCTION FOR PRODUCTION ENVIRONMENT
   public async init(): Promise<boolean> {
-    // Clear ALL storage to start fresh
-    clearAllStorageValues();
+    // Clear session storage but preserve player data in local storage
+    try {
+      sessionStorage.clear();
+    } catch (err) {
+      console.warn('[Socket] Error clearing session storage:', err);
+    }
     
     // If already connected, return immediately
     if (this._connected && this._socket) {
-      console.log('[Socket:EMERGENCY] Already connected, returning true');
+      console.log('[Socket] Already connected');
       return true;
     }
     
     // If connecting, wait briefly then return current state
     if (this._connecting) {
-      console.log('[Socket:EMERGENCY] Connection in progress, waiting...');
+      console.log('[Socket] Connection in progress, waiting...');
       return new Promise(resolve => 
         setTimeout(() => resolve(this._connected), 100)
       );
@@ -98,87 +102,29 @@ class SocketService {
     // Clean up any existing connection
     this.disconnect();
     
-    // Get server URL - always use the current page origin
-    let serverUrl = window.location.origin;
+    // Production fix: Always use the current page origin
+    const serverUrl = window.location.origin;
+    console.log(`[Socket] Connecting to server at ${serverUrl}`);
     
-    // CRITICAL FIX: Override serverUrl if we're on localhost to use correct port
-    if (serverUrl.includes('localhost') && !serverUrl.includes(':8080')) {
-      serverUrl = 'http://localhost:8080';
-      console.log(`[Socket:EMERGENCY] Overriding server URL to use correct port: ${serverUrl}`);
-    }
-    
-    // Try alternative URLs in last-resort situations
-    const backupUrls = [serverUrl];
-    
-    // If not localhost, also try explicit HTTP and HTTPS versions
-    if (!serverUrl.includes('localhost')) {
-      const hostname = window.location.hostname;
-      backupUrls.push(`https://${hostname}:443`);
-      backupUrls.push(`http://${hostname}:80`);
-      backupUrls.push(`https://${hostname}:8443`);
-      backupUrls.push(`http://${hostname}:8080`);
-    }
-    
-    // First test server connectivity before attempting Socket.IO connection
-    let serverConnected = false;
-    let workingUrl = '';
-    
-    // Try each URL until we find one that works
-    for (const url of backupUrls) {
-      console.log(`[Socket:EMERGENCY] Testing server connection to ${url}...`);
-      
-      try {
-        const connectionTest = await testServerConnection(url);
-        if (connectionTest) {
-          console.log(`[Socket:EMERGENCY] Successfully connected to server at ${url}`);
-          serverConnected = true;
-          workingUrl = url;
-          break;
-        }
-      } catch (e) {
-        console.log(`[Socket:EMERGENCY] Failed to connect to ${url}:`, e);
-      }
-    }
-    
-    if (!serverConnected) {
-      console.error('[Socket:EMERGENCY] Failed to connect to any server endpoint.');
-      this._connecting = false;
-      this._notifyConnectionStatus(false);
-      this._notifyError({ message: 'Unable to reach the game server. Please check your internet connection.' });
-      return false;
-    }
-    
-    // Use the working URL for socket connection
-    serverUrl = workingUrl;
-    
-    // Log connection attempt with detailed debug info
-    console.log(`[Socket:EMERGENCY] Connecting to server at ${serverUrl}`);
-    console.log(`[Socket:EMERGENCY] Protocol: ${window.location.protocol}`);
-    console.log(`[Socket:EMERGENCY] Online status: ${navigator.onLine}`);
-    
-    // Attempt to create a socket connection
+    // Attempt to create a socket connection with production-optimized settings
     try {
-      // Create a new socket with MAXIMUM compatibility settings
-      console.log('[Socket:EMERGENCY] Creating socket with MAXIMUM COMPATIBILITY mode');
+      // Create socket with settings matching server configuration
       this._socket = io(serverUrl, {
-        transports: ['polling', 'websocket'], // Allow polling AND websocket - try both
+        transports: ['polling', 'websocket'], // Try polling first, then websocket
         reconnection: false,                  // We handle reconnection ourselves
-        timeout: 30000,                       // Longer timeout (30sec)
+        timeout: 60000,                       // 60 second timeout (matching server)
         forceNew: true,                       // Always create a new connection
         autoConnect: true,                    // Connect immediately
-        withCredentials: false,               // Don't send cookies - can cause CORS issues
-        path: '/socket.io/',                  // Use default Socket.IO path
+        path: '/socket.io/',                  // Default Socket.IO path
         query: {                              // Query params for debugging
-          client: 'emergency-v3',
-          time: Date.now().toString(),
-          transport: 'compatibility-mode'
+          client: 'production',
+          time: Date.now().toString()
         }
       });
       
-      // Log success creating socket object
-      console.log('[Socket:EMERGENCY] Socket object created successfully');
+      console.log('[Socket] Socket connection created, waiting for connection...');
     } catch (err) {
-      console.error('[Socket:EMERGENCY] Failed to create socket:', err);
+      console.error('[Socket] Failed to create socket connection:', err);
       this._connecting = false;
       this._notifyConnectionStatus(false);
       this._notifyError({ message: 'Failed to create connection: ' + (err instanceof Error ? err.message : 'Unknown error') });

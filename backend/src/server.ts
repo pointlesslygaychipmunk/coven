@@ -24,10 +24,22 @@ const gameHandler = new GameHandler();
 const isProduction = process.env.NODE_ENV === 'production';
 console.log(`[Server] Running in ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode`);
 
-// EMERGENCY: Allow all origins for testing
+// PRODUCTION CORS CONFIGURATION - FIXED FOR PLAYCOVEN.COM
 const corsOptions = {
-  // Allow all origins temporarily to debug connection issues
-  origin: '*', // Allow all origins
+  // Set specific allowed origins for production
+  origin: isProduction ? 
+    // Production domains - MUST match your actual domain exactly
+    [
+      'https://playcoven.com',
+      'http://playcoven.com',
+      'https://www.playcoven.com',
+      'http://www.playcoven.com',
+      // Allow direct IP access if needed
+      'http://localhost:3000',
+      'http://localhost:8080',
+      'https://localhost:8443'
+    ] : 
+    '*', // In development, allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
