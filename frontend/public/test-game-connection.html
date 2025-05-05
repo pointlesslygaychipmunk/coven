@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witch's Coven - Connection Test</title>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #5a2a82;
+      text-align: center;
+    }
+    .status-box {
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .connected { background-color: #d4edda; color: #155724; }
+    .disconnected { background-color: #f8d7da; color: #721c24; }
+    .connecting { background-color: #fff3cd; color: #856404; }
+    button {
+      background-color: #5a2a82;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 16px;
+    }
+    button:disabled {
+      background-color: #b5a2c8;
+      cursor: not-allowed;
+    }
+    .log {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+      margin-top: 20px;
+    }
+    .controls {
+      text-align: center;
+      margin: 15px 0;
+    }
+    .error {
+      color: #721c24;
+      margin: 10px 0;
+    }
+    .info-box {
+      background-color: #e2f0fb;
+      border-left: 5px solid #0c63e4;
+      padding: 15px;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Witch's Coven Connection Test</h1>
+    
+    <div id="status" class="status-box disconnected">Disconnected</div>
+    
+    <div class="info-box">
+      This page tests your connection to the Witch's Coven game server using the same configuration as the actual game.
+    </div>
+    
+    <div class="controls">
+      <button id="connect">Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
+      <button id="join-game" disabled>Join Game</button>
+    </div>
+    
+    <div id="error" class="error"></div>
+    
+    <div id="connection-info"></div>
+    
+    <h3>Connection Log</h3>
+    <div id="log" class="log"></div>
+  </div>
+  
+  <script>
+    // Elements
+    const statusEl = document.getElementById('status');
+    const connectBtn = document.getElementById('connect');
+    const disconnectBtn = document.getElementById('disconnect');
+    const joinGameBtn = document.getElementById('join-game');
+    const errorEl = document.getElementById('error');
+    const connectionInfoEl = document.getElementById('connection-info');
+    const logEl = document.getElementById('log');
+    
+    // State
+    let socket = null;
+    let connected = false;
+    
+    // Log function
+    function log(message, type = 'info') {
+      const now = new Date().toTimeString().split(' ')[0];
+      const entry = document.createElement('div');
+      entry.textContent = `[${now}] ${message}`;
+      entry.className = type;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+      
+      // Also console log for debugging
+      console.log(`[${type}] ${message}`);
+    }
+    
+    // Update status
+    function updateStatus(text, className) {
+      statusEl.textContent = text;
+      statusEl.className = `status-box ${className}`;
+    }
+    
+    // Update error
+    function updateError(message) {
+      errorEl.textContent = message || '';
+    }
+    
+    // Update connection info
+    function updateConnectionInfo() {
+      if (!socket) {
+        connectionInfoEl.innerHTML = '<p>Not connected to server</p>';
+        return;
+      }
+      
+      connectionInfoEl.innerHTML = `
+        <h3>Connection Details</h3>
+        <p><strong>Socket ID:</strong> ${socket.id || 'Not available'}</p>
+        <p><strong>Transport:</strong> ${socket.io?.engine?.transport?.name || 'Not available'}</p>
+        <p><strong>Protocol:</strong> ${window.location.protocol}</p>
+        <p><strong>Connected:</strong> ${socket.connected ? 'Yes' : 'No'}</p>
+      `;
+    }
+    
+    // Update button states
+    function updateButtons() {
+      connectBtn.disabled = connected;
+      disconnectBtn.disabled = !connected;
+      joinGameBtn.disabled = !connected;
+    }
+    
+    // Connect to server
+    async function connect() {
+      // Update UI
+      updateStatus('Connecting...', 'connecting');
+      updateError('');
+      connectBtn.disabled = true;
+      
+      log('Initializing Socket.IO connection...');
+      
+      // Server URL - use current origin for correct Cloudflare routing
+      const serverUrl = window.location.origin;
+      log(`Connecting to server at: ${serverUrl}`);
+      
+      try {
+        // Configure Socket.IO with optimal Cloudflare settings
+        const timestamp = Date.now().toString();
+        
+        socket = io(serverUrl, {
+          transports: ['polling'],              // POLLING ONLY
+          reconnection: false,                  // We handle reconnection
+          timeout: 120000,                      // 2 minute timeout
+          forceNew: true,                       // Always create a new connection
+          autoConnect: true,                    // Connect immediately
+          path: '/socket.io/',                  // Default Socket.IO path
+          extraHeaders: {                       // Headers for Cloudflare compatibility
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'X-Cloudflare-Skip-Cache': 'true',
+            'X-Socket-Transport': 'polling',
+            'X-Socket-Retry': '0',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': '*/*'
+          },
+          query: {                              // Query parameters
+            client: 'test-game-connection',
+            time: timestamp,
+            nocache: timestamp,
+            transport: 'polling'
+          }
+        });
+        
+        log('Socket.IO instance created, waiting for connection...');
+        
+        // Set up event listeners
+        socket.on('connect', () => {
+          log(`Socket.IO connected successfully! ID: ${socket.id}`, 'success');
+          
+          connected = true;
+          updateStatus('Connected', 'connected');
+          updateError('');
+          updateButtons();
+          updateConnectionInfo();
+        });
+        
+        socket.on('connect_error', (err) => {
+          log(`Connection error: ${err.message}`, 'error');
+          
+          connected = false;
+          updateStatus('Connection Failed', 'disconnected');
+          updateError(`Connection error: ${err.message}`);
+          updateButtons();
+          updateConnectionInfo();
+        });
+        
+        socket.on('disconnect', (reason) => {
+          log(`Disconnected: ${reason}`, 'error');
+          
+          connected = false;
+          updateStatus('Disconnected', 'disconnected');
+          updateError(`Disconnected: ${reason}`);
+          updateButtons();
+          updateConnectionInfo();
+        });
+        
+        socket.on('error', (error) => {
+          log(`Socket error: ${error?.message || 'Unknown error'}`, 'error');
+          updateError(`Socket error: ${error?.message || 'Unknown error'}`);
+        });
+        
+        // Game-specific event handlers
+        socket.on('player:joined', (data) => {
+          log(`Player joined: ${JSON.stringify(data)}`, 'success');
+        });
+        
+        socket.on('game:state', (state) => {
+          log(`Received game state with ${Object.keys(state).length} properties`, 'success');
+        });
+        
+        socket.on('player:list', (players) => {
+          log(`Received player list with ${players.length} players`, 'success');
+        });
+        
+        socket.on('pong', (data) => {
+          log(`Received pong response: ${JSON.stringify(data)}`, 'success');
+        });
+        
+      } catch (err) {
+        log(`Error creating socket: ${err.message}`, 'error');
+        
+        connected = false;
+        updateStatus('Connection Failed', 'disconnected');
+        updateError(`Failed to create socket: ${err.message}`);
+        updateButtons();
+      }
+    }
+    
+    // Disconnect from server
+    function disconnect() {
+      if (!socket) {
+        return;
+      }
+      
+      log('Disconnecting from server...');
+      
+      try {
+        socket.disconnect();
+        socket = null;
+        
+        connected = false;
+        updateStatus('Disconnected', 'disconnected');
+        updateError('');
+        updateButtons();
+        updateConnectionInfo();
+        
+        log('Disconnected successfully');
+      } catch (err) {
+        log(`Error disconnecting: ${err.message}`, 'error');
+        updateError(`Error disconnecting: ${err.message}`);
+      }
+    }
+    
+    // Join game
+    function joinGame() {
+      if (!socket || !connected) {
+        log('Cannot join game - not connected to server', 'error');
+        return;
+      }
+      
+      try {
+        // Generate a random player name
+        const playerName = `TestPlayer_${Math.floor(Math.random() * 10000)}`;
+        log(`Joining game as: ${playerName}`);
+        
+        // Send join request
+        socket.emit('player:join', { playerName });
+      } catch (err) {
+        log(`Error joining game: ${err.message}`, 'error');
+        updateError(`Error joining game: ${err.message}`);
+      }
+    }
+    
+    // Button event listeners
+    connectBtn.addEventListener('click', connect);
+    disconnectBtn.addEventListener('click', disconnect);
+    joinGameBtn.addEventListener('click', joinGame);
+    
+    // Initial setup
+    updateStatus('Disconnected', 'disconnected');
+    updateButtons();
+    updateConnectionInfo();
+    
+    log('Connection test page loaded. Click "Connect" to begin.');
+    console.log('Connection test page loaded. Socket.IO version:', io.version);
+  </script>
+</body>
+</html>

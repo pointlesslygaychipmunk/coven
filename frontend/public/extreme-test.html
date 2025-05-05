@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXTREME CONNECTION TEST</title>
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      text-align: center;
+      font-weight: bold;
+    }
+    .connected { background-color: #d4edda; color: #155724; }
+    .disconnected { background-color: #f8d7da; color: #721c24; }
+    .connecting { background-color: #fff3cd; color: #856404; }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:disabled {
+      background-color: #cccccc;
+    }
+    .log {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      background-color: #f8f8f8;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .title {
+      color: #333;
+      text-align: center;
+    }
+    .subtitle {
+      color: #666;
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+    .controls {
+      text-align: center;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">EXTREME CONNECTION TEST</h1>
+    <div class="subtitle">This is a completely stripped-down test that bypasses all game code</div>
+    
+    <div id="status" class="status disconnected">Disconnected</div>
+    
+    <div class="controls">
+      <button id="connect-btn">Connect</button>
+      <button id="disconnect-btn" disabled>Disconnect</button>
+      <button id="ping-btn" disabled>Send Ping</button>
+      <button id="join-btn" disabled>Join Game</button>
+    </div>
+    
+    <div>
+      <h3>Latest Message:</h3>
+      <pre id="message">No messages received yet</pre>
+    </div>
+    
+    <h3>Connection Log:</h3>
+    <div id="log" class="log"></div>
+  </div>
+  
+  <script>
+    // Elements
+    const statusEl = document.getElementById('status');
+    const connectBtn = document.getElementById('connect-btn');
+    const disconnectBtn = document.getElementById('disconnect-btn');
+    const pingBtn = document.getElementById('ping-btn');
+    const joinBtn = document.getElementById('join-btn');
+    const messageEl = document.getElementById('message');
+    const logEl = document.getElementById('log');
+    
+    // State
+    let socket = null;
+    let connected = false;
+    
+    // Log function
+    function log(message, type = 'info') {
+      const now = new Date().toTimeString().split(' ')[0];
+      const entry = document.createElement('div');
+      entry.textContent = `[${now}] ${message}`;
+      if (type === 'error') entry.style.color = 'red';
+      if (type === 'success') entry.style.color = 'green';
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+      
+      console.log(`[${type}] ${message}`);
+    }
+    
+    // Update status
+    function updateStatus(text, className) {
+      statusEl.textContent = text;
+      statusEl.className = `status ${className}`;
+    }
+    
+    // Update buttons
+    function updateButtons() {
+      connectBtn.disabled = connected;
+      disconnectBtn.disabled = !connected;
+      pingBtn.disabled = !connected;
+      joinBtn.disabled = !connected;
+    }
+    
+    // Update message
+    function updateMessage(data) {
+      messageEl.textContent = JSON.stringify(data, null, 2);
+    }
+    
+    // Connect function - ABSOLUTE MINIMUM CONFIGURATION
+    function connect() {
+      if (socket) {
+        try {
+          socket.disconnect();
+          socket = null;
+        } catch (e) {
+          // Ignore errors
+        }
+      }
+      
+      log('Connecting to server...');
+      updateStatus('Connecting...', 'connecting');
+      
+      // Create socket with absolute minimum settings
+      try {
+        // BARE MINIMUM: Just create a socket with polling transport
+        socket = io(window.location.origin, {
+          transports: ['polling']
+        });
+        
+        // Setup event handlers
+        socket.on('connect', () => {
+          connected = true;
+          updateStatus('Connected', 'connected');
+          updateButtons();
+          log(`Connected successfully! Socket ID: ${socket.id}`, 'success');
+        });
+        
+        socket.on('disconnect', (reason) => {
+          connected = false;
+          updateStatus(`Disconnected: ${reason}`, 'disconnected');
+          updateButtons();
+          log(`Disconnected: ${reason}`, 'error');
+        });
+        
+        socket.on('connect_error', (error) => {
+          connected = false;
+          updateStatus(`Connection error: ${error.message}`, 'disconnected');
+          updateButtons();
+          log(`Connection error: ${error.message}`, 'error');
+        });
+        
+        socket.on('error', (error) => {
+          log(`Socket error: ${error.message || 'Unknown error'}`, 'error');
+        });
+        
+        // Game event handlers
+        socket.on('server:ack', (data) => {
+          log(`Received server acknowledgment: ${data.socketId}`, 'success');
+          updateMessage(data);
+        });
+        
+        socket.on('pong', (data) => {
+          log(`Received pong response with ${Object.keys(data).length} properties`, 'success');
+          updateMessage(data);
+        });
+        
+        socket.on('player:joined', (data) => {
+          log(`Player joined: ${data.playerId} (${data.playerName})`, 'success');
+          updateMessage(data);
+        });
+        
+        socket.on('player:list', (data) => {
+          log(`Received player list with ${data.length} players`, 'success');
+          updateMessage(data);
+        });
+        
+        socket.on('game:state', (data) => {
+          log(`Received game state with ${Object.keys(data).length} keys`, 'success');
+          updateMessage(data);
+        });
+      } catch (err) {
+        log(`Error creating socket: ${err.message}`, 'error');
+        updateStatus(`Error: ${err.message}`, 'disconnected');
+      }
+    }
+    
+    // Disconnect function
+    function disconnect() {
+      if (!socket) return;
+      
+      log('Disconnecting...');
+      
+      try {
+        socket.disconnect();
+        socket = null;
+        connected = false;
+        
+        updateStatus('Disconnected', 'disconnected');
+        updateButtons();
+        
+        log('Disconnected successfully');
+      } catch (err) {
+        log(`Error disconnecting: ${err.message}`, 'error');
+      }
+    }
+    
+    // Send ping
+    function sendPing() {
+      if (!socket || !connected) return;
+      
+      const data = { timestamp: Date.now() };
+      log(`Sending ping with timestamp: ${data.timestamp}`);
+      
+      socket.emit('ping', data);
+    }
+    
+    // Join game
+    function joinGame() {
+      if (!socket || !connected) return;
+      
+      const name = `Player_${Math.floor(Math.random() * 1000)}`;
+      log(`Joining game as: ${name}`);
+      
+      socket.emit('player:join', { playerName: name });
+    }
+    
+    // Event listeners
+    connectBtn.addEventListener('click', connect);
+    disconnectBtn.addEventListener('click', disconnect);
+    pingBtn.addEventListener('click', sendPing);
+    joinBtn.addEventListener('click', joinGame);
+    
+    // Initial log
+    log('Extreme connection test loaded. Click "Connect" to start.');
+  </script>
+</body>
+</html>

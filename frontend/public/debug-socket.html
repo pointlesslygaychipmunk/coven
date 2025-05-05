@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO Connection Debugger</title>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .success { background-color: #d4edda; color: #155724; }
+    .error { background-color: #f8d7da; color: #721c24; }
+    .info { background-color: #d1ecf1; color: #0c5460; }
+    .log {
+      height: 300px;
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 10px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      font-size: 12px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #6c757d;
+    }
+    .small {
+      font-size: 12px;
+      color: #6c757d;
+    }
+    .header { 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Socket.IO Connection Debugger</h1>
+  
+  <div class="status info" id="status">Waiting to connect...</div>
+  
+  <div class="header">
+    <div>
+      <button id="connect">Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
+    </div>
+    <div>
+      <label><input type="checkbox" id="emergency"> Emergency Mode</label>
+    </div>
+  </div>
+  
+  <h3>Connection Info</h3>
+  <div id="connection-info"></div>
+  
+  <h3>Test Actions</h3>
+  <button id="ping" disabled>Send Ping</button>
+  <button id="join" disabled>Join Game</button>
+  
+  <h3>Log</h3>
+  <div class="log" id="log"></div>
+  
+  <script>
+    // Elements
+    const status = document.getElementById('status');
+    const connectBtn = document.getElementById('connect');
+    const disconnectBtn = document.getElementById('disconnect');
+    const pingBtn = document.getElementById('ping');
+    const joinBtn = document.getElementById('join');
+    const emergencyMode = document.getElementById('emergency');
+    const connectionInfo = document.getElementById('connection-info');
+    const log = document.getElementById('log');
+    
+    // Variables
+    let socket = null;
+    
+    // Log function with time
+    function addLog(message, type = 'info') {
+      const time = new Date().toTimeString().split(' ')[0];
+      const logItem = document.createElement('div');
+      logItem.innerHTML = `[${time}] ${message}`;
+      logItem.className = type;
+      log.appendChild(logItem);
+      log.scrollTop = log.scrollHeight;
+      
+      // Also console log for debugging
+      console.log(`[${type}] ${message}`);
+    }
+    
+    // Update status
+    function updateStatus(message, type) {
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    // Update connection info
+    function updateConnectionInfo() {
+      if (!socket) {
+        connectionInfo.innerHTML = '<p>Not connected</p>';
+        return;
+      }
+      
+      connectionInfo.innerHTML = `
+        <p><strong>Socket ID:</strong> ${socket.id || 'N/A'}</p>
+        <p><strong>Transport:</strong> ${socket.io?.engine?.transport?.name || 'N/A'}</p>
+        <p><strong>Connected:</strong> ${socket.connected ? 'Yes' : 'No'}</p>
+        <p><strong>Namespace:</strong> ${socket.nsp || '/'}</p>
+      `;
+    }
+    
+    // Connect to server
+    function connect() {
+      if (socket) {
+        socket.disconnect();
+      }
+      
+      addLog('Attempting to connect to server...', 'info');
+      updateStatus('Connecting...', 'info');
+      
+      // Disable connect button
+      connectBtn.disabled = true;
+      
+      // Get origin
+      const serverUrl = window.location.origin;
+      
+      // Connection options
+      const options = {
+        transports: ['polling'],
+        reconnection: false,
+        timeout: 120000,
+        forceNew: true,
+        autoConnect: true,
+        path: '/socket.io/',
+        query: {
+          client: emergencyMode.checked ? 'emergency-debug' : 'debug',
+          time: Date.now().toString(),
+          transport: 'polling'
+        }
+      };
+      
+      // Extra headers for Cloudflare
+      if (emergencyMode.checked) {
+        options.extraHeaders = {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'X-Cloudflare-Skip-Cache': 'true',
+          'X-Socket-Emergency': 'true'
+        };
+      }
+      
+      addLog(`Connecting to: ${serverUrl} with options: ${JSON.stringify(options)}`, 'info');
+      
+      try {
+        // Create socket
+        socket = io(serverUrl, options);
+        
+        // Setup listeners
+        socket.on('connect', () => {
+          addLog(`Connected successfully! Socket ID: ${socket.id}`, 'success');
+          updateStatus('Connected', 'success');
+          
+          // Enable buttons
+          disconnectBtn.disabled = false;
+          pingBtn.disabled = false;
+          joinBtn.disabled = false;
+          connectBtn.disabled = true;
+          
+          // Update connection info
+          updateConnectionInfo();
+        });
+        
+        socket.on('connect_error', (err) => {
+          addLog(`Connection error: ${err.message}`, 'error');
+          updateStatus(`Connection error: ${err.message}`, 'error');
+          
+          // Reset buttons
+          disconnectBtn.disabled = true;
+          pingBtn.disabled = true;
+          joinBtn.disabled = true;
+          connectBtn.disabled = false;
+          
+          // Update connection info
+          updateConnectionInfo();
+        });
+        
+        socket.on('disconnect', (reason) => {
+          addLog(`Disconnected: ${reason}`, 'error');
+          updateStatus(`Disconnected: ${reason}`, 'error');
+          
+          // Reset buttons
+          disconnectBtn.disabled = true;
+          pingBtn.disabled = true;
+          joinBtn.disabled = true;
+          connectBtn.disabled = false;
+          
+          // Update connection info
+          updateConnectionInfo();
+        });
+        
+        socket.on('error', (error) => {
+          addLog(`Socket error: ${error.message || 'Unknown error'}`, 'error');
+        });
+        
+        socket.on('pong', (data) => {
+          addLog(`Received pong with data: ${JSON.stringify(data)}`, 'success');
+        });
+        
+        socket.on('player:joined', (data) => {
+          addLog(`Player joined: ${JSON.stringify(data)}`, 'success');
+        });
+        
+        socket.on('game:state', (state) => {
+          addLog(`Received game state with ${Object.keys(state).length} keys`, 'success');
+        });
+        
+      } catch (err) {
+        addLog(`Error creating socket: ${err.message}`, 'error');
+        updateStatus(`Error: ${err.message}`, 'error');
+        connectBtn.disabled = false;
+      }
+    }
+    
+    // Disconnect from server
+    function disconnect() {
+      if (!socket) {
+        return;
+      }
+      
+      addLog('Disconnecting from server...', 'info');
+      
+      socket.disconnect();
+      socket = null;
+      
+      // Reset buttons
+      disconnectBtn.disabled = true;
+      pingBtn.disabled = true;
+      joinBtn.disabled = true;
+      connectBtn.disabled = false;
+      
+      updateStatus('Disconnected', 'info');
+      updateConnectionInfo();
+    }
+    
+    // Send ping
+    function sendPing() {
+      if (!socket || !socket.connected) {
+        addLog('Cannot send ping - not connected', 'error');
+        return;
+      }
+      
+      const timestamp = Date.now();
+      addLog(`Sending ping with timestamp: ${timestamp}`, 'info');
+      
+      socket.emit('ping', { timestamp });
+    }
+    
+    // Join game
+    function joinGame() {
+      if (!socket || !socket.connected) {
+        addLog('Cannot join game - not connected', 'error');
+        return;
+      }
+      
+      const playerName = `DebugPlayer_${Math.floor(Math.random() * 1000)}`;
+      addLog(`Joining game as: ${playerName}`, 'info');
+      
+      socket.emit('player:join', { playerName });
+    }
+    
+    // Button event listeners
+    connectBtn.addEventListener('click', connect);
+    disconnectBtn.addEventListener('click', disconnect);
+    pingBtn.addEventListener('click', sendPing);
+    joinBtn.addEventListener('click', joinGame);
+    
+    // Emergency checkbox
+    emergencyMode.addEventListener('change', () => {
+      addLog(`Emergency mode ${emergencyMode.checked ? 'enabled' : 'disabled'}`, 'info');
+    });
+    
+    // Initial log
+    addLog('Socket.IO Connection Debugger loaded', 'info');
+    addLog(`Using Socket.IO v${io.version}`, 'info');
+  </script>
+</body>
+</html>
